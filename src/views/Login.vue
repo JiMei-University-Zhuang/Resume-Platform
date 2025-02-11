@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { useCalcInputWidth } from 'element-plus'
-import { ca } from 'element-plus/es/locale'
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 
@@ -30,7 +28,7 @@ const handleLogin = async (formEl: any) => {
       // 这里添加登录逻辑
       setTimeout(() => {
         loading.value = false
-        router.push('/home')
+        router.push('/dashboard')
       }, 1000)
     }
   })
@@ -46,39 +44,45 @@ const gotoRegister = () => {
   router.push('/register')
 }
 
-
+const activeTab = ref('account')
 
 </script>
 
 <template>
   <div class="login-container">
     <div class="login-box">
-      <h2>后台管理系统</h2>
-      <el-form ref="loginFormRef" :model="loginForm" :rules="rules" class="login-form">
-        <el-form-item prop="username" label="用户名:">
-          <el-input v-model="loginForm.username" placeholder="请输入用户名" />
-        </el-form-item>
-        <el-form-item prop="password" label="密码:&emsp;">
-          <el-input v-model="loginForm.password" type="password" placeholder="请输入密码" show-password />
-        </el-form-item>
-        <el-form-item label="验证码:" prop="captcha" class="captcha-form-item">
-          <el-input v-model="loginForm.captcha" placeholder="请输入验证码" class="captcha-input" />
-          <img :src="verifyCode" title="点击切换验证码" @click="changeverifyCode" class="captcha-img" />
-        </el-form-item>
-        <el-form-item>
-          <el-button type="submit" :loading="loading" class="login-button" @click="handleLogin(loginFormRef)">
-            登录
-          </el-button>
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" class="login-button"  id="register"  @click="gotoRegister">
+      <h2>AI管理平台</h2>
+      <el-tabs v-model="activeTab" class="login-tabs">
+        <el-tab-pane label="账号登录" name="account">
+          <el-form ref="loginFormRef" :model="loginForm" :rules="rules" class="login-form">
+            <el-form-item prop="username" label="用户名:">
+              <el-input v-model="loginForm.username" placeholder="请输入用户名" />
+            </el-form-item>
+            <el-form-item prop="password" label="密码:&emsp;">
+              <el-input v-model="loginForm.password" type="password" placeholder="请输入密码" show-password />
+            </el-form-item>
+            <el-form-item label="验证码:" prop="captcha" class="captcha-form-item">
+              <el-input v-model="loginForm.captcha" placeholder="请输入验证码" class="captcha-input" />
+              <img :src="verifyCode" title="点击切换验证码" @click="changeverifyCode" class="captcha-img" />
+            </el-form-item>
+            <el-form-item>
+              <el-button type="primary" :loading="loading" class="login-button" @click="handleLogin(loginFormRef)">
+                登录
+              </el-button>
+            </el-form-item>
+            <el-form-item>
+          <el-button class="login-button"  id="register"  @click="gotoRegister">
             注册
           </el-button>
         </el-form-item>
-
-
-
-      </el-form>
+          </el-form>
+        </el-tab-pane>
+        <el-tab-pane label="人脸登录" name="face">
+          <div class="face-login-container">
+            <p>预留口子</p>
+          </div>
+        </el-tab-pane>
+      </el-tabs>
     </div>
   </div>
 </template>
@@ -99,7 +103,7 @@ const gotoRegister = () => {
 .login-box {
   position: absolute;
   right: 150px;
-  width: 300px;
+  width: 400px;
   padding: 30px 40px;
   background: white;
   border-radius: 8px;
@@ -109,7 +113,7 @@ const gotoRegister = () => {
 .login-box h2 {
   text-align: center;
   color: #303133;
-  margin-bottom: 30px;
+  margin-bottom: 20px;
 }
 
 .login-form {
@@ -121,7 +125,7 @@ const gotoRegister = () => {
   padding: 18px 0;
   margin-top: 18px;
 }
-#register{
+#register {
   margin-top: 0px;
 }
 
@@ -149,5 +153,26 @@ const gotoRegister = () => {
 
 :deep(.el-input__inner) {
   height: 40px;
+}
+
+.login-tabs {
+  margin-bottom: 20px;
+}
+
+:deep(.el-tabs__nav) {
+  width: 100%;
+}
+
+:deep(.el-tabs__item) {
+  width: 50%;
+  text-align: center;
+}
+
+.face-login-container {
+  min-height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #909399;
 }
 </style>
