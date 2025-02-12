@@ -1,24 +1,62 @@
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
+import { ElMessage } from 'element-plus'
+import { watch } from 'vue'
 
 const router = useRouter()
 
+//登录表单
 const loginFormRef = ref()
 const loginForm = reactive({
   username: '',
   password: '',
   captcha: ''
 })
-
-const loading = ref(false)
-
-const rules = {
+const loginrules = {
   username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
   password: [{ required: true, message: '请输入密码', trigger: 'blur' }],
   captcha: [{ required: true, message: '请输入验证码', trigger: 'blur' }]
 }
 
+
+//注册表单
+const registerFormRef = ref()
+const registerForm = reactive({
+  username: '',
+  password: '',
+  confirmPassword: ''
+})
+const registerrules = {
+  username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
+  password: [{ required: true, message: '请输入密码', trigger: 'blur' }],
+  confirmPassword: [
+    { required: true, message: '请再次输入密码', trigger: 'blur' },
+    {
+      validator: (rule: any, value: string, callback: any) => {
+        if (value !== registerForm.password) {
+          callback(new Error('两次输入的密码不一致'))
+        } else {
+          callback()
+        }
+      },
+      trigger: 'blur'
+    },
+  ]
+}
+const loading = ref(false)
+
+
+//验证码
+const verifyCode = ref('')
+const changeverifyCode = () => {
+  //路径待改，先
+  verifyCode.value = 'https://www.baidu.com/img/bd_logo1.png'
+}
+
+const activeTab = ref('account')
+
+//登录逻辑
 const handleLogin = async (formEl: any) => {
   if (!formEl) return
 
@@ -34,27 +72,55 @@ const handleLogin = async (formEl: any) => {
   })
 }
 
-const verifyCode = ref('')
-const changeverifyCode = () => {
-  //路径待改，先
-  verifyCode.value = 'https://www.baidu.com/img/bd_logo1.png'
-}
-const gotoRegister = () => {
-  //注册页面
-  router.push('/register')
+//注册逻辑
+const handleRegister = async (formEl: any) => {
+  if (!formEl) return
+
+  await formEl.validate((valid: boolean) => {
+    if (valid) {
+      // 模拟注册成功逻辑
+      ElMessage.success('注册成功，请登录！')
+      setTimeout(() => {
+        gotoLogin() // 跳转到登录页面
+      }, 1500) // 延迟 1.5 秒跳转
+    }
+  })
 }
 
-const activeTab = ref('account')
+
+
+
+const isLogin = ref(true)
+const gotoRegister = () => {
+  //切换到注册页面
+  isLogin.value = false
+
+}
+const gotoLogin = () => {
+  //切换到登录页面
+  isLogin.value = true
+}
+
+watch(isLogin, (newVal) => {
+  if (!newVal) {
+    // 当切换到注册页面时，清空注册表单
+    registerForm.username = ''
+    registerForm.password = ''
+    registerForm.confirmPassword = ''
+  }
+})
+
+
 
 </script>
 
 <template>
   <div class="login-container">
-    <div class="login-box">
+    <div class="login-box" v-if="isLogin">
       <h2>AI管理平台</h2>
       <el-tabs v-model="activeTab" class="login-tabs">
         <el-tab-pane label="账号登录" name="account">
-          <el-form ref="loginFormRef" :model="loginForm" :rules="rules" class="login-form">
+          <el-form ref="loginFormRef" :model="loginForm" :rules="loginrules" class="login-form">
             <el-form-item prop="username" label="用户名:">
               <el-input v-model="loginForm.username" placeholder="请输入用户名" />
             </el-form-item>
@@ -69,12 +135,11 @@ const activeTab = ref('account')
               <el-button type="primary" :loading="loading" class="login-button" @click="handleLogin(loginFormRef)">
                 登录
               </el-button>
+              <el-button class="login-button" @click="gotoRegister" style="margin-left: 0;">
+                注册
+              </el-button>
             </el-form-item>
-            <el-form-item>
-          <el-button class="login-button"  id="register"  @click="gotoRegister">
-            注册
-          </el-button>
-        </el-form-item>
+
           </el-form>
         </el-tab-pane>
         <el-tab-pane label="人脸登录" name="face">
@@ -84,10 +149,47 @@ const activeTab = ref('account')
         </el-tab-pane>
       </el-tabs>
     </div>
+
+    <!-- 注册页面 -->
+    <div class="register-box" v-else>
+      <h2>新用户注册</h2>
+      <el-form class="register-form" ref="registerFormRef" :model="registerForm" :rules="registerrules">
+        <el-form-item prop="username" label="用户名:&emsp;">
+          <el-input v-model="registerForm.username" placeholder="请输入用户名" />
+        </el-form-item>
+        <el-form-item prop="password" label="密码:&emsp;&emsp;">
+          <el-input v-model="registerForm.password" type="password" placeholder="请输入密码" show-password />
+        </el-form-item>
+        <el-form-item prop="confirmPassword" label="确认密码:">
+          <el-input v-model="registerForm.confirmPassword" type="password" placeholder="请再次输入密码" show-password />
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" class="login-button" id="register" @click="handleRegister(registerFormRef)">
+            注册
+          </el-button>
+        </el-form-item>
+        <el-form-item>
+          <span class="account-tip">
+            已有账号？
+            <el-link type="primary" class="back-to-login" @click="gotoLogin">
+              立即登录
+            </el-link>
+          </span>
+        </el-form-item>
+      </el-form>
+    </div>
+
+
+
+
   </div>
 </template>
 
 <style scoped>
+.el-form-item {
+  width: 100%;
+}
+
 .login-container {
   height: 100vh;
 
@@ -98,22 +200,28 @@ const activeTab = ref('account')
   background-size: 100% 100%;
   background-repeat: no-repeat;
   position: relative;
+
 }
 
-.login-box {
+.login-box,
+.register-box {
   position: absolute;
   right: 150px;
-  width: 400px;
+  width: 350px;
   padding: 30px 40px;
   background: white;
   border-radius: 8px;
-  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 12px 8px rgba(148, 183, 205, 0.4);
+
 }
 
-.login-box h2 {
+.login-box h2,
+.register-box h2 {
   text-align: center;
-  color: #303133;
-  margin-bottom: 20px;
+  /* 遗留问题，字体颜色 */
+  /* background-color:linear-gradient(160deg, #6CF9D3, #1849ea); */
+
+  margin-bottom: 50px;
 }
 
 .login-form {
@@ -125,26 +233,40 @@ const activeTab = ref('account')
   padding: 18px 0;
   margin-top: 18px;
 }
+
 #register {
-  margin-top: 0px;
+  margin-top: 30px;
+  background: linear-gradient(160deg, #6CF9D3, #1849ea);
+  border: none;
+  margin-bottom: 10px;
 }
 
-.captcha-form-item{
+.captcha-form-item {
   display: flex;
   align-items: center;
 }
-.captcha-input{
-  
+
+.captcha-input {
+
   width: calc(100% - 90px);
   height: 40px;
 }
-.captcha-img{
+
+.captcha-img {
   width: 80px;
   height: 40px;
   font-size: 8px;
   padding-left: 10px;
-  
+
 }
+
+.account-tip {
+
+  position: absolute;
+  right: 0;
+
+}
+
 
 
 :deep(.el-input__wrapper) {
