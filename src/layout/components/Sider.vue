@@ -16,7 +16,7 @@
           <template #title>首页</template>
         </el-menu-item>
 
-        <el-menu-item index="/guide">
+        <el-menu-item index="/dashboard/guide">
           <el-icon><Position /></el-icon>
           <template #title>引导页</template>
         </el-menu-item>

@@ -4,6 +4,7 @@
     <div class="main" :class="{ 'collapsed': layoutStore.collapsed }">
       <LayoutHeader />
       <main class="content">
+        <Breadcrumb />
         <router-view></router-view>
       </main>
     </div>
@@ -14,6 +15,7 @@
 import LayoutSider from './components/Sider.vue'
 import LayoutHeader from './components/Header.vue'
 import { useLayoutStore } from '@/stores/useLayoutStore'
+import Breadcrumb from '@/components/Breadcrumb.vue'
 
 const layoutStore = useLayoutStore()
 </script>
