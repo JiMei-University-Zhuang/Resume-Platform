@@ -4,6 +4,7 @@
     <div class="main" :class="{ 'collapsed': layoutStore.collapsed }">
       <LayoutHeader />
       <main class="content">
+        <!-- 展示区 -->
         <router-view></router-view>
       </main>
     </div>

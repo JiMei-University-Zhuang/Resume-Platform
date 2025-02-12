@@ -1,19 +1,24 @@
 <template>
   <header class="header">
     <div class="header-left">
-      <el-icon 
-        class="trigger" 
-        size="24"
-        @click="layoutStore.toggleCollapsed()"
-      >
-        <Expand v-if="!layoutStore.collapsed"/>
-        <Fold v-else/>
+      <el-icon class="trigger" size="24" @click="layoutStore.toggleCollapsed()">
+        <Expand v-if="!layoutStore.collapsed" />
+        <Fold v-else />
       </el-icon>
+      <!-- 面包屑 -->
+      <div class="breadcrumb-container">
+        <el-breadcrumb separator="/">
+          <el-breadcrumb-item v-for="(item, index) in breadcrumbList" :key="index" :to="item.path">
+            {{ item.title }}
+          </el-breadcrumb-item>
+        </el-breadcrumb>
+      </div>
     </div>
+
     <div class="header-right">
       <el-icon class="theme-switch" @click="layoutStore.toggleTheme()">
-        <Sunny v-if="layoutStore.isDark"/>
-        <Moon v-else/>
+        <Sunny v-if="layoutStore.isDark" />
+        <Moon v-else />
       </el-icon>
       <el-dropdown>
         <span class="user-info">
@@ -33,16 +38,32 @@
 
 <script setup lang="ts">
 import { Expand, Fold, Moon, Sunny } from '@element-plus/icons-vue'
-import { useRouter } from 'vue-router'
+import { useRouter ,useRoute} from 'vue-router'
 import { useLayoutStore } from '@/stores/useLayoutStore'
+import { computed } from 'vue'
+
 
 const router = useRouter()
+const route = useRoute()
 const layoutStore = useLayoutStore()
 
 const handleLogout = () => {
   localStorage.removeItem('token')
   router.push('/login')
 }
+
+const breadcrumbList = computed(() => {
+  const matched = route.matched.filter(item => item.meta.title)
+  const breadcrumb = matched.map(item => ({
+    path: item.path,
+    title: item.meta.title as string
+  }))
+  return breadcrumb
+})
+
+
+
+
 </script>
 
 <style scoped>
@@ -53,7 +74,7 @@ const handleLogout = () => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  box-shadow: 0 1px 4px rgba(0,21,41,.08);
+  box-shadow: 0 1px 4px rgba(0, 21, 41, .08);
 }
 
 .header-left {
@@ -99,4 +120,8 @@ const handleLogout = () => {
   margin-left: 8px;
   font-size: 14px;
 }
-</style> 
+.el-breadcrumb {
+  font-size: 14px;
+  line-height: 64px;
+}
+</style>
