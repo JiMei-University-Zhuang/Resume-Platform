@@ -1,40 +1,21 @@
-import js from '@eslint/js'
-import eslintPluginVue from 'eslint-plugin-vue'
+import eslint from '@eslint/js'
 import tseslint from '@typescript-eslint/eslint-plugin'
-import tsparser from '@typescript-eslint/parser'
+import typescript from '@typescript-eslint/parser'
+import vue from 'eslint-plugin-vue'
 
 export default [
-  js.configs.recommended,
+  eslint.configs.recommended,
   {
-    files: ['**/*.vue'],
-    plugins: {
-      vue: eslintPluginVue
-    },
+    files: ['**/*.{js,mjs,cjs,jsx,mjsx,ts,tsx,vue}'],
     languageOptions: {
-      parser: eslintPluginVue.parser
+      parser: typescript,
+      ecmaVersion: 'latest',
+      sourceType: 'module'
     },
-    rules: {
-      ...eslintPluginVue.configs.base.rules,
-      ...eslintPluginVue.configs['vue3-recommended'].rules,
-      'vue/multi-word-component-names': 'off'
-    }
-  },
-  {
-    files: ['**/*.ts', '**/*.tsx'],
     plugins: {
-      '@typescript-eslint': tseslint
+      '@typescript-eslint': tseslint,
+      vue: vue
     },
-    languageOptions: {
-      parser: tsparser,
-      parserOptions: {
-        ecmaVersion: 'latest',
-        sourceType: 'module'
-      }
-    },
-    rules: {
-      ...tseslint.configs.recommended.rules,
-      '@typescript-eslint/no-explicit-any': 'warn',
-      '@typescript-eslint/ban-ts-comment': 'off'
-    }
+    rules: {}
   }
 ]
