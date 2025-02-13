@@ -1,0 +1,1 @@
+import{_ as n,c as o,o as r,b as s}from"./index-BAWvrgEA.js";const t={};function a(c,e){return r(),o("div",null,e[0]||(e[0]=[s("h4",null,"指令权限页面",-1)]))}const m=n(t,[["render",a]]);export{m as default};
