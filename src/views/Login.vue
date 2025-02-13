@@ -31,18 +31,17 @@ const registerrules = {
   username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
   password: [{ required: true, message: '请输入密码', trigger: 'blur' }],
   confirmPassword: [
-    { required: true, message: '请再次输入密码', trigger: 'blur' },
-    {
-      validator: ( value: string, callback: any) => {
-        if (value !== registerForm.password) {
-          callback(new Error('两次输入的密码不一致'))
-        } else {
-          callback()
-        }
-      },
-      trigger: 'blur'
-    },
-  ]
+  { required: true, message: '请确认密码', trigger: 'change' },
+  { validator: 
+    (_rule: any, value: string, callback: (error?: string | Error) => void, source: any) => {
+    if (value !== source.password) {
+      callback(new Error('两次输入的密码不一致!'));
+    } else {
+      callback();
+    }
+  }, trigger: 'change' }
+]
+
 }
 const loading = ref(false)
 
