@@ -44,5 +44,8 @@
     "*.{html,css,less,scss,md}": [
       "prettier --write"
     ]
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }
