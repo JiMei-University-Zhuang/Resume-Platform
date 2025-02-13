@@ -75,7 +75,7 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup lang="ts" name="guide">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 

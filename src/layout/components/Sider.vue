@@ -11,6 +11,8 @@
           <template #title>首页</template>
         </el-menu-item>
 
+
+
         <el-menu-item index="/guide">
           <el-icon>
             <Position />
@@ -18,19 +20,26 @@
           <template #title>引导页</template>
         </el-menu-item>
 
-        <el-sub-menu index="permission">
+
+
+        <el-sub-menu index="/permission">
           <template #title>
             <el-icon>
               <Lock />
             </el-icon>
             <span>权限测试页</span>
           </template>
-          <el-menu-item index="/permission/commandPermission">
-            <span>指令权限</span>
+          <el-menu-item index="/permission/page">
+            <span>页面权限</span>
+          </el-menu-item>
+          <el-menu-item index="/permission/role">
+            <span>角色权限</span>
           </el-menu-item>
         </el-sub-menu>
 
-        <el-sub-menu index="charts">
+
+
+        <el-sub-menu index="/charts">
           <template #title>
             <el-icon>
               <TrendCharts />
@@ -44,10 +53,10 @@
           <el-menu-item index="/charts/pieChart">
             <span>饼状图</span>
           </el-menu-item>
-
         </el-sub-menu>
 
-        <el-sub-menu index="nested">
+
+        <el-sub-menu index="/nested">
           <template #title>
             <el-icon>
               <Operation />
@@ -60,7 +69,8 @@
           </el-menu-item>
         </el-sub-menu>
 
-        <el-sub-menu index="example">
+
+        <el-sub-menu index="/example">
           <template #title>
             <el-icon>
               <Star />
@@ -68,9 +78,12 @@
             <span>综合实例</span>
           </template>
           <!-- 子菜单项 -->
+          <el-menu-item index="/example/dialogue">
+            <span>对话案例</span>
+          </el-menu-item>
         </el-sub-menu>
 
-        <el-sub-menu index="error">
+        <el-sub-menu index="/error">
           <template #title>
             <el-icon>
               <Warning />
@@ -78,10 +91,10 @@
             <span>错误页面</span>
           </template>
           <!-- 子菜单项 -->
-          <el-menu-item index="/error401">
+          <el-menu-item index="/error/error401">
             <span>401</span>
           </el-menu-item>
-          <el-menu-item index="/error404">
+          <el-menu-item index="/error/error404">
             <span>404</span>
           </el-menu-item>
 

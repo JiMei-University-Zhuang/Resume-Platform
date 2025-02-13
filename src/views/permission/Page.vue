@@ -1,11 +1,11 @@
 
 <template>
   <div >
-    <h4>我是引导页</h4>
+    <h4>页面权限页面</h4>
   </div>
   
 </template>
-<script setup lang="ts" name="Guide">
+<script setup lang="ts" name="Page">
 </script>
 
 
