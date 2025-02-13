@@ -1,6 +1,6 @@
 <template>
   <div class="home">
-    <h1>仪表盘</h1>
+    <h1>仪表盘1</h1>
     <div class="home-content">
       <el-row :gutter="20">
         <el-col :span="8">
