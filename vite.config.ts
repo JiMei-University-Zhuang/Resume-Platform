@@ -24,7 +24,6 @@ export default defineConfig({
       }
     }
   },
-  base: '/Z-Admin/',
   build: {
     chunkSizeWarningLimit: 1500,
     rollupOptions: {

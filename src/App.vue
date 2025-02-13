@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import { useLayoutStore } from '@/stores/useLayoutStore'
 
-const layoutStore = useLayoutStore()
 </script>
 
 <template>
