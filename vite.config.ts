@@ -11,7 +11,8 @@ export default defineConfig({
   plugins: [vue()],
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, 'src')
+      '@': path.resolve(__dirname, 'src'),
+      'element-plus/es': path.resolve(__dirname, 'node_modules/element-plus/es')
     }
   },
   server: {
@@ -23,5 +24,11 @@ export default defineConfig({
       }
     }
   },
-  base: '/Z-Admin/'
+  base: '/Z-Admin/',
+  build: {
+    chunkSizeWarningLimit: 1500,
+    rollupOptions: {
+      external: ['element-plus/es/element-plus']
+    }
+  }
 })

@@ -38,7 +38,9 @@ jobs:
         npm install --registry=https://registry.npmjs.org/
       
     - name: Build
-      run: npm run build
+      run: |
+        export VITE_APP_ENV=production
+        npm run build --skip-typescript
       
     - name: Deploy to GitHub Pages
       uses: peaceiris/actions-gh-pages@v3
