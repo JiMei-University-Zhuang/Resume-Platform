@@ -6,7 +6,11 @@
   "scripts": {
     "dev": "vite --open",
     "build": "vue-tsc -b && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "prepare": "husky install",
+    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
+    "format": "prettier --write src/",
+    "lint-staged": "lint-staged"
   },
   "dependencies": {
     "@element-plus/icons-vue": "^2.3.1",
@@ -17,10 +21,26 @@
     "vue-router": "^4.5.0"
   },
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^8.24.0",
+    "@typescript-eslint/parser": "^8.24.0",
     "@vitejs/plugin-vue": "^5.2.1",
     "@vue/tsconfig": "^0.7.0",
+    "eslint": "^9.20.1",
+    "eslint-plugin-vue": "^9.32.0",
+    "husky": "^8.0.3",
+    "lint-staged": "^15.4.3",
+    "prettier": "^3.5.0",
     "typescript": "~5.7.2",
     "vite": "^6.1.0",
     "vue-tsc": "^2.2.0"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,vue}": [
+      "prettier --write",
+      "eslint --fix"
+    ],
+    "*.{html,css,less,scss,md}": [
+      "prettier --write"
+    ]
   }
 }
