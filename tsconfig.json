@@ -18,7 +18,8 @@
     "noFallthroughCasesInSwitch": true,
     "types": ["element-plus/global"],
     "paths": {
-      "element-plus/es/*": ["./node_modules/element-plus/es/*"]
+      "element-plus/es/*": ["./node_modules/element-plus/es/*"],
+      "@/*": ["./src/*"]
     }
   },
   "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"]

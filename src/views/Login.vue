@@ -33,7 +33,7 @@ const registerrules = {
   confirmPassword: [
     { required: true, message: '请再次输入密码', trigger: 'blur' },
     {
-      validator: (rule: any, value: string, callback: any) => {
+      validator: ( value: string, callback: any) => {
         if (value !== registerForm.password) {
           callback(new Error('两次输入的密码不一致'))
         } else {

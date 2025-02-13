@@ -5,6 +5,7 @@
       <LayoutHeader />
       <main class="content">
         <!-- 展示区 -->
+        <Breadcrumb />
         <router-view></router-view>
       </main>
     </div>
