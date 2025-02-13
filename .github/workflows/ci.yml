@@ -1,50 +1,32 @@
-name: CI
+# .github/workflows/deploy.yml
+name: Vue
 
 on:
   push:
-    branches: [ pre ]
-  pull_request:
-    branches: [ pre ]
+    branches:
+      - pre 
 
 jobs:
-  build-and-deploy:
+  build:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
-    
-    - name: Setup Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '18'
-        cache: 'npm'
-        registry-url: 'https://registry.npmjs.org'
-        
-    - name: Debug npm config
-      run: |
-        echo "Current npm configuration:"
-        npm config list
-        
-    - name: Clean npm cache and config
-      run: |
-        npm cache clean --force
-        npm config delete registry
-        npm config set registry https://registry.npmjs.org/
-        echo "Registry after reset:"
-        npm config get registry
-        
-    - name: Install dependencies
-      run: |
-        npm install --registry=https://registry.npmjs.org/
-      
-    - name: Build
-      run: |
-        export VITE_APP_ENV=production
-        npm run build --skip-typescript
-      
-    - name: Deploy to GitHub Pages
-      uses: peaceiris/actions-gh-pages@v3
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./dist
-        force_orphan: true 
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build project
+        run: npm run build
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist  
