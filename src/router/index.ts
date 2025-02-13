@@ -29,12 +29,12 @@ const routes: RouteRecordRaw[] = [
         meta: { title: '引导页' }
       },
       {
-        path: '/permission',
+        path: 'permission',
         name: 'Permission',
         meta: { title: '权限测试页' },
         children: [
           {
-            path: '/permission/commandPermission',
+            path: 'commandPermission',
             name: 'commandPermission',
             component: () => import('@/views/CommandPermission.vue'),
             meta: { title: '页面权限' }
@@ -42,32 +42,32 @@ const routes: RouteRecordRaw[] = [
         ]
       },
       {
-        path: '/charts',
+        path: 'charts',
         name: 'charts',
         meta: { title: '图表' },
         children: [
           {
-            path: '/charts/lineChart',
+            path: 'lineChart',
             name: 'lineChart',
             component: () => import('@/views/LineChart.vue'),
             meta: { title: '折线图' }
           },
           {
-            path: '/charts/pieChart',
+            path: 'pieChart',
             name: 'pieChart',
             component: () => import('@/views/PieChart.vue'),
-            meta: { title: '折线图' }
+            meta: { title: '饼图' }
           }
         ]
       },
       {
-        path: '/nested',
+        path: 'nested',
         name: 'nested',
         meta: { title: '路由嵌套' },
         children: [
           {
-            path: '/nested/page1',
-            name: 'page1111',
+            path: 'page1',
+            name: 'page1',
             component: () => import('@/views/page1.vue'),
             meta: { title: '代替' }
           }
