@@ -3,6 +3,7 @@ import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { watch } from 'vue'
+import { login } from '@/api/user'
 
 const router = useRouter()
 
@@ -31,46 +32,76 @@ const registerrules = {
   username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
   password: [{ required: true, message: '请输入密码', trigger: 'blur' }],
   confirmPassword: [
-  { required: true, message: '请确认密码', trigger: 'change' },
-  { validator: 
-    (_rule: any, value: string, callback: (error?: string | Error) => void, source: any) => {
-    if (value !== source.password) {
-      callback(new Error('两次输入的密码不一致!'));
-    } else {
-      callback();
+    { required: true, message: '请确认密码', trigger: 'change' },
+    {
+      validator:
+        (_rule: any, value: string, callback: (error?: string | Error) => void, source: any) => {
+          if (value !== source.password) {
+            callback(new Error('两次输入的密码不一致!'));
+          } else {
+            callback();
+          }
+        }, trigger: 'change'
     }
-  }, trigger: 'change' }
-]
+  ]
 
 }
 const loading = ref(false)
 
 
-//验证码
-const verifyCode = ref('')
-const changeverifyCode = () => {
-  //路径待改，先
-  verifyCode.value = 'https://www.baidu.com/img/bd_logo1.png'
-}
+// //验证码
+// const verifyCode = ref('')
+// const changeverifyCode = () => {
+//   //路径待改，先
+//   verifyCode.value = 'https://www.baidu.com/img/bd_logo1.png'
+// }
 
 const activeTab = ref('account')
 
 //登录逻辑
+// const handleLogin = async (formEl: any) => {
+//   if (!formEl) return
+
+//   await formEl.validate((valid: boolean) => {
+//     if (valid) {
+//       loading.value = true
+//       // 这里添加登录逻辑
+//       // setTimeout(() => {
+//       //   loading.value = false
+//       //   router.push('/dashboard')
+//       // }, 1000)
+//     }
+//   })
+// }
+
+
 const handleLogin = async (formEl: any) => {
-  if (!formEl) return
+  if (!formEl) return;
 
-  await formEl.validate((valid: boolean) => {
+  await formEl.validate(async (valid: boolean) => {
     if (valid) {
-      loading.value = true
-      // 这里添加登录逻辑
-      setTimeout(() => {
-        loading.value = false
-        router.push('/dashboard')
-      }, 1000)
+      loading.value = true;
+      try {
+        // 调用 login 方法发送登录请求
+        const response = await login({
+          username: loginForm.username,
+          password: loginForm.password,
+        });
+        
+        // 登录成功，处理返回的 token
+        const token = response; 
+        localStorage.setItem('token', token); // 将 token 存储到本地
+        ElMessage.success('登录成功');
+        router.push('/dashboard');
+      } catch (error: any) {
+        // 登录失败，提示错误信息
+        const errorMessage = error.response?.data?.message || '登录失败，请检查用户名和密码';
+        ElMessage.error(errorMessage);
+      } finally {
+        loading.value = false; }
     }
-  })
-}
-
+  });
+};
 //注册逻辑
 const handleRegister = async (formEl: any) => {
   if (!formEl) return
@@ -126,10 +157,10 @@ watch(isLogin, (newVal) => {
             <el-form-item prop="password" label="密码:&emsp;">
               <el-input v-model="loginForm.password" type="password" placeholder="请输入密码" show-password />
             </el-form-item>
-            <el-form-item label="验证码:" prop="captcha" class="captcha-form-item">
+            <!-- <el-form-item label="验证码:" prop="captcha" class="captcha-form-item">
               <el-input v-model="loginForm.captcha" placeholder="请输入验证码" class="captcha-input" />
               <img :src="verifyCode" title="点击切换验证码" @click="changeverifyCode" class="captcha-img" />
-            </el-form-item>
+            </el-form-item> -->
             <el-form-item>
               <el-button type="primary" :loading="loading" class="login-button" @click="handleLogin(loginFormRef)">
                 登录

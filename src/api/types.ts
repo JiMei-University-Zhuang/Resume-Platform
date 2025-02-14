@@ -3,6 +3,7 @@ export interface ApiResponse<T = any> {
   code: number
   data: T
   message: string
+  token: string
 }
 
 // 登录参数接口
