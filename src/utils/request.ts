@@ -30,9 +30,6 @@ service.interceptors.response.use(
 
     if (data.code === 200) {
       return data.data
-    } else {
-      ElMessage.error(data.message || '请求失败')
-      return Promise.reject(new Error(data.message || '请求失败'))
     }
   },
   error => {
@@ -55,9 +52,6 @@ service.interceptors.response.use(
         break
       case 404:
         message = '请求的资源不存在'
-        break
-      case 500:
-        message = '服务器错误'
         break
     }
 
