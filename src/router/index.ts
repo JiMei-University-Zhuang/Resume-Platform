@@ -91,7 +91,7 @@ const routes: RouteRecordRaw[] = [
           }
         ]
       },
-       {
+      {
         path: '/error',
         name: 'Error',
         meta: { title: '错误页面' },
@@ -110,13 +110,25 @@ const routes: RouteRecordRaw[] = [
           }
         ]
       },
-        {
+      {
         path: '/error-log',
         name: 'ErrorLog',
-          meta: { title: '错误日志' },
+        meta: { title: '错误日志' },
         component: () => import('@/views/error-log/log.vue')
       },
+      {
+        path: '/:pathMatch(.*)*',
+        name: 'NotFound',
+        component: () => import('@/views/error/error404.vue'),
+        meta: { title: '页面未找到' }
+      }
     ]
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    name: 'NotFound',
+    component: () => import('@/views/error/error404.vue'),
+    meta: { title: '页面未找到' }
   }
 ]
 
