@@ -64,7 +64,7 @@ const handleLogin = async (formEl: any) => {
         });
         
         // 登录成功，处理返回的 token
-        const token = response.data.data.token;
+        const token = response;
         localStorage.setItem('token', token); // 将 token 存储到本地
         ElMessage.success('登录成功');
         router.push('/dashboard');

@@ -13,6 +13,23 @@
           </el-breadcrumb-item>
         </el-breadcrumb>
       </div>
+      <!-- 标签导航 -->
+      <div class="tabs-container">
+        <el-tabs 
+          v-model="activeTab" 
+          type="card" 
+          closable 
+          @tab-remove="removeTab"
+          @tab-click="handleTabClick">
+          <el-tab-pane
+            v-for="item in visitedViews"
+            :key="item.path"
+            :label="item.title"
+            :name="item.path"
+          >
+          </el-tab-pane>
+        </el-tabs>
+      </div>
     </div>
 
     <div class="header-right">
@@ -38,10 +55,9 @@
 
 <script setup lang="ts">
 import { Expand, Fold, Moon, Sunny } from '@element-plus/icons-vue'
-import { useRouter ,useRoute} from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { useLayoutStore } from '@/stores/useLayoutStore'
-import { computed } from 'vue'
-
+import { computed, ref, watch } from 'vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -61,9 +77,44 @@ const breadcrumbList = computed(() => {
   return breadcrumb
 })
 
+const activeTab = ref('')
+const visitedViews = ref<Array<{ path: string; title: string }>>([])
 
+watch(() => route.path, (newPath) => {
+  const matched = route.matched.find(item => item.path === newPath)
+  if (matched && matched.meta.title) {
+    const view = {
+      path: newPath,
+      title: matched.meta.title as string
+    }
+    if (!visitedViews.value.find(v => v.path === newPath)) {
+      visitedViews.value.push(view)
+    }
+    activeTab.value = newPath
+  }
+}, { immediate: true })
 
+const removeTab = (targetPath: string) => {
+  const tabs = visitedViews.value
+  let activePath = activeTab.value
+  if (activePath === targetPath) {
+    tabs.forEach((tab, index) => {
+      if (tab.path === targetPath) {
+        const nextTab = tabs[index + 1] || tabs[index - 1]
+        if (nextTab) {
+          activePath = nextTab.path
+        }
+      }
+    })
+  }
+  activeTab.value = activePath
+  visitedViews.value = tabs.filter(tab => tab.path !== targetPath)
+  router.push(activePath)
+}
 
+const handleTabClick = (tab: any) => {
+  router.push(tab.props.name)
+}
 </script>
 
 <style scoped>
@@ -123,5 +174,39 @@ const breadcrumbList = computed(() => {
 .el-breadcrumb {
   font-size: 14px;
   line-height: 64px;
+}
+
+.tabs-container {
+  margin-top: 8px;
+  padding: 0 16px;
+  background-color: var(--el-bg-color);
+}
+
+.tabs-container :deep(.el-tabs__header) {
+  margin: 0;
+  border-bottom: none;
+}
+
+.tabs-container :deep(.el-tabs__nav) {
+  border: none;
+}
+
+.tabs-container :deep(.el-tabs__item) {
+  height: 30px;
+  line-height: 30px;
+  border: none;
+  color: var(--el-text-color-regular);
+  background-color: var(--el-bg-color-overlay);
+  margin: 0 2px;
+  border-radius: 3px;
+}
+
+.tabs-container :deep(.el-tabs__item.is-active) {
+  color: var(--el-color-primary);
+  background-color: var(--el-color-primary-light-9);
+}
+
+.tabs-container :deep(.el-tabs__nav-wrap::after) {
+  display: none;
 }
 </style>
