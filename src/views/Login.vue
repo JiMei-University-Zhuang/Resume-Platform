@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { ref, reactive, onUnmounted, watch } from 'vue'
+import { ref, reactive, onUnmounted, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { login } from '@/api/user'
+import * as faceapi from 'face-api.js'
 
 const router = useRouter()
 
@@ -50,44 +51,219 @@ const loading = ref(false)
 
 const activeTab = ref('account')
 const videoRef = ref<HTMLVideoElement | null>(null)
+const canvasRef = ref<HTMLCanvasElement | null>(null)
 const stream = ref<MediaStream | null>(null)
+const isModelLoaded = ref(false)
+const isProcessing = ref(false)
 
-const startCamera = async () => {
+const loadFaceModels = async () => {
   try {
-    stream.value = await navigator.mediaDevices.getUserMedia({
-      video: true,
-      audio: false
-    })
-    if (videoRef.value) {
-      videoRef.value.srcObject = stream.value
+    const baseUrl = import.meta.env.BASE_URL.endsWith('/') 
+      ? import.meta.env.BASE_URL.slice(0, -1) 
+      : import.meta.env.BASE_URL
+    const MODEL_URL = `${baseUrl}/models`
+    
+    console.log('开始加载模型...，路径:', MODEL_URL)
+    
+    // 预先检查模型文件是否可访问
+    try {
+      const manifestResponse = await fetch(`${MODEL_URL}/tiny_face_detector_model-weights_manifest.json`)
+      if (!manifestResponse.ok) {
+        throw new Error('无法访问模型文件，请检查文件路径是否正确')
+      }
+    } catch (error) {
+      throw new Error(`模型文件访问失败: ${error.message}`)
     }
+    
+    // 设置 faceapi 参数
+    faceapi.env.monkeyPatch({
+      Canvas: HTMLCanvasElement,
+      Image: HTMLImageElement,
+      ImageData: ImageData,
+      Video: HTMLVideoElement,
+      createCanvasElement: () => document.createElement('canvas'),
+      createImageElement: () => document.createElement('img')
+    })
+
+    await faceapi.nets.tinyFaceDetector.load(MODEL_URL)
+    await faceapi.nets.faceLandmark68Net.load(MODEL_URL)
+    
+    if (!faceapi.nets.tinyFaceDetector.isLoaded || !faceapi.nets.faceLandmark68Net.isLoaded) {
+      throw new Error('模型加载失败')
+    }
+    
+    isModelLoaded.value = true
+    messageControl.showMessage('模型加载成功', 'success')
   } catch (error) {
-    console.error('摄像头调用失败:', error)
-    ElMessage.error('摄像头调用失败，请检查设备权限')
+    console.error('模型加载失败，详细错误:', error)
+    messageControl.showMessage(`人脸识别模型加载失败: ${error.message || '未知错误'}`, 'error')
+    isModelLoaded.value = false
   }
 }
 
-const stopCamera = () => {
-  if (stream.value) {
-    stream.value.getTracks().forEach(track => track.stop())
-    stream.value = null
+// 头部姿态检测
+const detectHeadPose = (landmarks: any) => {
+  const nose = landmarks.getNose()
+  const jawOutline = landmarks.getJawOutline()
+  const leftEye = landmarks.getLeftEye()
+  const rightEye = landmarks.getRightEye()
+  
+  // 眼睛之间的距离
+  const eyeDistance = Math.sqrt(
+    Math.pow(leftEye[0].x - rightEye[3].x, 2) +
+    Math.pow(leftEye[0].y - rightEye[3].y, 2)
+  )
+  
+  // 鼻子相对于脸部中心的偏移
+  const faceCenter = {
+    x: (jawOutline[0].x + jawOutline[16].x) / 2,
+    y: (jawOutline[0].y + jawOutline[16].y) / 2
+  }
+  
+  const noseOffset = {
+    x: nose[0].x - faceCenter.x,
+    y: nose[0].y - faceCenter.y
+  }
+  
+  // 根据偏移量判断头部姿态
+  const threshold = eyeDistance * 0.2 // 眼距的20%作阈值
+  
+  if (noseOffset.x < -threshold) return 'left'
+  if (noseOffset.x > threshold) return 'right'
+  return 'center'
+}
+
+const messageControl = {
+  lastMessage: '',
+  lastTime: 0,
+  minInterval: 1000, 
+  
+  showMessage(message: string, type: 'success' | 'warning' | 'info' | 'error' = 'info') {
+    const now = Date.now()
+    if (message === this.lastMessage && now - this.lastTime < this.minInterval) {
+      return
+    }
+    
+    this.lastMessage = message
+    this.lastTime = now
+    
+    ElMessage({
+      message,
+      type,
+      duration: type === 'error' ? 3000 : 2000,
+      showClose: true
+    })
   }
 }
 
-watch(activeTab, (newVal) => {
-  if (newVal === 'face') {
-    startCamera()
-  } else {
-    stopCamera()
+// 人脸特征相关状态
+const isFaceModelLoaded = ref(false)
+const isRegisteredUser = ref(false)
+
+// 提取人脸特征
+const extractFaceFeatures = async (detection: any) => {
+  try {
+    const descriptor = await faceapi.computeFaceDescriptor(
+      videoRef.value,
+      detection
+    )
+    return new Float32Array(descriptor)
+  } catch (error) {
+    console.error('提取人脸特征失败:', error)
+    return null
   }
-})
+}
 
-onUnmounted(() => {
-  stopCamera()
-})
+// 人脸登录
+const handleFaceLogin = async () => {
+  if (!videoRef.value || !canvasRef.value || isProcessing.value || !isModelLoaded.value) return
+  
+  isProcessing.value = true
+  const canvas = canvasRef.value
+  const ctx = canvas.getContext('2d')
+  if (!ctx) return
 
-const handleFaceLogin = () => {
-  ElMessage.info('人脸识别功能开发中...')
+  try {
+    // 清除之前的绘制
+    ctx.clearRect(0, 0, canvas.width, canvas.height)
+    
+    // 设置画布尺寸与视频一致
+    canvas.width = videoRef.value.videoWidth
+    canvas.height = videoRef.value.videoHeight
+    
+    // 检测人脸
+    const detection = await faceapi.detectSingleFace(
+      videoRef.value,
+      new faceapi.TinyFaceDetectorOptions({
+        inputSize: 512,
+        scoreThreshold: 0.5
+      })
+    ).withFaceLandmarks()
+
+    if (!detection) {
+      messageControl.showMessage('未检测到人脸，请正对摄像头', 'warning')
+      isProcessing.value = false
+      return
+    }
+
+    // 绘制检测框和关键点
+    ctx.lineWidth = 3
+    ctx.strokeStyle = '#6cf9d3'
+    ctx.fillStyle = '#6cf9d3'
+    
+    // 扩大检测框尺寸
+    const box = detection.detection.box
+    const padding = 20
+    ctx.beginPath()
+    ctx.rect(
+      box.x - padding,
+      box.y - padding,
+      box.width + (padding * 2),
+      box.height + (padding * 2)
+    )
+    ctx.stroke()
+    
+    // 添加半透明遮罩
+    ctx.fillStyle = 'rgba(108, 249, 211, 0.1)'
+    ctx.fill()
+    
+    // 绘制关键点
+    const landmarks = detection.landmarks
+    const points = landmarks.positions
+    ctx.fillStyle = '#1849ea'
+    points.forEach(point => {
+      ctx.beginPath()
+      ctx.arc(point.x, point.y, 2, 0, 2 * Math.PI)
+      ctx.fill()
+    })
+
+    // 检测头部姿态
+    const pose = detectHeadPose(landmarks)
+    if (pose !== 'center') {
+      messageControl.showMessage('请保持头部正对摄像头', 'warning')
+      isProcessing.value = false
+      return
+    }
+
+    // 提取人脸特征
+    const features = await extractFaceFeatures(detection)
+    if (!features) {
+      messageControl.showMessage('人脸特征提取失败，请重试', 'error')
+      isProcessing.value = false
+      return
+    }
+
+    messageControl.showMessage('人脸识别成功！', 'success')
+    setTimeout(() => {
+      router.push('/dashboard')
+    }, 1000)
+
+  } catch (error) {
+    console.error('人脸识别失败:', error)
+    messageControl.showMessage('人脸识别过程出错，请重试', 'error')
+  } finally {
+    isProcessing.value = false
+  }
 }
 
 const isLogin = ref(true)
@@ -122,12 +298,12 @@ const handleLogin = async (formEl: any) => {
         // 登录成功，处理返回的 token
         const token = response
         localStorage.setItem('token', token) // 将 token 存储到本地
-        ElMessage.success('登录成功')
+        messageControl.showMessage('登录成功', 'success')
         router.push('/dashboard')
       } catch (error: any) {
         // 登录失败，提示错误信息
         const errorMessage = error.response?.data?.message || '登录失败，请检查用户名和密码'
-        ElMessage.error(errorMessage)
+        messageControl.showMessage(errorMessage, 'error')
       } finally {
         loading.value = false
       }
@@ -141,13 +317,53 @@ const handleRegister = async (formEl: any) => {
   await formEl.validate((valid: boolean) => {
     if (valid) {
       // 模拟注册成功逻辑
-      ElMessage.success('注册成功，请登录！')
+      messageControl.showMessage('注册成功，请登录！', 'success')
       setTimeout(() => {
         gotoLogin() // 跳转到登录页面
       }, 1500) // 延迟 1.5 秒跳转
     }
   })
 }
+
+const startCamera = async () => {
+  try {
+    stream.value = await navigator.mediaDevices.getUserMedia({
+      video: true,
+      audio: false
+    })
+    if (videoRef.value) {
+      videoRef.value.srcObject = stream.value
+    }
+  } catch (error) {
+    console.error('摄像头调用失败:', error)
+    messageControl.showMessage('摄像头调用失败，请检查设备权限', 'error')
+  }
+}
+
+const stopCamera = () => {
+  if (stream.value) {
+    stream.value.getTracks().forEach(track => track.stop())
+    stream.value = null
+  }
+}
+
+watch(activeTab, (newVal) => {
+  if (newVal === 'face') {
+    startCamera()
+  } else {
+    stopCamera()
+  }
+})
+
+onUnmounted(() => {
+  stopCamera()
+})
+
+// 在组件挂载后延迟加载模型
+onMounted(() => {
+  // 给页面一些时间完成初始化
+  setTimeout(loadFaceModels, 1500)
+})
 </script>
 
 <template>
@@ -185,18 +401,23 @@ const handleRegister = async (formEl: any) => {
         </el-tab-pane>
         <el-tab-pane label="人脸登录" name="face">
           <div class="face-login-container">
-            <video
-              ref="videoRef"
-              autoplay
-              playsinline
-              class="face-video"
-            ></video>
+            <div class="video-container">
+              <video
+                ref="videoRef"
+                autoplay
+                playsinline
+                class="face-video"
+              ></video>
+              <canvas ref="canvasRef" class="face-canvas"></canvas>
+            </div>
             <el-button 
               type="primary" 
               class="face-login-button"
+              :loading="isProcessing"
+              :disabled="!isModelLoaded"
               @click="handleFaceLogin"
             >
-              开始识别
+              {{ isModelLoaded ? '开始识别' : '加载中...' }}
             </el-button>
           </div>
         </el-tab-pane>
@@ -279,30 +500,92 @@ const handleRegister = async (formEl: any) => {
   border-radius: 8px;
   box-shadow: 0 2px 12px 8px rgba(148, 183, 205, 0.4);
 }
+
 .login-box h2,
 .register-box h2 {
   text-align: center;
-  /* 遗留问题，字体颜色 */
-  /* background-color:linear-gradient(160deg, #6CF9D3, #1849ea); */
-
-  margin-bottom: 50px;
+  margin-bottom: 20px;
 }
 
 .login-form {
   margin-top: 20px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .login-button {
   width: 100%;
-  padding: 18px 0;
-  margin-top: 18px;
+  padding: 15px 0;
+  margin-top: 15px;
   background: linear-gradient(160deg, #6cf9d3, #1849ea);
   border: none;
 }
+
 .register-button {
   width: 100%;
-  padding: 18px 0;
-  margin-top: 18px;
+  padding: 15px 0;
+  margin-top: 15px;
+}
+
+.face-login-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 20px 0;
+}
+
+.video-container {
+  position: relative;
+  width: 340px;
+  height: 260px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.face-video {
+  width: 100%;
+  height: 100%;
+  background-color: #f0f0f0;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.face-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.face-login-button {
+  width: 200px;
+  height: 40px;
+  background: linear-gradient(160deg, #6cf9d3, #1849ea);
+  border: none;
+  font-size: 16px;
+  margin-top: 5px;
+}
+
+.login-tabs {
+  margin-bottom: 0;  
+}
+
+:deep(.el-tabs__nav) {
+  width: 100%;
+}
+
+:deep(.el-tabs__item) {
+  width: 50%;
+  text-align: center;
 }
 
 #register {
@@ -310,6 +593,7 @@ const handleRegister = async (formEl: any) => {
   border: none;
   margin-bottom: 10px;
 }
+
 .captcha-form-item {
   display: flex;
   align-items: center;
@@ -356,23 +640,8 @@ const handleRegister = async (formEl: any) => {
 .face-login-container {
   min-height: 300px;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 20px;
-}
-
-.face-video {
-  width: 320px;
-  height: 240px;
-  background-color: #f0f0f0;
-  border-radius: 8px;
-  object-fit: cover;
-}
-
-.face-login-button {
-  width: 200px;
-  background: linear-gradient(160deg, #6cf9d3, #1849ea);
-  border: none;
+  color: #909399;
 }
 </style>
