@@ -79,6 +79,12 @@ const routes: RouteRecordRaw[] = [
         ]
       },
       {
+        path: '/userManagement',
+        name: 'UserManagement',
+        component: () => import('@/views/userManagement/index.vue'),
+        meta: { title: '用户管理' }
+      },
+      {
         path: '/example',
         name: 'Example',
         meta: { title: '综合案例' },

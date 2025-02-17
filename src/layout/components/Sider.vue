@@ -37,6 +37,13 @@
           </el-menu-item>
         </el-sub-menu>
 
+        <el-menu-item index="/userManagement">
+          <el-icon>
+            <Position />
+          </el-icon>
+          <template #title>用户管理</template>
+        </el-menu-item>
+
 
 
         <el-sub-menu index="/charts">
