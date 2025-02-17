@@ -1,7 +1,7 @@
 <template>
   <div class="layout">
     <LayoutSider />
-    <div class="main" :class="{ 'collapsed': layoutStore.collapsed }">
+    <div class="main" :class="{ 'collapsed': collapsed }">
       <LayoutHeader />
       <main class="content">
         <!-- 展示区 -->
@@ -17,8 +17,10 @@ import LayoutSider from './components/Sider.vue'
 import LayoutHeader from './components/Header.vue'
 import { useLayoutStore } from '@/stores/useLayoutStore'
 import Breadcrumb from '@/components/Breadcrumb.vue'
+import { storeToRefs } from 'pinia'
 
 const layoutStore = useLayoutStore()
+const { collapsed } = storeToRefs(layoutStore)
 </script>
 
 <style scoped>
@@ -46,4 +48,4 @@ const layoutStore = useLayoutStore()
 html.dark .main {
   background: #f0f2f5;
 }
-</style> 
+</style>

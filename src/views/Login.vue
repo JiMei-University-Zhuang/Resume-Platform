@@ -48,32 +48,7 @@ const registerrules = {
 }
 const loading = ref(false)
 
-
-// //验证码
-// const verifyCode = ref('')
-// const changeverifyCode = () => {
-//   //路径待改，先
-//   verifyCode.value = 'https://www.baidu.com/img/bd_logo1.png'
-// }
-
 const activeTab = ref('account')
-
-//登录逻辑
-// const handleLogin = async (formEl: any) => {
-//   if (!formEl) return
-
-//   await formEl.validate((valid: boolean) => {
-//     if (valid) {
-//       loading.value = true
-//       // 这里添加登录逻辑
-//       // setTimeout(() => {
-//       //   loading.value = false
-//       //   router.push('/dashboard')
-//       // }, 1000)
-//     }
-//   })
-// }
-
 
 const handleLogin = async (formEl: any) => {
   if (!formEl) return;
@@ -89,7 +64,7 @@ const handleLogin = async (formEl: any) => {
         });
         
         // 登录成功，处理返回的 token
-        const token = response; 
+        const token = response.data.data.token;
         localStorage.setItem('token', token); // 将 token 存储到本地
         ElMessage.success('登录成功');
         router.push('/dashboard');
@@ -117,9 +92,6 @@ const handleRegister = async (formEl: any) => {
   })
 }
 
-
-
-
 const isLogin = ref(true)
 const gotoRegister = () => {
   //切换到注册页面
@@ -139,9 +111,6 @@ watch(isLogin, (newVal) => {
     registerForm.confirmPassword = ''
   }
 })
-
-
-
 </script>
 
 <template>
@@ -244,9 +213,7 @@ watch(isLogin, (newVal) => {
   box-shadow: 0 2px 12px 8px rgba(148, 183, 205, 0.4);
 
 }
-
-.login-box h2,
-.register-box h2 {
+.login-box h2, .register-box h2 {
   text-align: center;
   /* 遗留问题，字体颜色 */
   /* background-color:linear-gradient(160deg, #6CF9D3, #1849ea); */
@@ -270,7 +237,6 @@ watch(isLogin, (newVal) => {
   border: none;
   margin-bottom: 10px;
 }
-
 .captcha-form-item {
   display: flex;
   align-items: center;
