@@ -20,7 +20,6 @@ const loginrules = {
   captcha: [{ required: true, message: '请输入验证码', trigger: 'blur' }]
 }
 
-
 //注册表单
 const registerFormRef = ref()
 const registerForm = reactive({
@@ -34,49 +33,54 @@ const registerrules = {
   confirmPassword: [
     { required: true, message: '请确认密码', trigger: 'change' },
     {
-      validator:
-        (_rule: any, value: string, callback: (error?: string | Error) => void, source: any) => {
-          if (value !== source.password) {
-            callback(new Error('两次输入的密码不一致!'));
-          } else {
-            callback();
-          }
-        }, trigger: 'change'
+      validator: (
+        _rule: any,
+        value: string,
+        callback: (error?: string | Error) => void,
+        source: any
+      ) => {
+        if (value !== source.password) {
+          callback(new Error('两次输入的密码不一致!'))
+        } else {
+          callback()
+        }
+      },
+      trigger: 'change'
     }
   ]
-
 }
 const loading = ref(false)
 
 const activeTab = ref('account')
 
 const handleLogin = async (formEl: any) => {
-  if (!formEl) return;
+  if (!formEl) return
 
   await formEl.validate(async (valid: boolean) => {
     if (valid) {
-      loading.value = true;
+      loading.value = true
       try {
         // 调用 login 方法发送登录请求
         const response = await login({
           username: loginForm.username,
-          password: loginForm.password,
-        });
-        
+          password: loginForm.password
+        })
+
         // 登录成功，处理返回的 token
-        const token = response;
-        localStorage.setItem('token', token); // 将 token 存储到本地
-        ElMessage.success('登录成功');
-        router.push('/dashboard');
+        const token = response
+        localStorage.setItem('token', token) // 将 token 存储到本地
+        ElMessage.success('登录成功')
+        router.push('/dashboard')
       } catch (error: any) {
         // 登录失败，提示错误信息
-        const errorMessage = error.response?.data?.message || '登录失败，请检查用户名和密码';
-        ElMessage.error(errorMessage);
+        const errorMessage = error.response?.data?.message || '登录失败，请检查用户名和密码'
+        ElMessage.error(errorMessage)
       } finally {
-        loading.value = false; }
+        loading.value = false
+      }
     }
-  });
-};
+  })
+}
 //注册逻辑
 const handleRegister = async (formEl: any) => {
   if (!formEl) return
@@ -96,14 +100,13 @@ const isLogin = ref(true)
 const gotoRegister = () => {
   //切换到注册页面
   isLogin.value = false
-
 }
 const gotoLogin = () => {
   //切换到登录页面
   isLogin.value = true
 }
 
-watch(isLogin, (newVal) => {
+watch(isLogin, newVal => {
   if (!newVal) {
     // 当切换到注册页面时，清空注册表单
     registerForm.username = ''
@@ -124,21 +127,30 @@ watch(isLogin, (newVal) => {
               <el-input v-model="loginForm.username" placeholder="请输入用户名" />
             </el-form-item>
             <el-form-item prop="password" label="密码:&emsp;">
-              <el-input v-model="loginForm.password" type="password" placeholder="请输入密码" show-password />
+              <el-input
+                v-model="loginForm.password"
+                type="password"
+                placeholder="请输入密码"
+                show-password
+              />
             </el-form-item>
             <!-- <el-form-item label="验证码:" prop="captcha" class="captcha-form-item">
               <el-input v-model="loginForm.captcha" placeholder="请输入验证码" class="captcha-input" />
               <img :src="verifyCode" title="点击切换验证码" @click="changeverifyCode" class="captcha-img" />
             </el-form-item> -->
             <el-form-item>
-              <el-button type="primary" :loading="loading" class="login-button" @click="handleLogin(loginFormRef)">
+              <el-button
+                type="primary"
+                :loading="loading"
+                class="login-button"
+                @click="handleLogin(loginFormRef)"
+              >
                 登录
               </el-button>
-              <el-button class="login-button" @click="gotoRegister" style="margin-left: 0;">
+              <el-button class="register-button" @click="gotoRegister" style="margin-left: 0">
                 注册
               </el-button>
             </el-form-item>
-
           </el-form>
         </el-tab-pane>
         <el-tab-pane label="人脸登录" name="face">
@@ -152,35 +164,49 @@ watch(isLogin, (newVal) => {
     <!-- 注册页面 -->
     <div class="register-box" v-else>
       <h2>新用户注册</h2>
-      <el-form class="register-form" ref="registerFormRef" :model="registerForm" :rules="registerrules">
+      <el-form
+        class="register-form"
+        ref="registerFormRef"
+        :model="registerForm"
+        :rules="registerrules"
+      >
         <el-form-item prop="username" label="用户名:&emsp;">
           <el-input v-model="registerForm.username" placeholder="请输入用户名" />
         </el-form-item>
         <el-form-item prop="password" label="密码:&emsp;&emsp;">
-          <el-input v-model="registerForm.password" type="password" placeholder="请输入密码" show-password />
+          <el-input
+            v-model="registerForm.password"
+            type="password"
+            placeholder="请输入密码"
+            show-password
+          />
         </el-form-item>
         <el-form-item prop="confirmPassword" label="确认密码:">
-          <el-input v-model="registerForm.confirmPassword" type="password" placeholder="请再次输入密码" show-password />
+          <el-input
+            v-model="registerForm.confirmPassword"
+            type="password"
+            placeholder="请再次输入密码"
+            show-password
+          />
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" class="login-button" id="register" @click="handleRegister(registerFormRef)">
+          <el-button
+            class="login-button"
+            type="primary"
+            id="register"
+            @click="handleRegister(registerFormRef)"
+          >
             注册
           </el-button>
         </el-form-item>
         <el-form-item>
           <span class="account-tip">
             已有账号？
-            <el-link type="primary" class="back-to-login" @click="gotoLogin">
-              立即登录
-            </el-link>
+            <el-link type="primary" class="back-to-login" @click="gotoLogin"> 立即登录 </el-link>
           </span>
         </el-form-item>
       </el-form>
     </div>
-
-
-
-
   </div>
 </template>
 
@@ -199,7 +225,6 @@ watch(isLogin, (newVal) => {
   background-size: 100% 100%;
   background-repeat: no-repeat;
   position: relative;
-
 }
 
 .login-box,
@@ -211,9 +236,9 @@ watch(isLogin, (newVal) => {
   background: white;
   border-radius: 8px;
   box-shadow: 0 2px 12px 8px rgba(148, 183, 205, 0.4);
-
 }
-.login-box h2, .register-box h2 {
+.login-box h2,
+.register-box h2 {
   text-align: center;
   /* 遗留问题，字体颜色 */
   /* background-color:linear-gradient(160deg, #6CF9D3, #1849ea); */
@@ -229,11 +254,17 @@ watch(isLogin, (newVal) => {
   width: 100%;
   padding: 18px 0;
   margin-top: 18px;
+  background: linear-gradient(160deg, #6cf9d3, #1849ea);
+  border: none;
+}
+.register-button {
+  width: 100%;
+  padding: 18px 0;
+  margin-top: 18px;
 }
 
 #register {
   margin-top: 30px;
-  background: linear-gradient(160deg, #6CF9D3, #1849ea);
   border: none;
   margin-bottom: 10px;
 }
@@ -243,7 +274,6 @@ watch(isLogin, (newVal) => {
 }
 
 .captcha-input {
-
   width: calc(100% - 90px);
   height: 40px;
 }
@@ -253,17 +283,12 @@ watch(isLogin, (newVal) => {
   height: 40px;
   font-size: 8px;
   padding-left: 10px;
-
 }
 
 .account-tip {
-
   position: absolute;
   right: 0;
-
 }
-
-
 
 :deep(.el-input__wrapper) {
   padding: 0 11px;
