@@ -6,30 +6,7 @@
         <Fold v-else />
       </el-icon>
       <!-- 面包屑 -->
-      <div class="breadcrumb-container">
-        <el-breadcrumb separator="/">
-          <el-breadcrumb-item v-for="(item, index) in breadcrumbList" :key="index" :to="item.path">
-            {{ item.title }}
-          </el-breadcrumb-item>
-        </el-breadcrumb>
-      </div>
-      <!-- 标签导航 -->
-      <div class="tabs-container">
-        <el-tabs 
-          v-model="activeTab" 
-          type="card" 
-          closable 
-          @tab-remove="removeTab"
-          @tab-click="handleTabClick">
-          <el-tab-pane
-            v-for="item in visitedViews"
-            :key="item.path"
-            :label="item.title"
-            :name="item.path"
-          >
-          </el-tab-pane>
-        </el-tabs>
-      </div>
+      <Breadcrumb />
     </div>
 
     <div class="header-right">
@@ -51,13 +28,23 @@
       </el-dropdown>
     </div>
   </header>
+  <div class="header-bottom">
+    <!-- 标签导航 -->
+    <div class="tabs-container">
+      <el-tabs v-model="activeTab" type="card" closable @tab-remove="removeTab" @tab-click="handleTabClick">
+        <el-tab-pane v-for="item in visitedViews" :key="item.path" :label="item.title" :name="item.path">
+        </el-tab-pane>
+      </el-tabs>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
 import { Expand, Fold, Moon, Sunny } from '@element-plus/icons-vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useLayoutStore } from '@/stores/useLayoutStore'
-import { computed, ref, watch } from 'vue'
+import {  ref, watch } from 'vue'
+import Breadcrumb from '@/components/Breadcrumb.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -67,15 +54,6 @@ const handleLogout = () => {
   localStorage.removeItem('token')
   router.push('/login')
 }
-
-const breadcrumbList = computed(() => {
-  const matched = route.matched.filter(item => item.meta.title)
-  const breadcrumb = matched.map(item => ({
-    path: item.path,
-    title: item.meta.title as string
-  }))
-  return breadcrumb
-})
 
 const activeTab = ref('')
 const visitedViews = ref<Array<{ path: string; title: string }>>([])
@@ -119,9 +97,9 @@ const handleTabClick = (tab: any) => {
 
 <style scoped>
 .header {
-  height: 64px;
+  height:64px;
   background: var(--el-bg-color);
-  padding: 0 16px;
+  padding: 1px 16px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -177,7 +155,7 @@ const handleTabClick = (tab: any) => {
 }
 
 .tabs-container {
-  margin-top: 8px;
+  margin-top: 0px;
   padding: 0 16px;
   background-color: var(--el-bg-color);
 }
@@ -197,7 +175,7 @@ const handleTabClick = (tab: any) => {
   border: none;
   color: var(--el-text-color-regular);
   background-color: var(--el-bg-color-overlay);
-  margin: 0 2px;
+  margin: 0 1px;
   border-radius: 3px;
 }
 
@@ -208,5 +186,10 @@ const handleTabClick = (tab: any) => {
 
 .tabs-container :deep(.el-tabs__nav-wrap::after) {
   display: none;
+}
+
+
+.header-bottom{
+  box-shadow: 0 1px 5px rgba(0, 21, 41, 0.08);
 }
 </style>

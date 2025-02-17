@@ -38,11 +38,7 @@ const handleLink = (item: any) => {
 <template>
   <el-breadcrumb separator="/">
     <el-breadcrumb-item :to="{ path: '/dashboard' }">首页</el-breadcrumb-item>
-    <el-breadcrumb-item 
-      v-for="item in breadcrumbs" 
-      :key="item.path"
-      @click="handleLink(item)"
-    >
+    <el-breadcrumb-item v-for="item in breadcrumbs" :key="item.path" class="bold-text" @click="handleLink(item)">
       {{ item.meta.title }}
     </el-breadcrumb-item>
   </el-breadcrumb>
@@ -53,6 +49,10 @@ const handleLink = (item: any) => {
   line-height: 50px;
   padding: 0 16px;
   background-color: #fff;
-  box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
+  /* box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08); */
 }
-</style> 
+.bold-text {
+  font-weight: bold;
+  color: black;
+}
+</style>

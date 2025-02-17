@@ -5,7 +5,6 @@
       <LayoutHeader />
       <main class="content">
         <!-- 展示区 -->
-        <Breadcrumb />
         <router-view></router-view>
       </main>
     </div>
@@ -16,7 +15,6 @@
 import LayoutSider from './components/Sider.vue'
 import LayoutHeader from './components/Header.vue'
 import { useLayoutStore } from '@/stores/useLayoutStore'
-import Breadcrumb from '@/components/Breadcrumb.vue'
 import { storeToRefs } from 'pinia'
 
 const layoutStore = useLayoutStore()
