@@ -94,7 +94,7 @@ watch(() => route.path, (newPath) => {
   }
 }, { immediate: true })
 
-const removeTab = (targetPath: string) => {
+const removeTab = (targetPath: string | number) => {
   const tabs = visitedViews.value
   let activePath = activeTab.value
   if (activePath === targetPath) {
