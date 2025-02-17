@@ -1,13 +1,11 @@
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
+import { ref, reactive, onUnmounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { watch } from 'vue'
 import { login } from '@/api/user'
 
 const router = useRouter()
 
-//登录表单
 const loginFormRef = ref()
 const loginForm = reactive({
   username: '',
@@ -20,7 +18,6 @@ const loginrules = {
   captcha: [{ required: true, message: '请输入验证码', trigger: 'blur' }]
 }
 
-//注册表单
 const registerFormRef = ref()
 const registerForm = reactive({
   username: '',
@@ -52,6 +49,62 @@ const registerrules = {
 const loading = ref(false)
 
 const activeTab = ref('account')
+const videoRef = ref<HTMLVideoElement | null>(null)
+const stream = ref<MediaStream | null>(null)
+
+const startCamera = async () => {
+  try {
+    stream.value = await navigator.mediaDevices.getUserMedia({
+      video: true,
+      audio: false
+    })
+    if (videoRef.value) {
+      videoRef.value.srcObject = stream.value
+    }
+  } catch (error) {
+    console.error('摄像头调用失败:', error)
+    ElMessage.error('摄像头调用失败，请检查设备权限')
+  }
+}
+
+const stopCamera = () => {
+  if (stream.value) {
+    stream.value.getTracks().forEach(track => track.stop())
+    stream.value = null
+  }
+}
+
+watch(activeTab, (newVal) => {
+  if (newVal === 'face') {
+    startCamera()
+  } else {
+    stopCamera()
+  }
+})
+
+onUnmounted(() => {
+  stopCamera()
+})
+
+const handleFaceLogin = () => {
+  ElMessage.info('人脸识别功能开发中...')
+}
+
+const isLogin = ref(true)
+const gotoRegister = () => {
+  isLogin.value = false
+}
+const gotoLogin = () => {
+  isLogin.value = true
+}
+
+watch(isLogin, newVal => {
+  if (!newVal) {
+    registerForm.username = ''
+    registerForm.password = ''
+    registerForm.confirmPassword = ''
+  }
+})
 
 const handleLogin = async (formEl: any) => {
   if (!formEl) return
@@ -95,25 +148,6 @@ const handleRegister = async (formEl: any) => {
     }
   })
 }
-
-const isLogin = ref(true)
-const gotoRegister = () => {
-  //切换到注册页面
-  isLogin.value = false
-}
-const gotoLogin = () => {
-  //切换到登录页面
-  isLogin.value = true
-}
-
-watch(isLogin, newVal => {
-  if (!newVal) {
-    // 当切换到注册页面时，清空注册表单
-    registerForm.username = ''
-    registerForm.password = ''
-    registerForm.confirmPassword = ''
-  }
-})
 </script>
 
 <template>
@@ -134,10 +168,6 @@ watch(isLogin, newVal => {
                 show-password
               />
             </el-form-item>
-            <!-- <el-form-item label="验证码:" prop="captcha" class="captcha-form-item">
-              <el-input v-model="loginForm.captcha" placeholder="请输入验证码" class="captcha-input" />
-              <img :src="verifyCode" title="点击切换验证码" @click="changeverifyCode" class="captcha-img" />
-            </el-form-item> -->
             <el-form-item>
               <el-button
                 type="primary"
@@ -155,7 +185,19 @@ watch(isLogin, newVal => {
         </el-tab-pane>
         <el-tab-pane label="人脸登录" name="face">
           <div class="face-login-container">
-            <p>预留口子</p>
+            <video
+              ref="videoRef"
+              autoplay
+              playsinline
+              class="face-video"
+            ></video>
+            <el-button 
+              type="primary" 
+              class="face-login-button"
+              @click="handleFaceLogin"
+            >
+              开始识别
+            </el-button>
           </div>
         </el-tab-pane>
       </el-tabs>
@@ -314,8 +356,23 @@ watch(isLogin, newVal => {
 .face-login-container {
   min-height: 300px;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  color: #909399;
+  gap: 20px;
+}
+
+.face-video {
+  width: 320px;
+  height: 240px;
+  background-color: #f0f0f0;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.face-login-button {
+  width: 200px;
+  background: linear-gradient(160deg, #6cf9d3, #1849ea);
+  border: none;
 }
 </style>
