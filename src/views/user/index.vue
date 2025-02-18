@@ -17,11 +17,15 @@
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="handleSearch">
-            <el-icon><Search /></el-icon>
+            <el-icon>
+              <Search />
+            </el-icon>
             搜索
           </el-button>
           <el-button @click="resetQuery">
-            <el-icon><Refresh /></el-icon>
+            <el-icon>
+              <Refresh />
+            </el-icon>
             重置
           </el-button>
         </el-form-item>
@@ -34,7 +38,9 @@
         <div class="card-header">
           <span>用户列表</span>
           <el-button type="primary" @click="handleAdd">
-            <el-icon><Plus /></el-icon>
+            <el-icon>
+              <Plus />
+            </el-icon>
             新增用户
           </el-button>
         </div>
@@ -62,11 +68,15 @@
         <el-table-column label="操作" width="180" align="center" fixed="right">
           <template #default="{ row }">
             <el-button type="primary" link>
-              <el-icon><Edit /></el-icon>
+              <el-icon>
+                <Edit />
+              </el-icon>
               编辑
             </el-button>
             <el-button type="danger" link>
-              <el-icon><Delete /></el-icon>
+              <el-icon>
+                <Delete />
+              </el-icon>
               删除
             </el-button>
           </template>
@@ -74,15 +84,9 @@
       </el-table>
 
       <div class="pagination">
-        <el-pagination
-          v-model:current-page="queryParams.pageNum"
-          v-model:page-size="queryParams.pageSize"
-          :page-sizes="[10, 20, 30, 50]"
-          :total="total"
-          layout="total, sizes, prev, pager, next, jumper"
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
-        />
+        <el-pagination v-model:current-page="queryParams.pageNum" v-model:page-size="queryParams.pageSize"
+          :page-sizes="[10, 20, 30, 50]" :total="total" layout="total, sizes, prev, pager, next, jumper"
+          @size-change="handleSizeChange" @current-change="handleCurrentChange" />
       </div>
     </el-card>
   </div>
@@ -110,8 +114,11 @@ const queryParams = ref<IUserQueryParams>({
 // 获取用户列表
 const getList = async () => {
   loading.value = true
+  console.log('开始获取用户列表...') // 添加日志
   try {
+    console.log('查询参数:', queryParams.value)
     const res = await getUserList(queryParams.value)
+    console.log('获取到的数据:', res)
     if (res) {
       userList.value = res.records
       total.value = res.total
@@ -119,9 +126,11 @@ const getList = async () => {
   } catch (error) {
     console.error('获取用户列表失败:', error)
   } finally {
+    console.log('获取用户列表结束...')
     loading.value = false
   }
 }
+
 
 // 搜索
 const handleSearch = () => {
@@ -152,7 +161,9 @@ const handleCurrentChange = (val: number) => {
 }
 
 onMounted(() => {
+  console.log('页面加载中...')
   getList()
+  console.log('页面加载完成...')
 })
 </script>
 

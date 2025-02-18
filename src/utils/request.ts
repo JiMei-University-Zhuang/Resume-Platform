@@ -28,13 +28,7 @@ service.interceptors.response.use(
   (response: AxiosResponse) => {
     const { data } = response
 
-    if (data.code === 200) {
-      return data.data
-    }
-    
-    // 如果响应不成功，抛出错误
-    ElMessage.error(data.message || '请求失败')
-    return Promise.reject(new Error(data.message || '请求失败'))
+    return data.data
   },
   error => {
     const { response } = error

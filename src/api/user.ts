@@ -4,7 +4,7 @@ import type { IUserPageResponse, IUserQueryParams, IUser } from '@/types/user'
 // 用户登录
 export function login(data: { username: string; password: string }) {
   return request({
-    url: '/user/login',
+    url: '/auth/login',
     method: 'post',
     data
   })
@@ -13,15 +13,17 @@ export function login(data: { username: string; password: string }) {
 // 获取用户信息
 export function getUserInfo() {
   return request({
-    url: '/user/info',
-    method: 'get'
+    // url: '/user/info',
+    // method: 'get'
+    url: '/auth/getUser66666666666dhcjasdnca',
+    method: 'posdscnjadncxjlasdnxljast'
   })
 }
 
 // 用户登出
 export function logout() {
   return request({
-    url: '/user/logout',
+    url: '/auth/logout',
     method: 'post'
   })
 }

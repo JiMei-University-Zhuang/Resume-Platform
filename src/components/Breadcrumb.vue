@@ -37,8 +37,9 @@ const handleLink = (item: any) => {
 
 <template>
   <el-breadcrumb separator="/">
-    <el-breadcrumb-item :to="{ path: '/dashboard' }">首页</el-breadcrumb-item>
-    <el-breadcrumb-item v-for="item in breadcrumbs" :key="item.path" class="bold-text" @click="handleLink(item)">
+    <el-breadcrumb-item :to="{ path: '/dashboard' }" style="cursor: pointer;">首页</el-breadcrumb-item>
+    <el-breadcrumb-item v-for="item in breadcrumbs" :key="item.path" class="bold-text" @click="handleLink(item)"
+      style="cursor: pointer;">
       {{ item.meta.title }}
     </el-breadcrumb-item>
   </el-breadcrumb>
