@@ -113,6 +113,13 @@
           </el-icon>
           <template #title>错误日志</template>
         </el-menu-item>
+
+        <el-menu-item index="/mbti">
+          <el-icon>
+            <Aim />
+          </el-icon>
+          <template #title>MBTI性格测试</template>
+        </el-menu-item>
       </el-menu>
     </el-scrollbar>
   </aside>
@@ -126,7 +133,8 @@ import {
   TrendCharts,
   Operation,
   Star,
-  Warning
+  Warning,
+  Aim
 } from '@element-plus/icons-vue'
 import { useLayoutStore } from '@/stores/useLayoutStore'
 import { useRoute } from 'vue-router'
