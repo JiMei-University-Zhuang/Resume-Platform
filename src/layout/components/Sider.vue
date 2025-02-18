@@ -20,7 +20,12 @@
           <template #title>引导页</template>
         </el-menu-item>
 
-
+        <el-menu-item index="/user">
+          <el-icon>
+            <User />
+          </el-icon>
+          <template #title>用户管理</template>
+        </el-menu-item>
 
         <el-sub-menu index="/permission">
           <template #title>
@@ -134,7 +139,8 @@ import {
   Operation,
   Star,
   Warning,
-  Aim
+  Aim,
+  User
 } from '@element-plus/icons-vue'
 import { useLayoutStore } from '@/stores/useLayoutStore'
 import { useRoute } from 'vue-router'

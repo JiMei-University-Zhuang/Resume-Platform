@@ -4,7 +4,6 @@ import { ElMessage } from 'element-plus'
 // 创建 axios 实例
 const service = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
-  //  baseURL: 'http://8.130.75.193:8081',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json'
@@ -17,6 +16,7 @@ service.interceptors.request.use(
     const token = globalThis.localStorage.getItem('token')
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
+      config.headers.token = token
     }
     return config
   },
@@ -31,6 +31,10 @@ service.interceptors.response.use(
     if (data.code === 200) {
       return data.data
     }
+    
+    // 如果响应不成功，抛出错误
+    ElMessage.error(data.message || '请求失败')
+    return Promise.reject(new Error(data.message || '请求失败'))
   },
   error => {
     const { response } = error

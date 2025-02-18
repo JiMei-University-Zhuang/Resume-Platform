@@ -79,10 +79,14 @@ const routes: RouteRecordRaw[] = [
         ]
       },
       {
-        path: '/userManagement',
-        name: 'UserManagement',
-        component: () => import('@/views/userManagement/index.vue'),
-        meta: { title: '用户管理' }
+        path: '/user',
+        name: 'User',
+        component: () => import('@/views/user/index.vue'),
+        meta: {
+          title: '用户管理',
+          icon: 'User',
+          roles: ['admin']  // 只允许管理员访问
+        }
       },
       {
         path: '/example',
