@@ -296,7 +296,7 @@ const handleLogin = async (formEl: any) => {
         })
 
         // 登录成功，处理返回的 token
-        const token = response
+        const token = response?.data
         localStorage.setItem('token', token) // 将 token 存储到本地
         messageControl.showMessage('登录成功', 'success')
         router.push('/dashboard')
