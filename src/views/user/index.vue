@@ -102,7 +102,6 @@ const loading = ref(false)
 const total = ref(0)
 const userList = ref<IUser[]>([])
 
-// 查询参数
 const queryParams = ref<IUserQueryParams>({
   pageNum: 1,
   pageSize: 20,
@@ -111,34 +110,35 @@ const queryParams = ref<IUserQueryParams>({
   role: ''
 })
 
-// 获取用户列表
 const getList = async () => {
   loading.value = true
-  console.log('开始获取用户列表...') // 添加日志
   try {
-    console.log('查询参数:', queryParams.value)
-    const res = await getUserList(queryParams.value)
-    console.log('获取到的数据:', res)
-    if (res) {
-      userList.value = res.records
-      total.value = res.total
+    const params = {
+      pageNum: queryParams.value.pageNum,
+      pageSize: queryParams.value.pageSize
     }
+    if (queryParams.value.username) params.username = queryParams.value.username
+    if (queryParams.value.name) params.name = queryParams.value.name
+    if (queryParams.value.role) params.role = queryParams.value.role
+
+    const data = await getUserList(params)
+    
+    userList.value = data?.records || []
+    total.value = data?.total || 0
   } catch (error) {
     console.error('获取用户列表失败:', error)
+    userList.value = []
+    total.value = 0
   } finally {
-    console.log('获取用户列表结束...')
     loading.value = false
   }
 }
 
-
-// 搜索
 const handleSearch = () => {
   queryParams.value.pageNum = 1
   getList()
 }
 
-// 重置
 const resetQuery = () => {
   queryParams.value = {
     pageNum: 1,
@@ -161,9 +161,7 @@ const handleCurrentChange = (val: number) => {
 }
 
 onMounted(() => {
-  console.log('页面加载中...')
   getList()
-  console.log('页面加载完成...')
 })
 </script>
 
