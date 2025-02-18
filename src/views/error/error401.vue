@@ -1,7 +1,7 @@
 <template>
   <div class="error-container">
     <div class="error-content">
-      <img src="@/assets/401.svg" alt="401" class="error-image" />
+      <img src="@/assets/vue.svg" alt="401" class="error-image" />
       <h1>🔒 未授权访问</h1>
       <p>抱歉，您没有访问此页面的权限。</p>
       <div class="button-group">
