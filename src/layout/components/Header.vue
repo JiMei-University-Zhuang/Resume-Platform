@@ -1,19 +1,23 @@
 <template>
   <header class="header">
     <div class="header-left">
-      <el-icon class="trigger" size="24" @click="layoutStore.toggleCollapsed()">
-        <Expand v-if="!layoutStore.collapsed" />
-        <Fold v-else />
-      </el-icon>
+      <div class="trigger" @click="layoutStore.toggleCollapsed()">
+        <el-icon :size="24">
+          <Expand v-if="!layoutStore.collapsed" />
+          <Fold v-else />
+        </el-icon>
+      </div>
       <!-- 面包屑 -->
       <Breadcrumb />
     </div>
 
     <div class="header-right">
-      <el-icon class="theme-switch" @click="layoutStore.toggleTheme()">
-        <Sunny v-if="layoutStore.isDark" />
-        <Moon v-else />
-      </el-icon>
+      <div class="theme-switch" @click="layoutStore.toggleTheme()">
+        <el-icon :size="24">
+          <Sunny v-if="layoutStore.isDark" />
+          <Moon v-else />
+        </el-icon>
+      </div>
       <el-dropdown>
         <span class="user-info">
           <el-avatar size="small" src="https://avatars.githubusercontent.com/u/1?v=4" />
@@ -43,7 +47,7 @@
 import { Expand, Fold, Moon, Sunny } from '@element-plus/icons-vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useLayoutStore } from '@/stores/useLayoutStore'
-import {  ref, watch } from 'vue'
+import { ref, watch } from 'vue'
 import Breadcrumb from '@/components/Breadcrumb.vue'
 
 const router = useRouter()
@@ -97,13 +101,15 @@ const handleTabClick = (tab: any) => {
 
 <style scoped>
 .header {
-  height:64px;
+  height: 64px;
   background: var(--el-bg-color);
   padding: 1px 16px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   box-shadow: 0 1px 4px rgba(0, 21, 41, .08);
+  position: relative;
+  z-index: 1003;
 }
 
 .header-left {
@@ -112,13 +118,26 @@ const handleTabClick = (tab: any) => {
 }
 
 .trigger {
-  padding: 0 24px;
+  padding: 0 12px;
   cursor: pointer;
   transition: color 0.3s;
+  display: flex !important;
+  align-items: center !important;
+  font-size: 24px !important;
+  visibility: visible !important;
+  width: auto !important;
+  height: auto !important;
+}
+
+:deep(.trigger .el-icon) {
+  display: flex !important;
+  align-items: center !important;
+  font-size: 24px !important;
+  visibility: visible !important;
 }
 
 .trigger:hover {
-  color: #409EFF;
+  color: var(--el-color-primary);
 }
 
 .header-right {

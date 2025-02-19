@@ -33,7 +33,7 @@ const { collapsed } = storeToRefs(layoutStore)
   min-height: 100%;
   background: var(--el-bg-color);
   transition: margin-left 0.28s;
-  z-index: 1002;  
+  z-index: 2;  
 }
 
 .main.collapsed {
