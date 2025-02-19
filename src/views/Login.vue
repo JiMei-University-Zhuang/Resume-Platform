@@ -496,9 +496,12 @@ onMounted(() => {
   right: 150px;
   width: 350px;
   padding: 30px 40px;
+  padding-bottom: 8px;
   background: white;
   border-radius: 8px;
-  box-shadow: 0 2px 12px 8px rgba(148, 183, 205, 0.4);
+  box-shadow: 0 2px 12px 8px rgba(148, 183, 205, 0.9),
+              0 0 25px rgba(108, 249, 211, 0.3),
+              0 0 50px rgba(24, 73, 234, 0.25);
 }
 
 .login-box h2,
@@ -516,6 +519,7 @@ onMounted(() => {
 }
 
 .login-button {
+  height: 34px;
   width: 100%;
   padding: 15px 0;
   margin-top: 15px;
@@ -524,6 +528,7 @@ onMounted(() => {
 }
 
 .register-button {
+  height: 34px;
   width: 100%;
   padding: 15px 0;
   margin-top: 15px;
