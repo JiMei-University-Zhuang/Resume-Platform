@@ -15,8 +15,8 @@ export function getUserInfo() {
   return request({
     // url: '/user/info',
     // method: 'get'
-    url: '/auth/getUser66666666666dhcjasdnca',
-    method: 'posdscnjadncxjlasdnxljast'
+    url: '/auth/getUser',
+    method: 'post'
   })
 }
 
@@ -39,9 +39,12 @@ export function getUserList(data: IUserQueryParams) {
 
 // 添加用户
 export function addUser(data: Omit<IUser, 'id' | 'createTime'>) {
-  return request({
+  return request<IUser>({
     url: '/user/add',
     method: 'post',
+    headers: {
+      'token': localStorage.getItem('token') || '' // 从本地存储获取 token
+    },
     data
   })
 }

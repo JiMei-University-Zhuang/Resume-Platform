@@ -1,6 +1,6 @@
 // 用户信息接口
 export interface IUser {
-  id: string
+  id?: string
   username: string
   name: string
   sex: number
@@ -8,7 +8,7 @@ export interface IUser {
   telephone: string
   enabled: number
   role: string
-  createTime: string
+  createTime?: string
 }
 
 // 分页响应接口

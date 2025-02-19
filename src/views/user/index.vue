@@ -10,9 +10,9 @@
           <el-input v-model="queryParams.name" placeholder="请输入姓名" clearable />
         </el-form-item>
         <el-form-item label="角色">
-          <el-select v-model="queryParams.role" placeholder="请选择角色" clearable>
+          <el-select v-model="queryParams.role" placeholder="请选择角色" value-key="label"  clearable>
             <el-option label="管理员" value="admin" />
-            <el-option label="普通用户" value="user" />
+            <el-option label="普通用户" value="USER" />
           </el-select>
         </el-form-item>
         <el-form-item>
@@ -60,7 +60,7 @@
         <el-table-column prop="role" label="角色" width="100" align="center">
           <template #default="{ row }">
             <el-tag :type="row.role === 'admin' ? 'danger' : 'success'">
-              {{ row.role === 'admin' ? '管理员' : '普通用户' }}
+              {{ row.role === 'USER' ? '普通用户' : '管理员' }}
             </el-tag>
           </template>
         </el-table-column>
@@ -89,18 +89,27 @@
           @size-change="handleSizeChange" @current-change="handleCurrentChange" />
       </div>
     </el-card>
+
+    <!-- 新增用户弹窗 -->
+    <AddUserForm v-model="dialogVisible" @submit="handleSubmit" />
+
+
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { Search, Refresh, Plus, Edit, Delete } from '@element-plus/icons-vue'
-import { getUserList } from '@/api/user'
+import { getUserList ,addUser } from '@/api/user'
+import AddUserForm from '@/views/user/AddUserForm.vue'
 import type { IUser, IUserQueryParams } from '@/types/user'
+import { ElMessage } from 'element-plus'
+
 
 const loading = ref(false)
 const total = ref(0)
 const userList = ref<IUser[]>([])
+const dialogVisible = ref(false)
 
 const queryParams = ref<IUserQueryParams>({
   pageNum: 1,
@@ -159,6 +168,21 @@ const handleCurrentChange = (val: number) => {
   queryParams.value.pageNum = val
   getList()
 }
+
+const handleAdd = () => {
+  dialogVisible.value = true
+}
+
+const handleSubmit = async () => {
+  try {
+    await getList() // 刷新列表
+    ElMessage.success('用户添加成功')
+  } catch (error) {
+    // 错误已在子组件处理
+  }
+}
+
+
 
 onMounted(() => {
   getList()
