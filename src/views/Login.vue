@@ -482,12 +482,12 @@ onMounted(() => {
   height: 100vh;
 
   display: flex;
-  /* justify-content: center; */
   align-items: center;
   background-image: url('@/assets/images/login-bg.jpg');
   background-size: 100% 100%;
   background-repeat: no-repeat;
   position: relative;
+  z-index: 1;
 }
 
 .login-box,
@@ -502,6 +502,7 @@ onMounted(() => {
   box-shadow: 0 2px 12px 8px rgba(148, 183, 205, 0.9),
               0 0 25px rgba(108, 249, 211, 0.3),
               0 0 50px rgba(24, 73, 234, 0.25);
+  z-index: 2;
 }
 
 .login-box h2,
