@@ -24,6 +24,7 @@ const { collapsed } = storeToRefs(layoutStore)
 <style scoped>
 .layout {
   height: 100vh;
+  position: relative;
 }
 
 .main {
@@ -32,6 +33,7 @@ const { collapsed } = storeToRefs(layoutStore)
   min-height: 100%;
   background: var(--el-bg-color);
   transition: margin-left 0.28s;
+  z-index: 1002;  
 }
 
 .main.collapsed {
@@ -41,6 +43,8 @@ const { collapsed } = storeToRefs(layoutStore)
 .content {
   padding: 20px;
   box-sizing: border-box;
+  position: relative;
+  z-index: 1;
 }
 
 html.dark .main {
