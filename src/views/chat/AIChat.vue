@@ -36,6 +36,8 @@ import "prismjs/plugins/copy-to-clipboard/prism-copy-to-clipboard";
 import "prismjs/plugins/show-language/prism-show-language";
 import "katex/dist/katex.min.css";
 import markdownItKatexGpt from "markdown-it-katex-gpt";
+import { ElMessage } from 'element-plus'
+import { sendChatMessage } from '@/api/chat'
 
 import { codeStr1, formulaStr1, tableStr } from "./mocks";
 
@@ -105,15 +107,114 @@ export default {
 
     const sendMessage = async () => {
       if (!userInput.value.trim()) return;
-      const key = userInput.value;
-      messages.value.push({ role: "user", text: userInput.value });
+      
+      const userMessage = userInput.value;
+      messages.value.push({ role: "user", text: userMessage });
       userInput.value = "";
-
       isTyping.value = true;
 
-      await streamAiReply(mockData[key] || `新年好`);
+      try {
+        if (mockData[userMessage]) {
+          await streamAiReply(mockData[userMessage]);
+        } else {
+          // 实际的 API
+          const index = messages.value.length;
+          messages.value.push({ role: "ai", text: "" });
 
-      isTyping.value = false;
+          try {
+            const response = await fetch('/api/chat', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                message: userMessage
+              })
+            });
+
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const reader = response.body?.getReader();
+            const decoder = new TextDecoder();
+
+            if (!reader) {
+              throw new Error('No reader available');
+            }
+
+            try {
+              while (true) {
+                const { done, value } = await reader.read();
+                console.log('Read chunk:', { done, value: value ? decoder.decode(value) : null });
+                
+                if (done) break;
+
+                const chunk = decoder.decode(value);
+                const lines = chunk.split('\n');
+
+                for (const line of lines) {
+                  console.log('Processing line:', line);
+                  if (line.startsWith('data: ')) {
+                    const data = line.slice(6);
+                    console.log('Data content:', data);
+                    if (data === '[DONE]') {
+                      console.log('Received DONE signal');
+                      break;
+                    }
+                    try {
+                      const jsonData = JSON.parse(data);
+                      console.log('Parsed JSON:', jsonData);
+                      if (jsonData.content) {
+                        messages.value[index].text += jsonData.content;
+                        await nextTick();
+                        chatboxRef.value.scrollTop = chatboxRef.value.scrollHeight;
+                      }
+                    } catch (e) {
+                      console.error('Error parsing SSE data:', e);
+                    }
+                  }
+                }
+              }
+            } finally {
+              reader.releaseLock();
+            }
+
+            await nextTick();
+            chatboxRef.value.scrollTop = chatboxRef.value.scrollHeight;
+            Prism.highlightAll();
+          } catch (error) {
+            messages.value.pop();
+            throw error;
+          }
+        }
+      } catch (error: any) {
+        const errorResponse = error.response?.data;
+        const errorDetails = errorResponse?.details || {};
+        
+        // 构建错误消息
+        const errorInfo = {
+          错误类型: errorResponse?.error || '未知错误',
+          错误信息: errorDetails.message || error.message || '未知错误',
+          状态码: errorDetails.status || error.response?.status || '未知',
+          状态描述: errorDetails.statusText || error.response?.statusText || '未知',
+          API响应: errorDetails.response || errorResponse || '无详细信息'
+        };
+        
+        const errorMessage = Object.entries(errorInfo)
+          .filter(([_, value]) => value !== undefined && value !== null)
+          .map(([key, value]) => `${key}: ${typeof value === 'object' ? JSON.stringify(value, null, 2) : value}`)
+          .join('\n');
+        
+        ElMessage.error('发送消息失败，请查看错误详情');
+        
+        messages.value.push({
+          role: "ai",
+          text: `❌ 错误详情:\n\`\`\`json\n${errorMessage}\n\`\`\``
+        });
+      } finally {
+        isTyping.value = false;
+      }
     };
 
     return { messages, userInput, sendMessage, md, isTyping, chatboxRef };
@@ -126,7 +227,7 @@ export default {
   display: flex;
   flex-direction: column;
   width: 100%;
-  height: 90vh;
+  height: 85vh;
   border: 1px solid #ccc;
   border-radius: 8px;
   overflow: hidden;

@@ -18,12 +18,18 @@ export default defineConfig({
   },
   server: {
     host: true,
-    port: 5173,
+    port: 8080,
     proxy: {
+      '^/api/chat': {
+        target: 'http://localhost:8000',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, ''),
+        priority: 100
+      },
       '/api': {
         target: 'http://8.130.75.193:8081',
         changeOrigin: true,
-        rewrite: path => path.replace(/^\/api/, '')
+        rewrite: (path) => path.replace(/^\/api/, '')
       }
     }
   },
