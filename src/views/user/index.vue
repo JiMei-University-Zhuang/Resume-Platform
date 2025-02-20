@@ -286,7 +286,7 @@ const handleDeleteConfirm = async () => {
 
 // 获取 token 的方法
 const getToken = () => {
-  return localStorage.getItem('userToken') || null
+  return localStorage.getItem('token')
 }
 
 
