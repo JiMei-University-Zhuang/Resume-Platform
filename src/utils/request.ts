@@ -3,7 +3,7 @@ import { ElMessage } from 'element-plus'
 
 // 创建 axios 实例
 const service = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+  baseURL: '/api',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json'
@@ -49,6 +49,9 @@ service.interceptors.response.use(
         break
       case 404:
         message = '请求的资源不存在'
+        break
+      case 500:
+        message = '服务器内部错误'
         break
     }
 

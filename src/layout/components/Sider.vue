@@ -116,6 +116,12 @@
           </el-icon>
           <template #title>MBTI性格测试</template>
         </el-menu-item>
+        <el-menu-item index="/chat">
+          <el-icon>
+            <User />
+          </el-icon>
+          <template #title>AI聊天</template>
+        </el-menu-item>
       </el-menu>
     </el-scrollbar>
   </aside>

@@ -137,6 +137,16 @@ const routes: RouteRecordRaw[] = [
         }
       },
       {
+        path: '/chat',
+        name: 'Chat',
+        component: () => import('../views/chat/AIChat.vue'),
+        meta: {
+          title: 'AI助手',
+          icon: 'ChatDotRound',
+          roles: ['admin', 'user']
+        }
+      },
+      {
         path: '/:pathMatch(.*)*',
         name: 'NotFound',
         component: () => import('@/views/error/error404.vue'),
