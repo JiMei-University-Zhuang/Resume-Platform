@@ -2,7 +2,7 @@ import request from '@/utils/request'
 import type { IUserPageResponse, IUserQueryParams, IUser } from '@/types/user'
 
 // 用户登录
-export function login(data: { username: string; password: string }) {
+export function login(data: { username: string; password: string;  }) {
   return request({
     url: '/auth/login',
     method: 'post',
@@ -10,13 +10,15 @@ export function login(data: { username: string; password: string }) {
   })
 }
 
-// 获取用户信息
+// 获取当前用户信息
 export function getUserInfo() {
+  var token = localStorage.getItem('token')
   return request({
-    // url: '/user/info',
-    // method: 'get'
     url: '/auth/getUser',
-    method: 'post'
+    method: 'post',
+    headers: {
+      'token': token // 从本地存储获取 token
+    }
   })
 }
 
@@ -49,11 +51,23 @@ export function addUser(data: Omit<IUser, 'id' | 'createTime'>) {
   })
 }
 
-// 编辑用户
-export function updateUser(data: Partial<IUser> & { id: string }) {
-  return request({
-    url: '/user/edit',
-    method: 'post',
-    data
-  })
-}
+  // 编辑用户
+  export function editUser(data: Partial<IUser> & { id: string }) {
+    return request({
+      url: '/user/edit',
+      method: 'post',
+      data
+    })
+  }
+
+
+//删除用户
+  export function removeUser(id: string) {
+    return request({
+      url: '/user/remove',
+      method: 'post',
+      data: {
+        id
+      }
+    })
+  }
