@@ -66,6 +66,20 @@ const form = reactive({
 const rules = reactive({
   username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
   name: [{ required: true, message: '请输入姓名', trigger: 'blur' }],
+  password: [
+    { required: true, message: '请输入密码', trigger: 'blur' },
+    {
+      validator: (rule, value, callback) => {
+        const regex = /^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d]{6,18}$/
+        if (!regex.test(value)) {
+          callback(new Error('密码必须包含英文和数字，且长度在 6 - 18 位之间'))
+        } else {
+          callback()
+        }
+      },
+      trigger: 'blur'
+    }
+  ],
   email: [
     { required: true, message: '请输入邮箱', trigger: 'blur' },
     { type: 'email', message: '请输入正确的邮箱地址', trigger: ['blur', 'change'] }

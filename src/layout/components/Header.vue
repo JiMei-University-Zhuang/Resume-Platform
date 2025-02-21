@@ -25,7 +25,7 @@
         </span>
         <template #dropdown>
           <el-dropdown-menu>
-            <el-dropdown-item>个人设置</el-dropdown-item>
+            <el-dropdown-item @click="showUserInfoDialog">个人设置</el-dropdown-item>
             <el-dropdown-item divided @click="handleLogout">退出登录</el-dropdown-item>
           </el-dropdown-menu>
         </template>
@@ -41,6 +41,11 @@
       </el-tabs>
     </div>
   </div>
+
+  <!-- 用户信息弹窗 -->
+  <el-dialog title="用户信息" :visible.sync="userInfoDialogVisible" width="30%">
+    <pre>{{ userInfo }}</pre>
+  </el-dialog>
 </template>
 
 <script setup lang="ts">
@@ -49,6 +54,8 @@ import { useRouter, useRoute } from 'vue-router'
 import { useLayoutStore } from '@/stores/useLayoutStore'
 import { ref, watch } from 'vue'
 import Breadcrumb from '@/components/Breadcrumb.vue'
+import { getUserInfo } from '@/api/user'
+
 
 const router = useRouter()
 const route = useRoute()
@@ -62,6 +69,39 @@ const handleLogout = () => {
 const activeTab = ref('')
 const visitedViews = ref<Array<{ path: string; title: string }>>([])
 
+const userInfoDialogVisible = ref(false)
+const userInfo = ref<any>(null)
+
+// const showUserInfoDialog = async () => {
+//   try {
+//     const response = await getUserInfo()
+//     userInfo.value = response.data
+//     userInfoDialogVisible.value = true
+//   } catch (error) {
+//     console.error('获取用户信息失败', error)
+//   }
+// }
+const showUserInfoDialog = async () => {
+  console.log('点击了个人设置');
+  try {
+    const response = await getUserInfo();
+    console.log('接口返回数据:', response);
+    userInfo.value = response.data;
+    userInfoDialogVisible.value = true;
+    console.log('对话框显示状态:', userInfoDialogVisible.value);
+  } catch (error: any) {
+    console.error('获取用户信息失败', error);
+    if (error.response) {
+      console.log('响应状态码:', error.response.status);
+      console.log('响应数据:', error.response.data);
+    } else if (error.request) {
+      console.log('请求已发送，但没有收到响应');
+    } else {
+      console.log('请求发生错误:', error.message);
+    }
+    alert('获取用户信息失败，请稍后重试');
+  }
+}
 watch(() => route.path, (newPath) => {
   const matched = route.matched.find(item => item.path === newPath)
   if (matched && matched.meta.title) {
