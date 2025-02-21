@@ -1,5 +1,102 @@
-# Vue 3 + TypeScript + Vite
+# Z-Admin
 
-This template should help get you started developing with Vue 3 and TypeScript in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+一个基于 Vue 3、TypeScript 和 Vite 构建的现代化后台管理系统。
 
-Learn more about the recommended Project Setup and IDE Support in the [Vue Docs TypeScript Guide](https://vuejs.org/guide/typescript/overview.html#project-setup).
+## 🚀 特性
+
+- 🎯 **Vue 3 + TypeScript**: 采用最新的 Vue 3 组合式 API 和 TypeScript，提供完整的类型支持
+- ⚡️ **Vite**: 极速的开发服务器启动和热更新
+- 🎨 **Element Plus**: 美观的 UI 组件库，提供丰富的交互体验
+- 📊 **可视化**: 集成 ECharts 和 Chart.js，支持多种数据可视化方案
+- 🤖 **AI 能力**: 集成 TensorFlow.js 和 Face API，支持智能分析和人脸识别
+- 📝 **Markdown 支持**: 内置 Markdown 编辑器，支持 KaTeX 数学公式
+- 🔐 **权限管理**: 完善的角色权限控制系统
+- 📱 **响应式设计**: 自适应多种屏幕尺寸
+
+## 🛠️ 技术栈
+
+- 核心框架：Vue 3
+- 开发语言：TypeScript
+- 构建工具：Vite
+- UI 框架：Element Plus
+- 状态管理：Pinia
+- 路由管理：Vue Router
+- HTTP 客户端：Axios
+- 代码规范：ESLint + Prettier
+- Git Hook：Husky + lint-staged
+
+## 📦 快速开始
+
+确保你的开发环境满足以下要求：
+- Node.js >= 16.0.0
+- pnpm >= 8.0.0
+
+```bash
+# 克隆项目
+git clone <https://github.com/JiMei-University-Zhuang/Z-Admin>
+
+# 进入项目目录
+cd z-admin
+
+# 安装依赖
+pnpm install
+
+# 启动开发服务器
+pnpm dev
+```
+
+## 📝 开发指南
+
+### 项目结构
+```
+z-admin
+├── src/                    # 源代码
+│   ├── api/               # API 接口
+│   ├── assets/            # 静态资源
+│   ├── components/        # 公共组件
+│   ├── layout/           # 布局组件
+│   ├── router/           # 路由配置
+│   ├── store/            # Pinia 状态管理
+│   ├── styles/           # 全局样式
+│   ├── utils/            # 工具函数
+│   └── views/            # 页面组件
+├── public/                # 公共资源
+├── .env.*                 # 环境变量配置
+├── vite.config.ts        # Vite 配置
+└── tsconfig.json         # TypeScript 配置
+```
+
+### 开发命令
+
+```bash
+# 开发环境
+pnpm dev
+
+# 构建生产版本
+pnpm build
+
+# 预览生产构建
+pnpm preview
+
+# 代码格式化
+pnpm format
+
+# 代码检查
+pnpm lint
+```
+
+## 🤝 贡献指南
+
+1. Fork 本仓库
+2. 创建你的特性分支 (`git checkout -b feature/AmazingFeature`)
+3. 提交你的改动 (`git commit -m 'Add some AmazingFeature'`)
+4. 推送到分支 (`git push origin feature/AmazingFeature`)
+5. 创建一个 Pull Request
+
+## 📄 许可证
+
+[MIT License](LICENSE)
+
+## 🙏 致谢
+
+感谢所有为这个项目做出贡献的开发者！
