@@ -2,7 +2,7 @@
 import { ref, reactive, onUnmounted, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { login } from '@/api/user'
+import { login, register } from '@/api/user'
 import * as faceapi from 'face-api.js'
 import axios from 'axios'
 
@@ -11,12 +11,12 @@ const loginFormRef = ref()
 const loginForm = reactive({
   username: '',
   password: '',
-  // captcha: ''
+  captcha: ''
 })
 const loginrules = {
   username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
   password: [{ required: true, message: '请输入密码', trigger: 'blur' }],
-  // captcha: [{ required: true, message: '请输入验证码', trigger: 'blur' }]
+  captcha: [{ required: true, message: '请输入验证码', trigger: 'blur' }]
 }
 
 const registerFormRef = ref()
@@ -301,13 +301,17 @@ const handleLogin = async (formEl: any) => {
         const response = await login({
           username: loginForm.username,
           password: loginForm.password,
-          // captcha: loginForm.captcha
+          captcha: loginForm.captcha
         })
-        // 登录成功，处理返回的 token
-        const token = response?.data
-        localStorage.setItem('token', token) // 将 token 存储到本地
-        messageControl.showMessage('登录成功', 'success')
-        router.push('/dashboard')
+        console.log('登录请求返回的数据:', response);
+        if (response?.data) {
+          const token = response.data;
+          localStorage.setItem('token', token);
+          messageControl.showMessage('登录成功', 'success');
+          router.push('/dashboard');
+        } else {
+          messageControl.showMessage('登录失败，未获取到有效的 token', 'error');
+        }
       } catch (error: any) {
         // 登录失败，提示错误信息
         const errorMessage = error.response?.data?.message || '登录失败，请检查用户名和密码'
@@ -321,35 +325,55 @@ const handleLogin = async (formEl: any) => {
 //注册逻辑
 const handleRegister = async () => {
   if (!registerFormRef.value) return;
+
+  // 验证表单数据
   const valid = await (registerFormRef.value as any).validate();
-  if (valid) {
-    const { username, password, telephone, captcha } = registerForm;
-    let registerUrl = '';
-    if (telephone) {
-      registerUrl = 'http://8.130.75.193:8081/auth/telephoneRegister';
-    }
-    const data = {
+  if (!valid) {
+    ElMessage.error('表单验证失败，请检查信息');
+    return;
+  }
+
+  // 获取表单数据
+  const { username, password, name, telephone, captcha } = registerForm;
+
+  // 检查手机号是否为空
+  if (!telephone) {
+    ElMessage.error('手机号不能为空');
+    return;
+  }
+
+  try {
+    const response = await register({
       username,
       password,
-      name: '',
+      name,
       telephone,
       captcha
-    };
-    try {
-      const response = await axios.post(registerUrl, data);
-      console.log('注册成功返回的响应:', response.data);
-      const token = response.data.token;
-      localStorage.setItem('token', token);
-      ElMessage.success('注册成功');
-      gotoLogin()
-      refreshCaptcha();
-    } catch (error) {
-      console.error('注册失败', error);
-      ElMessage.error('注册失败，请检查信息');
-      refreshCaptcha();
-    }
+    });
+
+    console.log('注册成功返回的响应:', response.data);
+
+    // 存储token到localStorage
+    const token = response.data.token;
+    localStorage.setItem('token', token);
+
+    // 显示成功消息
+    ElMessage.success('注册成功');
+
+    // 跳转到登录页面
+    gotoLogin();
+
+    // 刷新验证码
+    refreshCaptcha();
+  } catch (error) {
+    console.error('注册失败', error);
+    ElMessage.error('注册失败，请检查信息');
+    refreshCaptcha();
   }
 };
+
+
+
 
 const startCamera = async () => {
   try {
@@ -397,7 +421,6 @@ const getCaptcha = async () => {
     ElMessage.error('获取验证码失败');
   }
 };
-
 // 刷新验证码
 const refreshCaptcha = () => {
   getCaptcha();
@@ -430,11 +453,11 @@ onMounted(() => {
             <el-form-item prop="password" label="密码:&emsp;">
               <el-input v-model="loginForm.password" type="password" placeholder="请输入密码" show-password />
             </el-form-item>
-            <!-- <el-form-item prop="captcha" label="验证码:" class="captcha-container">
+            <el-form-item prop="captcha" label="验证码:" class="captcha-container">
               <el-input v-model="loginForm.captcha" placeholder="请输入验证码" style="width: 130px;" />
               <img :src="captchaUrl" alt="验证码" @click="refreshCaptcha"
                 style="cursor: pointer; margin-left: 10px;width: 60px;">
-            </el-form-item> -->
+            </el-form-item> 
             <el-form-item>
               <el-button type="primary" :loading="loading" class="login-button" @click="handleLogin(loginFormRef)">
                 登录
