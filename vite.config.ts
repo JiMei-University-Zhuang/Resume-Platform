@@ -24,7 +24,7 @@ export default defineConfig({
         target: 'http://localhost:8000',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ''),
-        priority: 100
+        // priority: 100
       },
       '/api': {
         target: 'http://8.130.75.193:8081',
