@@ -20,13 +20,9 @@ export function register(data: { username: string; password: string; name: strin
 
 // 获取当前用户信息
 export function getUserInfo() {
-  // var token = localStorage.getItem('token')
   return request({
     url: '/auth/getUser',
     method: 'post',
-    // headers: {
-    //   'token': token // 从本地存储获取 token
-    // }
   })
 }
 
@@ -52,9 +48,6 @@ export function addUser(data: Omit<IUser, 'id' | 'createTime'>) {
   return request<IUser>({
     url: '/user/add',
     method: 'post',
-    // headers: {
-    //   'token': localStorage.getItem('token') || '' // 从本地存储获取 token
-    // },
     data
   })
 }
@@ -86,5 +79,6 @@ export function addUser(data: Omit<IUser, 'id' | 'createTime'>) {
     return request({
       url: '/auth/getCaptcha',
       method: 'get',
+      responseType: 'blob'
     })
   }
