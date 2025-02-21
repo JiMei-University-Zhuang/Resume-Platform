@@ -1,3 +1,136 @@
+<template>
+  <div class="login-container">
+    <div class="login-content">
+      <div class="login-left">
+        <h1 class="platform-title">AI 职业助手</h1>
+        <p class="platform-desc">智能规划你的职业生涯</p>
+        <div class="feature-list">
+          <div class="feature-item">
+            <i class="el-icon-aim"></i>
+            <span>精准职业定位</span>
+          </div>
+          <div class="feature-item">
+            <i class="el-icon-data-line"></i>
+            <span>个性化发展规划</span>
+          </div>
+          <div class="feature-item">
+            <i class="el-icon-reading"></i>
+            <span>AI 简历优化</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="login-box" v-if="isLogin">
+        <h2 class="login-title">开启智能职业规划</h2>
+        <el-tabs v-model="activeTab" class="login-tabs">
+          <el-tab-pane label="账号登录" name="account">
+            <el-form ref="loginFormRef" :model="loginForm" :rules="loginrules" class="login-form">
+              <el-form-item prop="username">
+                <el-input 
+                  v-model="loginForm.username" 
+                  placeholder="请输入用户名"
+                  class="custom-input"
+                >
+                  <template #prefix>
+                    <i class="el-icon-user"></i>
+                  </template>
+                </el-input>
+              </el-form-item>
+              <el-form-item prop="password">
+                <el-input 
+                  v-model="loginForm.password" 
+                  type="password" 
+                  placeholder="请输入密码" 
+                  show-password
+                  class="custom-input"
+                >
+                  <template #prefix>
+                    <i class="el-icon-lock"></i>
+                  </template>
+                </el-input>
+              </el-form-item>
+              <el-form-item>
+                <el-button type="primary" :loading="loading" class="login-button" @click="handleLogin(loginFormRef)">
+                  立即登录
+                </el-button>
+                <el-button class="register-button" @click="gotoRegister">
+                  注册账号
+                </el-button>
+              </el-form-item>
+            </el-form>
+          </el-tab-pane>
+          <el-tab-pane label="人脸登录" name="face">
+            <div class="face-login-container">
+              <div class="video-container">
+                <video ref="videoRef" autoplay playsinline class="face-video"></video>
+                <canvas ref="canvasRef" class="face-canvas"></canvas>
+              </div>
+              <el-button type="primary" class="face-login-button" :loading="isProcessing" :disabled="!isModelLoaded"
+                @click="handleFaceLogin">
+                {{ isModelLoaded ? '开始识别' : '加载中...' }}
+              </el-button>
+            </div>
+          </el-tab-pane>
+        </el-tabs>
+      </div>
+
+      <div class="register-box" v-else>
+        <h2 class="login-title">注册新用户</h2>
+        <el-form class="register-form" ref="registerFormRef" :model="registerForm" :rules="registerrules">
+          <el-form-item prop="username">
+            <el-input v-model="registerForm.username" placeholder="请输入用户名" class="custom-input">
+              <template #prefix>
+                <i class="el-icon-user"></i>
+              </template>
+            </el-input>
+          </el-form-item>
+          <el-form-item prop="password">
+            <el-input v-model="registerForm.password" type="password" placeholder="请输入密码" show-password class="custom-input">
+              <template #prefix>
+                <i class="el-icon-lock"></i>
+              </template>
+            </el-input>
+          </el-form-item>
+          <el-form-item prop="name">
+            <el-input v-model="registerForm.name" placeholder="请输入昵称" class="custom-input">
+              <template #prefix>
+                <i class="el-icon-user"></i>
+              </template>
+            </el-input>
+          </el-form-item>
+          <el-form-item prop="telephone">
+            <el-input v-model="registerForm.telephone" placeholder="请输入手机号" class="custom-input">
+              <template #prefix>
+                <i class="el-icon-phone"></i>
+              </template>
+            </el-input>
+          </el-form-item>
+          <el-form-item prop="captcha">
+            <el-input v-model="registerForm.captcha" placeholder="请输入验证码" class="custom-input">
+              <template #prefix>
+                <i class="el-icon-key"></i>
+              </template>
+            </el-input>
+            <img :src="captchaUrl" alt="验证码" @click="refreshCaptcha"
+              style="cursor: pointer; margin-left: 10px;width: 60px;">
+          </el-form-item>
+          <el-form-item>
+            <el-button class="login-button" type="primary" id="register" @click="handleRegister">
+              注册
+            </el-button>
+          </el-form-item>
+          <el-form-item>
+            <span class="account-tip">
+              已有账号？
+              <el-link type="primary" class="back-to-login" @click="gotoLogin"> 立即登录 </el-link>
+            </span>
+          </el-form-item>
+        </el-form>
+      </div>
+    </div>
+  </div>
+</template>
+
 <script setup lang="ts">
 import { ref, reactive, onUnmounted, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
@@ -11,19 +144,16 @@ const loginFormRef = ref()
 const loginForm = reactive({
   username: '',
   password: '',
-  // captcha: ''
 })
 const loginrules = {
   username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
   password: [{ required: true, message: '请输入密码', trigger: 'blur' }],
-  // captcha: [{ required: true, message: '请输入验证码', trigger: 'blur' }]
 }
 
 const registerFormRef = ref()
 const registerForm = reactive({
   username: '',
   password: '',
-  // confirmPassword: '',
   name: '',
   telephone: '',
   captcha: ''
@@ -31,19 +161,6 @@ const registerForm = reactive({
 const registerrules = {
   username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
   password: [{ required: true, message: '请输入密码', trigger: 'blur' }],
-  //预留一下再次验证密码的
-  // confirmPassword: [
-  //   { required: true, message: '请确认密码', trigger: 'blur' },
-  //   {
-  //     validator: (rule , value, callback) => {
-  //       if (value !== registerForm.password) {
-  //         callback(new Error('两次输入的密码不一致'));
-  //       } else {
-  //         callback();
-  //       }
-  //     }, trigger: 'blur'
-  //   }
-  // ],
   name: [{ required: true, message: '请输入昵称', trigger: 'blur' }],
   telephone: [
     { required: true, message: '请输入手机号', trigger: 'blur' },
@@ -53,8 +170,6 @@ const registerrules = {
     { required: true, message: '请输入验证码', trigger: 'blur' }
   ],
 }
-
-
 
 const loading = ref(false)
 const activeTab = ref('account')
@@ -286,7 +401,6 @@ watch(isLogin, newVal => {
   if (!newVal) {
     registerForm.username = ''
     registerForm.password = ''
-    
   }
 })
 
@@ -301,7 +415,6 @@ const handleLogin = async (formEl: any) => {
         const response = await login({
           username: loginForm.username,
           password: loginForm.password,
-          // captcha: loginForm.captcha
         })
         // 登录成功，处理返回的 token
         const token = response?.data
@@ -318,6 +431,7 @@ const handleLogin = async (formEl: any) => {
     }
   })
 }
+
 //注册逻辑
 const handleRegister = async () => {
   if (!registerFormRef.value) return;
@@ -373,7 +487,6 @@ const stopCamera = () => {
   }
 }
 
-
 watch(activeTab, (newVal) => {
   if (newVal === 'face') {
     startCamera()
@@ -417,165 +530,190 @@ onMounted(() => {
 })
 </script>
 
-<template>
-  <div class="login-container">
-    <div class="login-box" v-if="isLogin">
-      <h2>AI管理平台</h2>
-      <el-tabs v-model="activeTab" class="login-tabs">
-        <el-tab-pane label="账号登录" name="account">
-          <el-form ref="loginFormRef" :model="loginForm" :rules="loginrules" class="login-form">
-            <el-form-item prop="username" label="用户名:">
-              <el-input v-model="loginForm.username" placeholder="请输入用户名" />
-            </el-form-item>
-            <el-form-item prop="password" label="密码:&emsp;">
-              <el-input v-model="loginForm.password" type="password" placeholder="请输入密码" show-password />
-            </el-form-item>
-            <!-- <el-form-item prop="captcha" label="验证码:" class="captcha-container">
-              <el-input v-model="loginForm.captcha" placeholder="请输入验证码" style="width: 130px;" />
-              <img :src="captchaUrl" alt="验证码" @click="refreshCaptcha"
-                style="cursor: pointer; margin-left: 10px;width: 60px;">
-            </el-form-item> -->
-            <el-form-item>
-              <el-button type="primary" :loading="loading" class="login-button" @click="handleLogin(loginFormRef)">
-                登录
-              </el-button>
-              <el-button class="register-button" @click="gotoRegister" style="margin-left: 0">
-                注册
-              </el-button>
-            </el-form-item>
-          </el-form>
-        </el-tab-pane>
-        <el-tab-pane label="人脸登录" name="face">
-          <div class="face-login-container">
-            <div class="video-container">
-              <video ref="videoRef" autoplay playsinline class="face-video"></video>
-              <canvas ref="canvasRef" class="face-canvas"></canvas>
-            </div>
-            <el-button type="primary" class="face-login-button" :loading="isProcessing" :disabled="!isModelLoaded"
-              @click="handleFaceLogin">
-              {{ isModelLoaded ? '开始识别' : '加载中...' }}
-            </el-button>
-          </div>
-        </el-tab-pane>
-      </el-tabs>
-    </div>
-
-    <!-- 注册页面 -->
-    <div class="register-box" v-else>
-      <h2>新用户注册</h2>
-      <el-form class="register-form" ref="registerFormRef" :model="registerForm" :rules="registerrules">
-        <el-form-item prop="username" label="用户名:&emsp;">
-          <el-input v-model="registerForm.username" placeholder="请输入用户名" />
-        </el-form-item>
-        <el-form-item prop="password" label="密码:&emsp;&emsp;">
-          <el-input v-model="registerForm.password" type="password" placeholder="请输入密码" show-password />
-        </el-form-item>
-        <el-form-item prop="name" label="昵称">
-          <el-input v-model="registerForm.name" placeholder="请输入昵称" />
-        </el-form-item - form - item>
-        <!-- <el-form-item prop="confirmPassword" label="确认密码:">
-          <el-input v-model="registerForm.confirmPassword" type="password" placeholder="请再次输入密码" show-password />
-        </el-form-item> -->
-        <el-form-item prop="telephone" label="手机号:">
-          <el-input v-model="registerForm.telephone" placeholder="请输入手机号" />
-        </el-form-item>
-        <el-form-item prop="captcha" label="验证码:" class="captcha-container">
-          <el-input v-model="registerForm.captcha" placeholder="请输入验证码" style="width: 130px;" />
-          <img :src="captchaUrl" alt="验证码" @click="refreshCaptcha"
-            style="cursor: pointer; margin-left: 10px;width: 60px;">
-        </el-form-item>
-        <el-form-item>
-          <el-button class="login-button" type="primary" id="register" @click="handleRegister">
-            注册
-          </el-button>
-        </el-form-item>
-        <el-form-item>
-          <span class="account-tip">
-            已有账号？
-            <el-link type="primary" class="back-to-login" @click="gotoLogin"> 立即登录 </el-link>
-          </span>
-        </el-form-item>
-      </el-form>
-    </div>
-  </div>
-</template>
-
 <style scoped>
-.captcha-container{
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.el-form-item {
-  width: 100%;
-}
-
 .login-container {
   height: 100vh;
-
   display: flex;
   align-items: center;
-  background-image: url('@/assets/images/login-bg.jpg');
-  background-size: 100% 100%;
-  background-repeat: no-repeat;
+  justify-content: center;
+  background: linear-gradient(135deg, #f5f7fa 0%, #e4e7eb 100%);
   position: relative;
+  overflow: hidden;
+}
+
+.login-container::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    45deg,
+    rgba(24, 73, 234, 0.1) 0%,
+    rgba(108, 249, 211, 0.1) 100%
+  );
+  animation: rotate 20s linear infinite;
   z-index: 1;
+}
+
+.login-content {
+  display: flex;
+  align-items: center;
+  gap: 80px;
+  max-width: 1200px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 2;
+}
+
+.login-left {
+  flex: 1;
+  padding: 40px;
+  color: #1849ea;
+}
+
+.platform-title {
+  font-size: 48px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  background: linear-gradient(45deg, #1849ea, #6cf9d3);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.platform-desc {
+  font-size: 24px;
+  color: #666;
+  margin-bottom: 40px;
+}
+
+.feature-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.feature-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  font-size: 18px;
+  color: #333;
+}
+
+.feature-item i {
+  font-size: 24px;
+  color: #1849ea;
 }
 
 .login-box,
 .register-box {
-  position: absolute;
-  right: 150px;
-  width: 350px;
-  padding: 30px 40px;
-  padding-bottom: 8px;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 12px 8px rgba(148, 183, 205, 0.9),
-              0 0 25px rgba(108, 249, 211, 0.3),
-              0 0 50px rgba(24, 73, 234, 0.25);
-  z-index: 2;
+  width: 400px;
+  padding: 40px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(24, 73, 234, 0.1);
+  backdrop-filter: blur(10px);
 }
 
-.login-box h2,
-.register-box h2 {
+.login-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: #333;
   text-align: center;
-  margin-bottom: 20px;
+  margin-bottom: 30px;
 }
 
-.login-form {
-  margin-top: 20px;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+:deep(.custom-input .el-input__wrapper) {
+  background-color: #f5f7fa;
+  border: 2px solid transparent;
+  border-radius: 12px;
+  box-shadow: none;
+  transition: all 0.3s ease;
+  padding: 0 15px;
+}
+
+:deep(.custom-input .el-input__wrapper:hover) {
+  background-color: #fff;
+  border-color: #e4e7eb;
+}
+
+:deep(.custom-input .el-input__wrapper.is-focus) {
+  background-color: #fff;
+  border-color: #1849ea;
+  box-shadow: 0 0 0 2px rgba(24, 73, 234, 0.1);
+}
+
+:deep(.custom-input .el-input__inner) {
+  height: 44px;
+  color: #333;
+  font-size: 15px;
+}
+
+:deep(.custom-input .el-input__inner::placeholder) {
+  color: #909399;
+}
+
+:deep(.custom-input .el-input__prefix) {
+  color: #909399;
+  font-size: 18px;
+  margin-right: 10px;
+}
+
+:deep(.el-tabs__nav-wrap::after) {
+  height: 1px;
+  background-color: #e4e7eb;
+}
+
+:deep(.el-tabs__item) {
+  font-size: 16px;
+  color: #606266;
+  padding: 0 20px 12px;
+}
+
+:deep(.el-tabs__item.is-active) {
+  color: #1849ea;
+  font-weight: 500;
+}
+
+:deep(.el-tabs__active-bar) {
+  background-color: #1849ea;
+  height: 3px;
+  border-radius: 3px;
 }
 
 .login-button {
-  height: 34px;
+  height: 44px;
   width: 100%;
-  padding: 15px 0;
-  margin-top: 15px;
-  background: linear-gradient(160deg, #6cf9d3, #1849ea);
+  font-size: 16px;
+  font-weight: 500;
+  background: linear-gradient(45deg, #1849ea, #6cf9d3);
   border: none;
+  border-radius: 12px;
+  margin-bottom: 16px;
+  transition: all 0.3s ease;
+}
+
+.login-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(24, 73, 234, 0.2);
 }
 
 .register-button {
-  height: 34px;
+  height: 44px;
   width: 100%;
-  padding: 15px 0;
-  margin-top: 15px;
+  font-size: 16px;
+  font-weight: 500;
+  border: 2px solid #1849ea;
+  color: #1849ea;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  background: transparent;
 }
 
-.face-login-container {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 20px;
-  padding: 20px 0;
+.register-button:hover {
+  background: rgba(24, 73, 234, 0.05);
 }
 
 .video-container {
@@ -608,51 +746,20 @@ onMounted(() => {
 .face-login-button {
   width: 200px;
   height: 40px;
-  background: linear-gradient(160deg, #6cf9d3, #1849ea);
+  background: linear-gradient(45deg, #1849ea, #6cf9d3);
   border: none;
   font-size: 16px;
   margin-top: 5px;
 }
 
-.login-tabs {
-  margin-bottom: 0;  
-}
-
-:deep(.el-tabs__nav) {
-  width: 100%;
-}
-
-:deep(.el-tabs__item) {
-  width: 50%;
-  text-align: center;
-}
-
-#register {
-  margin-top: 30px;
-  border: none;
-  margin-bottom: 10px;
-}
-
-.captcha-form-item {
+.captcha-container{
   display: flex;
+  justify-content: space-between;
   align-items: center;
 }
 
-.captcha-input {
-  width: calc(100% - 90px);
-  height: 40px;
-}
-
-.captcha-img {
-  width: 80px;
-  height: 40px;
-  font-size: 8px;
-  padding-left: 10px;
-}
-
-.account-tip {
-  position: absolute;
-  right: 0;
+.el-form-item {
+  width: 100%;
 }
 
 :deep(.el-input__wrapper) {
@@ -682,5 +789,14 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   color: #909399;
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 </style>
