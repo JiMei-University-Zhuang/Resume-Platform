@@ -147,6 +147,41 @@ const routes: RouteRecordRaw[] = [
         }
       },
       {
+        path: 'resume',
+        name: 'Resume',
+        redirect: '/resume/create',
+        meta: {
+          title: 'AI简历中心',
+          icon: 'Document'
+        },
+        children: [
+          {
+            path: 'create',
+            name: 'ResumeCreate',
+            component: () => import('@/views/resume/Create.vue'),
+            meta: { title: '创建简历' }
+          },
+          {
+            path: 'templates',
+            name: 'ResumeTemplates',
+            component: () => import('@/views/resume/Templates.vue'),
+            meta: { title: '简历模板' }
+          },
+          {
+            path: 'analysis',
+            name: 'ResumeAnalysis',
+            component: () => import('@/views/resume/Analysis.vue'),
+            meta: { title: '简历分析' }
+          },
+          {
+            path: 'insights',
+            name: 'ResumeInsights',
+            component: () => import('@/views/resume/Insights.vue'),
+            meta: { title: '行业洞察' }
+          }
+        ]
+      },
+      {
         path: '/:pathMatch(.*)*',
         name: 'NotFound',
         component: () => import('@/views/error/error404.vue'),

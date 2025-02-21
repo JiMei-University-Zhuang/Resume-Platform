@@ -116,6 +116,28 @@
           </el-icon>
           <template #title>MBTI性格测试</template>
         </el-menu-item>
+
+        <el-sub-menu index="/resume">
+          <template #title>
+            <el-icon>
+              <Document />
+            </el-icon>
+            <span>AI简历中心</span>
+          </template>
+          <el-menu-item index="/resume/create">
+            <span>创建简历</span>
+          </el-menu-item>
+          <el-menu-item index="/resume/templates">
+            <span>简历模板</span>
+          </el-menu-item>
+          <el-menu-item index="/resume/analysis">
+            <span>简历分析</span>
+          </el-menu-item>
+          <el-menu-item index="/resume/insights">
+            <span>行业洞察</span>
+          </el-menu-item>
+        </el-sub-menu>
+
         <el-menu-item index="/chat">
           <el-icon>
             <User />
@@ -137,7 +159,8 @@ import {
   Star,
   Warning,
   Aim,
-  User
+  User,
+  Document
 } from '@element-plus/icons-vue'
 import { useLayoutStore } from '@/stores/useLayoutStore'
 import { useRoute } from 'vue-router'
