@@ -20,3 +20,4 @@ export interface UserInfo {
   avatar?: string
   roles: string[]
 }
+

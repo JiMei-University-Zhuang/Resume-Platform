@@ -51,6 +51,7 @@ export function getUserInfo() {
   })
 }
 
+
 // 用户登出
 export function logout() {
   return request({
@@ -78,7 +79,7 @@ export function addUser(data: Omit<IUser, 'id' | 'createTime'>) {
 }
 
 // 编辑用户
-export function editUser(data: Partial<IUser> & { id: string }) {
+export function editUser(data: IUser) {
   return request({
     url: '/user/edit',
     method: 'post',
@@ -103,9 +104,6 @@ export function getCaptcha( captcha: string ) {
     url: '/auth/getCaptcha',
     method: 'get',
     responseType: 'blob',
-    // headers: {
-    //   captcha
-    // }
     data: {
       captcha
     }

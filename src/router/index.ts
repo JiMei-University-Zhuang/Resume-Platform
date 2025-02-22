@@ -18,8 +18,7 @@ const routes: RouteRecordRaw[] = [
       {
         path: 'dashboard',
         name: 'Dashboard',
-        component: () => import('../views/dashboard/index.vue'),
-       
+        component: () => import('../views/dashboard/index.vue')
       },
       {
         path: '/guide',
@@ -85,7 +84,7 @@ const routes: RouteRecordRaw[] = [
         meta: {
           title: '用户管理',
           icon: 'User',
-          roles: ['admin']  // 只允许管理员访问
+          roles: ['admin'] // 只允许管理员访问
         }
       },
       {
@@ -142,6 +141,14 @@ const routes: RouteRecordRaw[] = [
         component: () => import('@/views/personality/Test.vue'),
         meta: {
           title: 'AI 性格测试'
+        }
+      },
+      {
+        path: '/user-settings',
+        name: 'UserSettings',
+        component: () => import('@/views/user/user-settings.vue'),
+        meta: {
+          title: '个人设置'
         }
       },
       {
