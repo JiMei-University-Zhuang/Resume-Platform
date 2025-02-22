@@ -41,8 +41,8 @@
                 </el-input>
               </el-form-item>
 
-              <el-form-item prop="captcha" class="captcha-container custom-input">
-                <el-input v-model="loginForm.captcha" placeholder="请输入验证码" style="width: auto;" />
+              <el-form-item prop="captcha_value" class="captcha-container custom-input">
+                <el-input v-model="loginForm.captcha_value" placeholder="请输入验证码" style="width: auto;" />
                 <img :src="captchaUrl" alt="验证码" @click="refreshCaptcha"
                   style="cursor: pointer;width: 80px; margin-left: 10px;">
               </el-form-item>
@@ -73,16 +73,26 @@
 
       <div class="register-box" v-else>
         <h2 class="login-title">注册新用户</h2>
-
-        <el-tabs v-model="activeTab" class="register-tabs">
-          <el-tab-pane label="邮箱注册" name="">
+        <el-tabs v-model="registerActiveTab" class="register-tabs">
+          <el-tab-pane label="手机号注册" name="phone">
+            <el-form-item prop="telephone">
+              <el-input v-model="registerForm.telephone" placeholder="请输入手机号" class="custom-input">
+                <template #prefix>
+                  <i class="el-icon-phone"></i>
+                </template>
+              </el-input>
+            </el-form-item>
           </el-tab-pane>
-          <el-tab-pane label="电话注册" name="">
+          <el-tab-pane label="邮箱注册" name="email">
+            <el-form-item prop="email">
+              <el-input v-model="registerForm.email" placeholder="请输入邮箱" class="custom-input">
+                <template #prefix>
+                  <i class="el-icon-mail"></i>
+                </template>
+              </el-input>
+            </el-form-item>
           </el-tab-pane>
         </el-tabs>
-
-
-
         <el-form class="register-form" ref="registerFormRef" :model="registerForm" :rules="registerrules">
           <el-form-item prop="username">
             <el-input v-model="registerForm.username" placeholder="请输入用户名" class="custom-input">
@@ -106,15 +116,8 @@
               </template>
             </el-input>
           </el-form-item>
-          <el-form-item prop="telephone">
-            <el-input v-model="registerForm.telephone" placeholder="请输入手机号" class="custom-input">
-              <template #prefix>
-                <i class="el-icon-phone"></i>
-              </template>
-            </el-input>
-          </el-form-item>
           <el-form-item prop="captcha" class="captcha-container custom-input">
-            <el-input v-model="registerForm.captcha" placeholder="请输入验证码" style="width: auto;" />
+            <el-input v-model="registerForm.captcha_value" placeholder="请输入验证码" style="width: auto;" />
             <img :src="captchaUrl" alt="验证码" @click="refreshCaptcha"
               style="cursor: pointer;width: 80px; margin-left: 10px;">
           </el-form-item>
@@ -140,15 +143,16 @@
 import { ref, reactive, onUnmounted, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { login, register, getCaptcha } from '@/api/user'
+import { login, register, getCaptcha, getCaptchaKey } from '@/api/user'
 import * as faceapi from 'face-api.js'
-import axios from 'axios'
+// import axios from 'axios'
 
 
 const router = useRouter()
 const loginFormRef = ref()
 const registerFormRef = ref()
 const loading = ref(false)
+const registerActiveTab = ref('phone')
 const activeTab = ref('account')
 const videoRef = ref<HTMLVideoElement | null>(null)
 const canvasRef = ref<HTMLCanvasElement | null>(null)
@@ -160,12 +164,13 @@ const isProcessing = ref(false)
 const loginForm = reactive({
   username: '',
   password: '',
-  captcha: ''
+  captcha_key: '',
+  captcha_value:''
 })
 const loginrules = {
   username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
   password: [{ required: true, message: '请输入密码', trigger: 'blur' }],
-  captcha: [{ required: true, message: '请输入验证码', trigger: 'blur' }]
+  captcha_value: [{ required: true, message: '请输入验证码', trigger: 'blur' }]
 }
 
 //注册表单
@@ -174,7 +179,8 @@ const registerForm = reactive({
   password: '',
   name: '',
   telephone: '',
-  captcha: ''
+  email: '',
+  captcha_value: ''
 })
 const registerrules = {
   username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
@@ -184,7 +190,11 @@ const registerrules = {
     { required: true, message: '请输入手机号', trigger: 'blur' },
     { pattern: /^1[3-9]\d{9}$/, message: '手机号格式不正确', trigger: 'blur' }
   ],
-  captcha: [
+  email: [
+    { required: true, message: '请输入邮箱', trigger: 'blur' },
+    { pattern: /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/, message: '邮箱格式不正确', trigger: 'blur' }
+  ],
+  captcha_value: [
     { required: true, message: '请输入验证码', trigger: 'blur' }
   ],
 }
@@ -416,6 +426,7 @@ watch(isLogin, newVal => {
   }
 })
 
+const captchaKey = ref('');
 const handleLogin = async (formEl: any) => {
   if (!formEl) return
 
@@ -426,7 +437,8 @@ const handleLogin = async (formEl: any) => {
         const response = await login({
           username: loginForm.username,
           password: loginForm.password,
-          captcha: loginForm.captcha
+          captcha_key: captchaKey.value,
+          captcha_value: loginForm.captcha_value
         })
         console.log('登录请求返回的数据:', response);
         if (response?.data) {
@@ -447,6 +459,46 @@ const handleLogin = async (formEl: any) => {
   })
 }
 
+// 验证码图片URL
+const captchaUrl = ref('');
+// 获取验证码
+// // 这里的验证码不知道为什么出不来
+// const getCaptchaData = async () => {
+//   try {
+//     const captchaKeyResponse = await getCaptchaKey();
+//     const captchaKey = captchaKeyResponse.data;
+//     console.log('获取到的验证码Key:', captchaKey);
+//     loginForm.captcha_key = captchaKey;
+//     const captchaResponse = await getCaptcha(captchaKey);
+//     const url = window.URL.createObjectURL(captchaResponse.data);
+//     captchaUrl.value = url;
+//   } catch (error) {
+//     console.error('获取验证码失败', error);
+//     ElMessage.error('获取验证码失败');
+//   }
+// };
+
+
+
+const getCaptchaData = async () => {
+  try {
+    const response = await axios.get('http://8.130.75.193:8081/auth/getCaptcha', {
+      responseType: 'blob'
+    });
+    const url = window.URL.createObjectURL(response.data);
+    captchaUrl.value = url;
+  } catch (error) {
+    console.error('获取验证码失败', error);
+    ElMessage.error('获取验证码失败');
+  }
+};
+// 刷新验证码
+const refreshCaptcha = () => {
+  getCaptchaData();
+};
+getCaptchaData();
+
+
 //注册逻辑
 const handleRegister = async () => {
   if (!registerFormRef.value) return;
@@ -457,9 +509,7 @@ const handleRegister = async () => {
     ElMessage.error('表单验证失败，请检查信息');
     return;
   }
-  // 获取表单数据
-  const { username, password, name, telephone, captcha } = registerForm;
-  // 检查手机号是否为空
+  const { username, password, name, telephone, captcha_value } = registerForm;
   if (!telephone) {
     ElMessage.error('手机号不能为空');
     return;
@@ -470,15 +520,12 @@ const handleRegister = async () => {
       password,
       name,
       telephone,
-      captcha
+      captcha_value
     });
     console.log('注册成功返回的响应:', response.data);
-    // 存储token到localStorage
     const token = response.data.token;
     localStorage.setItem('token', token);
-    // 显示成功消息
     ElMessage.success('注册成功');
-    // 跳转到登录页面
     gotoLogin();
     // 刷新验证码
     refreshCaptcha();
@@ -517,37 +564,8 @@ watch(activeTab, (newVal) => {
     stopCamera()
   }
 })
-// 验证码图片URL
-const captchaUrl = ref('');
-// 获取验证码
-//这里的验证码不知道为什么出不来
-// const getCaptchaData = async () => {
-//   try {
-//     const response = await getCaptcha();
-//     const url = window.URL.createObjectURL(response.data);
-//     captchaUrl.value = url;
-//   } catch (error) {
-//     console.error('获取验证码失败', error);
-//     ElMessage.error('获取验证码失败');
-//   }
-// };
 
-const getCaptchaData = async () => {
-  try {
-    const response = await axios.get('http://8.130.75.193:8081/auth/getCaptcha', {
-      responseType: 'blob'
-    });
-    const url = window.URL.createObjectURL(response.data);
-    captchaUrl.value = url;
-  } catch (error) {
-    console.error('获取验证码失败', error);
-    ElMessage.error('获取验证码失败');
-  }
-};
-// 刷新验证码
-const refreshCaptcha = () => {
-  getCaptchaData();
-};
+
 
 
 onUnmounted(() => {
