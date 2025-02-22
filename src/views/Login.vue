@@ -73,6 +73,16 @@
 
       <div class="register-box" v-else>
         <h2 class="login-title">注册新用户</h2>
+
+        <el-tabs v-model="activeTab" class="register-tabs">
+          <el-tab-pane label="邮箱注册" name="">
+          </el-tab-pane>
+          <el-tab-pane label="电话注册" name="">
+          </el-tab-pane>
+        </el-tabs>
+
+
+
         <el-form class="register-form" ref="registerFormRef" :model="registerForm" :rules="registerrules">
           <el-form-item prop="username">
             <el-input v-model="registerForm.username" placeholder="请输入用户名" class="custom-input">
@@ -103,20 +113,17 @@
               </template>
             </el-input>
           </el-form-item>
-          <el-form-item prop="captcha">
-            <el-input v-model="registerForm.captcha" placeholder="请输入验证码" class="custom-input">
-              <template #prefix>
-                <i class="el-icon-key"></i>
-              </template>
-            </el-input>
+          <el-form-item prop="captcha" class="captcha-container custom-input">
+            <el-input v-model="registerForm.captcha" placeholder="请输入验证码" style="width: auto;" />
             <img :src="captchaUrl" alt="验证码" @click="refreshCaptcha"
-              style="cursor: pointer; margin-left: 10px;width: 60px;">
+              style="cursor: pointer;width: 80px; margin-left: 10px;">
           </el-form-item>
           <el-form-item>
-            <el-button class="login-button" type="primary" id="register" @click="handleRegister" >
+            <el-button class="login-button" type="primary" id="register" @click="handleRegister">
               注册
             </el-button>
           </el-form-item>
+
           <el-form-item>
             <span class="account-tip">
               已有账号？
@@ -799,6 +806,11 @@ onMounted(() => {
 
 .el-form-item {
   width: 100%;
+}
+
+.account-tip{
+  position: absolute;
+  right: 0;
 }
 
 :deep(.el-input__wrapper) {
