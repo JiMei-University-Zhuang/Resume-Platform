@@ -1,9 +1,9 @@
 <template>
-  <aside class="sidebar" :class="{ 'collapsed': layoutStore.collapsed }">
+  <aside class="sidebar" :class="{ 'collapsed': appStore.collapsed }">
     <el-scrollbar>
-      <el-menu router class="menu" :collapse="layoutStore.collapsed" :default-active="route.path"
-        :background-color="layoutStore.isDark ? '#141414' : '#304156'"
-        :text-color="layoutStore.isDark ? '#fff' : '#bfcbd9'" active-text-color="#409EFF" unique-opened>
+      <el-menu router class="menu" :collapse="appStore.collapsed" :default-active="route.path"
+        :background-color="appStore.isDark ? '#141414' : '#304156'"
+        :text-color="appStore.isDark ? '#fff' : '#bfcbd9'" active-text-color="#409EFF" unique-opened>
         <el-menu-item index="/dashboard">
           <el-icon>
             <HomeFilled />
@@ -162,12 +162,11 @@ import {
   Document,
   UserFilled
 } from '@element-plus/icons-vue'
-import { useLayoutStore } from '@/stores/useLayoutStore'
+import { useAppStore } from '@/stores'
 import { useRoute } from 'vue-router'
 
-
 const route = useRoute()
-const layoutStore = useLayoutStore()
+const appStore = useAppStore()
 </script>
 
 <style scoped>

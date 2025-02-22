@@ -144,7 +144,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { ElMessage } from 'element-plus'
-import { usePersonalityStore } from '@/store/personality'
+import { usePersonalityStore } from '@/stores'
 import type { Question, OpenQuestion, PersonalityReport } from '@/types/personality'
 import { mbtiQuestions, bigFiveQuestions, openQuestions } from '@/constants/personalityQuestions'
 
