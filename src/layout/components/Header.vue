@@ -53,6 +53,8 @@ import { useRouter, useRoute } from 'vue-router'
 import { useAppStore } from '@/stores'
 import { ref, watch } from 'vue'
 import Breadcrumb from '@/components/Breadcrumb.vue'
+import { logout } from '@/api/user'
+import { ElMessage } from 'element-plus'
 
 const router = useRouter()
 const route = useRoute()
@@ -64,12 +66,17 @@ const handleUserinfo = () => {
   router.push('/user-settings')
 }
 
-
-const handleLogout = () => {
-  localStorage.removeItem('token')
-  router.push('/login')
-}
-
+// 处理登出的函数
+const handleLogout = async () => {
+  try {
+    await logout();
+    localStorage.removeItem('token');
+    ElMessage.success('成功退出登录')
+    router.push('/login');
+  } catch (error) {
+    console.error('登出失败:', error);
+  }
+};
 const activeTab = ref('')
 const visitedViews = ref<Array<{ path: string; title: string }>>([])
 
