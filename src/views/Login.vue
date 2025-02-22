@@ -143,10 +143,9 @@
 import { ref, reactive, onUnmounted, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { login, register, getCaptcha, getCaptchaKey } from '@/api/user'
+import { login, register } from '@/api/user'
+import axios from 'axios'
 import * as faceapi from 'face-api.js'
-// import axios from 'axios'
-
 
 const router = useRouter()
 const loginFormRef = ref()
@@ -173,7 +172,6 @@ const loginrules = {
   captcha_value: [{ required: true, message: '请输入验证码', trigger: 'blur' }]
 }
 
-//注册表单
 const registerForm = reactive({
   username: '',
   password: '',
@@ -199,8 +197,164 @@ const registerrules = {
   ],
 }
 
+const captchaKey = ref('')
+const captchaUrl = ref('')
 
+const getCaptchaData = async () => {
+  try {
+    const prepareResponse = await axios.get('http://8.130.75.193:8081/auth/prepareCode')
+    if (prepareResponse.data.code === 200) {
+      captchaKey.value = prepareResponse.data.data
+      
+      const captchaResponse = await axios.get('http://8.130.75.193:8081/auth/getCaptcha', {
+        headers: {
+          'captcha': captchaKey.value
+        },
+        responseType: 'blob'
+      })
+      
+      if (captchaUrl.value) {
+        window.URL.revokeObjectURL(captchaUrl.value)
+      }
+      const blob = new Blob([captchaResponse.data], { type: 'image/jpeg' })
+      captchaUrl.value = window.URL.createObjectURL(blob)
+      loginForm.captcha_key = captchaKey.value
+    } else {
+      throw new Error(prepareResponse.data.msg || '获取验证码key失败')
+    }
+  } catch (error) {
+    ElMessage.error('获取验证码失败，请刷新重试')
+  }
+}
 
+const refreshCaptcha = () => {
+  getCaptchaData()
+}
+
+const isLogin = ref(true)
+const gotoRegister = () => {
+  isLogin.value = false
+}
+const gotoLogin = () => {
+  isLogin.value = true
+}
+
+watch(isLogin, newVal => {
+  if (!newVal) {
+    registerForm.username = ''
+    registerForm.password = ''
+  }
+})
+
+const handleLogin = async (formEl: any) => {
+  if (!formEl) return
+
+  await formEl.validate(async (valid: boolean) => {
+    if (valid) {
+      loading.value = true
+      try {
+        const response = await login({
+          username: loginForm.username,
+          password: loginForm.password,
+          captcha_key: captchaKey.value,
+          captcha_value: loginForm.captcha_value
+        })
+        
+        if (response.code === 200 && response.data) {
+          const token = response.data
+          localStorage.setItem('token', token)
+          ElMessage.success('登录成功')
+          router.push('/dashboard')
+        } else {
+          throw new Error(response.msg || '登录失败')
+        }
+      } catch (error: any) {
+        const errorMessage = error.response?.data?.msg || error.message || '登录失败，请检查用户名和密码'
+        ElMessage.error(errorMessage)
+        refreshCaptcha()
+      } finally {
+        loading.value = false
+      }
+    }
+  })
+}
+
+const handleRegister = async () => {
+  if (!registerFormRef.value) return
+
+  await registerFormRef.value.validate(async (valid: boolean) => {
+    if (valid) {
+      try {
+        const registerData = {
+          username: registerForm.username,
+          password: registerForm.password,
+          name: registerForm.name,
+          telephone: registerForm.telephone,
+          captcha_key: captchaKey.value,
+          captcha_value: registerForm.captcha_value
+        }
+
+        const response = await register(registerData)
+        
+        if (response.code === 200) {
+          ElMessage.success('注册成功')
+          gotoLogin()
+        } else {
+          throw new Error(response.msg || '注册失败')
+        }
+      } catch (error: any) {
+        const errorMessage = error.response?.data?.msg || error.message || '注册失败，请检查信息'
+        ElMessage.error(errorMessage)
+      } finally {
+        refreshCaptcha()
+      }
+    }
+  })
+}
+
+const startCamera = async () => {
+  try {
+    stream.value = await navigator.mediaDevices.getUserMedia({
+      video: true,
+      audio: false
+    })
+    if (videoRef.value) {
+      videoRef.value.srcObject = stream.value
+    }
+  } catch (error) {
+    console.error('摄像头调用失败:', error)
+    ElMessage.error('摄像头调用失败，请检查设备权限')
+  }
+}
+const stopCamera = () => {
+  if (stream.value) {
+    stream.value.getTracks().forEach(track => track.stop())
+    stream.value = null
+  }
+}
+
+watch(activeTab, (newVal) => {
+  if (newVal === 'face') {
+    startCamera()
+  } else {
+    stopCamera()
+  }
+})
+
+onUnmounted(() => {
+  stopCamera(),
+    getCaptchaData()
+})
+
+// 在组件挂载后延迟加载模型
+onMounted(() => {
+  // 给页面一些时间完成初始化
+  setTimeout(loadFaceModels, 1500)
+  getCaptchaData()
+
+})
+
+// 人脸识别相关
 const loadFaceModels = async () => {
   try {
     const baseUrl = import.meta.env.BASE_URL.endsWith('/')
@@ -238,10 +392,10 @@ const loadFaceModels = async () => {
     }
 
     isModelLoaded.value = true
-    messageControl.showMessage('模型加载成功', 'success')
+    ElMessage.success('人脸识别模型加载成功')
   } catch (error) {
     console.error('模型加载失败，详细错误:', error)
-    messageControl.showMessage(`人脸识别模型加载失败: ${error.message || '未知错误'}`, 'error')
+    ElMessage.error(`人脸识别模型加载失败: ${error.message || '未知错误'}`)
     isModelLoaded.value = false
   }
 }
@@ -276,28 +430,6 @@ const detectHeadPose = (landmarks: any) => {
   if (noseOffset.x < -threshold) return 'left'
   if (noseOffset.x > threshold) return 'right'
   return 'center'
-}
-
-const messageControl = {
-  lastMessage: '',
-  lastTime: 0,
-  minInterval: 1000,
-  showMessage(message: string, type: 'success' | 'warning' | 'info' | 'error' = 'info') {
-    const now = Date.now()
-    if (message === this.lastMessage && now - this.lastTime < this.minInterval) {
-      return
-    }
-
-    this.lastMessage = message
-    this.lastTime = now
-
-    ElMessage({
-      message,
-      type,
-      duration: type === 'error' ? 3000 : 2000,
-      showClose: true
-    })
-  }
 }
 
 // 人脸特征相关状态
@@ -345,7 +477,7 @@ const handleFaceLogin = async () => {
     ).withFaceLandmarks()
 
     if (!detection) {
-      messageControl.showMessage('未检测到人脸，请正对摄像头', 'warning')
+      ElMessage.warning('未检测到人脸，请正对摄像头')
       isProcessing.value = false
       return
     }
@@ -384,7 +516,7 @@ const handleFaceLogin = async () => {
     // 检测头部姿态
     const pose = detectHeadPose(landmarks)
     if (pose !== 'center') {
-      messageControl.showMessage('请保持头部正对摄像头', 'warning')
+      ElMessage.warning('请保持头部正对摄像头')
       isProcessing.value = false
       return
     }
@@ -392,196 +524,24 @@ const handleFaceLogin = async () => {
     // 提取人脸特征
     const features = await extractFaceFeatures(detection)
     if (!features) {
-      messageControl.showMessage('人脸特征提取失败，请重试', 'error')
+      ElMessage.error('人脸特征提取失败，请重试')
       isProcessing.value = false
       return
     }
 
-    messageControl.showMessage('人脸识别成功！', 'success')
+    ElMessage.success('人脸识别成功！')
     setTimeout(() => {
       router.push('/dashboard')
     }, 1000)
 
   } catch (error) {
     console.error('人脸识别失败:', error)
-    messageControl.showMessage('人脸识别过程出错，请重试', 'error')
+    ElMessage.error('人脸识别过程出错，请重试')
   } finally {
     isProcessing.value = false
   }
 }
-
-
-const isLogin = ref(true)
-const gotoRegister = () => {
-  isLogin.value = false
-}
-const gotoLogin = () => {
-  isLogin.value = true
-}
-
-watch(isLogin, newVal => {
-  if (!newVal) {
-    registerForm.username = ''
-    registerForm.password = ''
-  }
-})
-
-const captchaKey = ref('');
-const handleLogin = async (formEl: any) => {
-  if (!formEl) return
-
-  await formEl.validate(async (valid: boolean) => {
-    if (valid) {
-      loading.value = true
-      try {
-        const response = await login({
-          username: loginForm.username,
-          password: loginForm.password,
-          captcha_key: captchaKey.value,
-          captcha_value: loginForm.captcha_value
-        })
-        console.log('登录请求返回的数据:', response);
-        if (response?.data) {
-          const token = response.data;
-          localStorage.setItem('token', token);
-          messageControl.showMessage('登录成功', 'success');
-          router.push('/dashboard');
-        } else {
-          messageControl.showMessage('登录失败，未获取到有效的 token', 'error');
-        }
-      } catch (error: any) {
-        const errorMessage = error.response?.data?.message || '登录失败，请检查用户名和密码'
-        messageControl.showMessage(errorMessage, 'error')
-      } finally {
-        loading.value = false
-      }
-    }
-  })
-}
-
-// 验证码图片URL
-const captchaUrl = ref('');
-// 获取验证码
-// // 这里的验证码不知道为什么出不来
-// const getCaptchaData = async () => {
-//   try {
-//     const captchaKeyResponse = await getCaptchaKey();
-//     const captchaKey = captchaKeyResponse.data;
-//     console.log('获取到的验证码Key:', captchaKey);
-//     loginForm.captcha_key = captchaKey;
-//     const captchaResponse = await getCaptcha(captchaKey);
-//     const url = window.URL.createObjectURL(captchaResponse.data);
-//     captchaUrl.value = url;
-//   } catch (error) {
-//     console.error('获取验证码失败', error);
-//     ElMessage.error('获取验证码失败');
-//   }
-// };
-
-
-
-const getCaptchaData = async () => {
-  try {
-    const response = await axios.get('http://8.130.75.193:8081/auth/getCaptcha', {
-      responseType: 'blob'
-    });
-    const url = window.URL.createObjectURL(response.data);
-    captchaUrl.value = url;
-  } catch (error) {
-    console.error('获取验证码失败', error);
-    ElMessage.error('获取验证码失败');
-  }
-};
-// 刷新验证码
-const refreshCaptcha = () => {
-  getCaptchaData();
-};
-getCaptchaData();
-
-
-//注册逻辑
-const handleRegister = async () => {
-  if (!registerFormRef.value) return;
-
-  // 验证表单数据
-  const valid = await (registerFormRef.value as any).validate();
-  if (!valid) {
-    ElMessage.error('表单验证失败，请检查信息');
-    return;
-  }
-  const { username, password, name, telephone, captcha_value } = registerForm;
-  if (!telephone) {
-    ElMessage.error('手机号不能为空');
-    return;
-  }
-  try {
-    const response = await register({
-      username,
-      password,
-      name,
-      telephone,
-      captcha_value
-    });
-    console.log('注册成功返回的响应:', response.data);
-    const token = response.data.token;
-    localStorage.setItem('token', token);
-    ElMessage.success('注册成功');
-    gotoLogin();
-    // 刷新验证码
-    refreshCaptcha();
-  } catch (error) {
-    console.error('注册失败', error);
-    ElMessage.error('注册失败，请检查信息');
-    refreshCaptcha();
-  }
-};
-
-const startCamera = async () => {
-  try {
-    stream.value = await navigator.mediaDevices.getUserMedia({
-      video: true,
-      audio: false
-    })
-    if (videoRef.value) {
-      videoRef.value.srcObject = stream.value
-    }
-  } catch (error) {
-    console.error('摄像头调用失败:', error)
-    messageControl.showMessage('摄像头调用失败，请检查设备权限', 'error')
-  }
-}
-const stopCamera = () => {
-  if (stream.value) {
-    stream.value.getTracks().forEach(track => track.stop())
-    stream.value = null
-  }
-}
-
-watch(activeTab, (newVal) => {
-  if (newVal === 'face') {
-    startCamera()
-  } else {
-    stopCamera()
-  }
-})
-
-
-
-
-onUnmounted(() => {
-  stopCamera(),
-    getCaptchaData()
-})
-
-// 在组件挂载后延迟加载模型
-onMounted(() => {
-  // 给页面一些时间完成初始化
-  setTimeout(loadFaceModels, 1500)
-  getCaptchaData()
-
-})
 </script>
-
 
 <style scoped>
 .login-container {
@@ -676,7 +636,6 @@ onMounted(() => {
   margin-bottom: 30px;
 }
 
-/* 这里的样式未生效 */
 .captcha-container {
   display: flex;
   align-items: center;
