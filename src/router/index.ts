@@ -127,16 +127,6 @@ const routes: RouteRecordRaw[] = [
         component: () => import('@/views/error-log/log.vue')
       },
       {
-        path: '/mbti',
-        name: 'MBTI',
-        component: () => import('@/views/mbti/index.vue'),
-        meta: {
-          title: 'MBTI性格测试',
-          icon: 'Aim',
-          roles: ['admin', 'user']  // 允许admin和普通用户访问
-        }
-      },
-      {
         path: '/chat',
         name: 'Chat',
         component: () => import('../views/chat/AIChat.vue'),
@@ -144,14 +134,6 @@ const routes: RouteRecordRaw[] = [
           title: 'AI助手',
           icon: 'ChatDotRound',
           roles: ['admin', 'user']
-        }
-      },
-      {
-        path: '/resume',
-        name: 'Resume',
-        component: () => import('@/views/resume/Create.vue'),
-        meta: {
-          title: '简历制作'
         }
       },
       {

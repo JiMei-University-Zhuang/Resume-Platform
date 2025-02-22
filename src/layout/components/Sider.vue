@@ -109,14 +109,6 @@
           </el-icon>
           <template #title>错误日志</template>
         </el-menu-item>
-
-        <el-menu-item index="/mbti">
-          <el-icon>
-            <Aim />
-          </el-icon>
-          <template #title>MBTI性格测试</template>
-        </el-menu-item>
-
         <el-sub-menu index="/resume">
           <template #title>
             <el-icon>
@@ -138,18 +130,11 @@
           </el-menu-item>
         </el-sub-menu>
 
-        <el-menu-item index="/resume">
-          <el-icon>
-            <Document />
-          </el-icon>
-          <span>简历制作</span>
-        </el-menu-item>
-
         <el-menu-item index="/personality">
           <el-icon>
             <UserFilled />
           </el-icon>
-          <span>AI 性格测试</span>
+          <span>MBTI性格测试</span>
         </el-menu-item>
 
         <el-menu-item index="/chat">
