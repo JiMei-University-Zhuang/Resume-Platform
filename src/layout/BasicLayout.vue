@@ -12,13 +12,14 @@
 </template>
 
 <script setup lang="ts">
-import LayoutSider from './components/Sider.vue'
+import { useRoute } from 'vue-router'
+import { useAppStore } from '@/stores'
 import LayoutHeader from './components/Header.vue'
-import { useLayoutStore } from '@/stores/useLayoutStore'
-import { storeToRefs } from 'pinia'
+import LayoutSider from './components/Sider.vue'
 
-const layoutStore = useLayoutStore()
-const { collapsed } = storeToRefs(layoutStore)
+const route = useRoute()
+const appStore = useAppStore()
+const { collapsed } = appStore
 </script>
 
 <style scoped>

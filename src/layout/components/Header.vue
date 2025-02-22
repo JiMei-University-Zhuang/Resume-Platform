@@ -1,9 +1,9 @@
 <template>
   <header class="header">
     <div class="header-left">
-      <div class="trigger" @click="layoutStore.toggleCollapsed()">
+      <div class="trigger" @click="appStore.toggleCollapsed()">
         <el-icon :size="24">
-          <Expand v-if="!layoutStore.collapsed" />
+          <Expand v-if="!appStore.collapsed" />
           <Fold v-else />
         </el-icon>
       </div>
@@ -12,9 +12,9 @@
     </div>
 
     <div class="header-right">
-      <div class="theme-switch" @click="layoutStore.toggleTheme()">
+      <div class="theme-switch" @click="appStore.toggleTheme()">
         <el-icon :size="24">
-          <Sunny v-if="layoutStore.isDark" />
+          <Sunny v-if="appStore.isDark" />
           <Moon v-else />
         </el-icon>
       </div>
@@ -51,7 +51,7 @@
 <script setup lang="ts">
 import { Expand, Fold, Moon, Sunny } from '@element-plus/icons-vue'
 import { useRouter, useRoute } from 'vue-router'
-import { useLayoutStore } from '@/stores/useLayoutStore'
+import { useAppStore } from '@/stores'
 import { ref, watch } from 'vue'
 import Breadcrumb from '@/components/Breadcrumb.vue'
 import { getUserInfo } from '@/api/user'
@@ -59,7 +59,7 @@ import { getUserInfo } from '@/api/user'
 
 const router = useRouter()
 const route = useRoute()
-const layoutStore = useLayoutStore()
+const appStore = useAppStore()
 
 const handleLogout = () => {
   localStorage.removeItem('token')
