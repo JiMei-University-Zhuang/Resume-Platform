@@ -19,35 +19,32 @@
           </div>
         </div>
       </div>
-      
+
       <div class="login-box" v-if="isLogin">
         <h2 class="login-title">开启智能职业规划</h2>
         <el-tabs v-model="activeTab" class="login-tabs">
           <el-tab-pane label="账号登录" name="account">
             <el-form ref="loginFormRef" :model="loginForm" :rules="loginrules" class="login-form">
               <el-form-item prop="username">
-                <el-input 
-                  v-model="loginForm.username" 
-                  placeholder="请输入用户名"
-                  class="custom-input"
-                >
+                <el-input v-model="loginForm.username" placeholder="请输入用户名" class="custom-input">
                   <template #prefix>
                     <i class="el-icon-user"></i>
                   </template>
                 </el-input>
               </el-form-item>
               <el-form-item prop="password">
-                <el-input 
-                  v-model="loginForm.password" 
-                  type="password" 
-                  placeholder="请输入密码" 
-                  show-password
-                  class="custom-input"
-                >
+                <el-input v-model="loginForm.password" type="password" placeholder="请输入密码" show-password
+                  class="custom-input">
                   <template #prefix>
                     <i class="el-icon-lock"></i>
                   </template>
                 </el-input>
+              </el-form-item>
+
+              <el-form-item prop="captcha_value" class="captcha-container custom-input">
+                <el-input v-model="loginForm.captcha_value" placeholder="请输入验证码" style="width: auto;" />
+                <img :src="captchaUrl" alt="验证码" @click="refreshCaptcha"
+                  style="cursor: pointer;width: 80px; margin-left: 10px;">
               </el-form-item>
               <el-form-item>
                 <el-button type="primary" :loading="loading" class="login-button" @click="handleLogin(loginFormRef)">
@@ -76,6 +73,26 @@
 
       <div class="register-box" v-else>
         <h2 class="login-title">注册新用户</h2>
+        <el-tabs v-model="registerActiveTab" class="register-tabs">
+          <el-tab-pane label="手机号注册" name="phone">
+            <el-form-item prop="telephone">
+              <el-input v-model="registerForm.telephone" placeholder="请输入手机号" class="custom-input">
+                <template #prefix>
+                  <i class="el-icon-phone"></i>
+                </template>
+              </el-input>
+            </el-form-item>
+          </el-tab-pane>
+          <el-tab-pane label="邮箱注册" name="email">
+            <el-form-item prop="email">
+              <el-input v-model="registerForm.email" placeholder="请输入邮箱" class="custom-input">
+                <template #prefix>
+                  <i class="el-icon-mail"></i>
+                </template>
+              </el-input>
+            </el-form-item>
+          </el-tab-pane>
+        </el-tabs>
         <el-form class="register-form" ref="registerFormRef" :model="registerForm" :rules="registerrules">
           <el-form-item prop="username">
             <el-input v-model="registerForm.username" placeholder="请输入用户名" class="custom-input">
@@ -85,7 +102,8 @@
             </el-input>
           </el-form-item>
           <el-form-item prop="password">
-            <el-input v-model="registerForm.password" type="password" placeholder="请输入密码" show-password class="custom-input">
+            <el-input v-model="registerForm.password" type="password" placeholder="请输入密码" show-password
+              class="custom-input">
               <template #prefix>
                 <i class="el-icon-lock"></i>
               </template>
@@ -98,27 +116,17 @@
               </template>
             </el-input>
           </el-form-item>
-          <el-form-item prop="telephone">
-            <el-input v-model="registerForm.telephone" placeholder="请输入手机号" class="custom-input">
-              <template #prefix>
-                <i class="el-icon-phone"></i>
-              </template>
-            </el-input>
-          </el-form-item>
-          <el-form-item prop="captcha">
-            <el-input v-model="registerForm.captcha" placeholder="请输入验证码" class="custom-input">
-              <template #prefix>
-                <i class="el-icon-key"></i>
-              </template>
-            </el-input>
+          <el-form-item prop="captcha" class="captcha-container custom-input">
+            <el-input v-model="registerForm.captcha_value" placeholder="请输入验证码" style="width: auto;" />
             <img :src="captchaUrl" alt="验证码" @click="refreshCaptcha"
-              style="cursor: pointer; margin-left: 10px;width: 60px;">
+              style="cursor: pointer;width: 80px; margin-left: 10px;">
           </el-form-item>
           <el-form-item>
             <el-button class="login-button" type="primary" id="register" @click="handleRegister">
               注册
             </el-button>
           </el-form-item>
+
           <el-form-item>
             <span class="account-tip">
               已有账号？
@@ -135,28 +143,44 @@
 import { ref, reactive, onUnmounted, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { login } from '@/api/user'
+import { login, register, getCaptcha, getCaptchaKey } from '@/api/user'
 import * as faceapi from 'face-api.js'
-import axios from 'axios'
+// import axios from 'axios'
+
 
 const router = useRouter()
 const loginFormRef = ref()
+const registerFormRef = ref()
+const loading = ref(false)
+const registerActiveTab = ref('phone')
+const activeTab = ref('account')
+const videoRef = ref<HTMLVideoElement | null>(null)
+const canvasRef = ref<HTMLCanvasElement | null>(null)
+const stream = ref<MediaStream | null>(null)
+const isModelLoaded = ref(false)
+const isProcessing = ref(false)
+
+//登录表单
 const loginForm = reactive({
   username: '',
   password: '',
+  captcha_key: '',
+  captcha_value:''
 })
 const loginrules = {
   username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
   password: [{ required: true, message: '请输入密码', trigger: 'blur' }],
+  captcha_value: [{ required: true, message: '请输入验证码', trigger: 'blur' }]
 }
 
-const registerFormRef = ref()
+//注册表单
 const registerForm = reactive({
   username: '',
   password: '',
   name: '',
   telephone: '',
-  captcha: ''
+  email: '',
+  captcha_value: ''
 })
 const registerrules = {
   username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
@@ -166,28 +190,26 @@ const registerrules = {
     { required: true, message: '请输入手机号', trigger: 'blur' },
     { pattern: /^1[3-9]\d{9}$/, message: '手机号格式不正确', trigger: 'blur' }
   ],
-  captcha: [
+  email: [
+    { required: true, message: '请输入邮箱', trigger: 'blur' },
+    { pattern: /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/, message: '邮箱格式不正确', trigger: 'blur' }
+  ],
+  captcha_value: [
     { required: true, message: '请输入验证码', trigger: 'blur' }
   ],
 }
 
-const loading = ref(false)
-const activeTab = ref('account')
-const videoRef = ref<HTMLVideoElement | null>(null)
-const canvasRef = ref<HTMLCanvasElement | null>(null)
-const stream = ref<MediaStream | null>(null)
-const isModelLoaded = ref(false)
-const isProcessing = ref(false)
+
 
 const loadFaceModels = async () => {
   try {
-    const baseUrl = import.meta.env.BASE_URL.endsWith('/') 
-      ? import.meta.env.BASE_URL.slice(0, -1) 
+    const baseUrl = import.meta.env.BASE_URL.endsWith('/')
+      ? import.meta.env.BASE_URL.slice(0, -1)
       : import.meta.env.BASE_URL
     const MODEL_URL = `${baseUrl}/models`
-    
+
     console.log('开始加载模型...，路径:', MODEL_URL)
-    
+
     // 预先检查模型文件是否可访问
     try {
       const manifestResponse = await fetch(`${MODEL_URL}/tiny_face_detector_model-weights_manifest.json`)
@@ -197,7 +219,7 @@ const loadFaceModels = async () => {
     } catch (error) {
       throw new Error(`模型文件访问失败: ${error.message}`)
     }
-    
+
     // 设置 faceapi 参数
     faceapi.env.monkeyPatch({
       Canvas: HTMLCanvasElement,
@@ -210,11 +232,11 @@ const loadFaceModels = async () => {
 
     await faceapi.nets.tinyFaceDetector.load(MODEL_URL)
     await faceapi.nets.faceLandmark68Net.load(MODEL_URL)
-    
+
     if (!faceapi.nets.tinyFaceDetector.isLoaded || !faceapi.nets.faceLandmark68Net.isLoaded) {
       throw new Error('模型加载失败')
     }
-    
+
     isModelLoaded.value = true
     messageControl.showMessage('模型加载成功', 'success')
   } catch (error) {
@@ -230,27 +252,27 @@ const detectHeadPose = (landmarks: any) => {
   const jawOutline = landmarks.getJawOutline()
   const leftEye = landmarks.getLeftEye()
   const rightEye = landmarks.getRightEye()
-  
+
   // 眼睛之间的距离
   const eyeDistance = Math.sqrt(
     Math.pow(leftEye[0].x - rightEye[3].x, 2) +
     Math.pow(leftEye[0].y - rightEye[3].y, 2)
   )
-  
+
   // 鼻子相对于脸部中心的偏移
   const faceCenter = {
     x: (jawOutline[0].x + jawOutline[16].x) / 2,
     y: (jawOutline[0].y + jawOutline[16].y) / 2
   }
-  
+
   const noseOffset = {
     x: nose[0].x - faceCenter.x,
     y: nose[0].y - faceCenter.y
   }
-  
+
   // 根据偏移量判断头部姿态
   const threshold = eyeDistance * 0.2 // 眼距的20%作阈值
-  
+
   if (noseOffset.x < -threshold) return 'left'
   if (noseOffset.x > threshold) return 'right'
   return 'center'
@@ -259,17 +281,16 @@ const detectHeadPose = (landmarks: any) => {
 const messageControl = {
   lastMessage: '',
   lastTime: 0,
-  minInterval: 1000, 
-  
+  minInterval: 1000,
   showMessage(message: string, type: 'success' | 'warning' | 'info' | 'error' = 'info') {
     const now = Date.now()
     if (message === this.lastMessage && now - this.lastTime < this.minInterval) {
       return
     }
-    
+
     this.lastMessage = message
     this.lastTime = now
-    
+
     ElMessage({
       message,
       type,
@@ -300,7 +321,7 @@ const extractFaceFeatures = async (detection: any) => {
 // 人脸登录
 const handleFaceLogin = async () => {
   if (!videoRef.value || !canvasRef.value || isProcessing.value || !isModelLoaded.value) return
-  
+
   isProcessing.value = true
   const canvas = canvasRef.value
   const ctx = canvas.getContext('2d')
@@ -309,11 +330,11 @@ const handleFaceLogin = async () => {
   try {
     // 清除之前的绘制
     ctx.clearRect(0, 0, canvas.width, canvas.height)
-    
+
     // 设置画布尺寸与视频一致
     canvas.width = videoRef.value.videoWidth
     canvas.height = videoRef.value.videoHeight
-    
+
     // 检测人脸
     const detection = await faceapi.detectSingleFace(
       videoRef.value,
@@ -333,7 +354,7 @@ const handleFaceLogin = async () => {
     ctx.lineWidth = 3
     ctx.strokeStyle = '#6cf9d3'
     ctx.fillStyle = '#6cf9d3'
-    
+
     // 扩大检测框尺寸
     const box = detection.detection.box
     const padding = 20
@@ -345,11 +366,11 @@ const handleFaceLogin = async () => {
       box.height + (padding * 2)
     )
     ctx.stroke()
-    
+
     // 添加半透明遮罩
     ctx.fillStyle = 'rgba(108, 249, 211, 0.1)'
     ctx.fill()
-    
+
     // 绘制关键点
     const landmarks = detection.landmarks
     const points = landmarks.positions
@@ -389,6 +410,7 @@ const handleFaceLogin = async () => {
   }
 }
 
+
 const isLogin = ref(true)
 const gotoRegister = () => {
   isLogin.value = false
@@ -404,6 +426,7 @@ watch(isLogin, newVal => {
   }
 })
 
+const captchaKey = ref('');
 const handleLogin = async (formEl: any) => {
   if (!formEl) return
 
@@ -411,18 +434,22 @@ const handleLogin = async (formEl: any) => {
     if (valid) {
       loading.value = true
       try {
-        // 调用 login 方法发送登录请求
         const response = await login({
           username: loginForm.username,
           password: loginForm.password,
+          captcha_key: captchaKey.value,
+          captcha_value: loginForm.captcha_value
         })
-        // 登录成功，处理返回的 token
-        const token = response?.data
-        localStorage.setItem('token', token) // 将 token 存储到本地
-        messageControl.showMessage('登录成功', 'success')
-        router.push('/dashboard')
+        console.log('登录请求返回的数据:', response);
+        if (response?.data) {
+          const token = response.data;
+          localStorage.setItem('token', token);
+          messageControl.showMessage('登录成功', 'success');
+          router.push('/dashboard');
+        } else {
+          messageControl.showMessage('登录失败，未获取到有效的 token', 'error');
+        }
       } catch (error: any) {
-        // 登录失败，提示错误信息
         const errorMessage = error.response?.data?.message || '登录失败，请检查用户名和密码'
         messageControl.showMessage(errorMessage, 'error')
       } finally {
@@ -432,36 +459,80 @@ const handleLogin = async (formEl: any) => {
   })
 }
 
+// 验证码图片URL
+const captchaUrl = ref('');
+// 获取验证码
+// // 这里的验证码不知道为什么出不来
+// const getCaptchaData = async () => {
+//   try {
+//     const captchaKeyResponse = await getCaptchaKey();
+//     const captchaKey = captchaKeyResponse.data;
+//     console.log('获取到的验证码Key:', captchaKey);
+//     loginForm.captcha_key = captchaKey;
+//     const captchaResponse = await getCaptcha(captchaKey);
+//     const url = window.URL.createObjectURL(captchaResponse.data);
+//     captchaUrl.value = url;
+//   } catch (error) {
+//     console.error('获取验证码失败', error);
+//     ElMessage.error('获取验证码失败');
+//   }
+// };
+
+
+
+const getCaptchaData = async () => {
+  try {
+    const response = await axios.get('http://8.130.75.193:8081/auth/getCaptcha', {
+      responseType: 'blob'
+    });
+    const url = window.URL.createObjectURL(response.data);
+    captchaUrl.value = url;
+  } catch (error) {
+    console.error('获取验证码失败', error);
+    ElMessage.error('获取验证码失败');
+  }
+};
+// 刷新验证码
+const refreshCaptcha = () => {
+  getCaptchaData();
+};
+getCaptchaData();
+
+
 //注册逻辑
 const handleRegister = async () => {
   if (!registerFormRef.value) return;
+
+  // 验证表单数据
   const valid = await (registerFormRef.value as any).validate();
-  if (valid) {
-    const { username, password, telephone, captcha } = registerForm;
-    let registerUrl = '';
-    if (telephone) {
-      registerUrl = 'http://8.130.75.193:8081/auth/telephoneRegister';
-    }
-    const data = {
+  if (!valid) {
+    ElMessage.error('表单验证失败，请检查信息');
+    return;
+  }
+  const { username, password, name, telephone, captcha_value } = registerForm;
+  if (!telephone) {
+    ElMessage.error('手机号不能为空');
+    return;
+  }
+  try {
+    const response = await register({
       username,
       password,
-      name: '',
+      name,
       telephone,
-      captcha
-    };
-    try {
-      const response = await axios.post(registerUrl, data);
-      console.log('注册成功返回的响应:', response.data);
-      const token = response.data.token;
-      localStorage.setItem('token', token);
-      ElMessage.success('注册成功');
-      gotoLogin()
-      refreshCaptcha();
-    } catch (error) {
-      console.error('注册失败', error);
-      ElMessage.error('注册失败，请检查信息');
-      refreshCaptcha();
-    }
+      captcha_value
+    });
+    console.log('注册成功返回的响应:', response.data);
+    const token = response.data.token;
+    localStorage.setItem('token', token);
+    ElMessage.success('注册成功');
+    gotoLogin();
+    // 刷新验证码
+    refreshCaptcha();
+  } catch (error) {
+    console.error('注册失败', error);
+    ElMessage.error('注册失败，请检查信息');
+    refreshCaptcha();
   }
 };
 
@@ -479,7 +550,6 @@ const startCamera = async () => {
     messageControl.showMessage('摄像头调用失败，请检查设备权限', 'error')
   }
 }
-
 const stopCamera = () => {
   if (stream.value) {
     stream.value.getTracks().forEach(track => track.stop())
@@ -495,40 +565,23 @@ watch(activeTab, (newVal) => {
   }
 })
 
-// 验证码图片URL
-const captchaUrl = ref('');
-// 获取验证码
-const getCaptcha = async () => {
-  try {
-    const response = await axios.get('http://8.130.75.193:8081/auth/getCaptcha', {
-      responseType: 'blob'
-    });
-    const url = window.URL.createObjectURL(response.data);
-    captchaUrl.value = url;
-  } catch (error) {
-    console.error('获取验证码失败', error);
-    ElMessage.error('获取验证码失败');
-  }
-};
 
-// 刷新验证码
-const refreshCaptcha = () => {
-  getCaptcha();
-};
-onMounted(() => {
-  getCaptcha();
-});
+
 
 onUnmounted(() => {
-  stopCamera()
+  stopCamera(),
+    getCaptchaData()
 })
 
 // 在组件挂载后延迟加载模型
 onMounted(() => {
   // 给页面一些时间完成初始化
   setTimeout(loadFaceModels, 1500)
+  getCaptchaData()
+
 })
 </script>
+
 
 <style scoped>
 .login-container {
@@ -548,11 +601,9 @@ onMounted(() => {
   left: -50%;
   width: 200%;
   height: 200%;
-  background: linear-gradient(
-    45deg,
-    rgba(24, 73, 234, 0.1) 0%,
-    rgba(108, 249, 211, 0.1) 100%
-  );
+  background: linear-gradient(45deg,
+      rgba(24, 73, 234, 0.1) 0%,
+      rgba(108, 249, 211, 0.1) 100%);
   animation: rotate 20s linear infinite;
   z-index: 1;
 }
@@ -623,6 +674,13 @@ onMounted(() => {
   color: #333;
   text-align: center;
   margin-bottom: 30px;
+}
+
+/* 这里的样式未生效 */
+.captcha-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 :deep(.custom-input .el-input__wrapper) {
@@ -710,10 +768,21 @@ onMounted(() => {
   border-radius: 12px;
   transition: all 0.3s ease;
   background: transparent;
+  margin-left: 0;
 }
 
 .register-button:hover {
   background: rgba(24, 73, 234, 0.05);
+}
+
+.face-login-container {
+  min-height: 300px;
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+  color: #909399;
 }
 
 .video-container {
@@ -723,14 +792,15 @@ onMounted(() => {
   margin-bottom: 10px;
   border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  /* box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); */
+  padding: 10px 50px;
 }
 
 .face-video {
   width: 100%;
   height: 100%;
   background-color: #f0f0f0;
-  border-radius: 8px;
+  border-radius: 18px;
   object-fit: cover;
 }
 
@@ -752,14 +822,13 @@ onMounted(() => {
   margin-top: 5px;
 }
 
-.captcha-container{
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
 .el-form-item {
   width: 100%;
+}
+
+.account-tip{
+  position: absolute;
+  right: 0;
 }
 
 :deep(.el-input__wrapper) {
@@ -783,18 +852,12 @@ onMounted(() => {
   text-align: center;
 }
 
-.face-login-container {
-  min-height: 300px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #909399;
-}
 
 @keyframes rotate {
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }

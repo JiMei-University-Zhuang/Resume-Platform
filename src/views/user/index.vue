@@ -94,7 +94,7 @@
     <AddUserForm v-model="dialogVisible" @submit="handleSubmit" />
 
     <!-- 编辑用户弹窗 -->
-    <EditUserForm v-model="editDialogVisible" :formData="editUserInfo" @submit="handleEditSubmit" />
+    <EditUserForm v-model:visible="editDialogVisible" :formData="editUserInfo" @submit="handleEditSubmit" />
 
     <!-- 删除用户弹窗 -->
      <el-dialog v-model="isDeleteDialogVisible" title="删除确认" @close="handleDeleteDialogClose">
@@ -115,19 +115,20 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { Search, Refresh, Plus, Edit, Delete } from '@element-plus/icons-vue'
-import { getUserList,removeUser} from '@/api/user'
+import { getUserList,removeUser,editUser} from '@/api/user'
 import AddUserForm from '@/views/user/AddUserForm.vue'
-import EditUserForm from '@/views/user/EditUserForm.vue'
 import type { IUser, IUserQueryParams } from '@/types/user'
 import { ElMessage } from 'element-plus'
-import { editUser } from '@/api/user'
+import EditUserForm from '@/views/user/EditUserForm.vue'
+
 
 
 const loading = ref(false)
 const total = ref(0)
 const userList = ref<IUser[]>([])
 const dialogVisible = ref(false)
-const editLoading = ref(false);
+const editDialogVisible = ref(false);
+const editUserInfo = ref<IUser | null>(null);
 
 const queryParams = ref<IUserQueryParams>({
   pageNum: 1,
@@ -200,38 +201,32 @@ const handleSubmit = async () => {
   }
 }
 
+const handleEdit = (row: IUser) => {
+  editUserInfo.value = { ...row };
+  editDialogVisible.value = true;
+};
 
-const handleEditSubmit = async () => {
-  if (!editUserInfo.value) return;
-
-  // 解构出用户 ID 和其他数据
-  const { id, ...restData } = editUserInfo.value;
-
+const handleEditSubmit = async ( formData: IUser) => {
   try {
-    // 开始编辑，设置加载状态
-    editLoading.value = true;
-
-    // 调用编辑用户的接口
-    const res = await editUser({ id: id.toString(), ...restData });
-
-    // 根据接口返回的状态码进行不同处理
-    if (res.code === 200) {
-      // 编辑成功，提示用户并重新获取用户列表
-      ElMessage.success('用户信息修改成功');
-      await getUserList();
+    const token = getToken();
+    if (!token) {
+      ElMessage.error('未检测到有效的登录信息，请重新登录');
+      return;
+    }
+    const response = await editUser(formData);
+    if (response.code === 200) {
+      await getList();
+      editDialogVisible.value = false;
+      ElMessage.success('用户信息编辑成功');
     } else {
-      // 接口返回非成功状态码，提示用户修改失败
-      ElMessage.error(`用户信息修改失败: ${res.message || '未知错误'}`);
+      ElMessage.error(`用户信息编辑失败: ${response.message || '未知错误'}`);
     }
   } catch (error) {
-    // 捕获请求过程中的错误，打印错误信息并提示用户稍后重试
     console.error('编辑用户失败:', error);
     ElMessage.error('编辑用户失败，请稍后重试');
-  } finally {
-    // 无论请求成功还是失败，结束编辑，重置加载状态
-    editLoading.value = false;
   }
 };
+
 
 
 const isDeleteDialogVisible = ref(false)
