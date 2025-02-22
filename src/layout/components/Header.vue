@@ -82,13 +82,10 @@ const userInfo = ref<any>(null)
 //   }
 // }
 const showUserInfoDialog = async () => {
-  console.log('点击了个人设置');
   try {
     const response = await getUserInfo();
-    console.log('接口返回数据:', response);
     userInfo.value = response.data;
     userInfoDialogVisible.value = true;
-    console.log('对话框显示状态:', userInfoDialogVisible.value);
   } catch (error: any) {
     console.error('获取用户信息失败', error);
     if (error.response) {

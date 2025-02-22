@@ -150,6 +150,8 @@
 
 <script setup lang="ts">
 import {
+  Document,
+  UserFilled,
   HomeFilled,
   Position,
   Lock,
@@ -157,10 +159,7 @@ import {
   Operation,
   Star,
   Warning,
-  Aim,
-  User,
-  Document,
-  UserFilled
+  User
 } from '@element-plus/icons-vue'
 import { useAppStore } from '@/stores'
 import { useRoute } from 'vue-router'
