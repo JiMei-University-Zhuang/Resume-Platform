@@ -138,6 +138,20 @@
           </el-menu-item>
         </el-sub-menu>
 
+        <el-menu-item index="/resume">
+          <el-icon>
+            <Document />
+          </el-icon>
+          <span>简历制作</span>
+        </el-menu-item>
+
+        <el-menu-item index="/personality">
+          <el-icon>
+            <UserFilled />
+          </el-icon>
+          <span>AI 性格测试</span>
+        </el-menu-item>
+
         <el-menu-item index="/chat">
           <el-icon>
             <User />
@@ -160,7 +174,8 @@ import {
   Warning,
   Aim,
   User,
-  Document
+  Document,
+  UserFilled
 } from '@element-plus/icons-vue'
 import { useLayoutStore } from '@/stores/useLayoutStore'
 import { useRoute } from 'vue-router'
