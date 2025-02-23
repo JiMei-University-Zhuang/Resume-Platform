@@ -24,7 +24,7 @@
       </el-form-item>
       <el-form-item label="角色" prop="role">
         <el-select v-model="form.role" placeholder="请选择角色">
-          <el-option label="管理员" value="admin" />
+          <el-option label="管理员" value="ADMIN" />
           <el-option label="普通用户" value="USER" />
         </el-select>
       </el-form-item>
@@ -59,7 +59,7 @@ const form = reactive({
   sex: 1,
   email: '',
   telephone: '',
-  // role: '',
+  role: '',
   enabled: 1
 })
 

@@ -549,23 +549,14 @@ const handleFaceLogin = async () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #f5f7fa 0%, #e4e7eb 100%);
   position: relative;
   overflow: hidden;
-}
-
-.login-container::before {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: linear-gradient(45deg,
-      rgba(24, 73, 234, 0.1) 0%,
-      rgba(108, 249, 211, 0.1) 100%);
-  animation: rotate 20s linear infinite;
-  z-index: 1;
+  background: linear-gradient(151deg, 
+    #f5f7fa 0%, 
+    #f5f7fa 50%, 
+    #e4e7eb 50%, 
+    #e4e7eb 100%
+  );
 }
 
 .login-content {
@@ -809,16 +800,5 @@ const handleFaceLogin = async () => {
 :deep(.el-tabs__item) {
   width: 50%;
   text-align: center;
-}
-
-
-@keyframes rotate {
-  from {
-    transform: rotate(0deg);
-  }
-
-  to {
-    transform: rotate(360deg);
-  }
 }
 </style>
