@@ -95,12 +95,7 @@ const submitAddUser = () => {
       try {
         const response = await axios.post(
           '/user/add',
-          addUserForm,
-          {
-            headers: {
-              // Authorization: `Bearer ${token}`, // 确保 token 已定义
-            },
-          }
+          addUserForm
         );
         if (response.status === 200) {
           closeAddDialog(); // 关闭弹窗
