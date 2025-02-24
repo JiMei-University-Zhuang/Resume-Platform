@@ -551,7 +551,7 @@ const handleFaceLogin = async () => {
   justify-content: center;
   position: relative;
   overflow: hidden;
-  background: linear-gradient(151deg, 
+  background: linear-gradient(151.5deg, 
     #f5f7fa 0%, 
     #f5f7fa 50%, 
     #e4e7eb 50%, 
