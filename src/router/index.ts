@@ -12,6 +12,16 @@ const routes: RouteRecordRaw[] = [
     component: () => import('../views/Login.vue')
   },
   {
+    path: '/datascreen',
+    name: 'DataScreen',
+    component: () => import('../views/datascreen/index.vue'),
+    meta: {
+      title: '数据大屏',
+      icon: 'DataLine',
+      roles: ['admin', 'user']
+    }
+  },
+  {
     path: '/',
     component: BasicLayout,
     children: [
