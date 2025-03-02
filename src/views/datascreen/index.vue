@@ -79,8 +79,61 @@ import { ref, onMounted, onUnmounted } from 'vue'
 import * as echarts from 'echarts'
 import { useEventListener } from '@vueuse/core'
 import { gsap } from 'gsap'
+import { CountUp } from 'countup.js'
 
-// 数据概览配置
+const countUpRefs = ref<CountUp[]>([])
+
+// 数字动画
+const initCountUp = () => {
+  const options = {
+    duration: 2.5,
+    useEasing: true,
+    useGrouping: true,
+    separator: ',',
+    decimal: '.',
+    prefix: '',
+    suffix: ''
+  }
+
+  overviewData.value.forEach((item, index) => {
+    const element = document.getElementById(`count-${index}`)
+    if (element) {
+      const countUp = new CountUp(element, item.value, options)
+      if (!countUp.error) {
+        countUpRefs.value.push(countUp)
+        countUp.start()
+      }
+    }
+  })
+}
+
+const initEnterAnimation = () => {
+  // 标题动画
+  gsap.from('.title', {
+    duration: 1,
+    opacity: 0,
+    y: -50,
+    ease: 'power3.out'
+  })
+
+  // 面板动画
+  gsap.from('.panel-item', {
+    duration: 0.8,
+    opacity: 0,
+    y: 30,
+    stagger: 0.2,
+    ease: 'power2.out'
+  })
+
+  // 装饰线动画
+  gsap.from('.decoration-line', {
+    duration: 1.5,
+    scaleY: 0,
+    ease: 'elastic.out(1, 0.5)',
+    stagger: 0.1
+  })
+}
+
 const overviewData = ref([
   { label: '销售额', value: 15862, unit: '万' },
   { label: '订单量', value: 8546, unit: '个' },
@@ -92,17 +145,15 @@ const formatNumber = (num: number) => {
   return new Intl.NumberFormat('zh-CN').format(num)
 }
 
-// 图表实例引用
+// 图表实例
 const rankChartRef = ref<HTMLElement | null>(null)
 const trendChartRef = ref<HTMLElement | null>(null)
 const centerChartRef = ref<HTMLElement | null>(null)
 const mapChartRef = ref<HTMLElement | null>(null)
 const monitorChartRef = ref<HTMLElement | null>(null)
 
-// 初始化图表
 let charts: echarts.ECharts[] = []
 
-// 销售业绩TOP5配置
 const initRankChart = () => {
   if (!rankChartRef.value) return
   const chart = echarts.init(rankChartRef.value)
@@ -152,7 +203,6 @@ const initRankChart = () => {
   chart.setOption(option)
 }
 
-// 销售趋势配置
 const initTrendChart = () => {
   if (!trendChartRef.value) return
   const chart = echarts.init(trendChartRef.value)
@@ -225,7 +275,6 @@ const initTrendChart = () => {
   chart.setOption(option)
 }
 
-// 区域分布配置
 const initMapChart = () => {
   if (!mapChartRef.value) return
   const chart = echarts.init(mapChartRef.value)
@@ -276,7 +325,6 @@ const initMapChart = () => {
   chart.setOption(option)
 }
 
-// 实时监控配置
 const initMonitorChart = () => {
   if (!monitorChartRef.value) return
   const chart = echarts.init(monitorChartRef.value)
@@ -352,12 +400,10 @@ const initMonitorChart = () => {
   chart.setOption(option)
 }
 
-// 自动调整图表大小
 const handleResize = () => {
   charts.forEach(chart => chart.resize())
 }
 
-// 初始化所有图表
 const initCharts = () => {
   initRankChart()
   initTrendChart()
@@ -365,16 +411,18 @@ const initCharts = () => {
   initMonitorChart()
 }
 
-// 页面加载时初始化
+// 
 onMounted(() => {
   initCharts()
+  initCountUp()
+  initEnterAnimation()
   useEventListener(window, 'resize', handleResize)
 })
 
-// 页面卸载时清理
 onUnmounted(() => {
   charts.forEach(chart => chart.dispose())
   charts = []
+  countUpRefs.value = []
 })
 </script>
 
