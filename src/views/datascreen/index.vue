@@ -160,6 +160,7 @@ const initRankChart = () => {
   charts.push(chart)
   
   const option = {
+
     grid: {
       top: 10,
       right: 10,
@@ -191,6 +192,7 @@ const initRankChart = () => {
             { offset: 1, color: '#38B2E6' }
           ])
         },
+
         label: {
           show: true,
           position: 'right',
@@ -209,6 +211,7 @@ const initTrendChart = () => {
   charts.push(chart)
   
   const option = {
+
     grid: {
       top: 30,
       right: 30,
@@ -249,6 +252,7 @@ const initTrendChart = () => {
           width: 3,
           color: '#67a1e5'
         },
+
         areaStyle: {
           color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
             {
@@ -282,6 +286,7 @@ const initMapChart = () => {
   
   const option = {
     tooltip: {
+
       trigger: 'item'
     },
     legend: {
@@ -311,6 +316,7 @@ const initMapChart = () => {
           borderColor: '#fff',
           borderWidth: 2
         },
+
         emphasis: {
           itemStyle: {
             shadowBlur: 10,
@@ -325,80 +331,11 @@ const initMapChart = () => {
   chart.setOption(option)
 }
 
-const initMonitorChart = () => {
-  if (!monitorChartRef.value) return
-  const chart = echarts.init(monitorChartRef.value)
-  charts.push(chart)
-  
-  const option = {
-    series: [
-      {
-        type: 'gauge',
-        startAngle: 180,
-        endAngle: 0,
-        min: 0,
-        max: 100,
-        splitNumber: 8,
-        axisLine: {
-          lineStyle: {
-            width: 6,
-            color: [
-              [0.25, '#FF6E76'],
-              [0.5, '#FDDD60'],
-              [0.75, '#58D9F9'],
-              [1, '#7CFFB2']
-            ]
-          }
-        },
-        pointer: {
-          icon: 'path://M12.8,0.7l12,40.1H0.7L12.8,0.7z',
-          length: '12%',
-          width: 20,
-          offsetCenter: [0, '-60%'],
-          itemStyle: {
-            color: 'auto'
-          }
-        },
-        axisTick: {
-          length: 12,
-          lineStyle: {
-            color: 'auto',
-            width: 2
-          }
-        },
-        splitLine: {
-          length: 20,
-          lineStyle: {
-            color: 'auto',
-            width: 5
-          }
-        },
-        axisLabel: {
-          color: '#fff',
-          fontSize: 16
-        },
-        title: {
-          offsetCenter: [0, '-20%'],
-          fontSize: 20,
-          color: '#fff'
-        },
-        detail: {
-          fontSize: 30,
-          offsetCenter: [0, '0%'],
-          valueAnimation: true,
-          formatter: '{value}%',
-          color: '#fff'
-        },
-        data: [{
-          value: 45,
-          name: '完成率'
-        }]
-      }
-    ]
-  }
-  
-  chart.setOption(option)
-}
+// const initMonitorChart = () => {
+//   if (!monitorChartRef.value) return
+//   const chart = echarts.init(monitorChartRef.value)
+//   charts.push(chart)
+// }
 
 const handleResize = () => {
   charts.forEach(chart => chart.resize())
@@ -408,7 +345,7 @@ const initCharts = () => {
   initRankChart()
   initTrendChart()
   initMapChart()
-  initMonitorChart()
+  // initMonitorChart()
 }
 
 // 
@@ -533,7 +470,6 @@ onUnmounted(() => {
       box-shadow: 0 0 20px rgba(0,198,255,0.1);
       backdrop-filter: blur(5px);
       border: 1px solid rgba(0,198,255,0.1);
-
       .panel-header {
         height: 40px;
         display: flex;
