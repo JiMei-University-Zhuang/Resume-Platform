@@ -57,35 +57,6 @@
             <span>饼状图</span>
           </el-menu-item>
         </el-sub-menu>
-
-
-        <el-sub-menu index="/nested">
-          <template #title>
-            <el-icon>
-              <Operation />
-            </el-icon>
-            <span>路由嵌套</span>
-          </template>
-          <!-- 子菜单项 -->
-          <el-menu-item index="/nested/page1">
-            <span>page1</span>
-          </el-menu-item>
-        </el-sub-menu>
-
-
-        <el-sub-menu index="/example">
-          <template #title>
-            <el-icon>
-              <Star />
-            </el-icon>
-            <span>综合实例</span>
-          </template>
-          <!-- 子菜单项 -->
-          <el-menu-item index="/example/dialogue">
-            <span>对话案例</span>
-          </el-menu-item>
-        </el-sub-menu>
-
         <el-sub-menu index="/error">
           <template #title>
             <el-icon>
@@ -100,15 +71,7 @@
           <el-menu-item index="/error/error404">
             <span>404</span>
           </el-menu-item>
-
         </el-sub-menu>
-
-        <el-menu-item index="/error-log">
-          <el-icon>
-            <Warning />
-          </el-icon>
-          <template #title>错误日志</template>
-        </el-menu-item>
         <el-sub-menu index="/resume">
           <template #title>
             <el-icon>

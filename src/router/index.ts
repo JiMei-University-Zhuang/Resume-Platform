@@ -75,19 +75,6 @@ const routes: RouteRecordRaw[] = [
         ]
       },
       {
-        path: '/nested',
-        name: 'Nested',
-        meta: { title: '路由嵌套' },
-        children: [
-          {
-            path: '/nested/page1',
-            name: 'Page1111',
-            component: () => import('@/views/nested/page1.vue'),
-            meta: { title: '代替' }
-          }
-        ]
-      },
-      {
         path: '/user',
         name: 'User',
         component: () => import('@/views/user/index.vue'),
@@ -96,19 +83,6 @@ const routes: RouteRecordRaw[] = [
           icon: 'User',
           roles: ['admin'] // 只允许管理员访问
         }
-      },
-      {
-        path: '/example',
-        name: 'Example',
-        meta: { title: '综合案例' },
-        children: [
-          {
-            path: '/example/dialogue',
-            name: 'Dialogue',
-            component: () => import('@/views/example/dialogue.vue'),
-            meta: { title: '对话案例' }
-          }
-        ]
       },
       {
         path: '/error',
@@ -128,12 +102,6 @@ const routes: RouteRecordRaw[] = [
             meta: { title: '404' }
           }
         ]
-      },
-      {
-        path: '/error-log',
-        name: 'ErrorLog',
-        meta: { title: '错误日志' },
-        component: () => import('@/views/error-log/log.vue')
       },
       {
         path: '/chat',
@@ -196,12 +164,6 @@ const routes: RouteRecordRaw[] = [
           }
         ]
       },
-      {
-        path: '/:pathMatch(.*)*',
-        name: 'NotFound',
-        component: () => import('@/views/error/error404.vue'),
-        meta: { title: '页面未找到' }
-      }
     ]
   },
   {
@@ -217,14 +179,14 @@ const router = createRouter({
   routes
 })
 
-// router.beforeEach((to, from, next) => {
-//   const isAuthenticated = localStorage.getItem('token')
+router.beforeEach((to, from, next) => {
+  const isAuthenticated = localStorage.getItem('token')
 
-//   if (to.path !== '/login' && !isAuthenticated) {
-//     next('/login')
-//   } else {
-//     next()
-//   }
-// })
+  if (to.path !== '/login' && !isAuthenticated) {
+    next('/login')
+  } else {
+    next()
+  }
+})
 
 export default router
