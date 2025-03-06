@@ -60,10 +60,10 @@ export function logout() {
   }
   return request({
     url: '/auth/logout',
-    method: 'post',
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
+    method: 'post'
+    // headers: {
+    //   Authorization: `Bearer ${token}`
+    // }
   })
     .then(response => {
       return response
