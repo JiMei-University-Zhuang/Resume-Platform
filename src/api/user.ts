@@ -42,7 +42,7 @@ export function getUserInfo() {
 }
 
 //修改当前登录用户信息
-export const editInfo = (userData: { id: number; name: string; sex: number }) => {
+export const editUserInfo = (userData: { id: number; name: string; sex: number }) => {
   const { id, name, sex } = userData
   const data = { id, name, sex }
   return request({
