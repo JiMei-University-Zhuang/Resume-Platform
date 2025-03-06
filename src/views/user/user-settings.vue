@@ -34,9 +34,9 @@
 
 <script lang="ts" setup>
 import {  ref, onMounted } from 'vue';
-import { getUserInfo } from '@/api/user';
+import { getUserInfo, editUser } from '@/api/user';
 import { IUser } from '@/types/user';
-import { editUser } from '@/api/user';
+
 
 const userInfo = ref<IUser>({
   id: '',

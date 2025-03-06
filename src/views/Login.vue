@@ -143,13 +143,14 @@
 import { ref, reactive, onUnmounted, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { login, register } from '@/api/user'
+import { login } from '@/api/user'
 import axios from 'axios'
 import * as faceapi from 'face-api.js'
 
 const router = useRouter()
 const loginFormRef = ref()
 const registerFormRef = ref()
+// const registerFormRef = ref<InstanceType<typeof ElForm> | null>(null);
 const loading = ref(false)
 const registerActiveTab = ref('phone')
 const activeTab = ref('account')
@@ -178,6 +179,7 @@ const registerForm = reactive({
   name: '',
   telephone: '',
   email: '',
+  captcha_key: '',
   captcha_value: ''
 })
 const registerrules = {
@@ -219,6 +221,7 @@ const getCaptchaData = async () => {
       const blob = new Blob([captchaResponse.data], { type: 'image/jpeg' })
       captchaUrl.value = window.URL.createObjectURL(blob)
       loginForm.captcha_key = captchaKey.value
+      registerForm.captcha_key = captchaKey.value
     } else {
       throw new Error(prepareResponse.data.msg || '获取验证码key失败')
     }
@@ -261,10 +264,9 @@ const handleLogin = async (formEl: any) => {
         })
         
         if (response.code === 200 && response.data) {
-          const token = response.data
-          localStorage.setItem('token', token)
           ElMessage.success('登录成功')
           router.push('/dashboard')
+           localStorage.setItem('token', response.data);
         } else {
           throw new Error(response.msg || '登录失败')
         }
@@ -284,30 +286,24 @@ const handleRegister = async () => {
 
   await registerFormRef.value.validate(async (valid: boolean) => {
     if (valid) {
-      try {
-        const registerData = {
-          username: registerForm.username,
-          password: registerForm.password,
-          name: registerForm.name,
-          telephone: registerForm.telephone,
-          captcha_key: captchaKey.value,
-          captcha_value: registerForm.captcha_value
-        }
+      const registerUrl = registerActiveTab.value === 'phone'
+        ? 'http://8.130.75.193:8081/auth/telephoneRegister'
+        : 'http://8.130.75.193:8081/auth/emailRegister';
 
-        const response = await register(registerData)
-        
-        if (response.code === 200) {
-          ElMessage.success('注册成功')
+      axios.post(registerUrl, registerForm)
+        .then((response) => {
+          ElMessage.success('注册成功');
           gotoLogin()
-        } else {
-          throw new Error(response.msg || '注册失败')
-        }
-      } catch (error: any) {
-        const errorMessage = error.response?.data?.msg || error.message || '注册失败，请检查信息'
-        ElMessage.error(errorMessage)
-      } finally {
-        refreshCaptcha()
-      }
+          refreshCaptcha()
+          
+        })
+        .catch((error) => {
+          if (error.response && error.response.status === 500) {
+            ElMessage.error('参数错误，请检查输入');
+          } else {
+            ElMessage.error('注册失败，请重试');
+          }
+        });
     }
   })
 }
