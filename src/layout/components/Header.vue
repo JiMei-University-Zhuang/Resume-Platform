@@ -75,8 +75,10 @@ const handleLogout = async () => {
     router.push('/login');
   } catch (error) {
     console.error('登出失败:', error);
+    ElMessage.error('登出失败，请稍后重试')
   }
 };
+
 const activeTab = ref('')
 const visitedViews = ref<Array<{ path: string; title: string }>>([])
 

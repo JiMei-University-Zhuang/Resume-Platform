@@ -1,7 +1,7 @@
 <template>
   <div>
     <h1>个人设置</h1>
-    <el-form :model="userInfo" label-width="120px">
+    <el-form :model="userInfo" label-width="120px" :rules="rules" ref="formRef">
       <el-form-item label="用户编号" prop="id">
         <el-input v-model="userInfo.id" disabled></el-input>
       </el-form-item>
@@ -33,10 +33,11 @@
 </template>
 
 <script lang="ts" setup>
-import {  ref, onMounted } from 'vue';
-import { getUserInfo } from '@/api/user';
-import { IUser } from '@/types/user';
-import { editUser } from '@/api/user';
+import {  ref, onMounted,nextTick } from 'vue';
+import { getUserInfo, editUserInfo } from '@/api/user';
+import { IUser} from '@/types/user';
+import { ElMessage } from 'element-plus';
+
 
 const userInfo = ref<IUser>({
   id: '',
@@ -50,6 +51,18 @@ const userInfo = ref<IUser>({
   role: '',
   createTime: ''
 });
+
+const formRef = ref();
+
+
+const rules = {
+  name: [
+    { required: true, message: '请输入昵称', trigger: 'blur' }
+  ],
+  sex: [
+    { required: true, message: '请选择性别', trigger: 'change' }
+  ]
+};
 const loadUserInfo = async () => {
   try {
     const response = await getUserInfo();
@@ -59,13 +72,19 @@ const loadUserInfo = async () => {
   }
 };
 const saveUserInfo = async () => {
-  try {
-    const response = await editUser(userInfo.value);
-    console.log('用户信息保存成功:', response);
-  } catch (error) {
-    console.error('保存用户信息出错:', error);
-
-  }
+  await nextTick();
+  await formRef.value.validate(async (valid: boolean) => {
+    if (valid) {
+      const { id, name, sex } = userInfo.value;
+      const dataToSave = { id, name, sex };
+      try {
+        const response = await editUserInfo(dataToSave);
+        ElMessage.success('用户信息保存成功');
+      } catch (error) {
+        ElMessage.error('保存用户信息失败，请稍后重试');
+      }
+    }
+  });
 };
 
 onMounted(() => {

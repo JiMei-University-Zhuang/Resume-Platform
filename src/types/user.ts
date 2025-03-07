@@ -5,8 +5,8 @@ export interface IUser {
   password?: string
   name: string
   sex: number
-  email: string
-  telephone: string
+  email?: string
+  telephone?: string
   enabled: number
   role: string
   createTime?: string
