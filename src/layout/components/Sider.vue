@@ -27,36 +27,7 @@
           <template #title>用户管理</template>
         </el-menu-item>
 
-        <el-sub-menu index="/permission">
-          <template #title>
-            <el-icon>
-              <Lock />
-            </el-icon>
-            <span>权限测试页</span>
-          </template>
-          <el-menu-item index="/permission/page">
-            <span>页面权限</span>
-          </el-menu-item>
-          <el-menu-item index="/permission/role">
-            <span>角色权限</span>
-          </el-menu-item>
-        </el-sub-menu>
 
-        <el-sub-menu index="/charts">
-          <template #title>
-            <el-icon>
-              <TrendCharts />
-            </el-icon>
-            <span>图表</span>
-          </template>
-          <!-- 子菜单项 -->
-          <el-menu-item index="/charts/lineChart">
-            <span>折线图</span>
-          </el-menu-item>
-          <el-menu-item index="/charts/pieChart">
-            <span>饼状图</span>
-          </el-menu-item>
-        </el-sub-menu>
         <el-sub-menu index="/error">
           <template #title>
             <el-icon>
@@ -160,8 +131,6 @@ import {
   UserFilled,
   HomeFilled,
   Position,
-  Lock,
-  TrendCharts,
   Warning,
   User,
   Camera,

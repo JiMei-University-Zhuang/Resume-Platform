@@ -36,44 +36,7 @@ const routes: RouteRecordRaw[] = [
         component: () => import('@/views/guide/index.vue'),
         meta: { title: '引导页' }
       },
-      {
-        path: 'permission',
-        name: 'Permission',
-        meta: { title: '权限测试页' },
-        children: [
-          {
-            path: '/permission/page',
-            name: 'Page',
-            component: () => import('@/views/permission/Page.vue'),
-            meta: { title: '页面权限' }
-          },
-          {
-            path: '/permission/role',
-            name: 'Role',
-            component: () => import('@/views/permission/Role.vue'),
-            meta: { title: '角色权限' }
-          }
-        ]
-      },
-      {
-        path: '/charts',
-        name: 'Charts',
-        meta: { title: '图表' },
-        children: [
-          {
-            path: '/charts/lineChart',
-            name: 'LineChart',
-            component: () => import('@/views/charts/lineChart.vue'),
-            meta: { title: '折线图' }
-          },
-          {
-            path: '/charts/pieChart',
-            name: 'PieChart',
-            component: () => import('@/views/charts/pieChart.vue'),
-            meta: { title: '饼状图' }
-          }
-        ]
-      },
+
       {
         path: '/user',
         name: 'User',
