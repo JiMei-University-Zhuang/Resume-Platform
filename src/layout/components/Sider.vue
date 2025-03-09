@@ -1,9 +1,9 @@
 <template>
-  <aside class="sidebar" :class="{ 'collapsed': appStore.collapsed }">
+  <aside class="sidebar" :class="{ 'collapsed': collapsed.value }">
     <el-scrollbar>
-      <el-menu router class="menu" :collapse="appStore.collapsed" :default-active="route.path"
-        :background-color="appStore.isDark ? '#141414' : '#304156'"
-        :text-color="appStore.isDark ? '#fff' : '#bfcbd9'" active-text-color="#409EFF" unique-opened>
+      <el-menu router class="menu" :collapse="collapsed.value" :default-active="route.path"
+        :background-color="menuBackgroundColor"
+        :text-color="menuTextColor" active-text-color="#409EFF" unique-opened>
         <el-menu-item index="/dashboard">
           <el-icon>
             <HomeFilled />
@@ -106,6 +106,49 @@
           </el-icon>
           <template #title>AI聊天</template>
         </el-menu-item>
+
+        <el-menu-item index="/id-photo">
+          <el-icon>
+            <Camera />
+          </el-icon>
+          <template #title>AI证件照</template>
+        </el-menu-item>
+
+        <el-sub-menu index="/career-planning">
+          <template #title>
+            <el-icon>
+              <Compass />
+            </el-icon>
+            <span>AI职业规划</span>
+          </template>
+          <el-menu-item index="/career-planning/analysis">
+            <span>职业分析</span>
+          </el-menu-item>
+          <el-menu-item index="/career-planning/roadmap">
+            <span>发展规划</span>
+          </el-menu-item>
+          <el-menu-item index="/career-planning/recommendation">
+            <span>职业推荐</span>
+          </el-menu-item>
+        </el-sub-menu>
+
+        <el-sub-menu index="/exam">
+          <template #title>
+            <el-icon>
+              <Reading />
+            </el-icon>
+            <span>考试中心</span>
+          </template>
+          <el-menu-item index="/exam/civil-service">
+            <span>公务员考试</span>
+          </el-menu-item>
+          <el-menu-item index="/exam/postgraduate">
+            <span>考研备考</span>
+          </el-menu-item>
+          <el-menu-item index="/exam/practice">
+            <span>模拟练习</span>
+          </el-menu-item>
+        </el-sub-menu>
       </el-menu>
     </el-scrollbar>
   </aside>
@@ -119,16 +162,32 @@ import {
   Position,
   Lock,
   TrendCharts,
-  Operation,
-  Star,
   Warning,
-  User
+  User,
+  Camera,
+  Compass,
+  Reading
 } from '@element-plus/icons-vue'
 import { useAppStore } from '@/stores'
 import { useRoute } from 'vue-router'
+import { storeToRefs } from 'pinia'
+import { computed } from 'vue'
 
 const route = useRoute()
 const appStore = useAppStore()
+const { collapsed, isDark } = storeToRefs(appStore)
+
+// 计算属性
+const menuBackgroundColor = computed(() => isDark.value ? '#141414' : '#304156')
+const menuTextColor = computed(() => isDark.value ? '#fff' : '#bfcbd9')
+
+defineExpose({
+  route,
+  collapsed,
+  isDark,
+  menuBackgroundColor,
+  menuTextColor
+})
 </script>
 
 <style scoped>
@@ -151,6 +210,27 @@ const appStore = useAppStore()
 
 :deep(.el-menu) {
   border-right: none;
+}
+
+:deep(.el-menu--collapse .el-menu-item .el-icon),
+:deep(.el-menu--collapse .el-sub-menu__title .el-icon) {
+  margin: 0;
+}
+
+:deep(.el-menu--collapse) .el-sub-menu__title .el-icon {
+  margin-right: 0;
+}
+
+html.dark :deep(.el-menu-item) {
+  color: #fff !important;
+}
+
+html.dark :deep(.el-sub-menu__title) {
+  color: #fff !important;
+}
+
+html.dark :deep(.el-menu-item.is-active) {
+  color: #409EFF !important;
 }
 
 :deep(.el-menu-item) {
@@ -198,7 +278,25 @@ const appStore = useAppStore()
   width: 64px !important;
 }
 
-:deep(.el-menu--collapse .el-menu-item .el-icon),
+:deep(.el-menu--collapse .el-menu-item .el-icon) {
+  margin-right: 0;
+}
+
+:deep(.el-menu--collapse) .el-sub-menu__title .el-icon {
+  margin-right: 0;
+}
+
+html.dark :deep(.el-menu-item) {
+  color: #fff !important;
+}
+
+html.dark :deep(.el-sub-menu__title) {
+  color: #fff !important;
+}
+
+html.dark :deep(.el-menu-item.is-active) {
+  color: #409EFF !important;
+}
 :deep(.el-menu--collapse .el-sub-menu__title .el-icon) {
   margin: 0;
 }

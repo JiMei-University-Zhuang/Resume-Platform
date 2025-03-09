@@ -164,6 +164,73 @@ const routes: RouteRecordRaw[] = [
           }
         ]
       },
+      {
+        path: 'id-photo',
+        name: 'IDPhoto',
+        component: () => import('@/views/id-photo/index.vue'),
+        meta: {
+          title: 'AI证件照',
+          icon: 'Camera'
+        }
+      },
+      {
+        path: 'career-planning',
+        name: 'CareerPlanning',
+        redirect: '/career-planning/analysis',
+        meta: {
+          title: 'AI职业规划',
+          icon: 'Compass'
+        },
+        children: [
+          {
+            path: 'analysis',
+            name: 'CareerAnalysis',
+            component: () => import('@/views/career-planning/Analysis.vue'),
+            meta: { title: '职业分析' }
+          },
+          {
+            path: 'roadmap',
+            name: 'CareerRoadmap',
+            component: () => import('@/views/career-planning/Roadmap.vue'),
+            meta: { title: '发展规划' }
+          },
+          {
+            path: 'recommendation',
+            name: 'CareerRecommendation',
+            component: () => import('@/views/career-planning/Recommendation.vue'),
+            meta: { title: '职业推荐' }
+          }
+        ]
+      },
+      {
+        path: 'exam',
+        name: 'Exam',
+        redirect: '/exam/civil-service',
+        meta: {
+          title: '考试中心',
+          icon: 'Reading'
+        },
+        children: [
+          {
+            path: 'civil-service',
+            name: 'CivilService',
+            component: () => import('@/views/exam/CivilService.vue'),
+            meta: { title: '公务员考试' }
+          },
+          {
+            path: 'postgraduate',
+            name: 'Postgraduate',
+            component: () => import('@/views/exam/Postgraduate.vue'),
+            meta: { title: '考研备考' }
+          },
+          {
+            path: 'practice',
+            name: 'Practice',
+            component: () => import('@/views/exam/Practice.vue'),
+            meta: { title: '模拟练习' }
+          }
+        ]
+      },
     ]
   },
   {
@@ -179,14 +246,14 @@ const router = createRouter({
   routes
 })
 
-router.beforeEach((to, from, next) => {
-  const isAuthenticated = localStorage.getItem('token')
+// router.beforeEach((to, from, next) => {
+//   const isAuthenticated = localStorage.getItem('token')
 
-  if (to.path !== '/login' && !isAuthenticated) {
-    next('/login')
-  } else {
-    next()
-  }
-})
+//   if (to.path !== '/login' && !isAuthenticated) {
+//     next('/login')
+//   } else {
+//     next()
+//   }
+// })
 
 export default router
