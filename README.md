@@ -1,15 +1,16 @@
 # Z-Admin
 
-一个基于 Vue 3、TypeScript 和 Vite 构建的现代化后台管理系统。
+一个基于 Vue 3、TypeScript 和 Vite 构建的现代化AI教育与职业发展平台。
 
 ## 🚀 特性
 
 - 🎯 **Vue 3 + TypeScript**: 采用最新的 Vue 3 组合式 API 和 TypeScript，提供完整的类型支持
 - ⚡️ **Vite**: 极速的开发服务器启动和热更新
 - 🎨 **Element Plus**: 美观的 UI 组件库，提供丰富的交互体验
-- 📊 **可视化**: 集成 ECharts 和 Chart.js，支持多种数据可视化方案
-- 🤖 **AI 能力**: 集成 TensorFlow.js 和 Face API，支持智能分析和人脸识别
-- 📝 **Markdown 支持**: 内置 Markdown 编辑器，支持 KaTeX 数学公式
+- 📸 **AI 证件照**: 智能证件照生成与编辑系统
+- 📋 **AI 简历制作**: 智能简历生成与优化工具
+- 🧭 **AI 职业规划**: 个性化职业分析、发展规划与推荐
+- 📚 **考试中心**: 公务员考试、考研备考、在线模拟练习
 - 🔐 **权限管理**: 完善的角色权限控制系统
 - 📱 **响应式设计**: 自适应多种屏幕尺寸
 
@@ -60,6 +61,15 @@ z-admin
 │   ├── styles/           # 全局样式
 │   ├── utils/            # 工具函数
 │   └── views/            # 页面组件
+│       ├── id-photo/     # AI证件照模块
+│       ├── career-planning/ # AI职业规划模块
+│       │   ├── Analysis.vue    # 职业分析
+│       │   ├── Roadmap.vue     # 发展规划
+│       │   └── Recommendation.vue # 职业推荐
+│       └── exam/        # 考试中心模块
+│           ├── CivilService.vue # 公务员考试
+│           ├── Graduate.vue    # 考研备考
+│           └── Practice.vue    # 模拟练习
 ├── public/                # 公共资源
 ├── .env.*                 # 环境变量配置
 ├── vite.config.ts        # Vite 配置
