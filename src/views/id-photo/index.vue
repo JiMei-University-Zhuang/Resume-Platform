@@ -44,7 +44,70 @@
               </el-form-item>
 
               <el-form-item label="背景颜色">
-                <el-color-picker v-model="photoSettings.backgroundColor" />
+                <div class="color-selection">
+                  <el-color-picker v-model="photoSettings.backgroundColor" show-alpha />
+                  <div class="preset-colors">
+                    <el-button
+                      v-for="color in presetColors.value"
+                      :key="color.value"
+                      :style="{ backgroundColor: color.value }"
+                      class="color-btn"
+                      @click="photoSettings.backgroundColor = color.value"
+                    >
+                      {{ color.label }}
+                    </el-button>
+                  </div>
+                </div>
+              </el-form-item>
+
+              <el-form-item label="基础美化">
+                <div class="beautify-controls">
+                  <el-slider
+                    v-model="photoSettings.brightness"
+                    :min="-100"
+                    :max="100"
+                    :step="1"
+                    show-input
+                    size="small"
+                  >
+                    <template #prepend>亮度</template>
+                  </el-slider>
+                  <el-slider
+                    v-model="photoSettings.contrast"
+                    :min="-100"
+                    :max="100"
+                    :step="1"
+                    show-input
+                    size="small"
+                  >
+                    <template #prepend>对比度</template>
+                  </el-slider>
+                  <el-slider
+                    v-model="photoSettings.saturation"
+                    :min="-100"
+                    :max="100"
+                    :step="1"
+                    show-input
+                    size="small"
+                  >
+                    <template #prepend>饱和度</template>
+                  </el-slider>
+                </div>
+              </el-form-item>
+
+              <el-form-item label="智能美化">
+                <el-switch
+                  v-model="photoSettings.aiBeautify"
+                  active-text="开启"
+                  inactive-text="关闭"
+                />
+                <div v-if="photoSettings.aiBeautify" class="ai-beautify-options">
+                  <el-checkbox-group v-model="photoSettings.aiBeautifyOptions">
+                    <el-checkbox label="skin">智能美肤</el-checkbox>
+                    <el-checkbox label="face">五官优化</el-checkbox>
+                    <el-checkbox label="wrinkle">祛皱</el-checkbox>
+                  </el-checkbox-group>
+                </div>
               </el-form-item>
 
               <el-form-item label="着装建议">
@@ -99,13 +162,41 @@ import { UploadFilled } from '@element-plus/icons-vue'
 import type { UploadFile } from 'element-plus'
 import { ElMessage } from 'element-plus'
 
-const generating = ref(false)
-const previewUrl = ref('')
+interface PhotoSettings {
+  size: string
+  backgroundColor: string
+  showDressingSuggestions: boolean
+  brightness: number
+  contrast: number
+  saturation: number
+  aiBeautify: boolean
+  aiBeautifyOptions: string[]
+}
 
-const photoSettings = reactive({
+interface PresetColor {
+  label: string
+  value: string
+}
+
+const generating = ref<boolean>(false)
+const previewUrl = ref<string>('')
+
+const presetColors = ref<PresetColor[]>([
+  { label: '白色', value: '#FFFFFF' },
+  { label: '蓝色', value: '#2C5BA9' },
+  { label: '红色', value: '#B31942' },
+  { label: '灰色', value: '#808080' }
+])
+
+const photoSettings = reactive<PhotoSettings>({
   size: 'one-inch',
   backgroundColor: '#FFFFFF',
-  showDressingSuggestions: true
+  showDressingSuggestions: true,
+  brightness: 0,
+  contrast: 0,
+  saturation: 0,
+  aiBeautify: false,
+  aiBeautifyOptions: ['skin']
 })
 
 const handlePhotoChange = (file: UploadFile) => {
@@ -118,7 +209,9 @@ const handlePhotoChange = (file: UploadFile) => {
 
   const reader = new FileReader()
   reader.onload = (e) => {
-    previewUrl.value = e.target?.result as string
+    if (e.target?.result) {
+      previewUrl.value = e.target.result as string
+    }
   }
   reader.readAsDataURL(file.raw)
 }
@@ -198,6 +291,40 @@ const generatePhoto = async () => {
 .empty-preview {
   color: #909399;
   font-size: 14px;
+}
+
+.color-selection {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.preset-colors {
+  display: flex;
+  gap: 8px;
+}
+
+.color-btn {
+  width: 60px;
+  height: 24px;
+  border: 1px solid #dcdfe6;
+  color: transparent;
+  padding: 0;
+}
+
+.color-btn:hover {
+  border-color: #409eff;
+}
+
+.beautify-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.ai-beautify-options {
+  margin-top: 8px;
+  padding-left: 24px;
 }
 
 .suggestions {
