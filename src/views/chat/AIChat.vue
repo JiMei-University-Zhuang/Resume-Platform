@@ -15,18 +15,22 @@
     <div class="input-area">
       <input
         v-model="userInput"
-        @keyup.enter="sendMessage"
+        @keyup.enter="handleSendMessage"
         placeholder="请输入消息..."
       />
-      <button @click="sendMessage">发送</button>
+      <button @click="handleSendMessage">发送</button>
     </div>
   </div>
 </template>
 
-<script lang="ts">
-import { ref, onMounted, nextTick } from "vue";
+<script setup lang="ts">
+import { ref, nextTick, onMounted } from "vue";
 import MarkdownIt from "markdown-it";
+import type { Options as MarkdownItOptions } from 'markdown-it';
 import Prism from "prismjs";
+import { ElMessage } from 'element-plus'
+import type { ChatMessage, MockData, ErrorResponse } from '@/types/chat'
+
 import "prismjs/themes/prism-okaidia.css";
 import "prismjs/components/prism-javascript";
 import "prismjs/components/prism-markdown";
@@ -36,32 +40,35 @@ import "prismjs/plugins/copy-to-clipboard/prism-copy-to-clipboard";
 import "prismjs/plugins/show-language/prism-show-language";
 import "katex/dist/katex.min.css";
 import markdownItKatexGpt from "markdown-it-katex-gpt";
-import { ElMessage } from 'element-plus'
-import { sendChatMessage } from '@/api/chat'
 
 import { codeStr1, formulaStr1, tableStr } from "./mocks";
 
-const md = new MarkdownIt({
+// 初始化变量
+const chatboxRef = ref<HTMLDivElement | null>(null);
+const messages = ref<ChatMessage[]>([]);
+const userInput = ref("");
+const isTyping = ref(false);
+
+// 初始化 Markdown
+const mdOptions: MarkdownItOptions = {
   html: true,
   breaks: true,
   linkify: true,
   typographer: true,
-  tables: true,
-  highlight: (str: string, lang: string, attr: string) => {
+  highlight: (str: string, lang: string) => {
     if (lang && Prism.languages[lang]) {
       try {
-        return `<pre class="code-block language-${lang}"><code class="language-${lang}">${Prism.highlight(
-          str,
-          Prism.languages[lang],
-          lang
-        )}</code></pre>`;
+        return `<pre class="code-block language-${lang}"><code class="language-${lang}">${
+          Prism.highlight(str, Prism.languages[lang], lang)
+        }</code></pre>`;
       } catch (__) {}
     }
-    return `<pre class="code-block"><code>${md.utils.escapeHtml(
-      str
-    )}</code></pre>`;
-  },
-}).use(markdownItKatexGpt, {
+    return `<pre class="code-block"><code>${str}</code></pre>`;
+  }
+}
+
+const md = new MarkdownIt(mdOptions);
+md.use(markdownItKatexGpt, {
   delimiters: [
     { left: "\\[", right: "\\]", display: true },
     { left: "\\(", right: "\\)", display: false },
@@ -70,157 +77,236 @@ const md = new MarkdownIt({
   ],
 });
 
-export default {
-  name: 'AIChat',
-  setup() {
-    const chatboxRef = ref();
-    const messages = ref([]);
-    const userInput = ref("");
-    const isTyping = ref(false);
+// 模拟数据
+const mockData: MockData = {
+  代码: codeStr1,
+  数学公式: formulaStr1,
+  表格: tableStr,
+};
 
-    const streamAiReply = async (fullText: string) => {
-      const index = messages.value.length;
-      const message = { role: "ai", text: "" };
-      messages.value.push(message);
+// AI回复流式处理
+const streamAiReply = async (fullText: string) => {
+  const index = messages.value.length;
+  const message: ChatMessage = { role: "ai", text: "" };
+  messages.value.push(message);
 
-      for (let i = 0; i < fullText.length; i++) {
-        await new Promise((resolve) => setTimeout(resolve, 50));
+  for (let i = 0; i < fullText.length; i++) {
+    await new Promise((resolve) => setTimeout(resolve, 50));
 
-        messages.value[index] = {
-          ...messages.value[index],
-          text: messages.value[index].text + fullText[i],
-        };
+    if (messages.value[index]) {
+      messages.value[index] = {
+        ...messages.value[index],
+        text: messages.value[index].text + fullText[i],
+      };
 
-        await nextTick();
-
-        Prism.highlightAll();
-
+      await nextTick();
+      Prism.highlightAll();
+      
+      if (chatboxRef.value) {
         chatboxRef.value.scrollTop = chatboxRef.value.scrollHeight;
       }
-    };
+    }
+  }
+};
 
-    const mockData = {
-      代码: codeStr1,
-      数学公式: formulaStr1,
-      表格: tableStr,
-    };
+// 消息处理函数
+const handleSendMessage = async () => {
+  if (!userInput.value.trim()) return;
+  const userMessage = userInput.value;
+  messages.value.push({ role: "user", text: userMessage });
+  userInput.value = "";
+  isTyping.value = true;
 
-    const sendMessage = async () => {
-      if (!userInput.value.trim()) return;
-      
-      const userMessage = userInput.value;
-      messages.value.push({ role: "user", text: userMessage });
-      userInput.value = "";
-      isTyping.value = true;
+  try {
+    if (userMessage in mockData) {
+      await streamAiReply(mockData[userMessage]);
+    } else {
+      // 实际的 API
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: userMessage
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
+
+      if (!reader) {
+        throw new Error('No reader available');
+      }
 
       try {
-        if (mockData[userMessage]) {
-          await streamAiReply(mockData[userMessage]);
-        } else {
-          // 实际的 API
-          const index = messages.value.length;
-          messages.value.push({ role: "ai", text: "" });
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
 
-          try {
-            const response = await fetch('/api/chat', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                message: userMessage
-              })
-            });
+          const chunk = decoder.decode(value);
+          const lines = chunk.split('\n');
 
-            if (!response.ok) {
-              throw new Error(`HTTP error! status: ${response.status}`);
-            }
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              const data = line.slice(6);
+              if (data === '[DONE]') break;
 
-            const reader = response.body?.getReader();
-            const decoder = new TextDecoder();
-
-            if (!reader) {
-              throw new Error('No reader available');
-            }
-
-            try {
-              while (true) {
-                const { done, value } = await reader.read();
-                console.log('Read chunk:', { done, value: value ? decoder.decode(value) : null });
-                
-                if (done) break;
-
-                const chunk = decoder.decode(value);
-                const lines = chunk.split('\n');
-
-                for (const line of lines) {
-                  console.log('Processing line:', line);
-                  if (line.startsWith('data: ')) {
-                    const data = line.slice(6);
-                    console.log('Data content:', data);
-                    if (data === '[DONE]') {
-                      console.log('Received DONE signal');
-                      break;
-                    }
-                    try {
-                      const jsonData = JSON.parse(data);
-                      console.log('Parsed JSON:', jsonData);
-                      if (jsonData.content) {
-                        messages.value[index].text += jsonData.content;
-                        await nextTick();
-                        chatboxRef.value.scrollTop = chatboxRef.value.scrollHeight;
-                      }
-                    } catch (e) {
-                      console.error('Error parsing SSE data:', e);
-                    }
+              try {
+                const jsonData = JSON.parse(data);
+                if (jsonData.content) {
+                  messages.value[messages.value.length - 1].text += jsonData.content;
+                  await nextTick();
+                  if (chatboxRef.value) {
+                    chatboxRef.value.scrollTop = chatboxRef.value.scrollHeight;
                   }
                 }
+              } catch (e) {
+                console.error('Error parsing SSE data:', e);
               }
-            } finally {
-              reader.releaseLock();
             }
-
-            await nextTick();
-            chatboxRef.value.scrollTop = chatboxRef.value.scrollHeight;
-            Prism.highlightAll();
-          } catch (error) {
-            messages.value.pop();
-            throw error;
           }
         }
-      } catch (error: any) {
-        const errorResponse = error.response?.data;
-        const errorDetails = errorResponse?.details || {};
-        
-        // 构建错误消息
-        const errorInfo = {
-          错误类型: errorResponse?.error || '未知错误',
-          错误信息: errorDetails.message || error.message || '未知错误',
-          状态码: errorDetails.status || error.response?.status || '未知',
-          状态描述: errorDetails.statusText || error.response?.statusText || '未知',
-          API响应: errorDetails.response || errorResponse || '无详细信息'
-        };
-        
-        const errorMessage = Object.entries(errorInfo)
-          .filter(([_, value]) => value !== undefined && value !== null)
-          .map(([key, value]) => `${key}: ${typeof value === 'object' ? JSON.stringify(value, null, 2) : value}`)
-          .join('\n');
-        
-        ElMessage.error('发送消息失败，请查看错误详情');
-        
-        messages.value.push({
-          role: "ai",
-          text: `❌ 错误详情:\n\`\`\`json\n${errorMessage}\n\`\`\``
-        });
       } finally {
-        isTyping.value = false;
+        reader.releaseLock();
       }
-    };
 
-    return { messages, userInput, sendMessage, md, isTyping, chatboxRef };
-  },
+      await nextTick();
+      if (chatboxRef.value) {
+        chatboxRef.value.scrollTop = chatboxRef.value.scrollHeight;
+      }
+      Prism.highlightAll();
+    }
+  } catch (error) {
+    const err = error as Error;
+    const errorResponse = (error as any).response?.data as ErrorResponse;
+    const errorDetails = errorResponse?.details || {};
+    
+    // 构建错误消息
+    const errorInfo = {
+      错误类型: errorResponse?.error || '未知错误',
+      错误信息: errorDetails.message || err.message || '未知错误',
+      状态码: errorDetails.status || (error as any).response?.status || '未知',
+      状态描述: errorDetails.statusText || (error as any).response?.statusText || '未知',
+      API响应: errorDetails.response || errorResponse || '无详细信息'
+    };
+    const errorMessage = Object.entries(errorInfo)
+      .map(([key, value]) => `${key}: ${value}`)
+      .join('\n');
+
+    ElMessage.error(errorMessage);
+    messages.value.push({
+      role: 'ai',
+      text: `❌ 错误详情:\n\`\`\`json\n${errorMessage}\n\`\`\``
+    });
+  } finally {
+    isTyping.value = false;
+  }
 };
+
+// 生命周期钩子
+onMounted(() => {
+  if (chatboxRef.value) {
+    chatboxRef.value.scrollTop = chatboxRef.value.scrollHeight;
+  }
+});
 </script>
+
+<style scoped>
+.chat-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 20px;
+}
+
+.chat-box {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  margin-bottom: 20px;
+}
+
+.message {
+  margin-bottom: 20px;
+}
+
+.user {
+  text-align: right;
+}
+
+.ai {
+  text-align: left;
+}
+
+.user_inner,
+.ai_inner {
+  display: inline-block;
+  padding: 10px 15px;
+  border-radius: 10px;
+  max-width: 80%;
+}
+
+.user_inner {
+  background-color: #007AFF;
+  color: white;
+}
+
+.ai_inner {
+  background-color: #f0f0f0;
+  color: #333;
+}
+
+.typing {
+  font-style: italic;
+  color: #666;
+}
+
+.input-area {
+  display: flex;
+  gap: 10px;
+}
+
+input {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+button {
+  padding: 10px 20px;
+  background-color: #007AFF;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+.code-block {
+  margin: 10px 0;
+  padding: 15px;
+  background-color: #1e1e1e;
+  border-radius: 5px;
+  overflow-x: auto;
+}
+
+.code-block code {
+  font-family: 'Fira Code', monospace;
+  font-size: 14px;
+  line-height: 1.5;
+}
+</style>
 
 <style scoped>
 .chat-container {

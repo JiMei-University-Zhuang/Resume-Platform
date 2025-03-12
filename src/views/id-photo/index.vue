@@ -48,7 +48,7 @@
                   <el-color-picker v-model="photoSettings.backgroundColor" show-alpha />
                   <div class="preset-colors">
                     <el-button
-                      v-for="color in presetColors.value"
+                      v-for="color in presetColors"
                       :key="color.value"
                       :style="{ backgroundColor: color.value }"
                       class="color-btn"

@@ -208,43 +208,61 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
+import { ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import html2canvas from 'html2canvas'
 import jsPDF from 'jspdf'
 import dayjs from 'dayjs'
 
-// State
+interface ResumeForm {
+  name: string
+  jobTitle: string
+  contact: string
+  email: string
+  education: {
+    school: string
+    major: string
+    degree: string
+    time: [Date, Date]
+  }[]
+  experience: {
+    company: string
+    position: string
+    description: string
+  }[]
+  skills: string[]
+}
+
+interface AISuggestions {
+  summary: string
+  score: number
+  suggestions: string[]
+  industryMatch: {
+    industry: string
+    score: number
+  }[]
+}
+
 const inputVisible = ref(false)
 const inputValue = ref('')
-const resumeForm = reactive({
+const resumeForm = ref<ResumeForm>({
   name: '',
   jobTitle: '',
   contact: '',
   email: '',
-  education: [{
-    school: '',
-    major: '',
-    degree: '',
-    time: []
-  }],
-  experience: [{
-    company: '',
-    position: '',
-    description: ''
-  }],
+  education: [],
+  experience: [],
   skills: []
 })
 
 const analyzing = ref(false)
 const analysisDialogVisible = ref(false)
 const activeCollapse = ref(['1', '2', '3'])
-const aiSuggestions = ref(null)
+const aiSuggestions = ref<AISuggestions | null>(null)
 const resumePreview = ref(null)
 
-// Methods
 const handleClose = (tag: string) => {
-  resumeForm.skills.splice(resumeForm.skills.indexOf(tag), 1)
+  resumeForm.value.skills = resumeForm.value.skills.filter(t => t !== tag)
 }
 
 const showInput = () => {
@@ -253,27 +271,27 @@ const showInput = () => {
 
 const handleInputConfirm = () => {
   if (inputValue.value) {
-    resumeForm.skills.push(inputValue.value)
+    resumeForm.value.skills.push(inputValue.value)
   }
   inputVisible.value = false
   inputValue.value = ''
 }
 
 const addEducation = () => {
-  resumeForm.education.push({
+  resumeForm.value.education.push({
     school: '',
     major: '',
     degree: '',
-    time: []
+    time: [new Date(), new Date()]
   })
 }
 
 const removeEducation = (index: number) => {
-  resumeForm.education.splice(index, 1)
+  resumeForm.value.education.splice(index, 1)
 }
 
 const addExperience = () => {
-  resumeForm.experience.push({
+  resumeForm.value.experience.push({
     company: '',
     position: '',
     description: ''
@@ -281,7 +299,7 @@ const addExperience = () => {
 }
 
 const removeExperience = (index: number) => {
-  resumeForm.experience.splice(index, 1)
+  resumeForm.value.experience.splice(index, 1)
 }
 
 const formatDate = (date: Date) => {
@@ -315,17 +333,17 @@ const analyzeResume = async () => {
     await new Promise(resolve => setTimeout(resolve, 2000))
     
     aiSuggestions.value = {
-      summary: '您的简历整体结构完整，但在某些方面还可以进一步优化',
-      score: 4,
+      summary: '您的简历整体结构清晰，但在某些方面还可以进一步优化。',
+      score: 85,
       suggestions: [
-        '建议在工作经验中多突出具体的成果和数据',
-        '可以添加更多与目标职位相关的专业技能',
-        '教育背景部分可以补充相关的课程项目经验'
+        '建议在工作经验部分添加更多具体的数据和成果',
+        '可以突出展示您的核心技能和专业认证',
+        '教育背景部分可以补充相关的课程和学术成果'
       ],
       industryMatch: [
-        { industry: '互联网技术', score: 85 },
+        { industry: '互联网技术', score: 90 },
         { industry: '人工智能', score: 75 },
-        { industry: '数据分析', score: 65 }
+        { industry: '金融科技', score: 70 }
       ]
     }
   } catch (error) {

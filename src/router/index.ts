@@ -37,16 +37,7 @@ const routes: RouteRecordRaw[] = [
         meta: { title: '引导页' }
       },
 
-      {
-        path: '/user',
-        name: 'User',
-        component: () => import('@/views/user/index.vue'),
-        meta: {
-          title: '用户管理',
-          icon: 'User',
-          roles: ['admin'] // 只允许管理员访问
-        }
-      },
+
       {
         path: '/error',
         name: 'Error',
@@ -82,14 +73,6 @@ const routes: RouteRecordRaw[] = [
         component: () => import('@/views/personality/Test.vue'),
         meta: {
           title: 'AI 性格测试'
-        }
-      },
-      {
-        path: '/user-settings',
-        name: 'UserSettings',
-        component: () => import('@/views/user/user-settings.vue'),
-        meta: {
-          title: '个人设置'
         }
       },
       {

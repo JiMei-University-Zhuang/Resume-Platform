@@ -1,7 +1,7 @@
 <template>
-  <aside class="sidebar" :class="{ 'collapsed': collapsed.value }">
+  <aside class="sidebar" :class="{ 'collapsed': collapsed }">
     <el-scrollbar>
-      <el-menu router class="menu" :collapse="collapsed.value" :default-active="route.path"
+      <el-menu router class="menu" :collapse="collapsed" :default-active="route.path"
         :background-color="menuBackgroundColor"
         :text-color="menuTextColor" active-text-color="#409EFF" unique-opened>
         <el-menu-item index="/dashboard">

@@ -1,4 +1,3 @@
-import request from '@/utils/request'
 
 export interface ChatMessage {
   role: 'user' | 'ai'

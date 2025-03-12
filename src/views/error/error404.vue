@@ -4,12 +4,19 @@
       <img src="@/assets/vue.svg" alt="404" class="error-image" />
       <h1>😞 页面未找到</h1>
       <p>抱歉，您访问的页面不存在或已被移除。</p>
-      <router-link to="/" class="home-button">返回首页</router-link>
+      <el-button type="primary" class="home-button" @click="goHome">返回首页</el-button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts" name="Error404">
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+
+const goHome = () => {
+  router.push({ name: 'Dashboard' })
+}
 </script>
 
 <style scoped>
@@ -23,6 +30,8 @@
 }
 
 .error-content {
+  position: relative;
+  z-index: 1;
   background: rgba(255, 255, 255, 0.9);
   padding: 40px;
   border-radius: 12px;
@@ -49,18 +58,16 @@
 }
 
 .home-button {
-  display: inline-block;
-  padding: 12px 24px;
-  background-color: #3498db;
-  color: white;
-  border-radius: 25px;
-  text-decoration: none;
+  position: relative;
+  z-index: 1;
+  font-size: 16px !important;
+  padding: 12px 24px !important;
+  border-radius: 25px !important;
   font-weight: bold;
-  transition: background-color 0.3s ease, transform 0.3s ease;
+  transition: transform 0.3s ease !important;
 }
 
 .home-button:hover {
-  background-color: #2980b9;
   transform: translateY(-2px);
 }
 

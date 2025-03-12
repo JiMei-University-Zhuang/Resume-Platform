@@ -5,7 +5,7 @@
         <div class="templates-header">
           <h2>简历模板</h2>
           <div class="filters">
-            <el-radio-group v-model="filter" @change="handleFilterChange">
+            <el-radio-group v-model="filter" @change="(val) => handleFilterChange(val as FilterType)">
               <el-radio-button label="all">全部</el-radio-button>
               <el-radio-button label="fresh">应届生</el-radio-button>
               <el-radio-button label="tech">技术类</el-radio-button>
@@ -77,15 +77,34 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, defineExpose } from 'vue'
 import { useRouter } from 'vue-router'
+import type { FilterType, Template } from '@/types/templates'
+import { getTagType } from '@/types/templates'
 
 const router = useRouter()
-const filter = ref('all')
+const filter = ref<FilterType>('all')
 const previewDialogVisible = ref(false)
-const selectedTemplate = ref(null)
+const selectedTemplate = ref<Template | null>(null)
 
-const templates = [
+const handleFilterChange = (value: FilterType) => {
+  filter.value = value
+}
+
+const previewTemplate = (template: Template) => {
+  selectedTemplate.value = template
+  previewDialogVisible.value = true
+}
+
+const useTemplate = (template: Template | null) => {
+  if (!template) return
+  router.push({
+    name: 'ResumeCreate',
+    query: { template: template.id.toString() }
+  })
+}
+
+const templates: Template[] = [
   {
     id: 1,
     name: '清新简约模板',
@@ -136,30 +155,17 @@ const filteredTemplates = computed(() => {
   )
 })
 
-const getTagType = (tag: string) => {
-  switch (tag) {
-    case '应届生': return 'success'
-    case '技术类': return 'primary'
-    case '商务类': return 'warning'
-    default: return ''
-  }
-}
-
-const handleFilterChange = (value: string) => {
-  filter.value = value
-}
-
-const previewTemplate = (template: any) => {
-  selectedTemplate.value = template
-  previewDialogVisible.value = true
-}
-
-const useTemplate = (template: any) => {
-  router.push({
-    name: 'ResumeCreate',
-    query: { template: template.id }
-  })
-}
+// Make variables available to template
+defineExpose({
+  filter,
+  filteredTemplates,
+  previewDialogVisible,
+  selectedTemplate,
+  getTagType,
+  handleFilterChange,
+  previewTemplate,
+  useTemplate
+})
 </script>
 
 <style scoped>

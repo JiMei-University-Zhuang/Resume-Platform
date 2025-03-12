@@ -156,7 +156,6 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { TrendCharts, PieChart, Promotion, Operation } from '@element-plus/icons-vue'
 import * as echarts from 'echarts'
 
 // 统计数据
@@ -279,24 +278,29 @@ const hotspots = [
 ]
 
 // 初始化图表
-onMounted(() => {
-  // 初始化薪资分布图表
-  const salary = echarts.init(document.querySelector('#salaryChart'))
+const initCharts = () => {
+  const salaryChart = document.querySelector('#salaryChart') as HTMLElement
+  const skillsChart = document.querySelector('#skillsChart') as HTMLElement
+  const trendChart = document.querySelector('#trendChart') as HTMLElement
+
+  const salary = echarts.init(salaryChart)
   salary.setOption({
     // ... 薪资分布图表配置
   })
 
-  // 初始化技能需求图表
-  const skills = echarts.init(document.querySelector('#skillsChart'))
+  const skills = echarts.init(skillsChart)
   skills.setOption({
     // ... 技能需求图表配置
   })
 
-  // 初始化趋势图表
-  const trend = echarts.init(document.querySelector('#trendChart'))
+  const trend = echarts.init(trendChart)
   trend.setOption({
     // ... 趋势图表配置
   })
+}
+
+onMounted(() => {
+  initCharts()
 })
 
 // 生成报告

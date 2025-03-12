@@ -16,8 +16,6 @@
     "@element-plus/icons-vue": "^2.3.1",
     "@kjgl77/datav-vue3": "^1.7.4",
     "@tensorflow/tfjs": "^4.15.0",
-    "@tsparticles/engine": "^3.8.1",
-    "@tsparticles/slim": "^3.8.1",
     "@tsparticles/vue3": "^3.0.1",
     "@types/gsap": "^3.0.0",
     "@types/node": "^22.13.1",
@@ -46,6 +44,10 @@
     "vue-router": "^4.5.0"
   },
   "devDependencies": {
+    "@tsparticles/engine": "^3.8.1",
+    "@tsparticles/slim": "^3.8.1",
+    "@types/markdown-it": "^14.1.2",
+    "@types/prismjs": "^1.26.5",
     "@typescript-eslint/eslint-plugin": "^8.24.0",
     "@typescript-eslint/parser": "^8.24.0",
     "@vitejs/plugin-vue": "^5.2.1",

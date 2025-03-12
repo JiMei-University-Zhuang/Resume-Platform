@@ -107,7 +107,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { behaviorPredictor } from '@/utils/userBehaviorPredictor'
 import { 
   User,
@@ -135,7 +135,6 @@ const progressColor = [
 // 添加一些模拟的用户行为数据
 const initializeBehaviorData = () => {
   const actions = ['查看仪表盘', '查看用户列表', '系统设置', '查看日志']
-  const now = new Date()
   
   // 记录一些模拟的用户行为
   for (let i = 0; i < 20; i++) {

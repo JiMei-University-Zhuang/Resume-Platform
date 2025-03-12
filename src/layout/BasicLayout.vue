@@ -12,12 +12,10 @@
 </template>
 
 <script setup lang="ts">
-import { useRoute } from 'vue-router'
 import { useAppStore } from '@/stores'
 import LayoutHeader from './components/Header.vue'
 import LayoutSider from './components/Sider.vue'
 
-const route = useRoute()
 const appStore = useAppStore()
 const { collapsed } = appStore
 </script>

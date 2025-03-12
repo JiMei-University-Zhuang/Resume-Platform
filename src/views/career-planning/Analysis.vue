@@ -94,9 +94,18 @@
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
 import { ElMessage } from 'element-plus'
+import type { CareerAnalysis } from '@/types/career'
+
+interface AnalysisForm {
+  education: string
+  major: string
+  skills: string[]
+  interests: string[]
+  workExperience: number
+}
 
 const analyzing = ref(false)
-const analysisForm = reactive({
+const analysisForm = reactive<AnalysisForm>({
   education: '',
   major: '',
   skills: [],
@@ -104,7 +113,7 @@ const analysisForm = reactive({
   workExperience: 0
 })
 
-const analysisResult = ref(null)
+const analysisResult = ref<CareerAnalysis | null>(null)
 
 const submitAnalysis = async () => {
   if (!analysisForm.education || !analysisForm.major) {
@@ -122,7 +131,7 @@ const submitAnalysis = async () => {
       recommendedCareer: '软件开发工程师',
       advantages: '具备扎实的技术基础，对编程有浓厚兴趣，适合从事技术开发工作。',
       suggestions: '建议继续深入学习新技术，参与开源项目，提升系统设计能力。'
-    }
+    } as CareerAnalysis
     
     ElMessage.success('分析完成')
   } catch (error) {

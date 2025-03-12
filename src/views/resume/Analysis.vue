@@ -157,16 +157,18 @@
 import { ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { UploadFilled, InfoFilled } from '@element-plus/icons-vue'
+import type { AnalysisResult, Suggestion } from '@/types/resume'
+import type { UploadFile, UploadFiles } from 'element-plus'
 
 // Refs
 const analyzing = ref(false)
-const analysisResult = ref(null)
+const analysisResult = ref<AnalysisResult | null>(null)
 const aiDialogVisible = ref(false)
-const currentSuggestion = ref(null)
+const currentSuggestion = ref<Suggestion | null>(null)
 
 // Methods
-const handleFileChange = (file) => {
-  console.log('文件已选择:', file)
+const handleFileChange = (uploadFile: UploadFile, _uploadFiles: UploadFiles) => {
+  console.log('文件已选择:', uploadFile)
 }
 
 const startAnalysis = async () => {
@@ -244,7 +246,7 @@ const getSuggestionColor = (priority: string) => {
   }
 }
 
-const applySuggestion = (suggestion) => {
+const applySuggestion = (suggestion: Suggestion) => {
   currentSuggestion.value = suggestion
   aiDialogVisible.value = true
 }
@@ -257,6 +259,22 @@ const confirmApplySuggestion = () => {
 const applyAllSuggestions = () => {
   ElMessage.success('已应用所有优化建议')
 }
+
+// Make variables available to template
+defineExpose({
+  analyzing,
+  analysisResult,
+  aiDialogVisible,
+  currentSuggestion,
+  handleFileChange,
+  getScoreType,
+  getProgressColor,
+  getSuggestionColor,
+  applySuggestion,
+  confirmApplySuggestion,
+  applyAllSuggestions,
+  startAnalysis
+})
 </script>
 
 <style scoped>
