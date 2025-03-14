@@ -3,7 +3,7 @@ import type { TestAnswers, PersonalityReport } from '@/types/personality'
 
 export async function analyzePersonalityWithAI(answers: TestAnswers): Promise<PersonalityReport> {
   const response = await request({
-    url: '/api/personality/analyze',
+    url: '/personality/analyze',
     method: 'post',
     data: {
       mbtiAnswers: answers.mbtiAnswers,

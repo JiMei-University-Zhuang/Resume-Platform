@@ -30,7 +30,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount } from 'vue'
-import { tsParticles } from '@tsparticles/engine'
+import { Container, tsParticles } from '@tsparticles/engine'
 import { loadSlim } from '@tsparticles/slim'
 
 const props = defineProps<{
@@ -39,6 +39,7 @@ const props = defineProps<{
 }>()
 
 const initialized = ref(false)
+const container = ref<Container | null>(null)
 
 const particlesOptions = {
   fpsLimit: 60,
@@ -88,8 +89,14 @@ const particlesOptions = {
 
 const init = async () => {
   await loadSlim(tsParticles)
-  await tsParticles.load(props.id || 'loading-particles', particlesOptions)
-  initialized.value = true
+  const particlesContainer = await tsParticles.load({
+    id: props.id || 'loading-particles',
+    options: particlesOptions
+  })
+  if (particlesContainer) {
+    container.value = particlesContainer
+    initialized.value = true
+  }
 }
 
 onMounted(() => {
@@ -97,7 +104,9 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
-  tsParticles.destroy(props.id || 'loading-particles')
+  if (container.value) {
+    container.value.destroy()
+  }
 })
 </script>
 

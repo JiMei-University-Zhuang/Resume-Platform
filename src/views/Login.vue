@@ -268,7 +268,7 @@ const handleLogin = async (formEl: any) => {
         if (response.code === 200 && response.data) {
           ElMessage.success('登录成功')
           router.push('/dashboard')
-          localStorage.setItem('token', response.data);
+          localStorage.setItem('token', JSON.stringify(response.data))
         } else {
           throw new Error(response.msg || '登录失败')
         }
@@ -294,7 +294,7 @@ const handleRegister = async () => {
         : 'http://8.130.75.193:8081/auth/emailRegister';
 
       axios.post(registerUrl, registerForm)
-        .then((response) => {
+        .then(() => {
           ElMessage.success('注册成功');
           gotoLogin()
           refreshCaptcha()
@@ -369,8 +369,12 @@ const loadFaceModels = async () => {
       if (!manifestResponse.ok) {
         throw new Error('无法访问模型文件，请检查文件路径是否正确')
       }
-    } catch (error) {
-      throw new Error(`模型文件访问失败: ${error.message}`)
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new Error(`模型文件访问失败: ${error.message}`)
+      } else {
+        throw new Error('模型文件访问失败: 未知错误')
+      }
     }
 
     // 设置 faceapi 参数
@@ -392,9 +396,12 @@ const loadFaceModels = async () => {
 
     isModelLoaded.value = true
     ElMessage.success('人脸识别模型加载成功')
-  } catch (error) {
-    console.error('模型加载失败，详细错误:', error)
-    ElMessage.error(`人脸识别模型加载失败: ${error.message || '未知错误'}`)
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      ElMessage.error(`人脸识别模型加载失败: ${error.message}`)
+    } else {
+      ElMessage.error('人脸识别模型加载失败: 未知错误')
+    }
     isModelLoaded.value = false
   }
 }
@@ -431,18 +438,14 @@ const detectHeadPose = (landmarks: any) => {
   return 'center'
 }
 
-// 人脸特征相关状态
-const isFaceModelLoaded = ref(false)
-const isRegisteredUser = ref(false)
-
 // 提取人脸特征
-const extractFaceFeatures = async (detection: any) => {
+const extractFaceFeatures = async () => {
   try {
-    const descriptor = await faceapi.computeFaceDescriptor(
-      videoRef.value,
-      detection
-    )
-    return new Float32Array(descriptor)
+    if (!videoRef.value) return null
+    const descriptor = await faceapi.detectSingleFace(videoRef.value)
+      .withFaceLandmarks()
+      .withFaceDescriptor()
+    return descriptor ? new Float32Array(descriptor.descriptor) : null
   } catch (error) {
     console.error('提取人脸特征失败:', error)
     return null
@@ -521,7 +524,7 @@ const handleFaceLogin = async () => {
     }
 
     // 提取人脸特征
-    const features = await extractFaceFeatures(detection)
+    const features = await extractFaceFeatures()
     if (!features) {
       ElMessage.error('人脸特征提取失败，请重试')
       isProcessing.value = false

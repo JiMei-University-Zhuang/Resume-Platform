@@ -81,7 +81,7 @@
       </el-card>
 
       <!-- 分析报告 -->
-      <el-card v-else class="analysis-report">
+      <el-card v-if="report" class="analysis-report">
         <template #header>
           <div class="card-header">
             <h2>个性分析报告</h2>
@@ -97,7 +97,7 @@
               <div class="trait-bars">
                 <div v-for="(trait, index) in report.mbti.traits" :key="index" class="trait-bar">
                   <span>{{ trait.name }}</span>
-                  <el-progress :percentage="trait.value" :format="format => `${trait.value}%`" />
+                  <el-progress :percentage="trait.value" :format="formatProgress" />
                 </div>
               </div>
             </div>
@@ -107,7 +107,7 @@
             <div class="big5-result">
               <div v-for="(dimension, index) in report.bigFive" :key="index" class="dimension">
                 <h4>{{ dimension.name }}</h4>
-                <el-progress :percentage="dimension.value" :format="format => `${dimension.value}%`" />
+                <el-progress :percentage="dimension.value" :format="formatProgress" />
                 <p>{{ dimension.description }}</p>
               </div>
             </div>
@@ -128,7 +128,7 @@
                 <el-table-column prop="career" label="推荐职业" />
                 <el-table-column prop="match" label="匹配度">
                   <template #default="scope">
-                    <el-progress :percentage="scope.row.match" />
+                    <el-progress :percentage="scope.row.match" :format="formatProgress" />
                   </template>
                 </el-table-column>
                 <el-table-column prop="reason" label="推荐理由" />
@@ -142,10 +142,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import { usePersonalityStore } from '@/stores'
-import type { Question, OpenQuestion, PersonalityReport } from '@/types/personality'
 import { mbtiQuestions, bigFiveQuestions, openQuestions } from '@/constants/personalityQuestions'
 
 const personalityStore = usePersonalityStore()
@@ -245,6 +244,16 @@ const exportReport = () => {
 
 // 获取报告数据
 const report = computed(() => personalityStore.report)
+
+// 格式化进度
+const formatProgress = (value: number) => `${value}%`
+
+// 监听报告生成
+watch(() => personalityStore.report, (newReport) => {
+  if (newReport) {
+    activeCollapse.value = ['1', '2', '3', '4']
+  }
+})
 </script>
 
 <style scoped lang="less">
