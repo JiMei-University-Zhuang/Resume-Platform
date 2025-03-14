@@ -143,7 +143,7 @@
 import { ref, reactive, onUnmounted, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { login } from '@/api/user'
+import { getCaptcha, getCaptchaKey, login } from '@/api/user'
 import axios from 'axios'
 import * as faceapi from 'face-api.js'
 
@@ -165,7 +165,7 @@ const loginForm = reactive({
   username: '',
   password: '',
   captcha_key: '',
-  captcha_value:''
+  captcha_value: ''
 })
 const loginrules = {
   username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
@@ -204,26 +204,28 @@ const captchaUrl = ref('')
 
 const getCaptchaData = async () => {
   try {
-    const prepareResponse = await axios.get('http://8.130.75.193:8081/auth/prepareCode')
-    if (prepareResponse.data.code === 200) {
-      captchaKey.value = prepareResponse.data.data
-      
-      const captchaResponse = await axios.get('http://8.130.75.193:8081/auth/getCaptcha', {
-        headers: {
-          'captcha': captchaKey.value
-        },
-        responseType: 'blob'
-      })
-      
+    const prepareResponse = await getCaptchaKey();
+    // const prepareResponse = await axios.get('http://8.130.75.193:8081/auth/prepareCode')
+    if (prepareResponse.code === 200) {
+      captchaKey.value = prepareResponse.data
+      const captchaResponse = await getCaptcha(captchaKey.value)
+      // const captchaResponse = await axios.get('http://8.130.75.193:8081/auth/getCaptcha', {
+      //   headers: {
+      //     'captcha': captchaKey.value
+      //   },
+      //   responseType: 'blob'
+      // })
+
+
       if (captchaUrl.value) {
         window.URL.revokeObjectURL(captchaUrl.value)
       }
-      const blob = new Blob([captchaResponse.data], { type: 'image/jpeg' })
+      const blob = new Blob([captchaResponse], { type: 'image/jpeg' })
       captchaUrl.value = window.URL.createObjectURL(blob)
       loginForm.captcha_key = captchaKey.value
       registerForm.captcha_key = captchaKey.value
     } else {
-      throw new Error(prepareResponse.data.msg || '获取验证码key失败')
+      throw new Error(prepareResponse.msg || '获取验证码key失败')
     }
   } catch (error) {
     ElMessage.error('获取验证码失败，请刷新重试')
@@ -262,17 +264,18 @@ const handleLogin = async (formEl: any) => {
           captcha_key: captchaKey.value,
           captcha_value: loginForm.captcha_value
         })
-        
+
         if (response.code === 200 && response.data) {
           ElMessage.success('登录成功')
           router.push('/dashboard')
-           localStorage.setItem('token', response.data);
+          localStorage.setItem('token', response.data);
         } else {
           throw new Error(response.msg || '登录失败')
         }
       } catch (error: any) {
         const errorMessage = error.response?.data?.msg || error.message || '登录失败，请检查用户名和密码'
         ElMessage.error(errorMessage)
+        console.error('登录失败:', errorMessage)
         refreshCaptcha()
       } finally {
         loading.value = false
@@ -295,7 +298,7 @@ const handleRegister = async () => {
           ElMessage.success('注册成功');
           gotoLogin()
           refreshCaptcha()
-          
+
         })
         .catch((error) => {
           if (error.response && error.response.status === 500) {
@@ -547,12 +550,11 @@ const handleFaceLogin = async () => {
   justify-content: center;
   position: relative;
   overflow: hidden;
-  background: linear-gradient(151.5deg, 
-    #f5f7fa 0%, 
-    #f5f7fa 50%, 
-    #e4e7eb 50%, 
-    #e4e7eb 100%
-  );
+  background: linear-gradient(151.5deg,
+      #f5f7fa 0%,
+      #f5f7fa 50%,
+      #e4e7eb 50%,
+      #e4e7eb 100%);
 }
 
 .login-content {
@@ -772,7 +774,7 @@ const handleFaceLogin = async () => {
   width: 100%;
 }
 
-.account-tip{
+.account-tip {
   position: absolute;
   right: 0;
 }

@@ -118,7 +118,7 @@ export function getCaptcha(captcha: string) {
     url: '/auth/getCaptcha',
     method: 'get',
     responseType: 'blob',
-    data: {
+    headers: {
       captcha
     }
   })
