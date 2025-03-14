@@ -5,7 +5,7 @@
         <el-form-item label="用户名">
           <el-input v-model="localFormData.username" />
         </el-form-item>
-        <el-form-item label="姓名">
+        <el-form-item label="昵称">
           <el-input v-model="localFormData.name" />
         </el-form-item>
         <el-form-item label="性别">
@@ -39,7 +39,7 @@
 
 <script setup lang="ts">
 import { defineProps, defineEmits, ref, watch } from 'vue';
-import type { IUser } from '@/types/user'; 
+import type { IUser } from '@/types/user';
 
 const props = defineProps<{
   visible: boolean;
@@ -62,7 +62,7 @@ const updateVisible = (value: boolean) => {
 };
 
 const submitForm = () => {
-  emits('submit',  localFormData.value);
+  emits('submit', localFormData.value);
   updateVisible(false);
 };
 </script>

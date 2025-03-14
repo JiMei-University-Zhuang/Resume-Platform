@@ -9,11 +9,11 @@
               <el-button type="primary" @click="analyzeResume">AI 分析优化</el-button>
             </div>
           </template>
-          
+
           <el-form :model="resumeForm" label-width="100px">
             <el-divider>基本信息</el-divider>
-            <el-form-item label="姓名">
-              <el-input v-model="resumeForm.name" placeholder="请输入姓名"></el-input>
+            <el-form-item label="昵称">
+              <el-input v-model="resumeForm.name" placeholder="请输入昵称"></el-input>
             </el-form-item>
             <el-form-item label="求职意向">
               <el-input v-model="resumeForm.jobTitle" placeholder="请输入求职意向"></el-input>
@@ -52,11 +52,7 @@
                 </el-col>
                 <el-col :span="12">
                   <el-form-item :label="'时间'">
-                    <el-date-picker
-                      v-model="edu.time"
-                      type="daterange"
-                      range-separator="至"
-                      start-placeholder="开始时间"
+                    <el-date-picker v-model="edu.time" type="daterange" range-separator="至" start-placeholder="开始时间"
                       end-placeholder="结束时间">
                     </el-date-picker>
                   </el-form-item>
@@ -89,24 +85,12 @@
 
             <el-divider>技能特长</el-divider>
             <el-form-item label="技能标签">
-              <el-tag
-                v-for="tag in resumeForm.skills"
-                :key="tag"
-                closable
-                :disable-transitions="false"
-                @close="handleClose(tag)"
-                class="skill-tag"
-              >
+              <el-tag v-for="tag in resumeForm.skills" :key="tag" closable :disable-transitions="false"
+                @close="handleClose(tag)" class="skill-tag">
                 {{ tag }}
               </el-tag>
-              <el-input
-                v-if="inputVisible"
-                ref="InputRef"
-                v-model="inputValue"
-                class="input-new-tag"
-                @keyup.enter="handleInputConfirm"
-                @blur="handleInputConfirm"
-              />
+              <el-input v-if="inputVisible" ref="InputRef" v-model="inputValue" class="input-new-tag"
+                @keyup.enter="handleInputConfirm" @blur="handleInputConfirm" />
               <el-button v-else class="button-new-tag" @click="showInput">
                 + 添加技能
               </el-button>
@@ -151,30 +135,16 @@
       </el-col>
     </el-row>
 
-    <el-dialog
-      v-model="analysisDialogVisible"
-      title="AI 简历分析"
-      width="50%"
-    >
+    <el-dialog v-model="analysisDialogVisible" title="AI 简历分析" width="50%">
       <div v-loading="analyzing">
         <div v-if="!analyzing && aiSuggestions">
-          <el-alert
-            :title="aiSuggestions.summary"
-            type="success"
-            :closable="false"
-            class="mb-20"
-          ></el-alert>
-          
+          <el-alert :title="aiSuggestions.summary" type="success" :closable="false" class="mb-20"></el-alert>
+
           <el-collapse v-model="activeCollapse">
             <el-collapse-item title="整体评分" name="1">
-              <el-rate
-                v-model="aiSuggestions.score"
-                disabled
-                show-score
-                text-color="#ff9900"
-              ></el-rate>
+              <el-rate v-model="aiSuggestions.score" disabled show-score text-color="#ff9900"></el-rate>
             </el-collapse-item>
-            
+
             <el-collapse-item title="详细建议" name="2">
               <ul>
                 <li v-for="(suggestion, index) in aiSuggestions.suggestions" :key="index">
@@ -184,13 +154,9 @@
             </el-collapse-item>
 
             <el-collapse-item title="行业匹配度" name="3">
-              <el-progress
-                v-for="(match, index) in aiSuggestions.industryMatch"
-                :key="index"
-                :percentage="match.score"
+              <el-progress v-for="(match, index) in aiSuggestions.industryMatch" :key="index" :percentage="match.score"
                 :text="match.industry"
-                :color="match.score > 80 ? '#67C23A' : match.score > 60 ? '#E6A23C' : '#F56C6C'"
-              ></el-progress>
+                :color="match.score > 80 ? '#67C23A' : match.score > 60 ? '#E6A23C' : '#F56C6C'"></el-progress>
             </el-collapse-item>
           </el-collapse>
         </div>
@@ -290,17 +256,17 @@ const formatDate = (date: Date) => {
 
 const exportPDF = async () => {
   if (!resumePreview.value) return
-  
+
   try {
     const canvas = await html2canvas(resumePreview.value)
     const imgData = canvas.toDataURL('image/png')
     const pdf = new jsPDF('p', 'mm', 'a4')
     const pdfWidth = pdf.internal.pageSize.getWidth()
     const pdfHeight = (canvas.height * pdfWidth) / canvas.width
-    
+
     pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight)
     pdf.save('我的简历.pdf')
-    
+
     ElMessage.success('PDF导出成功！')
   } catch (error) {
     ElMessage.error('PDF导出失败，请重试')
@@ -310,10 +276,10 @@ const exportPDF = async () => {
 const analyzeResume = async () => {
   analysisDialogVisible.value = true
   analyzing.value = true
-  
+
   try {
     await new Promise(resolve => setTimeout(resolve, 2000))
-    
+
     aiSuggestions.value = {
       summary: '您的简历整体结构完整，但在某些方面还可以进一步优化',
       score: 4,

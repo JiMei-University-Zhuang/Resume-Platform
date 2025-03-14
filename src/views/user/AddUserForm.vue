@@ -4,8 +4,8 @@
       <el-form-item label="用户名" prop="username">
         <el-input v-model="form.username" placeholder="请输入用户名" />
       </el-form-item>
-      <el-form-item label="姓名" prop="name">
-        <el-input v-model="form.name" placeholder="请输入姓名" />
+      <el-form-item label="昵称" prop="name">
+        <el-input v-model="form.name" placeholder="请输入昵称" />
       </el-form-item>
       <el-form-item label="密码" prop="password">
         <el-input v-model="form.password" placeholder="请输入密码" type="password" show-password />
@@ -65,7 +65,7 @@ const form = reactive({
 
 const rules = reactive({
   username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
-  name: [{ required: true, message: '请输入姓名', trigger: 'blur' }],
+  name: [{ required: true, message: '请输入昵称', trigger: 'blur' }],
   password: [
     { required: true, message: '请输入密码', trigger: 'blur' },
     {

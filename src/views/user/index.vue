@@ -6,12 +6,12 @@
         <el-form-item label="用户名">
           <el-input v-model="queryParams.username" placeholder="请输入用户名" clearable />
         </el-form-item>
-        <el-form-item label="姓名">
-          <el-input v-model="queryParams.name" placeholder="请输入姓名" clearable />
+        <el-form-item label="昵称">
+          <el-input v-model="queryParams.name" placeholder="请输入昵称" clearable />
         </el-form-item>
         <el-form-item label="角色">
           <el-select v-model="queryParams.role" placeholder="请选择角色" value-key="label" clearable>
-            <el-option label="管理员" value="admin" />
+            <el-option label="管理员" value="ADMIN" />
             <el-option label="普通用户" value="USER" />
           </el-select>
         </el-form-item>
@@ -48,15 +48,15 @@
 
       <el-table v-loading="loading" :data="userList" border stripe>
         <el-table-column type="index" label="序号" width="60" align="center" />
-        <el-table-column prop="username" label="用户名" min-width="120" show-overflow-tooltip />
-        <el-table-column prop="name" label="姓名" min-width="100" show-overflow-tooltip />
+        <el-table-column prop="username" label="用户名" align="center" min-width="120" show-overflow-tooltip />
+        <el-table-column prop="name" label="昵称" align="center" min-width="100" show-overflow-tooltip />
         <el-table-column prop="sex" label="性别" width="80" align="center">
           <template #default="{ row }">
             {{ row.sex === 1 ? '男' : '女' }}
           </template>
         </el-table-column>
-        <el-table-column prop="email" label="邮箱" min-width="160" show-overflow-tooltip />
-        <el-table-column prop="telephone" label="电话" min-width="120" show-overflow-tooltip />
+        <el-table-column prop="email" label="邮箱" min-width="160" align="center" show-overflow-tooltip />
+        <el-table-column prop="telephone" label="电话" min-width="120" align="center" show-overflow-tooltip />
         <el-table-column prop="role" label="角色" width="100" align="center">
           <template #default="{ row }">
             <el-tag :type="row.role === 'admin' ? 'danger' : 'success'">
@@ -64,7 +64,7 @@
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="createTime" label="创建时间" min-width="160" show-overflow-tooltip />
+        <el-table-column prop="createTime" align="center" label="创建时间" min-width="160" show-overflow-tooltip />
         <el-table-column label="操作" width="180" align="center" fixed="right">
           <template #default="{ row }">
             <el-button type="primary" link @click="handleEdit(row)">
@@ -97,7 +97,7 @@
     <EditUserForm v-model:visible="editDialogVisible" :formData="editUserInfo" @submit="handleEditSubmit" />
 
     <!-- 删除用户弹窗 -->
-     <el-dialog v-model="isDeleteDialogVisible" title="删除确认" @close="handleDeleteDialogClose">
+    <el-dialog v-model="isDeleteDialogVisible" title="删除确认" @close="handleDeleteDialogClose">
       <p>确定要删除用户 {{ deleteRow.username }} 吗？</p>
       <template #footer>
         <span class="dialog-footer">
@@ -115,7 +115,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { Search, Refresh, Plus, Edit, Delete } from '@element-plus/icons-vue'
-import { getUserList,removeUser,editUser} from '@/api/user'
+import { getUserList, removeUser, editUser } from '@/api/user'
 import AddUserForm from '@/views/user/AddUserForm.vue'
 import type { IUser, IUserQueryParams } from '@/types/user'
 import { ElMessage } from 'element-plus'
@@ -194,7 +194,7 @@ const handleAdd = () => {
 
 const handleSubmit = async () => {
   try {
-    await getList() 
+    await getList()
     ElMessage.success('用户添加成功')
   } catch (error) {
     // 错误已在子组件处理
@@ -206,7 +206,7 @@ const handleEdit = (row: IUser) => {
   editDialogVisible.value = true;
 };
 
-const handleEditSubmit = async ( formData: IUser) => {
+const handleEditSubmit = async (formData: IUser) => {
   try {
     const token = getToken();
     if (!token) {
@@ -261,7 +261,7 @@ const handleDeleteConfirm = async () => {
       ElMessage.error('未检测到有效的登录信息，请重新登录')
       return
     }
-    const response = await removeUser(deleteRow.value.id )
+    const response = await removeUser(deleteRow.value.id)
     if (response.code === 200) {
       const index = userList.value.findIndex(item => item.id === deleteRow.value.id)
       if (index !== -1) {
@@ -294,6 +294,10 @@ onMounted(() => {
 <style scoped>
 .user-container {
   padding: 20px;
+}
+
+.el-table .el-table__cell {
+  text-align: center;
 }
 
 .search-card {
