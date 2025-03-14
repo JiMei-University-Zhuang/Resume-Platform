@@ -16,7 +16,7 @@ export interface ChatResponse {
 export const sendChatMessage = async (message: string, system_message?: string) => {
   console.log('Sending chat message:', { message, system_message });
   
-  const response = await fetch('/api/chat', {
+  const response = await fetch('/chat', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

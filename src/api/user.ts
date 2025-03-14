@@ -23,7 +23,7 @@ export interface LoginResult {
 
 export const login = (data: LoginParams): Promise<LoginResult> => {
   return request({
-    url: '/api/auth/login',
+    url: '/auth/login',
     method: 'post',
     data
   })
@@ -31,7 +31,7 @@ export const login = (data: LoginParams): Promise<LoginResult> => {
 
 export const logout = () => {
   return request({
-    url: '/api/auth/logout',
+    url: '/auth/logout',
     method: 'post'
   })
 } 

@@ -20,14 +20,14 @@ export interface EditSettingsData {
 
 export const getPersonalSettings = () => {
   return request({
-    url: '/api/settings/personal',
+    url: '/settings/personal',
     method: 'get'
   })
 }
 
 export const updatePersonalSettings = (data: EditSettingsData) => {
   return request({
-    url: '/api/settings/personal',
+    url: '/settings/personal',
     method: 'put',
     data
   })
