@@ -34,4 +34,24 @@ export const logout = () => {
     url: '/auth/logout',
     method: 'post'
   })
-} 
+}
+
+//获取验证码
+export function getCaptcha(captcha: string) {
+  return request({
+    url: '/auth/getCaptcha',
+    method: 'get',
+    responseType: 'blob',
+    headers: {
+      captcha
+    }
+  })
+}
+
+//获取验证码键
+export function getCaptchaKey() {
+  return request({
+    url: '/auth/prepareCode',
+    method: 'get'
+  })
+}
