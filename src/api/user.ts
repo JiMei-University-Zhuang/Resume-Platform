@@ -35,7 +35,6 @@ export const logout = () => {
     method: 'post'
   })
 }
-
 //获取验证码
 export function getCaptcha(captcha: string) {
   return request({

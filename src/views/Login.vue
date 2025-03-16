@@ -138,7 +138,6 @@
     </div>
   </div>
 </template>
-
 <script setup lang="ts">
 import { ref, reactive, onUnmounted, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
@@ -162,8 +161,8 @@ const isProcessing = ref(false)
 
 //登录表单
 const loginForm = reactive({
-  username: '',
-  password: '',
+  username: "账号1",
+  password: 'root',
   captcha_key: '',
   captcha_value: ''
 })
@@ -259,6 +258,7 @@ const handleLogin = async (formEl: any) => {
           ElMessage.success('登录成功')
           router.push('/dashboard')
           localStorage.setItem('token', JSON.stringify(response.data))
+
         }
       } catch (error: any) {
         const errorMessage = error.response?.data?.message || error.message || '登录失败，请检查用户名和密码'
@@ -294,7 +294,6 @@ const handleRegister = async () => {
 
         })
         .catch((error) => {
-          console.error('注册失败:', error);
           if (error.response && error.response.status === 500) {
             const errorMessage = error.response.data.message;
             if (errorMessage) {
