@@ -138,7 +138,7 @@ const templates: Template[] = [
       '项目经验时间线',
       '技术关键词标签云'
     ]
-  },
+  }
 ]
 
 const filteredTemplates = computed(() => {
