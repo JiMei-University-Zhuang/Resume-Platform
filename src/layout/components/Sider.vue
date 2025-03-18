@@ -116,9 +116,7 @@
           <el-menu-item index="/exam/postgraduate">
             <span>考研备考</span>
           </el-menu-item>
-          <el-menu-item index="/exam/practice">
-            <span>模拟练习</span>
-          </el-menu-item>
+          
         </el-sub-menu>
       </el-menu>
     </el-scrollbar>
