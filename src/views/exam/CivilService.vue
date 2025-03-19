@@ -6,10 +6,11 @@
           <span>公务员考试</span>
           <el-button type="primary" :loading="loading">开始练习</el-button>
         </div>
+        <div class="card-body">
+          
+        </div>
       </template>
-      <div class="exam-content">
-        <el-empty description="正在建设中" />
-      </div>
+     
     </el-card>
   </div>
 </template>
@@ -35,10 +36,5 @@ defineExpose({
   align-items: center;
 }
 
-.exam-content {
-  min-height: 300px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
+
 </style>
