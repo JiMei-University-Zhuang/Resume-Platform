@@ -1,223 +1,117 @@
 <template>
-  <el-card style="padding:0  150px; display: flex; justify-content: space-between;">
-    <div class="exam-page">
-      <div class="question-area">
-        <div class="question-header">
-          <span>第{{ currentQuestionIndex + 1 }}题 (单选题)：</span>
-        </div>
-        <div class="question-text">
-          <p>在输入输出设备的例行操作中，（ ）不属于监控的主要内容。</p>
-        </div>
-        <el-radio-group v-model="selectedAnswer" class="radio-group-vertical">
-          <el-radio label="A">A. 支撑软件及硬件配置变动</el-radio>
-          <el-radio label="B">B. 易损件使用情况</el-radio>
-          <el-radio label="C">C. 用户的个人信息</el-radio>
-          <el-radio label="D">D. 告警信息</el-radio>
-        </el-radio-group>
-
-        <div class="function-buttons">
-          <el-button @click="toggleMark">标记</el-button>
-          <div class="action-buttons">
-            <el-button @click="prevQuestion">
-              <span>上一题</span>
-            </el-button>
-
-            <el-button @click="nextQuestion">
-              <span>下一题</span>
-            </el-button>
-          </div>
-        </div>
-
-      </div>
-
-      <div class="answer-card-section">
-        <div class="timer">
-          <span>{{ `用时${timerText}` }}</span>
-          <br>
-          <el-button icon="el-icon-video-pause" @click="pauseTimer">暂停</el-button>
-
-        </div>
-        <div class="answer-card">
-          <span>答题卡 {{ currentQuestionIndex + 1 }} / {{ totalQuestionCount }}</span>
-          <div class="answer-options">
-            <el-button v-for="(num, index) in totalQuestionCount" :key="index" style="border-radius: 50%;margin: 10px;"
-              :type="answerStatus[index] === 'answered' ? 'primary' : answerStatus[index] === 'marked' ? 'warning' : ''"
-              @click="jumpToQuestion(index)">
-              {{ num }}
-            </el-button>
-          </div>
-        </div>
-        <div class="filter-section">
-          <span><i class="el-icon-star-off"></i> 标记</span>
-          <el-radio-group v-model="filterType">
-            <el-radio label="answered">已做</el-radio>
-            <el-radio label="unanswered">未做</el-radio>
-          </el-radio-group>
-        </div>
-        <el-button type="primary" @click="submitExam">我要交卷</el-button>
-      </div>
+  <div class="exam-page">
+    <div class="card-header">
+      <h1 class="exam-title">考试开始</h1>
+      <p class="exam-subtitle">本次考试科目：{{ subject }}，题目数量：{{ count }}</p>
     </div>
-  </el-card>
+    <div v-if="questions.length > 0">
+      <template v-if="subject === '行测'">
+        <div class="question-list">
+          <div v-for="(question, index) in questions" :key="index" class="question-item">
+            <p>题目编号：{{ question.questionId }}</p>
+            <p>题目内容：{{ question.questionContent }}</p>
+            <p>选项A：{{ question.optionA }}</p>
+            <p>选项B：{{ question.optionB }}</p>
+            <p>选项C：{{ question.optionC }}</p>
+            <p>选项D：{{ question.optionD }}</p>
+            <el-radio-group v-model="answers[index]">
+              <el-radio label="A"></el-radio>
+              <el-radio label="B"></el-radio>
+              <el-radio label="C"></el-radio>
+              <el-radio label="D"></el-radio>
+            </el-radio-group>
+          </div>
+          <el-button type="primary" @click="submitExam">提交试卷</el-button>
+        </div>
+      </template>
+      <template v-else>
+        <div class="essay-question">
+          <div v-for="(question, index) in questions[0].expoundingOptionInfos" :key="index">
+            <p>题目编号：{{ questions[0].questionId }} - {{ question.itemId }}</p>
+            <p>题目内容：{{ question.itemContent }}</p>
+            <textarea v-model="essayAnswers[index]" rows="10" cols="80"></textarea>
+          </div>
+          <el-button type="primary" @click="submitEssayExam">提交申论答案</el-button>
+        </div>
+      </template>
+    </div>
+    <div v-else>
+      <p>正在加载题目，请稍候...</p>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue';
-import { ElButton, ElRadioGroup, ElRadio } from 'element-plus';
+import { ref, onMounted } from 'vue';
+import { useRoute } from 'vue-router';
+import { getCSPractice } from '@/api/exam';
 
-// 题目总数
-const totalQuestionCount = 9;
-// 当前题目索引
-const currentQuestionIndex = ref(1);
-// 已完成题目数量
-const completedCount = ref(1);
-// 选中的答案
-const selectedAnswer = ref('');
-// 答案状态，记录题目是否已答、标记等
-const answerStatus = ref(new Array(totalQuestionCount).fill('unanswered'));
-// 定时器相关
-let timerId: any;
-const startTime = ref(new Date().getTime());
-const timerText = ref('0:59');
-const isTimerRunning = ref(true);
-// 筛选类型
-const filterType = ref('');
+const route = useRoute();
+const subject = ref(route.query.subject as string);
+const count = ref(parseInt(route.query.count as string, 10));
+const questions = ref<any[]>([]);
+const answers = ref<string[]>([]);
+const essayAnswers = ref<string[]>([]);
 
-// 模拟上一题
-const prevQuestion = () => {
-  if (currentQuestionIndex.value > 0) {
-    currentQuestionIndex.value--;
-  }
-};
-// 模拟下一题
-const nextQuestion = () => {
-  if (currentQuestionIndex.value < totalQuestionCount - 1) {
-    if (selectedAnswer.value) {
-      answerStatus.value[currentQuestionIndex.value] = 'answered';
-      completedCount.value++;
+const fetchQuestions = async () => {
+  try {
+    const requestData = {
+      subject: subject.value,
+      count: count.value
+    };
+    const response = await getCSPractice(requestData);
+    questions.value = response;
+    if (subject.value === '行测') {
+      answers.value = new Array(response.length).fill('');
+    } else {
+      essayAnswers.value = new Array(questions[0].expoundingOptionInfos.length).fill('');
     }
-    currentQuestionIndex.value++;
+  } catch (error) {
+    console.error('获取题目失败：', error);
   }
 };
 
-// 模拟跳转到指定题目
-const jumpToQuestion = (index: number) => {
-  currentQuestionIndex.value = index;
-};
-
-// 模拟标记题目
-const toggleMark = () => {
-  const status = answerStatus.value[currentQuestionIndex.value];
-  answerStatus.value[currentQuestionIndex.value] = status === 'marked' ? 'unanswered' : 'marked';
-};
-
-// 模拟暂停定时器
-const pauseTimer = () => {
-  isTimerRunning.value = false;
-  clearInterval(timerId);
-};
-
-
-// 模拟交卷
 const submitExam = () => {
-  console.log('您已交卷');
+  // 行测提交逻辑
+  console.log('提交的行测答案：', answers.value);
 };
 
-// 计算剩余时间并更新timerText
-const updateTimer = () => {
-  if (isTimerRunning.value) {
-    const now = new Date().getTime();
-    const elapsedTime = now - startTime.value;
-    const minutes = Math.floor(elapsedTime / (1000 * 60));
-    const seconds = Math.floor((elapsedTime % (1000 * 60)) / 1000);
-    timerText.value = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-  }
+const submitEssayExam = () => {
+  // 申论提交逻辑
+  console.log('提交的申论答案：', essayAnswers.value);
 };
 
 onMounted(() => {
-  timerId = setInterval(updateTimer, 1000);
-});
-
-watch(isTimerRunning, (newValue) => {
-  if (newValue) {
-    timerId = setInterval(updateTimer, 1000);
-  } else {
-    clearInterval(timerId);
-  }
+  fetchQuestions();
 });
 </script>
 
 <style scoped>
-.exam-page {
-  display: flex;
+.exam-title {
+  text-align: center;
 }
 
-.top-nav {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 20px;
-  border-bottom: 1px solid #e4e7ed;
+.exam-subtitle {
+  text-align: center;
+  color: gray;
 }
 
-.question-area {
-  padding: 20px 200px 20px 20px;
-  border-bottom: 1px solid #e4e7ed;
-  position: relative;
+.question-list {
+  width: 600px;
+  margin: 0 auto;
+  padding: 20px;
 }
 
-.question-header {
-  margin-bottom: 10px;
+.question-item {
+  border: 1px solid #e4e7ed;
+  border-radius: 5px;
+  padding: 15px;
+  margin-bottom: 15px;
 }
 
-.function-buttons {
-  margin-top: 200px;
-  display: flex;
-  justify-content: right;
-
-}
-
-.action-buttons {
-  display: flex;
-  justify-content: center;
-  padding: 0px 20px;
-  /* border-bottom: 1px solid #e4e7ed; */
-}
-
-.answer-card-section {
-  width: 200px;
-  padding: 10px 20px;
-  background-color: #f5f7fa;
-}
-
-.timer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
-}
-
-.answer-card {
-  margin-bottom: 10px;
-}
-
-.answer-options {
-  display: flex;
-  flex-wrap: wrap;
-}
-
-.answer-options.el-button {
-  margin-right: 5px;
-  margin-bottom: 5px;
-}
-
-.filter-section {
-  display: flex;
-  align-items: center;
-  margin-bottom: 10px;
-}
-
-.radio-group-vertical.el-radio {
-  display: block;
-  margin-bottom: 10px;
+.essay-question {
+  width: 600px;
+  margin: 0 auto;
+  padding: 20px;
 }
 </style>

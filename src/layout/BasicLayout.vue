@@ -15,9 +15,10 @@
 import { useAppStore } from '@/stores'
 import LayoutHeader from './components/Header.vue'
 import LayoutSider from './components/Sider.vue'
+import { storeToRefs } from 'pinia'
 
 const appStore = useAppStore()
-const { collapsed } = appStore
+const { collapsed, } = storeToRefs(appStore)
 </script>
 
 <style scoped>
@@ -32,7 +33,7 @@ const { collapsed } = appStore
   min-height: 100%;
   background: var(--el-bg-color);
   transition: margin-left 0.28s;
-  z-index: 2;  
+  z-index: 2;
 }
 
 .main.collapsed {
