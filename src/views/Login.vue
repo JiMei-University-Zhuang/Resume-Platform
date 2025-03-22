@@ -204,13 +204,13 @@ const captchaUrl = ref('')
 const getCaptchaData = async () => {
   try {
     const prepareResponse = await getCaptchaKey();
-    if (prepareResponse.code === 200) {
-      captchaKey.value = prepareResponse.data
+    if (prepareResponse.data?.code === 200) {
+      captchaKey.value = prepareResponse.data.data
       const captchaResponse = await getCaptcha(captchaKey.value)
       if (captchaUrl.value) {
         window.URL.revokeObjectURL(captchaUrl.value)
       }
-      const blob = new Blob([captchaResponse], { type: 'image/jpeg' })
+      const blob = new Blob([captchaResponse.data], { type: 'image/jpeg' })
       captchaUrl.value = window.URL.createObjectURL(blob)
       loginForm.captcha_key = captchaKey.value
       registerForm.captcha_key = captchaKey.value
