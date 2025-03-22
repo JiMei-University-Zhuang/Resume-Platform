@@ -37,7 +37,6 @@ const routes: RouteRecordRaw[] = [
         meta: { title: '引导页' }
       },
 
-
       {
         path: '/error',
         name: 'Error',
@@ -170,13 +169,13 @@ const routes: RouteRecordRaw[] = [
             meta: { title: '考研备考' }
           },
           {
-            path: 'practice',
-            name: 'Practice',
-            component: () => import('@/views/exam/Practice.vue'),
-            meta: { title: '模拟练习' }
+            path: 'ExamPage',
+            name: 'ExamPage',
+            component: () => import('@/views/exam/ExamPage.vue'),
+            meta: { title: '考试页面' }
           }
         ]
-      },
+      }
     ]
   },
   {
