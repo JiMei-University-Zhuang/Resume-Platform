@@ -2,15 +2,38 @@
   <div class="civil-service">
     <div class="card-header">
       <h1 class="welcome-title">欢迎来到考公中心</h1>
-      <p class="welcome-subtitle">考公中心是一个在线考试平台，你可以在这里进行专项练习，也可以进行真题练习。</p>
+      <div class="countdown-container">
+        <h2 class="countdown-title" style="color: #c0392b;text-shadow: 1px 1px 2px rgba(192, 57, 43, 0.1);background: linear-gradient(135deg, #c0392b 0%, #e74c3c 100%);
+  -webkit-background-clip: text;
+  background-clip: text;">国考倒计时</h2>
+        <p class="days-count"
+          style=" height: 40px;display: flex; justify-content: center;align-items: end; font-size: 26px;font-weight: bold;">
+          {{ days }}
+          <span class="days-unit" style="font-size: 18px;font-weight: 400;">天</span>
+        </p>
+        <p style=" color: gray;padding-top: 10px;">2025年11月30日 星期日
+        </p>
+
+      </div>
     </div>
+
     <div class="card-body">
       <el-card class="Specialized-exercises">
         <div class="exercise-title">专项练习</div>
-        <div class="exercise-description">针对不同科目的专项练习，可以练习数学、语文、英语、物理、化学、生物等科目的题目。</div>
-        <img src="@/assets/images/exam_imgs/exercises.jpg" alt="专项练习" class="exercise-image"></img>
+        <div class="exercise-description ">
+          无论你是<span style="font-size: 17px;color:#52BC90 ;"><b>&nbsp;考公小白&nbsp;</b></span>，还是<span
+            style="font-size: 17px;color:#5EC89C ;">&nbsp;久经沙场的老将&nbsp;</span>。我们的专项练习，就是你上岸的<span
+            style="color: #CB3F23;">
+            秘密武器</span>
+          ！通过行测和申论的专业训练，让你像超级英雄一样<span style="font-size: 17px;"><b>&nbsp;轻松攻克&nbsp;</b></span>每个考点。准备好了吗？快点击<span
+            style="color: gray;font-weight: 600;font-size: 17px;">" 练习设置 "</span>，把考点收入囊中吧！
+        </div>
+        <div class="exercise-image">
+          <img src="@/assets/images/exam_imgs/exercises.jpg" alt="专项练习"></img>
+        </div>
+
         <el-button type="primary" @click="showDialog">练习设置</el-button>
-        <el-dialog v-model="dialogVisible" title="练习设置" width="600px"
+        <el-dialog v-model="dialogVisible" title="定制你的公考练习，行测 or 申论，题量任选，速来开练！" width="600px"
           style="padding: 50px; margin: 0 auto; top: 50%; transform: translateY(-50%)" append-to-body>
           <div class="setting-item">
             <span>题目类型：</span>
@@ -56,19 +79,35 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-// import { getCSPractice } from '@/api/exam';
+import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
-
 const dialogVisible = ref(false);
 const selectedSubject = ref('行测');
 const selectedCount = ref('10');
+const targetDate = new Date('2025-11-30T00:00:00').getTime();
+const timeDifference = ref(targetDate - new Date().getTime());
+
 
 const showDialog = () => {
   dialogVisible.value = true;
 };
+
+const days = computed(() => Math.floor(timeDifference.value / (1000 * 60 * 60 * 24)));
+
+let timerId: any = null;
+
+const startCountdown = () => {
+  timerId = setInterval(() => {
+    timeDifference.value = targetDate - new Date().getTime();
+    if (timeDifference.value < 0) {
+      clearInterval(timerId);
+      timeDifference.value = 0; // 确保时间不会变成负数
+    }
+  }, 1000);
+};
+
 
 const startExam = () => {
   const requestData = {
@@ -78,36 +117,106 @@ const startExam = () => {
   router.push({ name: 'ExamPage', query: requestData });
 };
 
+onMounted(() => {
+  startCountdown();
+});
 
 </script>
 
 <style scoped>
-.welcome-title {
-  text-align: center;
-}
-
-.welcome-subtitle {
-  text-align: center;
-  color: gray;
-}
-
 .card-body {
   width: 100%;
   display: flex;
   gap: 60px;
-  padding: 50px 80px 10px 80px;
+  padding: 20px 80px 0 80px;
+}
+
+.card-header {
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  margin-bottom: 50px;
+}
+
+.welcome-title {
+  text-align: center;
+  margin: 0;
+  font-size: 2.5rem;
+  background: linear-gradient(135deg, #2d3436 0%, #636e72 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-shadow: 2px 2px 4px rgba(45, 52, 54, 0.1);
+  position: relative;
+  padding-bottom: 15px;
+  margin: 0.5rem 0;
+}
+
+.welcome-title:hover {
+  text-shadow: 3px 3px 6px rgba(45, 52, 54, 0.15);
+  transform: scale(1.02);
+  transition: all 0.3s ease;
+}
+
+/* 装饰线 */
+.welcome-title::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 120px;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, #5EC89C 50%, transparent);
+  transform: translateX(-50%);
+}
+
+.countdown-container {
+  background: linear-gradient(145deg, #fff0f0 0%, #ffe5e5 100%);
+  border-radius: 12px;
+  padding: 0.6rem 1rem;
+  box-shadow: 0 6px 20px rgba(206, 83, 83, 0.08);
+  position: absolute;
+  top: 90%;
+  right: 8%;
+  border: none;
+  transform: translateY(-50%);
+  transition: all 0.3s ease;
+  text-align: center;
+}
+
+.countdown-container:hover {
+  transform: translateY(-50%) scale(1.02);
 }
 
 .Specialized-exercises {
   flex: 1 1 0;
-  padding: 20px;
+  padding: 10px 20px 50px 20px;
+  position: relative;
+}
 
+.exercise-title {
+  font-size: 24px;
+  font-weight: bold;
+  text-shadow: 0.2px 0.2px 1.5px rgb(92, 91, 91);
+}
+
+.exercise-description {
+  text-indent: 2em;
+  font-size: 14px;
+  color: gray;
+  padding: 10px 5px 0 5px;
 }
 
 .exercise-image {
+  margin: 0 auto;
   width: 100%;
-  padding: 2.5rem;
-  margin-bottom: 20px;
+  text-align: center;
+}
+
+.exercise-image>img {
+  width: 80%;
+  padding: 20px;
+
 }
 
 .Train-realexam {
@@ -116,13 +225,63 @@ const startExam = () => {
 
 }
 
-.Specialized-exercises {
-  position: relative;
-}
-
 .el-button--primary {
   position: absolute;
-  right: 3.75rem;
-  bottom: 2.5rem;
+  right: 2.75rem;
+  bottom: 1.5rem;
+  background: linear-gradient(60deg, #5EC89C, #67C23A);
+  border: none;
+  border-radius: 8px;
+  padding: 12px 28px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.el-button--primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px #67C23A;
+}
+
+.date-info {
+  font-size: 0.9rem;
+  color: #95a5a6;
+  letter-spacing: 1px;
+  margin-top: 8px;
+  opacity: 0.8;
+  font-family: 'Microsoft YaHei', sans-serif;
+}
+
+/* 添加数字跳动动画 */
+@keyframes jump {
+  0% {
+    transform: translateY(0) rotate(-2deg);
+  }
+
+  50% {
+    transform: translateY(-8px) rotate(2deg);
+  }
+
+  100% {
+    transform: translateY(0) rotate(-2deg);
+  }
+}
+
+
+.days-count {
+  position: relative;
+  display: inline-block;
+  animation: jump 1.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+/* 添加数字装饰线 */
+.days-count::after {
+  content: "";
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  width: 70%;
+  height: 2px;
+  background: linear-gradient(90deg, var(--primary-red), var(--secondary-red));
+  transform: translateX(-50%);
+  opacity: 0.5;
 }
 </style>
