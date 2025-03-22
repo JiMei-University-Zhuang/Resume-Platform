@@ -1,15 +1,17 @@
 <template>
-  <aside class="sidebar" :class="{ 'collapsed': layoutStore.collapsed }">
+  <aside class="sidebar" :class="{ 'collapsed': collapsed }">
     <el-scrollbar>
-      <el-menu router class="menu" :collapse="layoutStore.collapsed" :default-active="route.path"
-        :background-color="layoutStore.isDark ? '#141414' : '#304156'"
-        :text-color="layoutStore.isDark ? '#fff' : '#bfcbd9'" active-text-color="#409EFF" unique-opened>
+      <el-menu router class="menu" :collapse="collapsed" :default-active="route.path"
+        :background-color="menuBackgroundColor"
+        :text-color="menuTextColor" active-text-color="#409EFF" unique-opened>
         <el-menu-item index="/dashboard">
           <el-icon>
             <HomeFilled />
           </el-icon>
           <template #title>首页</template>
         </el-menu-item>
+
+
 
         <el-menu-item index="/guide">
           <el-icon>
@@ -18,59 +20,15 @@
           <template #title>引导页</template>
         </el-menu-item>
 
-        <el-sub-menu index="permission">
-          <template #title>
-            <el-icon>
-              <Lock />
-            </el-icon>
-            <span>权限测试页</span>
-          </template>
-          <el-menu-item index="/permission/commandPermission">
-            <span>指令权限</span>
-          </el-menu-item>
-        </el-sub-menu>
+        <el-menu-item index="/user">
+          <el-icon>
+            <User />
+          </el-icon>
+          <template #title>用户管理</template>
+        </el-menu-item>
 
-        <el-sub-menu index="charts">
-          <template #title>
-            <el-icon>
-              <TrendCharts />
-            </el-icon>
-            <span>图表</span>
-          </template>
-          <!-- 子菜单项 -->
-          <el-menu-item index="/charts/lineChart">
-            <span>折线图</span>
-          </el-menu-item>
-          <el-menu-item index="/charts/pieChart">
-            <span>饼状图</span>
-          </el-menu-item>
 
-        </el-sub-menu>
-
-        <el-sub-menu index="nested">
-          <template #title>
-            <el-icon>
-              <Operation />
-            </el-icon>
-            <span>路由嵌套</span>
-          </template>
-          <!-- 子菜单项 -->
-          <el-menu-item index="/nested/page1">
-            <span>page1</span>
-          </el-menu-item>
-        </el-sub-menu>
-
-        <el-sub-menu index="example">
-          <template #title>
-            <el-icon>
-              <Star />
-            </el-icon>
-            <span>综合实例</span>
-          </template>
-          <!-- 子菜单项 -->
-        </el-sub-menu>
-
-        <el-sub-menu index="error">
+        <el-sub-menu index="/error">
           <template #title>
             <el-icon>
               <Warning />
@@ -78,21 +36,88 @@
             <span>错误页面</span>
           </template>
           <!-- 子菜单项 -->
-          <el-menu-item index="/error401">
+          <el-menu-item index="/error/error401">
             <span>401</span>
           </el-menu-item>
-          <el-menu-item index="/error404">
+          <el-menu-item index="/error/error404">
             <span>404</span>
           </el-menu-item>
-
+        </el-sub-menu>
+        <el-sub-menu index="/resume">
+          <template #title>
+            <el-icon>
+              <Document />
+            </el-icon>
+            <span>AI简历中心</span>
+          </template>
+          <el-menu-item index="/resume/create">
+            <span>创建简历</span>
+          </el-menu-item>
+          <el-menu-item index="/resume/templates">
+            <span>简历模板</span>
+          </el-menu-item>
+          <el-menu-item index="/resume/analysis">
+            <span>简历分析</span>
+          </el-menu-item>
+          <el-menu-item index="/resume/insights">
+            <span>行业洞察</span>
+          </el-menu-item>
         </el-sub-menu>
 
-        <el-menu-item index="/error-log">
+        <el-menu-item index="/personality">
           <el-icon>
-            <Warning />
+            <UserFilled />
           </el-icon>
-          <template #title>错误日志</template>
+          <span>MBTI性格测试</span>
         </el-menu-item>
+
+        <el-menu-item index="/chat">
+          <el-icon>
+            <User />
+          </el-icon>
+          <template #title>AI聊天</template>
+        </el-menu-item>
+
+        <el-menu-item index="/id-photo">
+          <el-icon>
+            <Camera />
+          </el-icon>
+          <template #title>AI证件照</template>
+        </el-menu-item>
+
+        <el-sub-menu index="/career-planning">
+          <template #title>
+            <el-icon>
+              <Compass />
+            </el-icon>
+            <span>AI职业规划</span>
+          </template>
+          <el-menu-item index="/career-planning/analysis">
+            <span>职业分析</span>
+          </el-menu-item>
+          <el-menu-item index="/career-planning/roadmap">
+            <span>发展规划</span>
+          </el-menu-item>
+          <el-menu-item index="/career-planning/recommendation">
+            <span>职业推荐</span>
+          </el-menu-item>
+        </el-sub-menu>
+
+        <el-sub-menu index="/exam">
+          <template #title>
+            <el-icon>
+              <Reading />
+            </el-icon>
+            <span>考试中心</span>
+          </template>
+          <el-menu-item index="/exam/civil-service">
+            <span>公务员考试</span>
+          </el-menu-item>
+          <el-menu-item index="/exam/postgraduate">
+            <span>考研备考</span>
+          </el-menu-item>
+          
+        </el-sub-menu>
       </el-menu>
     </el-scrollbar>
   </aside>
@@ -100,20 +125,36 @@
 
 <script setup lang="ts">
 import {
+  Document,
+  UserFilled,
   HomeFilled,
   Position,
-  Lock,
-  TrendCharts,
-  Operation,
-  Star,
-  Warning
+  Warning,
+  User,
+  Camera,
+  Compass,
+  Reading
 } from '@element-plus/icons-vue'
-import { useLayoutStore } from '@/stores/useLayoutStore'
+import { useAppStore } from '@/stores'
 import { useRoute } from 'vue-router'
-
+import { storeToRefs } from 'pinia'
+import { computed } from 'vue'
 
 const route = useRoute()
-const layoutStore = useLayoutStore()
+const appStore = useAppStore()
+const { collapsed, isDark } = storeToRefs(appStore)
+
+// 计算属性
+const menuBackgroundColor = computed(() => isDark.value ? '#141414' : '#304156')
+const menuTextColor = computed(() => isDark.value ? '#fff' : '#bfcbd9')
+
+defineExpose({
+  route,
+  collapsed,
+  isDark,
+  menuBackgroundColor,
+  menuTextColor
+})
 </script>
 
 <style scoped>
@@ -136,6 +177,27 @@ const layoutStore = useLayoutStore()
 
 :deep(.el-menu) {
   border-right: none;
+}
+
+:deep(.el-menu--collapse .el-menu-item .el-icon),
+:deep(.el-menu--collapse .el-sub-menu__title .el-icon) {
+  margin: 0;
+}
+
+:deep(.el-menu--collapse) .el-sub-menu__title .el-icon {
+  margin-right: 0;
+}
+
+html.dark :deep(.el-menu-item) {
+  color: #fff !important;
+}
+
+html.dark :deep(.el-sub-menu__title) {
+  color: #fff !important;
+}
+
+html.dark :deep(.el-menu-item.is-active) {
+  color: #409EFF !important;
 }
 
 :deep(.el-menu-item) {
@@ -183,7 +245,25 @@ const layoutStore = useLayoutStore()
   width: 64px !important;
 }
 
-:deep(.el-menu--collapse .el-menu-item .el-icon),
+:deep(.el-menu--collapse .el-menu-item .el-icon) {
+  margin-right: 0;
+}
+
+:deep(.el-menu--collapse) .el-sub-menu__title .el-icon {
+  margin-right: 0;
+}
+
+html.dark :deep(.el-menu-item) {
+  color: #fff !important;
+}
+
+html.dark :deep(.el-sub-menu__title) {
+  color: #fff !important;
+}
+
+html.dark :deep(.el-menu-item.is-active) {
+  color: #409EFF !important;
+}
 :deep(.el-menu--collapse .el-sub-menu__title .el-icon) {
   margin: 0;
 }

@@ -1,19 +1,37 @@
 {
-  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.vue"],
   "compilerOptions": {
-    "types": ["vite/client"],
-    "isolatedModules": true,
-    "lib": ["ES2017", "DOM"],
-    "target": "ES2015",
+    "target": "ES2020",
+    "useDefineForClassFields": true,
     "module": "ESNext",
-    "moduleResolution": "node",
-    "allowJs": true,
-    "baseUrl": ".",
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true,
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "preserve",
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "types": [
+      "element-plus/global",
+      "vite/client",
+      "vue"
+    ],
     "paths": {
-      "@/*": ["src/*"]
-    }
+      "@/*": ["./src/*"],
+      "element-plus/es/*": ["./node_modules/element-plus/es/*"]
+    },
+    "baseUrl": "."
   },
-  "vueCompilerOptions": {
-    "target": 3
-  }
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.d.ts",
+    "src/**/*.tsx",
+    "src/**/*.vue"
+  ],
+  "references": [{ "path": "./tsconfig.node.json" }]
 }
