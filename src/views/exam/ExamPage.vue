@@ -4,7 +4,7 @@
       <h1 class="exam-title">考试开始</h1>
       <p class="exam-subtitle">本次考试科目：{{ subject }}，题目数量：{{ count }}</p>
     </div>
-    <div v-if="questions.length > 0">
+    <div v-if="questions?.length > 0">
       <template v-if="subject === '行测'">
         <div class="question-list">
           <div v-for="(question, index) in questions" :key="index" class="question-item">
@@ -42,8 +42,8 @@
       </template>
       <template v-else>
         <div class="essay-question">
-          <div v-for="(question, index) in questions[0].expoundingOptionInfos" :key="index">
-            <p>题目编号：{{ questions[0].questionId }} - {{ question.itemId }}</p>
+          <div v-for="(question, index) in questions[0]?.expoundingOptionInfos || []" :key="index">
+            <p>题目编号：{{ questions[0]?.questionId }} - {{ question.itemId }}</p>
             <p>题目内容：{{ question.itemContent }}</p>
             <textarea v-model="essayAnswers[index]" rows="10" cols="80"></textarea>
           </div>
@@ -62,10 +62,24 @@ import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { getCSPractice } from '@/api/exam';
 
+// 定义题目接口
+interface Question {
+  questionId: string;
+  questionContent: string;
+  optionA: string;
+  optionB: string;
+  optionC: string;
+  optionD: string;
+  expoundingOptionInfos?: Array<{
+    itemId: string;
+    itemContent: string;
+  }>;
+}
+
 const route = useRoute();
 const subject = ref(route.query.subject as string);
 const count = ref(parseInt(route.query.count as string, 10));
-const questions = ref<any[]>([]);
+const questions = ref<Question[]>([]);
 const answers = ref<string[]>([]);
 const essayAnswers = ref<string[]>([]);
 
@@ -76,11 +90,14 @@ const fetchQuestions = async () => {
       count: count.value
     };
     const response = await getCSPractice(requestData);
-    questions.value = response;
+    // 安全地处理响应数据
+    const responseData = response?.data ? (response.data as unknown as Question[]) : [];
+    questions.value = responseData;
+    
     if (subject.value === '行测') {
-      answers.value = new Array(response.length).fill('');
-    } else {
-      essayAnswers.value = new Array(questions[0].expoundingOptionInfos.length).fill('');
+      answers.value = new Array(responseData.length).fill('');
+    } else if (responseData.length > 0 && responseData[0]?.expoundingOptionInfos) {
+      essayAnswers.value = new Array(responseData[0].expoundingOptionInfos.length).fill('');
     }
   } catch (error) {
     console.error('获取题目失败：', error);
