@@ -8,23 +8,31 @@
       <template v-if="subject === '行测'">
         <div class="question-list">
           <div v-for="(question, index) in questions" :key="index" class="question-item">
-            <p>题目编号：{{ question.questionId }}</p>
-            <p>题目内容：{{ question.questionContent }}</p>
+            <div class="question-header">
+              <span class="question-number">题目编号：{{ question.questionId }}</span>
+            </div>
+            <div class="question-content">{{ question.questionContent }}</div>
             <el-radio-group v-model="answers[index]" class="option-group">
-              <div class="options-row">
+              <div class="options-container">
                 <div class="option-item">
-                  <el-radio label="A">{{ question.optionA }}</el-radio>
+                  <el-radio label="A" class="radio-option">
+                    <span class="option-text">{{ question.optionA }}</span>
+                  </el-radio>
                 </div>
                 <div class="option-item">
-                  <el-radio label="B">{{ question.optionB }}</el-radio>
-                </div>
-              </div>
-              <div class="options-row">
-                <div class="option-item">
-                  <el-radio label="C">{{ question.optionC }}</el-radio>
+                  <el-radio label="B" class="radio-option">
+                    <span class="option-text">{{ question.optionB }}</span>
+                  </el-radio>
                 </div>
                 <div class="option-item">
-                  <el-radio label="D">{{ question.optionD }}</el-radio>
+                  <el-radio label="C" class="radio-option">
+                    <span class="option-text">{{ question.optionC }}</span>
+                  </el-radio>
+                </div>
+                <div class="option-item">
+                  <el-radio label="D" class="radio-option">
+                    <span class="option-text">{{ question.optionD }}</span>
+                  </el-radio>
                 </div>
               </div>
             </el-radio-group>
@@ -142,77 +150,73 @@ onMounted(() => {
   box-shadow: 0 4px 15px 0 rgba(0, 0, 0, 0.09);
 }
 
-.question-item p {
-  margin-bottom: 15px;
-  line-height: 1.6;
-}
-
-.question-item p:first-child {
-  font-weight: bold;
-  color: #409EFF;
+.question-header {
   margin-bottom: 20px;
 }
 
-.question-item p:nth-child(2) {
-  font-size: 16px;
+.question-number {
+  color: #409EFF;
   font-weight: 500;
-  margin-bottom: 25px;
+  font-size: 16px;
 }
 
-.question-item .el-radio-group {
+.question-content {
+  font-size: 16px;
+  line-height: 1.6;
+  margin-bottom: 25px;
+  color: #303133;
+}
+
+.option-group {
+  width: 100%;
+  margin-top: 10px;
+}
+
+.options-container {
   display: flex;
   flex-direction: column;
   gap: 15px;
-  margin-top: 20px;
   width: 100%;
 }
 
-.question-item .options-row {
-  display: flex;
-  justify-content: space-between;
-  gap: 20px;
-  width: 100%;
-}
-
-.question-item .option-item {
-  flex: 1;
-  max-width: calc(50% - 10px);
+.option-item {
   background-color: #f9f9f9;
   border-radius: 6px;
-  padding: 10px 15px;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  transition: background-color 0.2s;
+  width: 100%;
 }
 
-.question-item .option-item:hover {
+.option-item:hover {
   background-color: #f0f7ff;
 }
 
-.question-item .el-radio {
-  margin-right: 0;
-  font-size: 15px;
-  line-height: 1.6;
-  display: flex;
-  align-items: center;
+.radio-option {
+  padding: 12px 15px;
+  margin: 0;
   width: 100%;
-}
-
-.question-item .el-radio__input {
   display: flex;
   align-items: center;
 }
 
-.question-item .el-radio__label {
-  white-space: normal;
-  line-height: 1.6;
+.option-text {
   color: #606266;
-  padding-left: 8px;
+  white-space: normal;
+  word-break: break-word;
+  line-height: 1.6;
 }
 
-.question-item .el-radio.is-checked .el-radio__label {
+.el-radio {
+  height: auto;
+  margin-right: 0;
+}
+
+.el-radio.is-checked .option-text {
   color: #409EFF;
+}
+
+.el-radio__input {
+  align-self: flex-start;
+  margin-top: 2px;
 }
 
 .essay-question {
