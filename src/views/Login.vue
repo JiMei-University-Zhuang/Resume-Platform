@@ -254,10 +254,10 @@ const handleLogin = async (formEl: any) => {
           captcha_value: loginForm.captcha_value
         })
 
-        if (response.code === 200 && response.data) {
+        if (response.data.code === 200 && response.data.data) {
           ElMessage.success('登录成功')
           router.push('/dashboard')
-          localStorage.setItem('token', JSON.stringify(response.data))
+          localStorage.setItem('token', JSON.stringify(response.data.data))
 
         }
       } catch (error: any) {

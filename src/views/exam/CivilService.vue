@@ -67,6 +67,29 @@
       <el-card class="Train-realexam">
         <div class="exercise-title">真题训练</div>
         <img src="@/assets/images/exam_imgs/realexam.jpg" alt="">
+        <!-- 组卷按钮 -->
+        <el-button type="success" @click="showExamDialog" class="exam-button">
+          <i class="iconfont icon-exam"></i>
+          真题模考
+        </el-button>
+        <!-- 试卷选择弹窗 -->
+        <el-dialog v-model="examDialogVisible" title="选择真题试卷" width="600px" append-to-body>
+          <div class="exam-settings">
+            <div class="setting-item">
+              <span>试卷名称：</span>
+              <el-select v-model="selectedExam" placeholder="请选择试卷" filterable style="width: 100%">
+                <el-option v-for="exam in examList" :key="exam.value" :label="exam.label" :value="exam.value" />
+              </el-select>
+            </div>
+          </div>
+          <template #footer>
+            <el-button @click="examDialogVisible = false">取消</el-button>
+            <el-button type="primary" @click="startRealExam" :loading="loadingExam" :disabled="!selectedExam">
+              开始考试
+            </el-button>
+          </template>
+        </el-dialog>
+
       </el-card>
 
 
@@ -81,6 +104,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
+import { getCSPractice, getCSExam } from '@/api/exam';
 
 const router = useRouter();
 const dialogVisible = ref(false);
@@ -88,16 +112,70 @@ const selectedSubject = ref('行测');
 const selectedCount = ref('10');
 const targetDate = new Date('2025-11-30T00:00:00').getTime();
 const timeDifference = ref(targetDate - new Date().getTime());
+const examDialogVisible = ref(false)
+const selectedExam = ref('')
+const loadingExam = ref(false)
 
 
 const showDialog = () => {
   dialogVisible.value = true;
 };
 
+
+// 预设试卷列表
+const examList = [
+  {
+    value: '2020年国家公务员考试行测真题',
+    label: '2020国考·行政职业能力测验真题'
+  },
+  {
+    value: '2020年国家公务员考试申论真题',
+    label: '2020国考·申论真题'
+  },
+  {
+    value: '2021年国家公务员考试行测真题',
+    label: '2021国考·行政职业能力测验真题'
+  },
+  {
+    value: '2021年国家公务员考试申论真题',
+    label: '2021国考·申论真题'
+  }
+]
+// 显示选择弹窗
+const showExamDialog = () => {
+  examDialogVisible.value = true
+  if (examList.length > 0) {
+    selectedExam.value = examList[0].value // 默认选中第一个
+  }
+}
+
+// 开始真题考试
+const startRealExam = async () => {
+  try {
+    loadingExam.value = true
+    const { data } = await getCSExam({
+      examName: selectedExam.value
+    })
+
+    router.push({
+      name: 'ExamPage',
+      query: {
+        examId: data.examId,
+        examType: selectedExam.value.includes('行测') ? 'xingce' : 'shenlun'
+      }
+    })
+  } catch (error) {
+    console.error('试卷获取失败:', error)
+  } finally {
+    loadingExam.value = false
+    examDialogVisible.value = false
+  }
+}
+
+
+
 const days = computed(() => Math.floor(timeDifference.value / (1000 * 60 * 60 * 24)));
-
 let timerId: any = null;
-
 const startCountdown = () => {
   timerId = setInterval(() => {
     timeDifference.value = targetDate - new Date().getTime();
@@ -283,5 +361,41 @@ onMounted(() => {
   background: linear-gradient(90deg, var(--primary-red), var(--secondary-red));
   transform: translateX(-50%);
   opacity: 0.5;
+}
+
+
+/* 按钮样式 */
+.exam-button {
+  position: absolute;
+  right: 2rem;
+  bottom: 1.5rem;
+  background: linear-gradient(135deg, #5EC89C, #67C23A);
+  border: none;
+  border-radius: 8px;
+  padding: 12px 28px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(94, 200, 156, 0.2);
+}
+
+.exam-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(94, 200, 156, 0.3);
+}
+
+/* 设置项样式 */
+.exam-settings {
+  padding: 16px 0;
+}
+.setting-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+
+  >span {
+    width: 80px;
+    text-align: right;
+    font-size: 14px;
+    color: #606266;
+  }
 }
 </style>
