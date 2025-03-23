@@ -28,7 +28,7 @@ service.interceptors.request.use(
 // 响应拦截器
 service.interceptors.response.use(
   (response: AxiosResponse) => {
-    return response.data
+    return response
   },
   error => {
     const { response } = error
