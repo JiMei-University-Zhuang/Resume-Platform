@@ -85,7 +85,7 @@ const routes: RouteRecordRaw[] = [
         },
         children: [
           {
-            path: 'create',
+            path: 'create/:template?',
             name: 'ResumeCreate',
             component: () => import('@/views/resume/Create.vue'),
             meta: { title: '创建简历' }
