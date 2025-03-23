@@ -104,7 +104,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
-import { getCSPractice, getCSExam } from '@/api/exam';
+import { getCSExam } from '@/api/exam';
 
 const router = useRouter();
 const dialogVisible = ref(false);
