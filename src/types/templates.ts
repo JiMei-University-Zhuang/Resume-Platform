@@ -10,6 +10,7 @@ export interface Template {
   tags: string[]
   scenes: string[]
   features: string[]
+  componentName: string;
 }
 
 export const getTagType = (tag: string): TagType => {
