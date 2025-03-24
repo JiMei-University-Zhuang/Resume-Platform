@@ -8,19 +8,15 @@ import router from './router'
 import { createPinia } from 'pinia'
 import 'element-plus/theme-chalk/dark/css-vars.css'
 import zhCn from 'element-plus/dist/locale/zh-cn.mjs'
-import DataVVue3 from '@kjgl77/datav-vue3'
-import '@kjgl77/datav-vue3/dist/style.css'
 
 const app = createApp(App)
 
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
   app.component(key, component)
 }
-
 app.use(ElementPlus, {
   locale: zhCn,
 })
-app.use(DataVVue3)
 app.use(router)
 app.use(createPinia())
 app.mount('#app')

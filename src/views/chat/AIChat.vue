@@ -126,7 +126,7 @@ const handleSendMessage = async () => {
       const currentIndex = messages.value.length - 1;
 
       // 创建 EventSource 实例
-      const eventSource = new EventSource(`http://8.130.75.193:8081/test/chat?message=${encodeURIComponent(userMessage)}`);
+      const eventSource = new EventSource(`http://8.130.75.193:8081/ai/chat?message=${encodeURIComponent(userMessage)}`);
 
       // 监听消息
       eventSource.onmessage = async (event) => {

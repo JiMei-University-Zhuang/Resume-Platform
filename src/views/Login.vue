@@ -138,14 +138,26 @@
     </div>
   </div>
 </template>
-
 <script setup lang="ts">
 import { ref, reactive, onUnmounted, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { getCaptcha, getCaptchaKey, login } from '@/api/user'
+import { ApiResponse } from '@/api/types'
 import axios from 'axios'
 import * as faceapi from 'face-api.js'
+
+interface AxiosResponse<T = any> {
+  data: T;
+  status: number;
+  statusText: string;
+  headers: Record<string, string>;
+  config: any;
+  request: any;
+}
+
+// 登录响应类型
+type LoginResponse = AxiosResponse<ApiResponse<string>>
 
 const router = useRouter()
 const loginFormRef = ref()
@@ -162,8 +174,8 @@ const isProcessing = ref(false)
 
 //登录表单
 const loginForm = reactive({
-  username: '',
-  password: '',
+  username: "账号1",
+  password: 'root',
   captcha_key: '',
   captcha_value: ''
 })
@@ -204,29 +216,19 @@ const captchaUrl = ref('')
 
 const getCaptchaData = async () => {
   try {
-    const prepareResponse = await getCaptchaKey();
-    // const prepareResponse = await axios.get('http://8.130.75.193:8081/auth/prepareCode')
-    if (prepareResponse.code === 200) {
-      captchaKey.value = prepareResponse.data
+    const prepareResponse = await getCaptchaKey() as AxiosResponse<ApiResponse<string>>;
+    if (prepareResponse.data.code === 200) {
+      captchaKey.value = prepareResponse.data.data
       const captchaResponse = await getCaptcha(captchaKey.value)
-      // const captchaResponse = await axios.get('http://8.130.75.193:8081/auth/getCaptcha', {
-      //   headers: {
-      //     'captcha': captchaKey.value
-      //   },
-      //   responseType: 'blob'
-      // })
-
-
       if (captchaUrl.value) {
         window.URL.revokeObjectURL(captchaUrl.value)
       }
-      const blob = new Blob([captchaResponse], { type: 'image/jpeg' })
+      const blob = new Blob([captchaResponse.data], { type: 'image/jpeg' })
       captchaUrl.value = window.URL.createObjectURL(blob)
       loginForm.captcha_key = captchaKey.value
       registerForm.captcha_key = captchaKey.value
-    } else {
-      throw new Error(prepareResponse.msg || '获取验证码key失败')
     }
+
   } catch (error) {
     ElMessage.error('获取验证码失败，请刷新重试')
   }
@@ -263,19 +265,15 @@ const handleLogin = async (formEl: any) => {
           password: loginForm.password,
           captcha_key: captchaKey.value,
           captcha_value: loginForm.captcha_value
-        })
-
-        if (response.code === 200 && response.data) {
+        }) as any as LoginResponse
+        if (response.data.code === 200 && response.data.data) {
           ElMessage.success('登录成功')
           router.push('/dashboard')
-          localStorage.setItem('token', JSON.stringify(response.data))
-        } else {
-          throw new Error(response.msg || '登录失败')
+          localStorage.setItem('token', response.data.data)
         }
       } catch (error: any) {
-        const errorMessage = error.response?.data?.msg || error.message || '登录失败，请检查用户名和密码'
+        const errorMessage = error.response?.data?.message || error.message || '登录失败，请检查用户名和密码'
         ElMessage.error(errorMessage)
-        console.error('登录失败:', errorMessage)
         refreshCaptcha()
       } finally {
         loading.value = false
@@ -298,13 +296,28 @@ const handleRegister = async () => {
           ElMessage.success('注册成功');
           gotoLogin()
           refreshCaptcha()
+          registerForm.username = '';
+          registerForm.password = '';
+          registerForm.name = '';
+          registerForm.telephone = '';
+          registerForm.email = '';
+          registerForm.captcha_value = '';
 
         })
         .catch((error) => {
           if (error.response && error.response.status === 500) {
-            ElMessage.error('参数错误，请检查输入');
-          } else {
-            ElMessage.error('注册失败，请重试');
+            const errorMessage = error.response.data.message;
+            if (errorMessage) {
+              if (errorMessage.includes('手机号参数错误')) {
+                ElMessage.error('请输入11位的手机号码');
+              } else if (errorMessage.includes('请输入包含英语和数字，在6-18位之间')) {
+                ElMessage.error('密码需包含数字和字母长度，在 6 到 18 位之间哈');
+              } else if (errorMessage.includes('账号已经存在')) {
+                ElMessage.error('此用户名已被占用，重新取一个吧');
+              } else if (errorMessage.includes('邮箱参数错误')) {
+                ElMessage.error('请输入正确的邮箱地址');
+              }
+            }
           }
         });
     }

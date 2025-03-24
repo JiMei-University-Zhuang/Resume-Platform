@@ -43,7 +43,7 @@ html.dark {
 }
 
 #app {
-  width: 100vw;
+  width: 100%;
   height: 100vh;
 }
 
@@ -52,4 +52,10 @@ html.dark {
   padding: 0;
   box-sizing: border-box;
 }
+
+body {
+  width: 100%;
+  overflow-x: hidden;
+  
+} 
 </style>
