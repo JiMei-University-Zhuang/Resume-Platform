@@ -6,108 +6,103 @@
         <div class="photo-placeholder">照片区域</div>
       </div>
       <div class="name-info">
-        <h2>{{ personalInfo.name }}</h2>
-        <p>{{ personalInfo.intent }}</p>
+        <h2>{{ resumeForm.name }}</h2>
+        <p>{{ resumeForm.jobTitle }}</p>
       </div>
       <div class="info-section">
         <h3>基本信息</h3>
         <ul>
-          <li>民族：{{ personalInfo.ethnicity }}</li>
-          <li>专业：{{ personalInfo.major }}</li>
-          <li>学历：{{ personalInfo.education }}</li>
-          <li>性别：{{ personalInfo.gender }}</li>
-          <li>籍贯：{{ personalInfo.origin }}</li>
-          <li>毕业院校：{{ personalInfo.school }}</li>
-          <li>政治面貌：{{ personalInfo.politicalStatus }}</li>
-          <li>出生年月：{{ personalInfo.birth }}</li>
+          <li>性别：{{ resumeForm.gender }}</li>
+          <li>籍贯：{{ resumeForm.origin }}</li>
+          <li>现居：{{ resumeForm.currentResidence }}</li>
+          <li>政治面貌：{{ resumeForm.politicalStatus }}</li>
+          <li>出生年月：{{ formatDate(resumeForm.birthday) }}</li>
         </ul>
       </div>
       <div class="info-section contact">
         <h3>联系方式</h3>
         <ul>
-          <li>联系电话：{{ personalInfo.phone }}</li>
-          <li>电子邮箱：{{ personalInfo.email }}</li>
+          <li>联系电话：{{ resumeForm.contact }}</li>
+          <li>电子邮箱：{{ resumeForm.email }}</li>
         </ul>
       </div>
     </div>
 
     <!-- 主要内容部分 -->
     <div class="right-section">
-      <div v-for="section in sections" :key="section.title" class="section">
+      <div class="section">
         <div class="section-header">
           <div class="icon-placeholder"></div>
-          <h3>{{ section.title }}</h3>
-          <span>{{ section.subtitle }}</span>
+          <h3>教育背景</h3>
+          <span>Education</span>
         </div>
         <div class="section-content">
-          <div v-html="section.content"></div>
+          <div v-for="(edu, index) in resumeForm.education" :key="index" class="education">
+            <div>{{ formatDate(edu.time[0]) }} 至 {{ formatDate(edu.time[1]) }}</div>
+            <div>{{ edu.school }}</div>
+            <div>{{ edu.major }}</div>
+            <div>学历：{{ edu.degree }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-header">
+          <div class="icon-placeholder"></div>
+          <h3>在校经历</h3>
+          <span>Experience</span>
+        </div>
+        <div class="section-content">
+          <div v-html="resumeForm.campusExperience"></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-header">
+          <div class="icon-placeholder"></div>
+          <h3>技能证书</h3>
+          <span>Skill</span>
+        </div>
+        <div class="section-content">
+          <div v-html="resumeForm.certifications"></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-header">
+          <div class="icon-placeholder"></div>
+          <h3>自我评价</h3>
+          <span>Evaluate</span>
+        </div>
+        <div class="section-content">
+          <div v-html="resumeForm.selfAssessment"></div>
         </div>
       </div>
     </div>
   </div>
 </template>
 
-<script>
-import { ref } from "vue";
+<script setup lang="ts">
+import { ref, toRefs } from "vue";
+import dayjs from 'dayjs';
 
-export default {
-  setup() {
-    const personalInfo = ref({
-      name: "王旸旸",
-      intent: "求职意向：工作岗位",
-      ethnicity: "汉",
-      major: "填写专业",
-      education: "本科",
-      gender: "女",
-      origin: "北京 XXX",
-      school: "填写学校",
-      politicalStatus: "中共党员",
-      birth: "C25-1",
-      phone: "00000000000",
-      email: "00000@126.com",
-    });
-
-    const sections = ref([
-      {
-        title: "教育背景",
-        subtitle: "Education",
-        content: `
-          <p>2013/08--2016/09 北京 XX 学院 填写专业</p>
-          <p>主修课程：填写课程，填写课程，填写课程，填写课程，填写课程。</p>
-        `,
-      },
-      {
-        title: "在校经历",
-        subtitle: "Experience",
-        content: `
-          <p>1. 负责学校公众号运营，策划宣传报道 10 余个，完成 20 余篇推文的撰写发布。</p>
-          <p>2. 担任学生干部，负责组织活动、组织培训。</p>
-          <p>3. 组织主题团活动，参与赛事等校级学术活动。</p>
-        `,
-      },
-      {
-        title: "技能证书",
-        subtitle: "Skill",
-        content: `
-          <p>语言技能：英语四级证书、普通话一级甲等；</p>
-          <p>办公技能：熟练掌握 Office 办公软件，包括 Word、Excel、PPT。</p>
-        `,
-      },
-      {
-        title: "自我评价",
-        subtitle: "Evaluate",
-        content: `
-          <p>学习上：勤奋刻苦，认真好学，具备较强的吸收知识能力。</p>
-          <p>工作上：具有较强的团队管理能力和协调能力。</p>
-        `,
-      },
-    ]);
-
-    return {
-      personalInfo,
-      sections,
-    };
+// 定义 props
+const props = defineProps({
+  resumeForm: {
+    type: Object,
+    required: true,
   },
+});
+
+// 将 props 解构为可响应式变量
+const { resumeForm } = toRefs(props);
+
+// 格式化日期
+const formatDate = (date: Date | null) => {
+  if (date) {
+    return dayjs(date).format('YYYY.MM');
+  }
+  return '';
 };
 </script>
 

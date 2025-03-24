@@ -5,12 +5,23 @@
       <div class="header-left">
         <div class="resume-title">RESUME</div>
         <div class="name-info">
-          <h2>{{ personalInfo.name }}</h2>
-          <p>{{ personalInfo.jobIntent }}</p>
+          <h2>{{ resumeForm.name }}</h2>
+          <p>{{ resumeForm.jobTitle }}</p>
         </div>
       </div>
       <div class="header-right">
-        <div class="photo-placeholder"></div>
+        <el-upload
+          class="photo-upload"
+          action="#"
+          :auto-upload="false"
+          :show-file-list="false"
+          :on-change="handlePhotoChange">
+          <img v-if="photoUrl" :src="photoUrl" class="photo" />
+          <div v-else class="photo-placeholder">
+            <el-icon><Plus /></el-icon>
+            <span>上传照片</span>
+          </div>
+        </el-upload>
       </div>
     </header>
 
@@ -18,19 +29,23 @@
     <section class="personal-info">
       <div class="info-item">
         <div class="icon-placeholder"></div>
-        <span>生日：{{ personalInfo.birth }}</span>
+        <span>生日：{{ resumeForm.birthday }}</span>
       </div>
       <div class="info-item">
         <div class="icon-placeholder"></div>
-        <span>现居：{{ personalInfo.location }}</span>
+        <span>现居：{{ resumeForm.currentResidence }}</span>
       </div>
       <div class="info-item">
         <div class="icon-placeholder"></div>
-        <span>电话：{{ personalInfo.phone }}</span>
+        <span>电话：{{ resumeForm.contact }}</span>
       </div>
       <div class="info-item">
         <div class="icon-placeholder"></div>
-        <span>邮箱：{{ personalInfo.email }}</span>
+        <span>邮箱：{{ resumeForm.email }}</span>
+      </div>
+      <div class="info-item">
+        <div class="icon-placeholder"></div>
+        <span>政治面貌：{{ resumeForm.politicalStatus }}</span>
       </div>
     </section>
 
@@ -41,11 +56,13 @@
         <span>教育背景</span>
       </div>
       <div class="section-content">
-        <div class="education-item">
-          <span class="time">{{ education.date }}</span>
-          <span class="school">{{ education.school }}</span>
-          <span class="degree">{{ education.degree }}</span>
-          <p class="details">{{ education.details }}</p>
+        <div v-for="(edu, index) in resumeForm.education" :key="index" class="education-item">
+          <div class="edu-main-info">
+            <span class="time">{{ formatDateRange(edu.time) }}</span>
+            <span class="school">{{ edu.school }}</span>
+            <span class="major">{{ edu.major }}</span>
+            <span class="degree">{{ edu.degree }}</span>
+          </div>
         </div>
       </div>
     </section>
@@ -57,11 +74,13 @@
         <span>工作经历</span>
       </div>
       <div class="section-content">
-        <div v-for="job in workExperiences" :key="job.id" class="work-item">
-          <span class="time">{{ job.date }}</span>
-          <span class="company">{{ job.company }}</span>
-          <span class="position">{{ job.position }}</span>
-          <p class="details">{{ job.description }}</p>
+        <div v-for="(exp, index) in resumeForm.experience" :key="index" class="work-item">
+          <div class="work-main-info">
+            <span class="time">{{ formatDateRange(exp.time) }}</span>
+            <span class="company">{{ exp.company }}</span>
+            <span class="position">{{ exp.position }}</span>
+          </div>
+          <p class="details">{{ exp.description }}</p>
         </div>
       </div>
     </section>
@@ -73,9 +92,17 @@
         <span>技能证书</span>
       </div>
       <div class="section-content">
-        <p>{{ skills.language }}</p>
-        <p>{{ skills.profession }}</p>
-        <p>{{ skills.tools }}</p>
+        <div class="skills-tags">
+          <el-tag
+            v-for="skill in resumeForm.skills"
+            :key="skill"
+            class="skill-tag"
+            effect="plain"
+          >
+            {{ skill }}
+          </el-tag>
+        </div>
+        <p v-if="resumeForm.certifications" class="certifications">{{ resumeForm.certifications }}</p>
       </div>
     </section>
 
@@ -86,72 +113,34 @@
         <span>自我评价</span>
       </div>
       <div class="section-content">
-        <p>{{ selfEvaluation }}</p>
+        <p>{{ resumeForm.selfAssessment }}</p>
       </div>
     </section>
   </div>
 </template>
 
-<script>
-import { reactive } from "vue";
+<script setup>
+import { ref } from 'vue';
+import { Plus } from '@element-plus/icons-vue';
 
-export default {
-  name: "Muban4",
-  setup() {
-    // 响应式数据
-    const personalInfo = reactive({
-      name: "张悦然",
-      jobIntent: "求职意向：市场销售相关工作岗位",
-      birth: "1989.05.07",
-      location: "江苏南通市",
-      phone: "888888888888",
-      email: "888@qq.com",
-    });
+const props = defineProps({
+  resumeForm: {
+    type: Object,
+    required: true
+  }
+});
 
-    const education = reactive({
-      date: "2012.09 - 2016.06",
-      school: "西南石油大学",
-      degree: "物流管理（本科）",
-      details:
-        "主修课程：石油及天然气运输模块、能源开发、中国能源地理；参与项目：克拉玛依油田节能清洁化项目等。",
-    });
+const photoUrl = ref('');
 
-    const workExperiences = reactive([
-      {
-        id: 1,
-        date: "2014.05 - 2015.05",
-        company: "约克宠鲲源科技有限公司",
-        position: "销售实习生",
-        description:
-          "拥有一定的能源专业知识，完成现场销售指标，与团队稳定客户合作。",
-      },
-      {
-        id: 2,
-        date: "2015.11 - 2016.04",
-        company: "金山WPS 程序儿平台",
-        position: "原创设计师",
-        description:
-          "完成简历PPT设计、研究互联网，产品开发，掌握效率设计工具。",
-      },
-    ]);
+const handlePhotoChange = (file) => {
+  photoUrl.value = URL.createObjectURL(file.raw);
+};
 
-    const skills = reactive({
-      language: "语言技能: 英语CET6、粤语",
-      profession: "专业技能: 熟悉 Web / iOS / C++ Java 开发",
-      tools: "办公技能: 熟练使用 Office, Axure RP, Visio",
-    });
-
-    const selfEvaluation =
-      "工作积极认真，细心负责，能独立完成复杂项目，有较强问题解决能力；乐观开朗积极承担责任。";
-
-    return {
-      personalInfo,
-      education,
-      workExperiences,
-      skills,
-      selfEvaluation,
-    };
-  },
+const formatDateRange = (dateRange) => {
+  if (!dateRange || !Array.isArray(dateRange)) return '';
+  const startDate = new Date(dateRange[0]);
+  const endDate = new Date(dateRange[1]);
+  return `${startDate.getFullYear()}.${String(startDate.getMonth() + 1).padStart(2, '0')} - ${endDate.getFullYear()}.${String(endDate.getMonth() + 1).padStart(2, '0')}`;
 };
 </script>
 
@@ -161,6 +150,9 @@ export default {
   font-family: Arial, sans-serif;
   color: #333;
   line-height: 1.6;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
 }
 
 /* Header */
@@ -168,9 +160,9 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 30px;
   border-bottom: 2px solid #1f3a93;
-  padding-bottom: 10px;
+  padding-bottom: 20px;
 }
 
 .resume-title {
@@ -178,37 +170,70 @@ export default {
   font-weight: bold;
   color: white;
   background-color: #1f3a93;
-  padding: 5px 10px;
+  padding: 8px 15px;
+  border-radius: 4px;
+}
+
+.name-info {
+  margin-top: 15px;
 }
 
 .name-info h2 {
-  font-size: 22px;
+  font-size: 24px;
   margin: 0;
+  color: #1f3a93;
 }
 
 .name-info p {
+  margin: 5px 0 0;
   color: #666;
+  font-size: 16px;
+}
+
+.photo-upload {
+  width: 120px;
+  height: 150px;
 }
 
 .photo-placeholder {
-  width: 80px;
-  height: 100px;
-  background-color: #ccc;
-  border-radius: 50%;
+  width: 120px;
+  height: 150px;
+  background-color: #f5f5f5;
+  border: 2px dashed #ddd;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.photo-placeholder:hover {
+  border-color: #1f3a93;
+  color: #1f3a93;
+}
+
+.photo {
+  width: 120px;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 4px;
 }
 
 /* Personal Info */
 .personal-info {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  margin-bottom: 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+  margin-bottom: 30px;
 }
 
 .info-item {
   display: flex;
   align-items: center;
-  margin: 5px 0;
+  padding: 8px;
+  background-color: #f8f9fa;
+  border-radius: 4px;
 }
 
 .icon-placeholder {
@@ -223,28 +248,121 @@ export default {
 .section-header {
   display: flex;
   align-items: center;
-  margin-top: 20px;
-  margin-bottom: 10px;
-  color: #1f3a93;
+  margin: 25px 0 15px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #1f3a93;
+}
+
+.section-header span {
+  font-size: 18px;
   font-weight: bold;
+  color: #1f3a93;
+  margin-left: 10px;
 }
 
 .section-content {
-  padding-left: 20px;
+  padding: 0 10px;
 }
 
-.time,
-.school,
-.company,
-.degree,
-.position {
+/* Education */
+.education-item {
+  margin-bottom: 15px;
+  padding: 10px;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+}
+
+.edu-main-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+}
+
+.time {
+  color: #666;
+  min-width: 180px;
+}
+
+.school {
   font-weight: bold;
+  color: #1f3a93;
+  min-width: 200px;
+}
+
+.major {
   color: #333;
+  min-width: 150px;
+}
+
+.degree {
+  color: #666;
+}
+
+/* Work Experience */
+.work-item {
+  margin-bottom: 20px;
+  padding: 15px;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+}
+
+.work-main-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 10px;
+}
+
+.company {
+  font-weight: bold;
+  color: #1f3a93;
+  min-width: 200px;
+}
+
+.position {
+  color: #333;
+  min-width: 150px;
 }
 
 .details {
-  margin-left: 15px;
-  color: #555;
-  line-height: 1.4;
+  color: #666;
+  line-height: 1.6;
+  margin: 10px 0 0;
+  padding-left: 15px;
+  border-left: 3px solid #1f3a93;
+}
+
+/* Skills */
+.skills-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.skill-tag {
+  margin-right: 8px;
+}
+
+.certifications {
+  color: #666;
+  line-height: 1.6;
+  margin: 10px 0;
+  padding: 10px;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+}
+
+/* Self Evaluation */
+.self-evaluation p {
+  color: #666;
+  line-height: 1.8;
+  text-align: justify;
+  padding: 15px;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+  margin: 0;
 }
 </style>

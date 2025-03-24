@@ -5,10 +5,17 @@
       <!-- 头像、姓名及职位 -->
       <div class="profile">
         <div class="avatar">
-          <!-- 模拟头像区域 -->
+          <label class="upload-container">
+            <div v-if="!profilePic" class="placeholder">
+              <span>+</span>
+              <p>上传照片</p>
+            </div>
+            <img v-else class="uploaded-photo" :src="profilePic" alt="用户照片" />
+            <input type="file" ref="fileInput" accept="image/*" @change="handleFileUpload" />
+          </label>
         </div>
-        <div class="name">王XXXX</div>
-        <div class="job-title">求职意向：工作岗位</div>
+        <div class="name">{{ resumeForm.name }}</div>
+        <div class="job-title">求职意向：{{ resumeForm.jobTitle }}</div>
       </div>
 
       <!-- 基本信息 -->
@@ -18,14 +25,11 @@
           <span>基本信息</span>
         </div>
         <ul class="info-list">
-          <li>民族：{{ basicInfo.ethnicity }}</li>
-          <li>专业：{{ basicInfo.major }}</li>
-          <li>学历：{{ basicInfo.education }}</li>
-          <li>性别：{{ basicInfo.gender }}</li>
-          <li>籍贯：{{ basicInfo.origin }}</li>
-          <li>毕业院校：{{ basicInfo.graduation }}</li>
-          <li>政治面貌：{{ basicInfo.political }}</li>
-          <li>出生年月：{{ basicInfo.birth }}</li>
+          <li>性别：{{ resumeForm.gender }}</li>
+          <li>籍贯：{{ resumeForm.origin }}</li>
+          <li>现居：{{ resumeForm.currentResidence }}</li>
+          <li>政治面貌：{{ resumeForm.politicalStatus }}</li>
+          <li>出生年月：{{ formatDate(resumeForm.birthday) }}</li>
         </ul>
       </div>
 
@@ -36,8 +40,8 @@
           <span>联系方式</span>
         </div>
         <ul class="info-list">
-          <li>联系电话：{{ contactInfo.phone }}</li>
-          <li>电子邮箱：{{ contactInfo.email }}</li>
+          <li>联系电话：{{ resumeForm.contact }}</li>
+          <li>电子邮箱：{{ resumeForm.email }}</li>
         </ul>
       </div>
     </div>
@@ -51,11 +55,11 @@
           <span class="title-en">Education</span>
         </div>
         <div class="content">
-          <div class="education">
-            <div>{{ education.period }}</div>
-            <div>{{ education.school }}</div>
-            <div>{{ education.major }}</div>
-            <div>主修课程：{{ education.courses }}</div>
+          <div class="education" v-for="(edu, index) in resumeForm.education" :key="index">
+            <div>{{ formatDate(edu.time[0]) }} -- {{ formatDate(edu.time[1]) }}</div>
+            <div>{{ edu.school }}</div>
+            <div>{{ edu.major }}</div>
+            <div>学历：{{ edu.degree }}</div>
           </div>
         </div>
       </div>
@@ -67,7 +71,7 @@
           <span class="title-en">Experience</span>
         </div>
         <ul class="content">
-          <li v-for="(item, index) in experiences" :key="index">{{ item }}</li>
+          <li>{{ resumeForm.campusExperience }}</li>
         </ul>
       </div>
 
@@ -78,7 +82,7 @@
           <span class="title-en">Skill</span>
         </div>
         <ul class="content">
-          <li v-for="(item, index) in skills" :key="index">{{ item }}</li>
+          <li v-for="(cert, index) in resumeForm.certifications.split(',')" :key="index">{{ cert.trim() }}</li>
         </ul>
       </div>
 
@@ -89,55 +93,68 @@
           <span class="title-en">Evaluate</span>
         </div>
         <ul class="content">
-          <li v-for="(item, index) in evaluations" :key="index">{{ item }}</li>
+          <li>{{ resumeForm.selfAssessment }}</li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <div class="section-title">
+          <div class="icon"></div>
+          <span>工作经验</span>
+          <span class="title-en">Work Experience</span>
+        </div>
+        <ul class="content">
+          <li v-for="(exp, index) in resumeForm.experience" :key="index">
+            <div>{{ exp.company }}</div>
+            <div>{{ exp.position }}</div>
+            <div>{{ formatDate(exp.time[0]) }} -- {{ formatDate(exp.time[1]) }}</div>
+            <div>{{ exp.description }}</div>
+          </li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <div class="section-title">
+          <div class="icon"></div>
+          <span>荣誉奖励</span>
+          <span class="title-en">Honors</span>
+        </div>
+        <ul class="content">
+          <li>{{ resumeForm.honors }}</li>
         </ul>
       </div>
     </div>
   </div>
 </template>
 
-<script>
-export default {
-  data() {
-    return {
-      basicInfo: {
-        ethnicity: "汉",
-        major: "XXXX专业",
-        education: "本科",
-        gender: "女",
-        origin: "北京XXX",
-        graduation: "XXX学校",
-        political: "中共党员",
-        birth: "C25-1"
-      },
-      contactInfo: {
-        phone: "00000000000",
-        email: "00000@126.com"
-      },
-      education: {
-        period: "2013/08--2016/09",
-        school: "北京XX学院",
-        major: "XXXX专业",
-        courses: "填写课程，填写课程，填写课程"
-      },
-      experiences: [
-        "负责学校公众号运营、策划宣传报道等主题10余个，结合社会及学校热点。",
-        "担任社团骨干，参与项目及策展的全面阶段工作。",
-        "组织参加校外辅导班，为学院争取荣誉。"
-      ],
-      skills: [
-        "语言技能：英语四级证书；",
-        "办公技能：熟练操作office办公软件。",
-        "个人技能：擅长团队协作执行力强。"
-      ],
-      evaluations: [
-        "学习上勤奋好学。",
-        "对生活积极阳光，善于适应挑战。",
-        "工作中，沟通良好，能独自完成目标。"
-      ]
-    };
+<script setup lang="ts">
+import { defineProps } from 'vue'
+import dayjs from 'dayjs'
+import { ref } from 'vue'
+
+const profilePic = ref('') // 保存上传的图片
+
+const handleFileUpload = (event: Event) => {
+  const file = (event.target as HTMLInputElement).files?.[0]
+  if (file) {
+    const reader = new FileReader()
+    reader.onload = () => {
+      profilePic.value = reader.result as string
+    }
+    reader.readAsDataURL(file)
   }
-};
+}
+const props = defineProps({
+  resumeForm: {
+    type: Object,
+    required: true
+  }
+})
+
+const formatDate = (date: Date | null) => {
+  if (!date) return ''
+  return dayjs(date).format('YYYY.MM')
+}
 </script>
 
 <style scoped>
@@ -161,13 +178,54 @@ export default {
 .profile {
   text-align: center;
 }
-
 .avatar {
-  width: 100px;
-  height: 100px;
+    width: 107px; /* 将宽高改成等比例 */
+  height: 150px;
   margin: 0 auto 10px;
-  background: #ccc;
-  border-radius: 50%;
+  border: 2px dashed #ccc;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.avatar:hover {
+  border-color: #307360;
+}
+
+.upload-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.placeholder {
+  text-align: center;
+  color: #999;
+  font-size: 12px;
+}
+
+.placeholder span {
+  font-size: 32px;
+  font-weight: bold;
+}
+
+.uploaded-photo {
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+input[type="file"] {
+  display: none;
 }
 
 .name {
@@ -217,5 +275,13 @@ export default {
   margin-left: auto;
   color: #aaa;
   font-size: 12px;
+}
+
+.education {
+  margin-bottom: 20px;
+}
+
+.experience {
+  margin-bottom: 20px;
 }
 </style>

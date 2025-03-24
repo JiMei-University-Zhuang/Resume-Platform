@@ -6,45 +6,46 @@
     </div>
 
     <!-- 个人信息 -->
-    <div class="section">
+    <div class="section personal-section">
       <h2 class="section-title">个人信息</h2>
       <div class="personal-info">
-        <div>
-          <p>
-            姓名：<span>{{ resumeForm.name }}</span>
-          </p>
-          <p>
-            性别：<span>{{ resumeForm.gender }}</span>
-          </p>
-          <p>
-            生日：<span>{{ formatDate(resumeForm.birthday) }}</span>
-          </p>
-          <p>
-            籍贯：<span>{{ resumeForm.origin }}</span>
-          </p>
-          <p>
-            现居：<span>{{ resumeForm.currentResidence }}</span>
-          </p>
-          <p>
-            政治面貌：<span>{{ resumeForm.politicalStatus }}</span>
-          </p>
-          <p>
-            电话：<span>{{ resumeForm.contact }}</span>
-          </p>
-          <p>
-            邮箱：<span>{{ resumeForm.email }}</span>
-          </p>
-          <p>
-            QQ：<span>{{ resumeForm.qq }}</span>
-          </p>
+        <div class="info-columns">
+          <div class="info-column">
+            <p>
+              姓名：<span>{{ resumeForm.name }}</span>
+            </p>
+            <p>
+              生日：<span>{{ formatDate(resumeForm.birthday) }}</span>
+            </p>
+            <p>
+              电话：<span>{{ resumeForm.contact }}</span>
+            </p>
+            <p>
+              QQ：<span>{{ resumeForm.qq }}</span>
+            </p>
+          </div>
+          <div class="info-column">
+            <p>
+              籍贯：<span>{{ resumeForm.origin }}</span>
+            </p>
+            <p>
+              邮箱：<span>{{ resumeForm.email }}</span>
+            </p>
+            <p>
+              性别：<span>{{ resumeForm.gender }}</span>
+            </p>
+            <p>
+              政治面貌：<span>{{ resumeForm.politicalStatus }}</span>
+            </p>
+          </div>
         </div>
-       <div class="photo" @click="uploadPhoto">
-  <img v-if="resumeForm.photoUrl" :src="resumeForm.photoUrl" alt="头像" />
-  <input type="file" ref="fileInput" @change="handleFileUpload" accept="image/*" hidden />
-  <div v-if="!resumeForm.photoUrl" class="upload-placeholder">
-    <button class="upload-button">上传头像</button>
-  </div>
-</div>
+        <div class="photo" @click="uploadPhoto">
+          <img v-if="resumeForm.photoUrl" :src="resumeForm.photoUrl" alt="头像" />
+          <input type="file" ref="fileInput" @change="handleFileUpload" accept="image/*" hidden />
+          <div v-if="!resumeForm.photoUrl" class="upload-placeholder">
+            <span>点击上传证件照</span>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -74,39 +75,56 @@
     <!-- 教育背景 -->
     <div class="section">
       <h2 class="section-title">教育背景</h2>
-      <ul>
+      <ul class="timeline-list">
         <li v-for="(edu, index) in resumeForm.education" :key="index">
-          <p>
-            {{ formatDate(edu.time[0]) }} - {{ formatDate(edu.time[1]) }} - {{ edu.school }} -
-            {{ edu.major }} （{{ edu.degree }}）
-          </p>
+          <div class="timeline-item">
+            <div class="timeline-date">{{ formatDate(edu.time[0]) }} - {{ formatDate(edu.time[1]) }}</div>
+            <div class="timeline-content">
+              <div class="timeline-title">{{ edu.school }} - {{ edu.major }}</div>
+              <div class="timeline-degree">{{ edu.degree }}</div>
+            </div>
+          </div>
         </li>
       </ul>
     </div>
 
     <!-- 工作经验 -->
     <div class="section">
-      <h2 class="section-title">工作经验</h2>
-      <ul>
+      <h2 class="section-title">实习经历</h2>
+      <ul class="timeline-list">
         <li v-for="(job, index) in resumeForm.experience" :key="index">
-          <p>
-            {{ formatDate(job.time[0]) }} - {{ formatDate(job.time[1]) }} - {{ job.company }} -
-            {{ job.position }}
-          </p>
-          <p>{{ job.description }}</p>
+          <div class="timeline-item">
+            <div class="timeline-date">{{ formatDate(job.time[0]) }} - {{ formatDate(job.time[1]) }}</div>
+            <div class="timeline-content">
+              <div class="timeline-title">{{ job.company }} - {{ job.position }}</div>
+              <div class="timeline-description">
+                <ul class="bullet-list">
+                  <li v-for="(line, i) in job.description.split('\n').filter(l => l)" :key="i">
+                    {{ line }}
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
         </li>
       </ul>
     </div>
 
     <!-- 在校经历 -->
     <div class="section">
-      <h2 class="section-title">在校经历</h2>
-      <ul>
-        <li
-          v-for="(activity, index) in resumeForm.campusExperience.split('\n').filter(a => a)"
-          :key="index"
-        >
-          <p>{{ activity }}</p>
+      <h2 class="section-title">校园经历</h2>
+      <ul class="timeline-list">
+        <li v-if="resumeForm.campusExperience">
+          <div class="timeline-content">
+            <ul class="bullet-list">
+              <li
+                v-for="(activity, index) in resumeForm.campusExperience.split('\n').filter(a => a)"
+                :key="index"
+              >
+                {{ activity }}
+              </li>
+            </ul>
+          </div>
         </li>
       </ul>
     </div>
@@ -114,9 +132,9 @@
     <!-- 专业技能 -->
     <div class="section">
       <h2 class="section-title">专业技能</h2>
-      <ul>
+      <ul class="bullet-list skill-list">
         <li v-for="(skill, index) in resumeForm.skills" :key="index">
-          <p>{{ skill }}</p>
+          {{ skill }}
         </li>
       </ul>
     </div>
@@ -124,7 +142,9 @@
     <!-- 自我评价 -->
     <div class="section">
       <h2 class="section-title">自我评价</h2>
-      <p>{{ resumeForm.selfAssessment }}</p>
+      <div class="self-assessment">
+        <p>{{ resumeForm.selfAssessment }}</p>
+      </div>
     </div>
   </div>
 </template>
@@ -206,72 +226,155 @@ const handleFileUpload = (event: Event) => {
   max-width: 800px;
   margin: auto;
   border: 1px solid #ddd;
-  padding: 20px;
+  padding: 0;
+  background-color: #fff;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
+
 .resume-header {
   text-align: center;
-  background-color: #557a95;
+  background-color: #6c8eb3;
   color: #fff;
-  padding: 10px 0;
+  padding: 15px 0;
 }
+
 .title {
   font-size: 24px;
   font-weight: bold;
 }
+
 .section {
-  margin-top: 20px;
+  margin: 0;
+  padding: 15px 20px;
+  border-bottom: 1px solid #eee;
 }
+
 .section-title {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: bold;
-  color: #557a95;
+  color: #fff;
+  background-color: #6c8eb3;
+  padding: 5px 10px;
+  display: inline-block;
+  margin-bottom: 15px;
 }
+
+.personal-section {
+  background-color: #f5f5f5;
+}
+
 .personal-info {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
 }
-.personal-info div {
-  flex: 1;
-}
-.photo {
-  display: flex;
-  position: relative;
-  justify-content: flex-end;
-  align-items: center;
 
+.info-columns {
+  display: flex;
+  flex: 3;
 }
+
+.info-column {
+  flex: 1;
+  padding-right: 20px;
+}
+
+.photo {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  max-width: 120px;
+}
+
 .photo img {
   width: 120px;
   height: 160px;
   object-fit: cover;
   border: 1px solid #ddd;
-  border-radius: 5px;
 }
-.upload-placeholder {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
 
-}
-.upload-button {
-  background-color: #557a95;
-  color: #fff;
-  border: none;
-  padding: 10px 20px;
+.upload-placeholder {
+  width: 120px;
+  height: 160px;
+  border: 2px dashed #6c8eb3;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  color: #6c8eb3;
+  font-size: 12px;
   cursor: pointer;
+  padding: 5px;
 }
-.upload-button:hover {
-  background-color: #4a6984;
-}
-ul {
+
+.timeline-list {
   list-style: none;
   padding: 0;
-}
-li {
-  margin-bottom: 10px;
-}
-p {
   margin: 0;
 }
+
+.timeline-item {
+  display: flex;
+  margin-bottom: 15px;
+}
+
+.timeline-date {
+  flex: 1;
+  font-weight: bold;
+  color: #555;
+  min-width: 150px;
+}
+
+.timeline-content {
+  flex: 3;
+}
+
+.timeline-title {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.timeline-degree {
+  color: #666;
+  font-style: italic;
+}
+
+.timeline-description {
+  margin-top: 5px;
+}
+
+.bullet-list {
+  list-style-type: disc;
+  padding-left: 20px;
+  margin: 5px 0;
+}
+
+.bullet-list li {
+  margin-bottom: 5px;
+}
+
+.skill-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.skill-list li {
+  background-color: #f0f0f0;
+  padding: 5px 10px;
+  border-radius: 3px;
+  font-size: 14px;
+}
+
+.self-assessment {
+  background-color: #f9f9f9;
+  padding: 10px;
+  border-left: 3px solid #6c8eb3;
+}
+
+p {
+  margin: 0 0 5px 0;
+}
 </style>
+10{5hght.6

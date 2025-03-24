@@ -9,140 +9,163 @@
         <div class="icon pink"></div>
       </div>
     </div>
+
     <!-- Basic Information -->
     <section class="section">
       <h2 class="section-title">基本信息</h2>
       <div class="section-content basic-info">
         <div class="info-item">
-          <span>姓名:</span> {{ info.name }}
+          <span>姓名:</span> {{ resumeForm.name }}
         </div>
         <div class="info-item">
-          <span>性别:</span> {{ info.gender }}
+          <span>性别:</span> {{ resumeForm.gender }}
         </div>
         <div class="info-item">
-          <span>出生年月:</span> {{ info.birth }}
+          <span>出生年月:</span> {{ formatDate(resumeForm.birthday) }}
         </div>
         <div class="info-item">
-          <span>民族:</span> {{ info.ethnicity }}
+          <span>籍贯:</span> {{ resumeForm.origin }}
         </div>
         <div class="info-item">
-          <span>政治面貌:</span> {{ info.politics }}
+          <span>政治面貌:</span> {{ resumeForm.politicalStatus }}
         </div>
         <div class="info-item">
-          <span>求职意向:</span> {{ info.jobIntent }}
+          <span>求职意向:</span> {{ resumeForm.jobTitle }}
         </div>
         <div class="info-item">
-          <span>电子邮箱:</span> {{ info.email }}
+          <span>电子邮箱:</span> {{ resumeForm.email }}
         </div>
         <div class="info-item">
-          <span>联系方式:</span> {{ info.phone }}
+          <span>联系方式:</span> {{ resumeForm.contact }}
         </div>
-        <div class="photo">
-          <img :src="info.photo" alt="个人头像" />
+        <div class="photo" @click="uploadPhoto">
+          <img v-if="resumeForm.photoUrl" :src="resumeForm.photoUrl" alt="个人头像" />
+          <div v-else class="upload-placeholder">
+            <span>点击上传证件照</span>
+          </div>
+          <input type="file" ref="fileInput" @change="handleFileUpload" accept="image/*" hidden />
         </div>
       </div>
     </section>
-    <!-- Sections -->
-    <template v-for="section in sections" :key="section.title">
-      <section class="section">
-        <h2 class="section-title">{{ section.title }}</h2>
-        <div class="section-content">
-          <template v-for="item in section.content" :key="item.subtitle">
-            <div class="item">
-              <div class="item-header">
-                <span class="time">{{ item.time }}</span>
-                <span>{{ item.subtitle }}</span>
-              </div>
-              <p>{{ item.description }}</p>
-              <ul v-if="item.list">
-                <li v-for="listItem in item.list" :key="listItem">{{ listItem }}</li>
-              </ul>
-            </div>
-          </template>
+
+    <!-- 教育背景 -->
+    <section class="section">
+      <h2 class="section-title">教育背景</h2>
+      <div class="section-content">
+        <div v-for="(edu, index) in resumeForm.education" :key="index" class="item">
+          <div class="item-header">
+            <span class="time">{{ formatDateRange(edu.time) }}</span>
+            <span>{{ edu.school }} | {{ edu.major }} / {{ edu.degree }}</span>
+          </div>
         </div>
-      </section>
-    </template>
+      </div>
+    </section>
+
+    <!-- 工作经历 -->
+    <section class="section" v-if="resumeForm.experience.length">
+      <h2 class="section-title">工作经历</h2>
+      <div class="section-content">
+        <div v-for="(exp, index) in resumeForm.experience" :key="index" class="item">
+          <div class="item-header">
+            <span class="time">{{ formatDateRange(exp.time) }}</span>
+            <span>{{ exp.company }} | {{ exp.position }}</span>
+          </div>
+          <p>{{ exp.description }}</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 在校经历 -->
+    <section class="section" v-if="resumeForm.campusExperience">
+      <h2 class="section-title">在校经历</h2>
+      <div class="section-content">
+        <div class="item">
+          <div v-html="resumeForm.campusExperience"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 技能证书 -->
+    <section class="section">
+      <h2 class="section-title">技能证书</h2>
+      <div class="section-content">
+        <div class="item">
+          <div v-html="resumeForm.certifications"></div>
+          <ul v-if="resumeForm.skills.length">
+            <li v-for="(skill, index) in resumeForm.skills" :key="index">{{ skill }}</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 自我评价 -->
+    <section class="section">
+      <h2 class="section-title">自我评价</h2>
+      <div class="section-content">
+        <div class="item">
+          <div v-html="resumeForm.selfAssessment"></div>
+        </div>
+      </div>
+    </section>
   </div>
 </template>
 
-<script>
-export default {
-  data() {
-    return {
-      info: {
-        name: "周晓影",
-        gender: "女",
-        birth: "2003.03",
-        ethnicity: "汉族",
-        politics: "共青团员",
-        jobIntent: "会计相关岗位",
-        email: "填写邮箱",
-        phone: "XXX-XXXX-8848",
-        photo: "https://via.placeholder.com/100", // 示例照片URL
-      },
-      sections: [
-        {
-          title: "教育背景",
-          content: [
-            {
-              time: "2021.09-2025.07",
-              subtitle: "东北财经大学 | 会计学 / 本科",
-              description:
-                "大学期间，保持绩点 3.8，专业排名前 10%，多次荣获校级一等奖学金。参与多门专业课程学习，具有全面的会计知识结构。",
-            },
-          ],
-        },
-        {
-          title: "实习经历",
-          content: [
-            {
-              time: "2024.06-2024.09",
-              subtitle: "大连思元 XX 科技有限公司 | 会计实习生",
-              description:
-                "参与账务处理及报表整理，熟悉基础账务和公司运营需求，使用财务系统提高会计效率。",
-              list: [
-                "账务处理：协助会计完成账务核对及数据整理。",
-                "税务申报：协助财务完成税务申报和报表优化。",
-              ],
-            },
-          ],
-        },
-        {
-          title: "校园经历",
-          content: [
-            {
-              time: "2021.09-2022.06",
-              subtitle: "学生会办公室 | 财务会计",
-              description: "负责预算与报销管理，监督各项资金的使用情况和财务透明。",
-            },
-          ],
-        },
-        {
-          title: "技能证书",
-          content: [
-            {
-              time: "",
-              subtitle: "专业证书",
-              description:
-                "已取得初级会计职称证书，熟悉财经法规及会计岗位实践技能。",
-            },
-          ],
-        },
-        {
-          title: "自我评价",
-          content: [
-            {
-              time: "",
-              subtitle: "专业知识扎实，具备会计职业素养。",
-              description:
-                "热爱会计工作，善于团队协作，同时具备较高的工作效率。",
-            },
-          ],
-        },
-      ],
-    };
-  },
-};
+<script setup lang="ts">
+import { defineProps, ref } from 'vue'
+import dayjs from 'dayjs'
+
+const fileInput = ref<HTMLInputElement | null>(null)
+
+const props = defineProps({
+  resumeForm: {
+    type: Object,
+    required: true,
+    default: () => ({
+      name: '',
+      gender: '',
+      jobTitle: '',
+      birthday: null,
+      origin: '',
+      politicalStatus: '',
+      contact: '',
+      email: '',
+      education: [],
+      experience: [],
+      campusExperience: '',
+      certifications: '',
+      skills: [],
+      selfAssessment: '',
+      photoUrl: ''
+    })
+  }
+})
+
+const formatDate = (date: Date | null) => {
+  return date ? dayjs(date).format('YYYY.MM') : ''
+}
+
+const formatDateRange = (dateRange: Date[]) => {
+  if (!dateRange) return ''
+  const start = dayjs(dateRange[0]).format('YYYY.MM')
+  const end = dateRange[1] ? dayjs(dateRange[1]).format('YYYY.MM') : '至今'
+  return `${start}-${end}`
+}
+
+const uploadPhoto = () => {
+  fileInput.value?.click()
+}
+
+const handleFileUpload = (event: Event) => {
+  const input = event.target as HTMLInputElement
+  if (input.files && input.files[0]) {
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      const result = e.target?.result as string
+      props.resumeForm.photoUrl = result
+    }
+    reader.readAsDataURL(input.files[0])
+  }
+}
 </script>
 
 <style scoped>
@@ -196,12 +219,17 @@ export default {
   padding-left: 20px;
 }
 .basic-info {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  position: relative;
 }
 .info-item {
   flex: 1 1 50%;
   margin-bottom: 5px;
+}
+.photo {
+  cursor: pointer;
 }
 .photo img {
   width: 100px;
@@ -209,6 +237,20 @@ export default {
   object-fit: cover;
   border-radius: 5px;
   margin-top: 10px;
+}
+.upload-placeholder {
+  width: 100px;
+  height: 120px;
+  border: 2px dashed #e26386;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: #e26386;
+  font-size: 12px;
+  margin-top: 10px;
+  padding: 5px;
 }
 .item {
   margin-bottom: 15px;

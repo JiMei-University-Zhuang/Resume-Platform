@@ -14,8 +14,14 @@
         <div class="icon" style="background-color: grey"></div> {{ personal.email }}
         <div class="icon" style="background-color: grey"></div> {{ personal.location }}
       </div>
-      <div class="photo">
-        <div class="fake-photo"></div>
+      <div class="photo" @click="triggerFileInput">
+        <input type="file" ref="fileInput" @change="handleFileUpload" accept="image/*" style="display: none" />
+        <div v-if="photoUrl" class="photo-preview">
+          <img :src="photoUrl" alt="个人照片" />
+        </div>
+        <div v-else class="fake-photo">
+          <span>点击上传照片</span>
+        </div>
       </div>
     </div>
 
@@ -67,88 +73,87 @@
   </div>
 </template>
 
-<script>
-import { reactive } from "vue";
+<script setup lang="ts">
+import { computed, ref } from 'vue';
+import dayjs from 'dayjs';
 
-export default {
-  setup() {
-    const personal = reactive({
-      name: "林洛然",
-      intendedPosition: "人事行政岗位",
-      phone: "138 0000 0000",
-      email: "daoke@qq.com",
-      location: "福建 福州",
-    });
+const props = defineProps({
+  resumeForm: {
+    type: Object,
+    required: true
+  }
+});
 
-    const education = reactive({
-      startDate: "2014.09",
-      endDate: "2018.06",
-      school: "福州大学经济管理学院管理系",
-      degree: "本科",
-      subject: "财务管理专业",
-      majorCourses: "基础会计学、财务会计、财务管理学、高级财务管理、审计学等",
-    });
+const personal = computed(() => ({
+  name: props.resumeForm.name,
+  intendedPosition: props.resumeForm.jobTitle,
+  phone: props.resumeForm.contact,
+  email: props.resumeForm.email,
+  location: props.resumeForm.currentResidence
+}));
 
-    const experiences = reactive([
-      {
-        id: 1,
-        startDate: "2013.09",
-        endDate: "2017.06",
-        company: "福州云声网络科技有限公司",
-        department: "财务部",
-        position: "财务会计",
-        details: [
-          "制定、调整费用开支标准",
-          "实施内部财务控制制度",
-          "制作定期财务报表等",
-        ],
-      },
-      {
-        id: 2,
-        startDate: "2013.09",
-        endDate: "2017.06",
-        company: "福州小鹿网络科技有限公司",
-        department: "新媒体运营",
-        position: "组长",
-        details: [
-          "项目目标制定",
-          "带领团队达成目标",
-          "组织策划相关活动",
-        ],
-      },
-    ]);
-
-    const schoolExperience = reactive([
-      {
-        id: 1,
-        startDate: "2013.09",
-        endDate: "2017.06",
-        organization: "工程院管理系办公室",
-        role: "学生助教",
-        description: "负责学术会议等事务",
-      },
-    ]);
-
-    const certificates = reactive([
-      "人力资源管理师",
-      "CET4 英语四级证书",
-      "普通话二级甲等证书",
-    ]);
-
-    const assessment = reactive(
-      "本人具备一定负责心及较好的经验总结能力，适应能力强。"
-    );
-
+const education = computed(() => {
+  if (props.resumeForm.education && props.resumeForm.education.length > 0) {
+    const edu = props.resumeForm.education[0];
     return {
-      personal,
-      education,
-      experiences,
-      schoolExperience,
-      certificates,
-      assessment,
+      startDate: dayjs(edu.time[0]).format('YYYY.MM'),
+      endDate: dayjs(edu.time[1]).format('YYYY.MM'),
+      school: edu.school,
+      degree: edu.degree,
+      subject: edu.major,
+      majorCourses: ''
     };
-  },
+  }
+  return null;
+});
+
+const experiences = computed(() => 
+  props.resumeForm.experience.map((exp, index) => ({
+    id: index + 1,
+    startDate: dayjs(exp.time[0]).format('YYYY.MM'),
+    endDate: dayjs(exp.time[1]).format('YYYY.MM'),
+    company: exp.company,
+    department: '',
+    position: exp.position,
+    details: exp.description.split('\n')
+  }))
+);
+
+const schoolExperience = computed(() => [
+  {
+    id: 1,
+    startDate: '',
+    endDate: '',
+    organization: '',
+    role: '',
+    description: props.resumeForm.campusExperience
+  }
+]);
+
+const certificates = computed(() => 
+  props.resumeForm.certifications.split('\n').filter(cert => cert.trim())
+);
+
+const assessment = computed(() => props.resumeForm.selfAssessment);
+
+const fileInput = ref<HTMLInputElement | null>(null);
+const photoUrl = ref<string>('');
+
+const triggerFileInput = () => {
+  fileInput.value.click();
 };
+
+const handleFileUpload = (event) => {
+  const file = event.target.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      photoUrl.value = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+};
+
 </script>
 
 <style scoped>
@@ -184,11 +189,33 @@ export default {
   flex-direction: column;
 }
 
+.photo {
+  cursor: pointer;
+}
+
 .photo .fake-photo {
   width: 100px;
   height: 120px;
   background-color: #eee;
   border: 1px solid #333;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  color: #666;
+}
+
+.photo .photo-preview {
+  width: 100px;
+  height: 120px;
+  border: 1px solid #333;
+  overflow: hidden;
+}
+
+.photo .photo-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .section {

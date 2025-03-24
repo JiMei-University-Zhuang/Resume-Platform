@@ -389,38 +389,69 @@ defineExpose({
   justify-content: space-between;
 }
 
+.el-dialog {
+  display: flex;
+  flex-direction: column;
+  height: 80vh;
+  margin: 10vh auto !important;
+}
+
+.el-dialog__body {
+  flex: 1;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .template-preview {
   display: flex;
   gap: 30px;
+  width: 100%;
+  height: 100%;
+  align-items: flex-start;
 }
 
 .preview-image {
   width: 50%;
+  height: auto;
+  max-height: 100%;
   object-fit: contain;
 }
 
 .preview-info {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
 }
 
 .preview-info h2 {
-  margin: 0 0 20px;
+  margin: 0;
   font-size: 24px;
+  color: #303133;
 }
 
 .preview-info h3 {
-  margin: 20px 0 10px;
+  margin: 10px 0 0;
   font-size: 18px;
-  color: #333;
+  color: #606266;
+}
+
+.preview-info p {
+  margin: 0;
+  color: #606266;
+  line-height: 1.6;
 }
 
 .preview-info ul {
+  margin: 0;
   padding-left: 20px;
-  margin: 10px 0;
 }
 
 .preview-info li {
   margin-bottom: 8px;
-  color: #666;
+  color: #606266;
+  line-height: 1.6;
 }
 </style>

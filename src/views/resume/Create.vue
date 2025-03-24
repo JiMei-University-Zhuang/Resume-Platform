@@ -254,15 +254,22 @@
               ></el-rate>
             </el-collapse-item>
 
-            <el-collapse-item title="详细建议" name="2">
+            <el-collapse-item title="优化建议" name="2">
               <ul>
                 <li v-for="(suggestion, index) in aiSuggestions.suggestions" :key="index">
                   {{ suggestion }}
                 </li>
               </ul>
             </el-collapse-item>
+            <el-collapse-item title="修改建议" name="3">
+              <ul>
+                <li v-for="(revisions, index) in aiSuggestions.revisions" :key="index">
+                  {{ revisions.section }}: {{ revisions.suggestion }}
+                </li>
+              </ul>
+            </el-collapse-item>
 
-            <el-collapse-item title="行业匹配度" name="3">
+            <el-collapse-item title="行业匹配度" name="4">
               <el-progress
                 v-for="(match, index) in aiSuggestions.industryMatch"
                 :key="index"
@@ -460,13 +467,27 @@ const exportPDF = async () => {
   if (!resumePreview.value) return
 
   try {
-    const canvas = await html2canvas(resumePreview.value)
+    const scale = window.devicePixelRatio || 1
+    const canvas = await html2canvas(resumePreview.value, {
+      scale: scale, // 使用设备像素比来提高分辨率
+      useCORS: true // 允许跨域资源
+    })
     const imgData = canvas.toDataURL('image/png')
     const pdf = new jsPDF('p', 'mm', 'a4')
     const pdfWidth = pdf.internal.pageSize.getWidth()
-    const pdfHeight = (canvas.height * pdfWidth) / canvas.width
+    const pageHeight = pdf.internal.pageSize.getHeight()
+    const imgHeight = (canvas.height * pdfWidth) / canvas.width
 
-    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight)
+    let position = 0
+
+    while (position < imgHeight) {
+      pdf.addImage(imgData, 'PNG', 0, -position, pdfWidth, imgHeight)
+      position += pageHeight
+      if (position < imgHeight) {
+        pdf.addPage()
+      }
+    }
+
     pdf.save('我的简历.pdf')
 
     ElMessage.success('PDF导出成功！')
@@ -483,14 +504,24 @@ const analyzeResume = async () => {
     await new Promise(resolve => setTimeout(resolve, 2000))
 
     aiSuggestions.value = {
-      summary: '您的简历整体结构清晰，但在某些方面还可以进一步优化。',
-      score: 85,
-      suggestions: [
+      summary: '您的简历整体结构清晰，但在某些方面还可以进一步优化。',//AI对简历的总体评价
+      score: 85,//AI对简历的评分
+      suggestions: [//AI对简历的优化建议
         '建议在工作经验部分添加更多具体的数据和成果',
         '可以突出展示您的核心技能和专业认证',
         '教育背景部分可以补充相关的课程和学术成果'
       ],
-      industryMatch: [
+      revisions: [//AI对简历的修改建议
+        {
+          section: '工作描述',//建议修改的部分
+          suggestion: '在腾讯科技担任前端开发工程师期间，我主导负责公司核心产品的前端开发工作，深度运用 Vue.js 框架构建高性能、高可用性的用户界面。与产品、设计、后端团队紧密合作，确保产品的功能实现和用户体验达到最佳状态。同时，我持续关注前端技术的发展趋势，不断优化和改进现有技术方案，提升产品的性能和稳定性。'
+        },              //修改的内容
+        {
+          section: '在校经历',
+          suggestion: '在校期间担任学生会技术部部长，成功策划并组织了多场技术分享会。在此过程中，我负责了活动的整体策划，包括主题选定、嘉宾邀请以及流程设计等多个环节。同时，我还带领团队完成了活动的宣传推广以及现场执行工作，确保了每一场分享会的顺利进行，吸引了众多同学参与，有效提升了团队的影响力。'
+        }
+      ],
+      industryMatch: [//AI对简历的行业匹配
         { industry: '互联网技术', score: 90 },
         { industry: '人工智能', score: 75 },
         { industry: '金融科技', score: 70 }
@@ -505,8 +536,20 @@ const analyzeResume = async () => {
 
 const applyAISuggestions = () => {
   ElMessage.success('已应用 AI 建议')
+  
+  // 查找section为'在校经历'的建议
+  const campusExperienceSuggestion = aiSuggestions.value?.revisions.find(rev => rev.section === '在校经历');
+  
+  // 如果找到了对应的建议，则更新resumeForm中的campusExperience
+  if (campusExperienceSuggestion) {
+    resumeForm.value.campusExperience = campusExperienceSuggestion.suggestion;
+  } else {
+    ElMessage.warning('未找到在校经历的修改建议')
+  }
+  
   analysisDialogVisible.value = false
 }
+
 
 const templateDialogVisible = ref(false)
 

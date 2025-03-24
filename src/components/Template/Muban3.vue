@@ -1,255 +1,486 @@
 <template>
+  <div class="resume-template">
     <div class="resume">
       <!-- 左侧栏 -->
       <div class="left-column">
-        <div class="profile">
-          <img :src="resume.avatar" alt="avatar" class="avatar" />
-          <div class="info">
-            <h2>{{ resume.name }}</h2>
-            <p>{{ resume.jobIntent }}</p>
-          </div>
+        <div class="photo-section">
+          <div :class="['photo-container', profilePic ? 'photo-container-finished' : '']">
+  <label class="upload-container">
+    <div v-if="!profilePic" class="placeholder">
+      <span>+</span>
+      <p>上传照片</p>
+    </div>
+    <img v-else class="uploaded-photo" :src="profilePic" alt="个人照片" />
+    <input type="file" ref="fileInput" accept="image/*" @change="handleFileUpload" />
+  </label>
+</div>
+
         </div>
-        <div class="details">
-          <div class="detail">
-            <div class="icon" />
-            <p>生日: {{ resume.birthDate }}</p>
+
+        <div class="info-section">
+          <div class="section-title">
+            <h2>{{ resumeForm.name }}</h2>
+            <p class="job-title">{{ resumeForm.jobTitle }}</p>
           </div>
-          <div class="detail">
-            <div class="icon" />
-            <p>籍贯: {{ resume.hometown }}</p>
+
+          <div class="personal-info">
+            <h3>个人资料</h3>
+            <ul>
+              <li><span>性　　别：</span>{{ resumeForm.gender }}</li>
+              <li><span>出生年月：</span>{{ formatDate(resumeForm.birthday) }}</li>
+              <li><span>籍　　贯：</span>{{ resumeForm.origin }}</li>
+              <li><span>政治面貌：</span>{{ resumeForm.politicalStatus }}</li>
+              <li><span>专　　业：</span>{{ resumeForm.education[0]?.major || '' }}</li>
+              <li><span>学　　历：</span>{{ resumeForm.education[0]?.degree || '' }}</li>
+            </ul>
           </div>
-          <div class="detail">
-            <div class="icon" />
-            <p>现居: {{ resume.currentCity }}</p>
+
+          <div class="contact-info">
+            <h3>联系方式</h3>
+            <ul>
+              <li><span>手机：</span>{{ resumeForm.contact }}</li>
+              <li><span>邮箱：</span>{{ resumeForm.email }}</li>
+              <li><span>地址：</span>{{ resumeForm.currentResidence }}</li>
+            </ul>
           </div>
-          <div class="detail">
-            <div class="icon" />
-            <p>政治面貌: {{ resume.politicalStatus }}</p>
-          </div>
-          <div class="detail">
-            <div class="icon" />
-            <p>电话: {{ resume.phone }}</p>
-          </div>
-          <div class="detail">
-            <div class="icon" />
-            <p>邮箱: {{ resume.email }}</p>
-          </div>
-          <h3>荣誉奖励</h3>
-          <div class="detail" v-for="award in resume.awards" :key="award">
-            <div class="icon" />
-            <span>{{ award }}</span>
+
+          <div class="honors-info">
+            <h3>荣誉奖励</h3>
+            <ul>
+              <li v-for="(honor, index) in resumeForm.honors.split('\n')" :key="index">
+                {{ honor }}
+              </li>
+            </ul>
           </div>
         </div>
       </div>
-  
+
       <!-- 右侧栏 -->
       <div class="right-column">
-        <div class="section" v-for="section in rightContent" :key="section.title">
+        <div class="section education-section">
           <div class="section-header">
-            <div class="icon" />
-            <h3>{{ section.title }}</h3>
-            <div class="under-line"></div>
+            <div class="icon education-icon"></div>
+            <h3>教育背景</h3>
           </div>
           <div class="section-content">
-            <div v-html="section.content"></div>
+            <div class="timeline-item" v-for="(edu, index) in resumeForm.education" :key="index">
+              <div class="timeline-date">
+                {{ formatDate(edu.time[0]) }} - {{ formatDate(edu.time[1]) }}
+              </div>
+              <div class="timeline-content">
+                <div class="school">{{ edu.school }}</div>
+                <div class="major">{{ edu.major }}</div>
+                <div class="degree">{{ edu.degree }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section work-section">
+          <div class="section-header">
+            <div class="icon work-icon"></div>
+            <h3>工作经历</h3>
+          </div>
+          <div class="section-content">
+            <div class="timeline-item" v-for="(exp, index) in resumeForm.experience" :key="index">
+              <div class="timeline-date">
+                {{ formatDate(exp.time[0]) }} - {{ formatDate(exp.time[1]) }}
+              </div>
+              <div class="timeline-content">
+                <div class="company">{{ exp.company }}</div>
+                <div class="position">{{ exp.position }}</div>
+                <div class="description">{{ exp.description }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section skills-section">
+          <div class="section-header">
+            <div class="icon skills-icon"></div>
+            <h3>专业技能</h3>
+          </div>
+          <div class="section-content">
+            <div class="skills-list">
+              <div class="skill-tag" v-for="(skill, index) in resumeForm.skills" :key="index">
+                {{ skill }}
+              </div>
+            </div>
+            <div class="certifications" v-if="resumeForm.certifications">
+              <h4>技能证书</h4>
+              <p>{{ resumeForm.certifications }}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="section self-assessment-section">
+          <div class="section-header">
+            <div class="icon assessment-icon"></div>
+            <h3>自我评价</h3>
+          </div>
+          <div class="section-content">
+            <p>{{ resumeForm.selfAssessment }}</p>
           </div>
         </div>
       </div>
     </div>
-  </template>
-  
-  <script>
-  export default {
-    name: "Resume",
-    data() {
-      return {
-        resume: {
-          name: "张宇",
-          avatar: "img/test.jpg",
-          jobIntent: "求职意向: 前端开发工程师",
-          birthDate: "1990.05.09",
-          hometown: "广东深圳",
-          currentCity: "北京",
-          politicalStatus: "中共党员",
-          phone: "88888888888",
-          email: "888@qq.com",
-          awards: [
-            "获得微软认证系统系统",
-            "全国计算机等级考试二级B",
-            "大学英语六级",
-            "获得校一等奖学金",
-          ],
-        },
-        rightContent: [
-          {
-            title: "教育背景",
-            content: `
-              <span >2011.9-2015.6 深圳大学 —— 计算机科学与技术专业（本科)</span>
-              <ul>
-                <li>掌握 Java 编程语言，JSP, HTML</li>
-                <li>熟悉 JavaScript、JavaBean、XML 等常用 web 开发技术</li>
-                <li>熟悉 Struts、Hibernate、Spring 等框架</li>
-                <li>熟悉 Oracle, MySQL 等数据库使用</li>
-              </ul>
-            `,
-          },
-          {
-            title: "工作经验",
-            content: `
-              <span calss="time">2014.5-2015.5 —— 多彩科技集团 —— 软件开发工程师</span>
-              <ul>
-                <li>MES 系统 PC 端软件开发</li>
-                <li>PDF 软件开发，实现 MES数据提取及数据采集文件处理</li>
-                <li>SQL Server 数据库维护，MES 系统转化 Oracle 数据库维护</li>
-              </ul>
-              <span>2015.12-2016.1 —— 格力电器 EMS 项目 —— 软件开发工程师</span>
-              <ul>
-                <li>MES 数据库数据转化 SQL Server 的维护</li>
-                <li>PDA 扫描器，无线便携打印机自动扫描设备的选型配置</li>
-              </ul>
-            `,
-          },
-          {
-            title: "专业技能",
-            content: `
-              <ul>
-                <li>语言技能: 英语CET6，粤语</li>
-                <li>专业技能: 熟悉 Web、iOS 和 Android 开发，精通数据库，C++ 及 Java 编程</li>
-                <li>办公软件: 熟悉使用 Office 办公软件、Axure RP、Visio</li>
-              </ul>
-            `,
-          },
-          {
-            title: "自我评价",
-            content: `
-              <p>本人具备较强的专业理论知识，基础扎实的乐于学习，为人诚恳、勤奋务实，
-              有较强的适应能力和动手能力。有人合作、能胜任不同复杂的工作岗位对需求，
-              有高度的责任心和团队协作的专业精神和能力。</p>
-            `,
-          },
-        ],
-      };
+  </div>
+</template>
+
+<script>
+import dayjs from 'dayjs'
+
+export default {
+  props: {
+    resumeForm: {
+      type: Object,
+      required: true
+    }
+  },
+  data() {
+    return {
+      profilePic: ''
+    }
+  },
+  methods: {
+    formatDate(date) {
+      return date ? dayjs(date).format('YYYY.MM') : ''
     },
-  };
-  </script>
-  
-  
-  <style>
-  .resume {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-family: Arial, sans-serif;
-    margin: 20px auto;
-    max-width: 800px;
+    showFileInput() {
+      this.$refs.fileInput.click()
+    },
+    handleFileUpload(event) {
+      const file = event.target.files[0]
+      if (file) {
+        const reader = new FileReader()
+        reader.onload = e => {
+          this.profilePic = e.target.result
+        }
+        reader.readAsDataURL(file)
+      }
+    }
   }
-  
-  .right-column {
-    padding: 40px;
-  }
-  
-  .left-column {
-    height: 900px;
-    width: 40%;
-    background-color: #e4e4e4;
-    text-align: center;
-     display: flex; /* 启用Flex布局 */
-    flex-direction: column; /* 垂直排列子元素 */
-    justify-content: center; /* 垂直方向居中 */
-    align-items: center; /* 水平方向居中 */
-   
-  }
-  
-  .avatar {
-    width: 100px;
-    height: 120px;
-    object-fit: cover;
-  }
-  
-  .profile .info {
-      margin-top: 20px;
-      background-color: #174a7c;
-      width: 263px;
-      height: 100px;
-       display: flex; /* 启用Flex布局 */
-    flex-direction: column; /* 垂直排列子元素 */
-    justify-content: center; /* 垂直方向居中 */
-    align-items: center; /* 水平方向居中 */
-  
-  }
-  
-  .under-line {
-    margin-left: 5px;
-    width: 340px;
-    height: 3px;
-    background-color: #2c3e50;
-    border-radius: 5px;
-  }
-  
-  .section-content span {
-    color: #174a7c;
-    font-weight: bold;
-  }
-  
-  .profile h2 {
-    margin: 0;
-  }
-  
-  .profile  {
-    color: white;
-  
-  }
-  
-  .details {
-      padding: 4px;
-  }
-  
-  .details .detail {
-    margin: 10px 0;
-    display: flex;
-    align-items: center;
-  }
-  
-  .detail .icon {
-    width: 10px;
-    height: 10px;
-    margin-right: 10px;
-    border-radius: 50%;
-    background-color: #174a7c;
-  }
-  
-  .awards h3 {
-    margin-top: 20px;
-  }
-  
-  .right-column {
-    width: 70%;
-  }
-  
-  .section {
-    margin-bottom: 20px;
-  }
-  
-  .section-header {
-    display: flex;
-    align-items: center;
-    margin-bottom: 10px;
-  }
-  
-  .section-header .icon {
-    width: 18px;
-    height: 18px;
-    margin-right: 10px;
-    background-color: #174a7c;
-  }
-  
-  .section-content ul {
-    margin: 10px 0;
-    padding-left: 20px;
-  }
-  
-  .section-content ul li {
-    list-style: disc;
-  }
-  </style>
+}
+</script>
+
+<style scoped>
+.resume-template {
+  width: 800px;
+  margin: 0 auto;
+  font-family: 'Microsoft YaHei', 'Arial', sans-serif;
+  color: #333;
+  background-color: #fff;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+  transform: scale(0.65);
+  transform-origin: top left;
+}
+
+.resume {
+  display: flex;
+  min-height: 1000px;
+}
+
+/* 左侧栏样式 */
+.left-column {
+  width: 30%;
+  background-color: #1e3a5f;
+  color: #fff;
+  padding: 30px 20px;
+}
+
+.photo-section {
+  text-align: center;
+  margin-bottom: 30px;
+}
+.photo-container {
+  width: 107px; /* 将宽高改成等比例 */
+  height: 150px;
+  margin: 0 auto;
+  border: 2px dashed #ccc;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background-color: #f9f9f9;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.photo-container-finished {
+  border: none; /* 去掉边框 */
+  background-color: transparent; /* 可替换为透明背景 */
+}
+
+.photo-container:hover {
+  border-color: #1e3a5f;
+}
+
+.upload-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.placeholder {
+  text-align: center;
+  color: #999;
+}
+
+.placeholder span {
+  font-size: 40px;
+  font-weight: bold;
+}
+
+.placeholder p {
+  font-size: 14px;
+  margin-top: 8px;
+}
+
+.uploaded-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+input[type="file"] {
+  display: none;
+}
+
+
+.profile-pic {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.upload-btn {
+  margin-top: 15px;
+  background-color: transparent;
+  border: 1px solid #fff;
+  color: #fff;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.upload-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.section-title {
+  text-align: center;
+  margin-bottom: 25px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.section-title h2 {
+  font-size: 28px;
+  margin: 0;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+.job-title {
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.8);
+  margin-top: 8px;
+}
+
+.info-section h3 {
+  font-size: 18px;
+  color: #fff;
+  margin: 20px 0 15px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.personal-info ul,
+.contact-info ul,
+.honors-info ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.personal-info li,
+.contact-info li {
+  margin: 10px 0;
+  font-size: 14px;
+  display: flex;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.personal-info li span,
+.contact-info li span {
+  font-weight: 500;
+  margin-right: 8px;
+  min-width: 75px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.honors-info li {
+  margin: 8px 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.9);
+  padding-left: 15px;
+  position: relative;
+}
+
+.honors-info li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 8px;
+  width: 6px;
+  height: 6px;
+  background-color: #fff;
+  border-radius: 50%;
+}
+
+/* 右侧栏样式 */
+.right-column {
+  width: 70%;
+  padding: 30px;
+  background-color: #fff;
+}
+
+.section {
+  margin-bottom: 35px;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.icon {
+  width: 24px;
+  height: 24px;
+  margin-right: 12px;
+  background-color: #1e3a5f;
+  border-radius: 50%;
+  position: relative;
+}
+
+.icon::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -20px;
+  width: 2px;
+  height: calc(100% + 30px);
+  background-color: #1e3a5f;
+  transform: translateX(-50%);
+}
+
+.section-header h3 {
+  font-size: 20px;
+  margin: 0;
+  color: #1e3a5f;
+  font-weight: 600;
+}
+
+.timeline-item {
+  margin-bottom: 25px;
+  position: relative;
+  padding-left: 30px;
+}
+
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 8px;
+  width: 12px;
+  height: 12px;
+  background-color: #1e3a5f;
+  border-radius: 50%;
+  z-index: 1;
+}
+
+.timeline-date {
+  font-weight: 600;
+  color: #1e3a5f;
+  margin-bottom: 8px;
+  font-size: 15px;
+}
+
+.timeline-content {
+  padding-left: 20px;
+  border-left: 2px solid #e0e0e0;
+}
+
+.school,
+.company {
+  font-weight: 600;
+  font-size: 16px;
+  color: #1e3a5f;
+}
+
+.major,
+.position {
+  font-size: 14px;
+  color: #666;
+  margin: 5px 0;
+}
+
+.description {
+  font-size: 14px;
+  color: #555;
+  line-height: 1.6;
+  margin-top: 8px;
+  text-align: justify;
+}
+
+.skills-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.skill-tag {
+  background-color: #1e3a5f;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 13px;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.skill-tag:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(30, 58, 95, 0.2);
+}
+
+.certifications h4 {
+  font-size: 16px;
+  margin: 15px 0 10px;
+  color: #1e3a5f;
+  font-weight: 600;
+}
+
+.certifications p {
+  font-size: 14px;
+  line-height: 1.6;
+  color: #555;
+}
+
+.self-assessment-section p {
+  font-size: 14px;
+  line-height: 1.7;
+  color: #555;
+  text-align: justify;
+  padding: 0 15px;
+}
+
+
+</style>
   
