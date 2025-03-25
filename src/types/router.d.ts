@@ -6,4 +6,4 @@ declare module 'vue-router' {
     icon?: string
     // 其他你需要的元数据
   }
-} 
+}

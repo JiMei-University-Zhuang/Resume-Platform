@@ -35,16 +35,23 @@
   <div class="header-bottom">
     <!-- 标签导航 -->
     <div class="tabs-container">
-      <el-tabs v-model="activeTab" type="card" closable @tab-remove="removeTab" @tab-click="handleTabClick">
-        <el-tab-pane v-for="item in visitedViews" :key="item.path" :label="item.title" :name="item.path">
+      <el-tabs
+        v-model="activeTab"
+        type="card"
+        closable
+        @tab-remove="removeTab"
+        @tab-click="handleTabClick"
+      >
+        <el-tab-pane
+          v-for="item in visitedViews"
+          :key="item.path"
+          :label="item.title"
+          :name="item.path"
+        >
         </el-tab-pane>
       </el-tabs>
     </div>
   </div>
-
-
-
-
 </template>
 
 <script setup lang="ts">
@@ -60,7 +67,6 @@ const router = useRouter()
 const route = useRoute()
 const appStore = useAppStore()
 
-
 //个人设置页面
 const handleUserinfo = () => {
   router.push('/user-settings')
@@ -69,34 +75,36 @@ const handleUserinfo = () => {
 // 处理登出的函数
 const handleLogout = async () => {
   try {
-    await logout();
-    localStorage.removeItem('token');
+    await logout()
+    localStorage.removeItem('token')
     ElMessage.success('成功退出登录')
-    router.push('/login');
+    router.push('/login')
   } catch (error) {
-    console.error('登出失败:', error);
+    console.error('登出失败:', error)
     ElMessage.error('登出失败，请稍后重试')
   }
-};
+}
 
 const activeTab = ref('')
 const visitedViews = ref<Array<{ path: string; title: string }>>([])
 
-
-
-watch(() => route.path, (newPath) => {
-  const matched = route.matched.find(item => item.path === newPath)
-  if (matched && matched.meta.title) {
-    const view = {
-      path: newPath,
-      title: matched.meta.title as string
+watch(
+  () => route.path,
+  newPath => {
+    const matched = route.matched.find(item => item.path === newPath)
+    if (matched && matched.meta.title) {
+      const view = {
+        path: newPath,
+        title: matched.meta.title as string
+      }
+      if (!visitedViews.value.find(v => v.path === newPath)) {
+        visitedViews.value.push(view)
+      }
+      activeTab.value = newPath
     }
-    if (!visitedViews.value.find(v => v.path === newPath)) {
-      visitedViews.value.push(view)
-    }
-    activeTab.value = newPath
-  }
-}, { immediate: true })
+  },
+  { immediate: true }
+)
 
 const removeTab = (targetPath: string | number) => {
   const tabs = visitedViews.value
@@ -129,7 +137,7 @@ const handleTabClick = (tab: any) => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  box-shadow: 0 1px 4px rgba(0, 21, 41, .08);
+  box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
   position: relative;
   z-index: 1003;
 }
@@ -229,7 +237,6 @@ const handleTabClick = (tab: any) => {
 .tabs-container :deep(.el-tabs__nav-wrap::after) {
   display: none;
 }
-
 
 .header-bottom {
   box-shadow: 0 1px 5px rgba(0, 21, 41, 0.08);

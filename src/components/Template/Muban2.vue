@@ -10,113 +10,111 @@
                 <p>上传照片</p>
               </div>
               <img v-else class="uploaded-photo" :src="profilePic" alt="Profile Picture" />
-              <input
-                type="file"
-                ref="fileInput"
-                accept="image/*"
-                @change="handleFileUpload"
-              />
+              <input type="file" ref="fileInput" accept="image/*" @change="handleFileUpload" />
             </label>
           </div>
           <h2>{{ resumeForm.name }}</h2>
           <p>{{ resumeForm.jobTitle }}</p>
         </header>
 
-      <section class="personal-info">
-        <h3>个人资料</h3>
-        <ul>
-          <li>性别: {{ resumeForm.gender }}</li>
-          <li>出生年月: {{ formatDate(resumeForm.birthday) }}</li>
-          <li>籍贯: {{ resumeForm.origin }}</li>
-          <li>政治面貌: {{ resumeForm.politicalStatus }}</li>
-          <li v-for="(edu, index) in resumeForm.education" :key="index">
-            学校: {{ edu.school }}<br />
-            专业: {{ edu.major }}<br />
-            学历: {{ edu.degree }}<br />
-            时间: {{ formatDate(edu.time[0]) }} - {{ formatDate(edu.time[1]) }}
-          </li>
-        </ul>
-      </section>
+        <section class="personal-info">
+          <h3>个人资料</h3>
+          <ul>
+            <li>性别: {{ resumeForm.gender }}</li>
+            <li>出生年月: {{ formatDate(resumeForm.birthday) }}</li>
+            <li>籍贯: {{ resumeForm.origin }}</li>
+            <li>政治面貌: {{ resumeForm.politicalStatus }}</li>
+            <li v-for="(edu, index) in resumeForm.education" :key="index">
+              学校: {{ edu.school }}<br />
+              专业: {{ edu.major }}<br />
+              学历: {{ edu.degree }}<br />
+              时间: {{ formatDate(edu.time[0]) }} - {{ formatDate(edu.time[1]) }}
+            </li>
+          </ul>
+        </section>
 
-      <section class="contact">
-        <h3>联系方式</h3>
-        <ul>
-          <li>手机: {{ resumeForm.contact }}</li>
-          <li>邮箱: {{ resumeForm.email }}</li>
-          <li>地址: {{ resumeForm.currentResidence }}</li>
-        </ul>
-      </section>
+        <section class="contact">
+          <h3>联系方式</h3>
+          <ul>
+            <li>手机: {{ resumeForm.contact }}</li>
+            <li>邮箱: {{ resumeForm.email }}</li>
+            <li>地址: {{ resumeForm.currentResidence }}</li>
+          </ul>
+        </section>
 
-      <section class="skills">
-        <h3>专业技能</h3>
-        <ul>
-          <li v-for="skill in resumeForm.skills" :key="skill">
-            {{ skill }}
-          </li>
-        </ul>
-      </section>
         <section class="skills">
-        <h3>个人证书</h3>
-        <ul>
-          <li v-for="(certifications, index) in resumeForm.certifications.split('\n')" :key="index">
-            {{ certifications }}
-          </li>
-        </ul>
-      </section>
-    </div>
-    <div class="column2">
-      <section class="education">
-        <h3>教育背景</h3>
-        <div class="under-line"></div>
-        <div class="text" v-for="(edu, index) in resumeForm.education" :key="index">
-          <span>{{ formatDate(edu.time[0]) }} - {{ formatDate(edu.time[1]) }}</span>
-          <span>{{ edu.school }}</span>
-          <span>{{ edu.major }}</span>
-          <span>{{ edu.degree }}</span>
-        </div>
-      </section>
-
-      <section class="main-courses">
-        <h3>在校经历</h3>
-        <div class="under-line"></div>
-        <p>{{ resumeForm.campusExperience }}</p>
-      </section>
-
-      <section class="work-experience">
-        <h3>工作经历</h3>
-        <div class="under-line"></div>
-        <div v-for="(job, index) in resumeForm.experience" :key="index" class="text">
-          <div class="column1">
-            <p>
-              {{ formatDate(job.time[0]) }} - {{ formatDate(job.time[1]) }}<br />
-              {{ job.position }}
-            </p>
+          <h3>专业技能</h3>
+          <ul>
+            <li v-for="skill in resumeForm.skills" :key="skill">
+              {{ skill }}
+            </li>
+          </ul>
+        </section>
+        <section class="skills">
+          <h3>个人证书</h3>
+          <ul>
+            <li
+              v-for="(certifications, index) in resumeForm.certifications.split('\n')"
+              :key="index"
+            >
+              {{ certifications }}
+            </li>
+          </ul>
+        </section>
+      </div>
+      <div class="column2">
+        <section class="education">
+          <h3>教育背景</h3>
+          <div class="under-line"></div>
+          <div class="text" v-for="(edu, index) in resumeForm.education" :key="index">
+            <span>{{ formatDate(edu.time[0]) }} - {{ formatDate(edu.time[1]) }}</span>
+            <span>{{ edu.school }}</span>
+            <span>{{ edu.major }}</span>
+            <span>{{ edu.degree }}</span>
           </div>
-          <div class="column2">
-            <p class="company">{{ job.company }}</p>
-            <p>{{ job.description }}</p>
+        </section>
+
+        <section class="main-courses">
+          <h3>在校经历</h3>
+          <div class="under-line"></div>
+          <p>{{ resumeForm.campusExperience }}</p>
+        </section>
+
+        <section class="work-experience">
+          <h3>工作经历</h3>
+          <div class="under-line"></div>
+          <div v-for="(job, index) in resumeForm.experience" :key="index" class="text">
+            <div class="column1">
+              <p>
+                {{ formatDate(job.time[0]) }} - {{ formatDate(job.time[1]) }}<br />
+                {{ job.position }}
+              </p>
+            </div>
+            <div class="column2">
+              <p class="company">{{ job.company }}</p>
+              <p>{{ job.description }}</p>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      <section class="honors">
-        <h3>个人荣誉</h3>
-        <div class="under-line"></div>
-        <ul>
-          <li v-for="(honor, index) in resumeForm.honors.split('\n')" :key="index">
-            {{ honor }}
-          </li>
-        </ul>
-      </section>
+        <section class="honors">
+          <h3>个人荣誉</h3>
+          <div class="under-line"></div>
+          <ul>
+            <li v-for="(honor, index) in resumeForm.honors.split('\n')" :key="index">
+              {{ honor }}
+            </li>
+          </ul>
+        </section>
 
-      <section class="self-introduction">
-        <h3>个人介绍</h3>
-        <div class="under-line"></div>
-        <p>{{ resumeForm.selfAssessment }}</p>
-      </section>
+        <section class="self-introduction">
+          <h3>个人介绍</h3>
+          <div class="under-line"></div>
+          <p>{{ resumeForm.selfAssessment }}</p>
+        </section>
+      </div>
     </div>
   </div>
-</div>
 </template>
 
 <script>
@@ -131,28 +129,28 @@ export default {
   },
   data() {
     return {
-      profilePic: "",
-    };
+      profilePic: ''
+    }
   },
   methods: {
     formatDate(date) {
-      return date ? dayjs(date).format('YYYY.MM') : '';
+      return date ? dayjs(date).format('YYYY.MM') : ''
     },
     showFileInput() {
-      this.$refs.fileInput.click();
+      this.$refs.fileInput.click()
     },
     handleFileUpload(event) {
-      const file = event.target.files[0];
+      const file = event.target.files[0]
       if (file) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          this.profilePic = e.target.result;
-        };
-        reader.readAsDataURL(file);
+        const reader = new FileReader()
+        reader.onload = e => {
+          this.profilePic = e.target.result
+        }
+        reader.readAsDataURL(file)
       }
     }
   }
-};
+}
 </script>
 
 <style scoped>
@@ -220,7 +218,7 @@ export default {
   object-fit: cover;
 }
 
-input[type="file"] {
+input[type='file'] {
   display: none;
 }
 

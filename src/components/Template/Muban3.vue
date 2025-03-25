@@ -5,16 +5,15 @@
       <div class="left-column">
         <div class="photo-section">
           <div :class="['photo-container', profilePic ? 'photo-container-finished' : '']">
-  <label class="upload-container">
-    <div v-if="!profilePic" class="placeholder">
-      <span>+</span>
-      <p>上传照片</p>
-    </div>
-    <img v-else class="uploaded-photo" :src="profilePic" alt="个人照片" />
-    <input type="file" ref="fileInput" accept="image/*" @change="handleFileUpload" />
-  </label>
-</div>
-
+            <label class="upload-container">
+              <div v-if="!profilePic" class="placeholder">
+                <span>+</span>
+                <p>上传照片</p>
+              </div>
+              <img v-else class="uploaded-photo" :src="profilePic" alt="个人照片" />
+              <input type="file" ref="fileInput" accept="image/*" @change="handleFileUpload" />
+            </label>
+          </div>
         </div>
 
         <div class="info-section">
@@ -245,10 +244,9 @@ export default {
   object-fit: cover;
 }
 
-input[type="file"] {
+input[type='file'] {
   display: none;
 }
-
 
 .profile-pic {
   width: 100%;
@@ -480,7 +478,4 @@ input[type="file"] {
   text-align: justify;
   padding: 0 15px;
 }
-
-
 </style>
-  

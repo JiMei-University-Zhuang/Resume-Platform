@@ -55,10 +55,10 @@
         </el-form-item>
 
         <el-form-item label="工作经验">
-          <el-input-number 
-            v-model="analysisForm.workExperience" 
-            :min="0" 
-            :max="50" 
+          <el-input-number
+            v-model="analysisForm.workExperience"
+            :min="0"
+            :max="50"
             placeholder="工作年限"
           />
         </el-form-item>
@@ -125,14 +125,14 @@ const submitAnalysis = async () => {
   try {
     // TODO: 调用后端AI职业分析接口
     await new Promise(resolve => setTimeout(resolve, 2000))
-    
+
     // 模拟分析结果
     analysisResult.value = {
       recommendedCareer: '软件开发工程师',
       advantages: '具备扎实的技术基础，对编程有浓厚兴趣，适合从事技术开发工作。',
       suggestions: '建议继续深入学习新技术，参与开源项目，提升系统设计能力。'
     } as CareerAnalysis
-    
+
     ElMessage.success('分析完成')
   } catch (error) {
     ElMessage.error('分析失败，请重试')

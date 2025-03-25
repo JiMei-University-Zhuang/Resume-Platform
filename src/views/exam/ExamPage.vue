@@ -113,19 +113,19 @@ const fetchQuestions = async () => {
     const requestData = {
       subject: subject.value,
       count: count.value
-    };
-    const response = await getCSPractice(requestData);
+    }
+    const response = await getCSPractice(requestData)
     // 安全地处理响应数据
     const responseData = response?.data ? (response.data as unknown as Question[]) : [];
     questions.value = responseData;
 
     if (subject.value === '行测') {
-      answers.value = new Array(responseData.length).fill('');
+      answers.value = new Array(responseData.length).fill('')
     } else if (responseData.length > 0 && responseData[0]?.expoundingOptionInfos) {
-      essayAnswers.value = new Array(responseData[0].expoundingOptionInfos.length).fill('');
+      essayAnswers.value = new Array(responseData[0].expoundingOptionInfos.length).fill('')
     }
   } catch (error) {
-    console.error('获取题目失败：', error);
+    console.error('获取题目失败：', error)
   }
 };
 const formatText = (text: string) => {
@@ -158,12 +158,12 @@ const answerStatus = computed(() => {
 
 const submitEssayExam = () => {
   // 申论提交逻辑
-  console.log('提交的申论答案：', essayAnswers.value);
-};
+  console.log('提交的申论答案：', essayAnswers.value)
+}
 
 onMounted(() => {
-  fetchQuestions();
-});
+  fetchQuestions()
+})
 </script>
 
 <style scoped>
@@ -219,7 +219,7 @@ onMounted(() => {
 }
 
 .question-number {
-  color: #409EFF;
+  color: #409eff;
   font-weight: 500;
   font-size: 16px;
 }
@@ -323,7 +323,7 @@ onMounted(() => {
 }
 
 .el-radio.is-checked .option-text {
-  color: #409EFF;
+  color: #409eff;
 }
 
 .el-radio__input {
@@ -353,7 +353,7 @@ onMounted(() => {
 
 .essay-question p:first-child {
   font-weight: bold;
-  color: #409EFF;
+  color: #409eff;
   margin-bottom: 20px;
 }
 

@@ -5,7 +5,7 @@ import LoadingScreen from '@/components/LoadingScreen/index.vue'
 const loading = ref(true)
 
 const waitForResources = () => {
-  return new Promise<void>((resolve) => {
+  return new Promise<void>(resolve => {
     if (document.readyState === 'complete') {
       resolve()
     } else {
@@ -56,6 +56,5 @@ html.dark {
 body {
   width: 100%;
   overflow-x: hidden;
-  
-} 
+}
 </style>

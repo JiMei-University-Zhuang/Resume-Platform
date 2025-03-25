@@ -26,15 +26,24 @@
           <el-tab-pane label="账号登录" name="account">
             <el-form ref="loginFormRef" :model="loginForm" :rules="loginrules" class="login-form">
               <el-form-item prop="username">
-                <el-input v-model="loginForm.username" placeholder="请输入用户名" class="custom-input">
+                <el-input
+                  v-model="loginForm.username"
+                  placeholder="请输入用户名"
+                  class="custom-input"
+                >
                   <template #prefix>
                     <i class="el-icon-user"></i>
                   </template>
                 </el-input>
               </el-form-item>
               <el-form-item prop="password">
-                <el-input v-model="loginForm.password" type="password" placeholder="请输入密码" show-password
-                  class="custom-input">
+                <el-input
+                  v-model="loginForm.password"
+                  type="password"
+                  placeholder="请输入密码"
+                  show-password
+                  class="custom-input"
+                >
                   <template #prefix>
                     <i class="el-icon-lock"></i>
                   </template>
@@ -42,17 +51,28 @@
               </el-form-item>
 
               <el-form-item prop="captcha_value" class="captcha-container custom-input">
-                <el-input v-model="loginForm.captcha_value" placeholder="请输入验证码" style="width: auto;" />
-                <img :src="captchaUrl" alt="验证码" @click="refreshCaptcha"
-                  style="cursor: pointer;width: 80px; margin-left: 10px;">
+                <el-input
+                  v-model="loginForm.captcha_value"
+                  placeholder="请输入验证码"
+                  style="width: auto"
+                />
+                <img
+                  :src="captchaUrl"
+                  alt="验证码"
+                  @click="refreshCaptcha"
+                  style="cursor: pointer; width: 80px; margin-left: 10px"
+                />
               </el-form-item>
               <el-form-item>
-                <el-button type="primary" :loading="loading" class="login-button" @click="handleLogin(loginFormRef)">
+                <el-button
+                  type="primary"
+                  :loading="loading"
+                  class="login-button"
+                  @click="handleLogin(loginFormRef)"
+                >
                   立即登录
                 </el-button>
-                <el-button class="register-button" @click="gotoRegister">
-                  注册账号
-                </el-button>
+                <el-button class="register-button" @click="gotoRegister"> 注册账号 </el-button>
               </el-form-item>
             </el-form>
           </el-tab-pane>
@@ -62,8 +82,13 @@
                 <video ref="videoRef" autoplay playsinline class="face-video"></video>
                 <canvas ref="canvasRef" class="face-canvas"></canvas>
               </div>
-              <el-button type="primary" class="face-login-button" :loading="isProcessing" :disabled="!isModelLoaded"
-                @click="handleFaceLogin">
+              <el-button
+                type="primary"
+                class="face-login-button"
+                :loading="isProcessing"
+                :disabled="!isModelLoaded"
+                @click="handleFaceLogin"
+              >
                 {{ isModelLoaded ? '开始识别' : '加载中...' }}
               </el-button>
             </div>
@@ -76,7 +101,11 @@
         <el-tabs v-model="registerActiveTab" class="register-tabs">
           <el-tab-pane label="手机号注册" name="phone">
             <el-form-item prop="telephone">
-              <el-input v-model="registerForm.telephone" placeholder="请输入手机号" class="custom-input">
+              <el-input
+                v-model="registerForm.telephone"
+                placeholder="请输入手机号"
+                class="custom-input"
+              >
                 <template #prefix>
                   <i class="el-icon-phone"></i>
                 </template>
@@ -93,17 +122,31 @@
             </el-form-item>
           </el-tab-pane>
         </el-tabs>
-        <el-form class="register-form" ref="registerFormRef" :model="registerForm" :rules="registerrules">
+        <el-form
+          class="register-form"
+          ref="registerFormRef"
+          :model="registerForm"
+          :rules="registerrules"
+        >
           <el-form-item prop="username">
-            <el-input v-model="registerForm.username" placeholder="请输入用户名" class="custom-input">
+            <el-input
+              v-model="registerForm.username"
+              placeholder="请输入用户名"
+              class="custom-input"
+            >
               <template #prefix>
                 <i class="el-icon-user"></i>
               </template>
             </el-input>
           </el-form-item>
           <el-form-item prop="password">
-            <el-input v-model="registerForm.password" type="password" placeholder="请输入密码" show-password
-              class="custom-input">
+            <el-input
+              v-model="registerForm.password"
+              type="password"
+              placeholder="请输入密码"
+              show-password
+              class="custom-input"
+            >
               <template #prefix>
                 <i class="el-icon-lock"></i>
               </template>
@@ -117,9 +160,17 @@
             </el-input>
           </el-form-item>
           <el-form-item prop="captcha" class="captcha-container custom-input">
-            <el-input v-model="registerForm.captcha_value" placeholder="请输入验证码" style="width: auto;" />
-            <img :src="captchaUrl" alt="验证码" @click="refreshCaptcha"
-              style="cursor: pointer;width: 80px; margin-left: 10px;">
+            <el-input
+              v-model="registerForm.captcha_value"
+              placeholder="请输入验证码"
+              style="width: auto"
+            />
+            <img
+              :src="captchaUrl"
+              alt="验证码"
+              @click="refreshCaptcha"
+              style="cursor: pointer; width: 80px; margin-left: 10px"
+            />
           </el-form-item>
           <el-form-item>
             <el-button class="login-button" type="primary" id="register" @click="handleRegister">
@@ -148,12 +199,12 @@ import axios from 'axios'
 import * as faceapi from 'face-api.js'
 
 interface AxiosResponse<T = any> {
-  data: T;
-  status: number;
-  statusText: string;
-  headers: Record<string, string>;
-  config: any;
-  request: any;
+  data: T
+  status: number
+  statusText: string
+  headers: Record<string, string>
+  config: any
+  request: any
 }
 
 // 登录响应类型
@@ -174,7 +225,7 @@ const isProcessing = ref(false)
 
 //登录表单
 const loginForm = reactive({
-  username: "账号1",
+  username: '账号1',
   password: 'root',
   captcha_key: '',
   captcha_value: ''
@@ -204,11 +255,13 @@ const registerrules = {
   ],
   email: [
     { required: true, message: '请输入邮箱', trigger: 'blur' },
-    { pattern: /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/, message: '邮箱格式不正确', trigger: 'blur' }
+    {
+      pattern: /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/,
+      message: '邮箱格式不正确',
+      trigger: 'blur'
+    }
   ],
-  captcha_value: [
-    { required: true, message: '请输入验证码', trigger: 'blur' }
-  ],
+  captcha_value: [{ required: true, message: '请输入验证码', trigger: 'blur' }]
 }
 
 const captchaKey = ref('')
@@ -216,7 +269,7 @@ const captchaUrl = ref('')
 
 const getCaptchaData = async () => {
   try {
-    const prepareResponse = await getCaptchaKey() as AxiosResponse<ApiResponse<string>>;
+    const prepareResponse = (await getCaptchaKey()) as AxiosResponse<ApiResponse<string>>
     if (prepareResponse.data.code === 200) {
       captchaKey.value = prepareResponse.data.data
       const captchaResponse = await getCaptcha(captchaKey.value)
@@ -228,7 +281,6 @@ const getCaptchaData = async () => {
       loginForm.captcha_key = captchaKey.value
       registerForm.captcha_key = captchaKey.value
     }
-
   } catch (error) {
     ElMessage.error('获取验证码失败，请刷新重试')
   }
@@ -260,19 +312,20 @@ const handleLogin = async (formEl: any) => {
     if (valid) {
       loading.value = true
       try {
-        const response = await login({
+        const response = (await login({
           username: loginForm.username,
           password: loginForm.password,
           captcha_key: captchaKey.value,
           captcha_value: loginForm.captcha_value
-        }) as any as LoginResponse
+        })) as any as LoginResponse
         if (response.data.code === 200 && response.data.data) {
           ElMessage.success('登录成功')
           router.push('/dashboard')
           localStorage.setItem('token', response.data.data)
         }
       } catch (error: any) {
-        const errorMessage = error.response?.data?.message || error.message || '登录失败，请检查用户名和密码'
+        const errorMessage =
+          error.response?.data?.message || error.message || '登录失败，请检查用户名和密码'
         ElMessage.error(errorMessage)
         refreshCaptcha()
       } finally {
@@ -287,39 +340,40 @@ const handleRegister = async () => {
 
   await registerFormRef.value.validate(async (valid: boolean) => {
     if (valid) {
-      const registerUrl = registerActiveTab.value === 'phone'
-        ? 'http://8.130.75.193:8081/auth/telephoneRegister'
-        : 'http://8.130.75.193:8081/auth/emailRegister';
+      const registerUrl =
+        registerActiveTab.value === 'phone'
+          ? 'http://8.130.75.193:8081/auth/telephoneRegister'
+          : 'http://8.130.75.193:8081/auth/emailRegister'
 
-      axios.post(registerUrl, registerForm)
+      axios
+        .post(registerUrl, registerForm)
         .then(() => {
-          ElMessage.success('注册成功');
+          ElMessage.success('注册成功')
           gotoLogin()
           refreshCaptcha()
-          registerForm.username = '';
-          registerForm.password = '';
-          registerForm.name = '';
-          registerForm.telephone = '';
-          registerForm.email = '';
-          registerForm.captcha_value = '';
-
+          registerForm.username = ''
+          registerForm.password = ''
+          registerForm.name = ''
+          registerForm.telephone = ''
+          registerForm.email = ''
+          registerForm.captcha_value = ''
         })
-        .catch((error) => {
+        .catch(error => {
           if (error.response && error.response.status === 500) {
-            const errorMessage = error.response.data.message;
+            const errorMessage = error.response.data.message
             if (errorMessage) {
               if (errorMessage.includes('手机号参数错误')) {
-                ElMessage.error('请输入11位的手机号码');
+                ElMessage.error('请输入11位的手机号码')
               } else if (errorMessage.includes('请输入包含英语和数字，在6-18位之间')) {
-                ElMessage.error('密码需包含数字和字母长度，在 6 到 18 位之间哈');
+                ElMessage.error('密码需包含数字和字母长度，在 6 到 18 位之间哈')
               } else if (errorMessage.includes('账号已经存在')) {
-                ElMessage.error('此用户名已被占用，重新取一个吧');
+                ElMessage.error('此用户名已被占用，重新取一个吧')
               } else if (errorMessage.includes('邮箱参数错误')) {
-                ElMessage.error('请输入正确的邮箱地址');
+                ElMessage.error('请输入正确的邮箱地址')
               }
             }
           }
-        });
+        })
     }
   })
 }
@@ -345,7 +399,7 @@ const stopCamera = () => {
   }
 }
 
-watch(activeTab, (newVal) => {
+watch(activeTab, newVal => {
   if (newVal === 'face') {
     startCamera()
   } else {
@@ -354,8 +408,7 @@ watch(activeTab, (newVal) => {
 })
 
 onUnmounted(() => {
-  stopCamera(),
-    getCaptchaData()
+  stopCamera(), getCaptchaData()
 })
 
 // 在组件挂载后延迟加载模型
@@ -363,7 +416,6 @@ onMounted(() => {
   // 给页面一些时间完成初始化
   setTimeout(loadFaceModels, 1500)
   getCaptchaData()
-
 })
 
 // 人脸识别相关
@@ -378,7 +430,9 @@ const loadFaceModels = async () => {
 
     // 预先检查模型文件是否可访问
     try {
-      const manifestResponse = await fetch(`${MODEL_URL}/tiny_face_detector_model-weights_manifest.json`)
+      const manifestResponse = await fetch(
+        `${MODEL_URL}/tiny_face_detector_model-weights_manifest.json`
+      )
       if (!manifestResponse.ok) {
         throw new Error('无法访问模型文件，请检查文件路径是否正确')
       }
@@ -428,8 +482,7 @@ const detectHeadPose = (landmarks: any) => {
 
   // 眼睛之间的距离
   const eyeDistance = Math.sqrt(
-    Math.pow(leftEye[0].x - rightEye[3].x, 2) +
-    Math.pow(leftEye[0].y - rightEye[3].y, 2)
+    Math.pow(leftEye[0].x - rightEye[3].x, 2) + Math.pow(leftEye[0].y - rightEye[3].y, 2)
   )
 
   // 鼻子相对于脸部中心的偏移
@@ -455,7 +508,8 @@ const detectHeadPose = (landmarks: any) => {
 const extractFaceFeatures = async () => {
   try {
     if (!videoRef.value) return null
-    const descriptor = await faceapi.detectSingleFace(videoRef.value)
+    const descriptor = await faceapi
+      .detectSingleFace(videoRef.value)
       .withFaceLandmarks()
       .withFaceDescriptor()
     return descriptor ? new Float32Array(descriptor.descriptor) : null
@@ -483,13 +537,15 @@ const handleFaceLogin = async () => {
     canvas.height = videoRef.value.videoHeight
 
     // 检测人脸
-    const detection = await faceapi.detectSingleFace(
-      videoRef.value,
-      new faceapi.TinyFaceDetectorOptions({
-        inputSize: 512,
-        scoreThreshold: 0.5
-      })
-    ).withFaceLandmarks()
+    const detection = await faceapi
+      .detectSingleFace(
+        videoRef.value,
+        new faceapi.TinyFaceDetectorOptions({
+          inputSize: 512,
+          scoreThreshold: 0.5
+        })
+      )
+      .withFaceLandmarks()
 
     if (!detection) {
       ElMessage.warning('未检测到人脸，请正对摄像头')
@@ -506,12 +562,7 @@ const handleFaceLogin = async () => {
     const box = detection.detection.box
     const padding = 20
     ctx.beginPath()
-    ctx.rect(
-      box.x - padding,
-      box.y - padding,
-      box.width + (padding * 2),
-      box.height + (padding * 2)
-    )
+    ctx.rect(box.x - padding, box.y - padding, box.width + padding * 2, box.height + padding * 2)
     ctx.stroke()
 
     // 添加半透明遮罩
@@ -548,7 +599,6 @@ const handleFaceLogin = async () => {
     setTimeout(() => {
       router.push('/dashboard')
     }, 1000)
-
   } catch (error) {
     console.error('人脸识别失败:', error)
     ElMessage.error('人脸识别过程出错，请重试')
@@ -566,11 +616,7 @@ const handleFaceLogin = async () => {
   justify-content: center;
   position: relative;
   overflow: hidden;
-  background: linear-gradient(151.5deg,
-      #f5f7fa 0%,
-      #f5f7fa 50%,
-      #e4e7eb 50%,
-      #e4e7eb 100%);
+  background: linear-gradient(151.5deg, #f5f7fa 0%, #f5f7fa 50%, #e4e7eb 50%, #e4e7eb 100%);
 }
 
 .login-content {

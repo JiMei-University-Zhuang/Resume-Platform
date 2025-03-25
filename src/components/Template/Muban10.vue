@@ -78,7 +78,9 @@
       </div>
       <div class="section-content">
         <div class="skills-container">
-          <span v-for="(skill, index) in resumeForm.skills" :key="index" class="skill-tag">{{ skill }}</span>
+          <span v-for="(skill, index) in resumeForm.skills" :key="index" class="skill-tag">{{
+            skill
+          }}</span>
         </div>
       </div>
     </section>
@@ -184,7 +186,7 @@ const handleFileUpload = (event: Event) => {
   if (input.files && input.files.length > 0) {
     const file = input.files[0]
     const reader = new FileReader()
-    reader.onload = (e) => {
+    reader.onload = e => {
       const result = e.target?.result as string
       // 更新 resumeForm 的 photoUrl 属性以显示新上传的图片
       props.resumeForm.photoUrl = result
@@ -196,7 +198,7 @@ const handleFileUpload = (event: Event) => {
 
 <style scoped>
 .resume-container {
-  font-family: "Arial", sans-serif;
+  font-family: 'Arial', sans-serif;
   background-color: #f9fafa;
   max-width: 820px;
   margin: 20px auto;
@@ -387,11 +389,11 @@ li {
     margin: 0;
     padding: 20px;
   }
-  
+
   .header-right img {
     border: 1px solid #2e817f;
   }
-  
+
   .section {
     box-shadow: none;
     page-break-inside: avoid;

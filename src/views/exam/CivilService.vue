@@ -3,17 +3,33 @@
     <div class="card-header">
       <h1 class="welcome-title">欢迎来到考公中心</h1>
       <div class="countdown-container">
-        <h2 class="countdown-title" style="color: #c0392b;text-shadow: 1px 1px 2px rgba(192, 57, 43, 0.1);background: linear-gradient(135deg, #c0392b 0%, #e74c3c 100%);
-  -webkit-background-clip: text;
-  background-clip: text;">国考倒计时</h2>
-        <p class="days-count"
-          style=" height: 40px;display: flex; justify-content: center;align-items: end; font-size: 26px;font-weight: bold;">
+        <h2
+          class="countdown-title"
+          style="
+            color: #c0392b;
+            text-shadow: 1px 1px 2px rgba(192, 57, 43, 0.1);
+            background: linear-gradient(135deg, #c0392b 0%, #e74c3c 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+          "
+        >
+          国考倒计时
+        </h2>
+        <p
+          class="days-count"
+          style="
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: end;
+            font-size: 26px;
+            font-weight: bold;
+          "
+        >
           {{ days }}
-          <span class="days-unit" style="font-size: 18px;font-weight: 400;">天</span>
+          <span class="days-unit" style="font-size: 18px; font-weight: 400">天</span>
         </p>
-        <p style=" color: gray;padding-top: 10px;">2025年11月30日 星期日
-        </p>
-
+        <p style="color: gray; padding-top: 10px">2025年11月30日 星期日</p>
       </div>
     </div>
 
@@ -28,12 +44,17 @@
             style="color: gray;font-weight: 600;font-size: 17px;">" 练习设置 "</span>，把考点收入囊中吧！
         </div>
         <div class="exercise-image">
-          <img src="@/assets/images/exam_imgs/exercises.jpg" alt="专项练习"></img>
+          <img src="@/assets/images/exam_imgs/exercises.jpg" alt="专项练习" />
         </div>
 
         <el-button type="primary" @click="showDialog">练习设置</el-button>
-        <el-dialog v-model="dialogVisible" title="定制你的公考练习，行测 or 申论，题量任选，速来开练！" width="600px"
-          style="padding: 50px; margin: 0 auto; top: 50%; transform: translateY(-50%)" append-to-body>
+        <el-dialog
+          v-model="dialogVisible"
+          title="定制你的公考练习，行测 or 申论，题量任选，速来开练！"
+          width="600px"
+          style="padding: 50px; margin: 0 auto; top: 50%; transform: translateY(-50%)"
+          append-to-body
+        >
           <div class="setting-item">
             <span>题目类型：</span>
             <el-radio-group v-model="selectedSubject">
@@ -82,8 +103,18 @@
           <div class="exam-settings">
             <div class="setting-item">
               <span>试卷名称：</span>
-              <el-select v-model="selectedExam" placeholder="请选择试卷" filterable style="width: 100%">
-                <el-option v-for="exam in examList" :key="exam.value" :label="exam.label" :value="exam.value" />
+              <el-select
+                v-model="selectedExam"
+                placeholder="请选择试卷"
+                filterable
+                style="width: 100%"
+              >
+                <el-option
+                  v-for="exam in examList"
+                  :key="exam.value"
+                  :label="exam.label"
+                  :value="exam.value"
+                />
               </el-select>
             </div>
           </div>
@@ -100,25 +131,23 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
-import { useRouter } from 'vue-router';
-import { getCSExam } from '@/api/exam';
+import { ref, onMounted, computed } from 'vue'
+import { useRouter } from 'vue-router'
+// import { getCSExam } from '@/api/exam'
 
-const router = useRouter();
-const dialogVisible = ref(false);
-const selectedSubject = ref('行测');
-const selectedCount = ref('10');
-const targetDate = new Date('2025-11-30T00:00:00').getTime();
-const timeDifference = ref(targetDate - new Date().getTime());
+const router = useRouter()
+const dialogVisible = ref(false)
+const selectedSubject = ref('行测')
+const selectedCount = ref('10')
+const targetDate = new Date('2025-11-30T00:00:00').getTime()
+const timeDifference = ref(targetDate - new Date().getTime())
 const examDialogVisible = ref(false)
 const selectedExam = ref('')
-const loadingExam = ref(false)
-
+// const loadingExam = ref(false)
 
 const showDialog = () => {
-  dialogVisible.value = true;
-};
-
+  dialogVisible.value = true
+}
 
 // 预设试卷列表
 const examList = [
@@ -162,33 +191,29 @@ const showExamDialog = () => {
 //   }
 // }
 
-
-
-const days = computed(() => Math.floor(timeDifference.value / (1000 * 60 * 60 * 24)));
-let timerId: any = null;
+const days = computed(() => Math.floor(timeDifference.value / (1000 * 60 * 60 * 24)))
+let timerId: any = null
 const startCountdown = () => {
   timerId = setInterval(() => {
-    timeDifference.value = targetDate - new Date().getTime();
+    timeDifference.value = targetDate - new Date().getTime()
     if (timeDifference.value < 0) {
-      clearInterval(timerId);
-      timeDifference.value = 0; // 确保时间不会变成负数
+      clearInterval(timerId)
+      timeDifference.value = 0 // 确保时间不会变成负数
     }
-  }, 1000);
-};
-
+  }, 1000)
+}
 
 const startExam = () => {
   const requestData = {
     subject: selectedSubject.value,
     count: parseInt(selectedCount.value, 10)
-  };
-  router.push({ name: 'ExamPage', query: requestData });
-};
+  }
+  router.push({ name: 'ExamPage', query: requestData })
+}
 
 onMounted(() => {
-  startCountdown();
-});
-
+  startCountdown()
+})
 </script>
 
 <style scoped>
@@ -228,13 +253,13 @@ onMounted(() => {
 
 /* 装饰线 */
 .welcome-title::after {
-  content: "";
+  content: '';
   position: absolute;
   bottom: 0;
   left: 50%;
   width: 120px;
   height: 3px;
-  background: linear-gradient(90deg, transparent, #5EC89C 50%, transparent);
+  background: linear-gradient(90deg, transparent, #5ec89c 50%, transparent);
   transform: translateX(-50%);
 }
 
@@ -282,10 +307,9 @@ onMounted(() => {
   text-align: center;
 }
 
-.exercise-image>img {
+.exercise-image > img {
   width: 80%;
   padding: 20px;
-
 }
 
 .Train-realexam {
@@ -300,7 +324,7 @@ onMounted(() => {
   position: absolute;
   right: 2.75rem;
   bottom: 1.5rem;
-  background: linear-gradient(60deg, #5EC89C, #67C23A);
+  background: linear-gradient(60deg, #5ec89c, #67c23a);
   border: none;
   border-radius: 8px;
   padding: 12px 28px;
@@ -309,7 +333,7 @@ onMounted(() => {
 
 .el-button--primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px #67C23A;
+  box-shadow: 0 5px 15px #67c23a;
 }
 
 .date-info {
@@ -336,7 +360,6 @@ onMounted(() => {
   }
 }
 
-
 .days-count {
   position: relative;
   display: inline-block;
@@ -345,7 +368,7 @@ onMounted(() => {
 
 /* 添加数字装饰线 */
 .days-count::after {
-  content: "";
+  content: '';
   position: absolute;
   bottom: -5px;
   left: 50%;
@@ -356,12 +379,11 @@ onMounted(() => {
   opacity: 0.5;
 }
 
-
 .exam-button {
   position: absolute;
   right: 2rem;
   bottom: 1.5rem;
-  background: linear-gradient(135deg, #5EC89C, #67C23A);
+  background: linear-gradient(135deg, #5ec89c, #67c23a);
   border: none;
   border-radius: 8px;
   padding: 12px 28px;
@@ -384,7 +406,7 @@ onMounted(() => {
   align-items: center;
   gap: 16px;
 
-  >span {
+  > span {
     width: 80px;
     text-align: right;
     font-size: 14px;
