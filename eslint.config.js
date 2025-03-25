@@ -34,7 +34,9 @@ export default [
         window: true,
         navigator: true,
         fetch: true,
-        URL: true
+        URL: true,
+        setInterval: true,
+        clearInterval: true
       },
       parser: tsparser,
       ecmaVersion: 'latest',
@@ -59,7 +61,11 @@ export default [
         console: true,
         document: true,
         window: true,
-        navigator: true
+        navigator: true,
+        fetch: true,
+        URL: true,
+        setInterval: true,
+        clearInterval: true
       },
       parser: vueParser,
       ecmaVersion: 'latest',

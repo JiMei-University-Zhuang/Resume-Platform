@@ -29,7 +29,7 @@
             style="color: gray;font-weight: 600;font-size: 17px;">" 练习设置 "</span>，把考点收入囊中吧！
         </div>
         <div class="exercise-image">
-          <img src="@/assets/images/exam_imgs/exercises.jpg" alt="专项练习"></img>
+          <img src="@/assets/images/exam_imgs/exercises.jpg" alt="专项练习">
         </div>
 
         <el-button type="primary" @click="showDialog">练习设置</el-button>
