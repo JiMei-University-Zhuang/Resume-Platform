@@ -33,17 +33,19 @@
         <template #header>
           <div class="question-header">
             <span>问题 {{ currentQuestionIndex + 1 }}/{{ currentQuestions.length }}</span>
-            <el-progress :percentage="(currentQuestionIndex + 1) / currentQuestions.length * 100" />
+            <el-progress
+              :percentage="((currentQuestionIndex + 1) / currentQuestions.length) * 100"
+            />
           </div>
         </template>
-        
+
         <div class="question-content">
           <h3>{{ currentQuestion?.question }}</h3>
           <div class="options" v-if="currentQuestion">
             <el-radio-group v-model="currentAnswer" @change="handleAnswer" class="radio-group">
-              <el-radio 
-                v-for="option in currentQuestion.options" 
-                :key="option.value" 
+              <el-radio
+                v-for="option in currentQuestion.options"
+                :key="option.value"
                 :label="option.value"
                 class="radio-item"
               >
@@ -88,7 +90,7 @@
             <el-button type="primary" @click="exportReport">导出报告</el-button>
           </div>
         </template>
-        
+
         <el-collapse v-model="activeCollapse">
           <el-collapse-item title="MBTI 性格类型" name="1">
             <div class="mbti-result">
@@ -249,11 +251,14 @@ const report = computed(() => personalityStore.report)
 const formatProgress = (value: number) => `${value}%`
 
 // 监听报告生成
-watch(() => personalityStore.report, (newReport) => {
-  if (newReport) {
-    activeCollapse.value = ['1', '2', '3', '4']
+watch(
+  () => personalityStore.report,
+  newReport => {
+    if (newReport) {
+      activeCollapse.value = ['1', '2', '3', '4']
+    }
   }
-})
+)
 </script>
 
 <style scoped lang="less">
@@ -288,16 +293,16 @@ watch(() => personalityStore.report, (newReport) => {
 
   .question-content {
     padding: 20px;
-    
+
     h3 {
       margin-bottom: 24px;
       font-size: 18px;
       line-height: 1.6;
     }
-    
+
     .options {
       margin-top: 20px;
-      
+
       .radio-group {
         display: flex;
         flex-direction: column;
@@ -340,7 +345,8 @@ watch(() => personalityStore.report, (newReport) => {
   }
 
   .analysis-report {
-    .trait-bars, .dimension {
+    .trait-bars,
+    .dimension {
       margin: 15px 0;
     }
 

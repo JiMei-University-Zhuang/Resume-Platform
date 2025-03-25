@@ -16,7 +16,7 @@ export const uploadIdPhoto = (
   const formData = new FormData()
   formData.append('file', file)
   formData.append('colorHEX', backgroundColor)
-  
+
   // 添加其他选项参数
   if (options) {
     Object.keys(options).forEach(key => {
@@ -25,7 +25,7 @@ export const uploadIdPhoto = (
       }
     })
   }
-  
+
   return request({
     url: '/ai/photo',
     method: 'post',
@@ -34,4 +34,4 @@ export const uploadIdPhoto = (
       'Content-Type': 'multipart/form-data'
     }
   })
-} 
+}

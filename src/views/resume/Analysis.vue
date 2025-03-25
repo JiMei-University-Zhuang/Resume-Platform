@@ -14,13 +14,9 @@
               accept=".pdf,.doc,.docx"
             >
               <el-icon class="el-icon--upload"><upload-filled /></el-icon>
-              <div class="el-upload__text">
-                将文件拖到此处，或<em>点击上传</em>
-              </div>
+              <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
               <template #tip>
-                <div class="el-upload__tip">
-                  支持 PDF、Word 格式文件，建议文件大小不超过 10MB
-                </div>
+                <div class="el-upload__tip">支持 PDF、Word 格式文件，建议文件大小不超过 10MB</div>
               </template>
             </el-upload>
             <el-button type="primary" size="large" @click="startAnalysis" :loading="analyzing">
@@ -39,14 +35,16 @@
           <template #header>
             <div class="card-header">
               <span>简历评分</span>
-              <el-tag :type="getScoreType(analysisResult.score)">{{ analysisResult.score }}分</el-tag>
+              <el-tag :type="getScoreType(analysisResult.score)"
+                >{{ analysisResult.score }}分</el-tag
+              >
             </div>
           </template>
           <div class="score-details">
             <div class="score-item" v-for="(score, key) in analysisResult.scoreDetails" :key="key">
               <span class="score-label">{{ score.label }}</span>
-              <el-progress 
-                :percentage="score.value" 
+              <el-progress
+                :percentage="score.value"
                 :color="getProgressColor(score.value)"
               ></el-progress>
             </div>
@@ -75,12 +73,7 @@
             >
               <h4>{{ suggestion.title }}</h4>
               <p>{{ suggestion.content }}</p>
-              <el-button 
-                size="small"
-                type="primary"
-                text
-                @click="applySuggestion(suggestion)"
-              >
+              <el-button size="small" type="primary" text @click="applySuggestion(suggestion)">
                 应用建议
               </el-button>
             </el-timeline-item>
@@ -100,18 +93,22 @@
             </div>
           </template>
           <div class="industry-match">
-            <div v-for="(match, index) in analysisResult.industryMatch" :key="index" class="match-item">
+            <div
+              v-for="(match, index) in analysisResult.industryMatch"
+              :key="index"
+              class="match-item"
+            >
               <div class="match-info">
                 <span class="industry-name">{{ match.industry }}</span>
                 <span class="match-score">{{ match.score }}%</span>
               </div>
-              <el-progress 
-                :percentage="match.score" 
+              <el-progress
+                :percentage="match.score"
                 :color="getProgressColor(match.score)"
               ></el-progress>
               <div class="match-keywords">
-                <el-tag 
-                  v-for="keyword in match.keywords" 
+                <el-tag
+                  v-for="keyword in match.keywords"
                   :key="keyword"
                   size="small"
                   class="keyword-tag"
@@ -126,11 +123,7 @@
     </el-row>
 
     <!-- AI 建议对话框 -->
-    <el-dialog
-      v-model="aiDialogVisible"
-      title="AI 优化建议"
-      width="50%"
-    >
+    <el-dialog v-model="aiDialogVisible" title="AI 优化建议" width="50%">
       <div class="ai-suggestions">
         <div class="original-content">
           <h4>原内容</h4>
@@ -144,9 +137,7 @@
       <template #footer>
         <span class="dialog-footer">
           <el-button @click="aiDialogVisible = false">取消</el-button>
-          <el-button type="primary" @click="confirmApplySuggestion">
-            应用建议
-          </el-button>
+          <el-button type="primary" @click="confirmApplySuggestion"> 应用建议 </el-button>
         </span>
       </template>
     </el-dialog>
@@ -198,7 +189,8 @@ const startAnalysis = async () => {
           title: '教育背景补充',
           content: '可以添加相关的专业课程和学术成果',
           original: '计算机科学与技术专业本科',
-          suggested: '计算机科学与技术专业本科，主修数据结构、算法分析、机器学习等课程，发表学术论文2篇'
+          suggested:
+            '计算机科学与技术专业本科，主修数据结构、算法分析、机器学习等课程，发表学术论文2篇'
         }
       ],
       industryMatch: [
@@ -240,9 +232,12 @@ const getProgressColor = (value: number) => {
 
 const getSuggestionColor = (priority: string) => {
   switch (priority) {
-    case 'high': return '#F56C6C'
-    case 'medium': return '#E6A23C'
-    default: return '#909399'
+    case 'high':
+      return '#F56C6C'
+    case 'medium':
+      return '#E6A23C'
+    default:
+      return '#909399'
   }
 }
 
@@ -360,12 +355,12 @@ defineExpose({
   .original-content,
   .suggested-content {
     margin-bottom: 20px;
-    
+
     h4 {
       margin-bottom: 10px;
       color: #333;
     }
-    
+
     p {
       color: #666;
       line-height: 1.6;

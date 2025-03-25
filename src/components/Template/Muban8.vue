@@ -14,30 +14,14 @@
     <section class="section">
       <h2 class="section-title">基本信息</h2>
       <div class="section-content basic-info">
-        <div class="info-item">
-          <span>姓名:</span> {{ resumeForm.name }}
-        </div>
-        <div class="info-item">
-          <span>性别:</span> {{ resumeForm.gender }}
-        </div>
-        <div class="info-item">
-          <span>出生年月:</span> {{ formatDate(resumeForm.birthday) }}
-        </div>
-        <div class="info-item">
-          <span>籍贯:</span> {{ resumeForm.origin }}
-        </div>
-        <div class="info-item">
-          <span>政治面貌:</span> {{ resumeForm.politicalStatus }}
-        </div>
-        <div class="info-item">
-          <span>求职意向:</span> {{ resumeForm.jobTitle }}
-        </div>
-        <div class="info-item">
-          <span>电子邮箱:</span> {{ resumeForm.email }}
-        </div>
-        <div class="info-item">
-          <span>联系方式:</span> {{ resumeForm.contact }}
-        </div>
+        <div class="info-item"><span>姓名:</span> {{ resumeForm.name }}</div>
+        <div class="info-item"><span>性别:</span> {{ resumeForm.gender }}</div>
+        <div class="info-item"><span>出生年月:</span> {{ formatDate(resumeForm.birthday) }}</div>
+        <div class="info-item"><span>籍贯:</span> {{ resumeForm.origin }}</div>
+        <div class="info-item"><span>政治面貌:</span> {{ resumeForm.politicalStatus }}</div>
+        <div class="info-item"><span>求职意向:</span> {{ resumeForm.jobTitle }}</div>
+        <div class="info-item"><span>电子邮箱:</span> {{ resumeForm.email }}</div>
+        <div class="info-item"><span>联系方式:</span> {{ resumeForm.contact }}</div>
         <div class="photo" @click="uploadPhoto">
           <img v-if="resumeForm.photoUrl" :src="resumeForm.photoUrl" alt="个人头像" />
           <div v-else class="upload-placeholder">
@@ -159,7 +143,7 @@ const handleFileUpload = (event: Event) => {
   const input = event.target as HTMLInputElement
   if (input.files && input.files[0]) {
     const reader = new FileReader()
-    reader.onload = (e) => {
+    reader.onload = e => {
       const result = e.target?.result as string
       props.resumeForm.photoUrl = result
     }
@@ -170,7 +154,7 @@ const handleFileUpload = (event: Event) => {
 
 <style scoped>
 .resume {
-  font-family: "Arial", sans-serif;
+  font-family: 'Arial', sans-serif;
   color: #333;
   background-color: #fff;
   margin: 20px auto;

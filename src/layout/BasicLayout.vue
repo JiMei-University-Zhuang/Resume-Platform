@@ -1,7 +1,7 @@
 <template>
   <div class="layout">
     <LayoutSider />
-    <div class="main" :class="{ 'collapsed': collapsed }">
+    <div class="main" :class="{ collapsed: collapsed }">
       <LayoutHeader />
       <main class="content">
         <!-- 展示区 -->
@@ -18,7 +18,7 @@ import LayoutSider from './components/Sider.vue'
 import { storeToRefs } from 'pinia'
 
 const appStore = useAppStore()
-const { collapsed, } = storeToRefs(appStore)
+const { collapsed } = storeToRefs(appStore)
 </script>
 
 <style scoped>

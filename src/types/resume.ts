@@ -28,4 +28,4 @@ export interface AnalysisResult {
   }
   suggestions: Suggestion[]
   industryMatch: IndustryMatch[]
-} 
+}

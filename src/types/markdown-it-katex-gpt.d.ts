@@ -1,6 +1,6 @@
 declare module 'markdown-it-katex-gpt' {
   import type MarkdownIt from 'markdown-it'
-  
+
   interface KatexOptions {
     delimiters?: Array<{
       left: string

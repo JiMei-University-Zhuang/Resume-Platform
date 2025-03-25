@@ -9,6 +9,7 @@
     "preview": "vite preview",
     "prepare": "husky install",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
+    "lint:fix": "eslint --fix src/**/*.{js,jsx,ts,tsx,vue}",
     "format": "prettier --write src/",
     "lint-staged": "lint-staged"
   },

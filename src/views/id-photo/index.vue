@@ -21,13 +21,9 @@
             :on-change="handlePhotoChange"
           >
             <el-icon class="el-icon--upload"><upload-filled /></el-icon>
-            <div class="el-upload__text">
-              拖拽图片到此处或 <em>点击上传</em>
-            </div>
+            <div class="el-upload__text">拖拽图片到此处或 <em>点击上传</em></div>
             <template #tip>
-              <div class="el-upload__tip">
-                支持 jpg/png 文件，建议使用正面免冠照片
-              </div>
+              <div class="el-upload__tip">支持 jpg/png 文件，建议使用正面免冠照片</div>
             </template>
           </el-upload>
 
@@ -124,9 +120,7 @@
         <div class="right-panel">
           <div class="preview-area">
             <img v-if="previewUrl" :src="previewUrl" class="preview-image" />
-            <div v-else class="empty-preview">
-              预览区域
-            </div>
+            <div v-else class="empty-preview">预览区域</div>
           </div>
 
           <div class="action-buttons" v-if="previewUrl">
@@ -137,18 +131,8 @@
 
           <div v-if="photoSettings.showDressingSuggestions" class="suggestions">
             <h3>着装建议</h3>
-            <el-alert
-              title="建议穿着正装，选择素色上衣"
-              type="info"
-              :closable="false"
-              show-icon
-            />
-            <el-alert
-              title="避免穿着花纹复杂的衣物"
-              type="info"
-              :closable="false"
-              show-icon
-            />
+            <el-alert title="建议穿着正装，选择素色上衣" type="info" :closable="false" show-icon />
+            <el-alert title="避免穿着花纹复杂的衣物" type="info" :closable="false" show-icon />
             <el-alert
               title="保持整洁的发型，避免头发遮挡面部"
               type="info"
@@ -212,21 +196,21 @@ const handlePhotoChange = (file: UploadFile) => {
     ElMessage.error('文件上传失败')
     return
   }
-  
+
   const isImage = file.raw.type.startsWith('image/')
   if (!isImage) {
     ElMessage.error('只能上传图片文件!')
     return
   }
-  
+
   const isLt5M = file.size! / 1024 / 1024 < 5
   if (!isLt5M) {
     ElMessage.error('图片大小不能超过5MB!')
     return
   }
-  
+
   selectedFile.value = file.raw
-  
+
   const reader = new FileReader()
   reader.onload = e => {
     previewUrl.value = e.target?.result as string
@@ -239,9 +223,9 @@ const generatePhoto = async () => {
     ElMessage.warning('请先上传照片')
     return
   }
-  
+
   generating.value = true
-  
+
   try {
     const options = {
       size: photoSettings.size,
@@ -251,18 +235,14 @@ const generatePhoto = async () => {
       aiBeautify: photoSettings.aiBeautify ? '1' : '0',
       aiOptions: photoSettings.aiBeautifyOptions.join(',')
     }
-    
-    const response = await uploadIdPhoto(
-      selectedFile.value,
-      photoSettings.backgroundColor,
-      options
-    )
-    
+
+    const response = await uploadIdPhoto(selectedFile.value, photoSettings.backgroundColor, options)
+
     if (response.data && response.data.image) {
-      const base64Data = response.data.image.startsWith('data:image') 
-        ? response.data.image 
+      const base64Data = response.data.image.startsWith('data:image')
+        ? response.data.image
         : `data:image/png;base64,${response.data.image}`
-      
+
       previewUrl.value = base64Data
       ElMessage.success('证件照生成成功')
     } else {
@@ -281,7 +261,7 @@ const downloadPhoto = () => {
     ElMessage.warning('请先生成证件照')
     return
   }
-  
+
   try {
     // 使用a标签下载Base64图片
     const link = document.createElement('a')
@@ -290,7 +270,7 @@ const downloadPhoto = () => {
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
-    
+
     ElMessage.success('下载成功')
   } catch (error) {
     console.error('下载失败:', error)
@@ -421,7 +401,7 @@ const downloadPhoto = () => {
   .content {
     flex-direction: column;
   }
-  
+
   .preview-area {
     height: 250px;
   }
