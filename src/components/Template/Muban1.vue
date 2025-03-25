@@ -78,7 +78,9 @@
       <ul class="timeline-list">
         <li v-for="(edu, index) in resumeForm.education" :key="index">
           <div class="timeline-item">
-            <div class="timeline-date">{{ formatDate(edu.time[0]) }} - {{ formatDate(edu.time[1]) }}</div>
+            <div class="timeline-date">
+              {{ formatDate(edu.time[0]) }} - {{ formatDate(edu.time[1]) }}
+            </div>
             <div class="timeline-content">
               <div class="timeline-title">{{ edu.school }} - {{ edu.major }}</div>
               <div class="timeline-degree">{{ edu.degree }}</div>
@@ -94,7 +96,9 @@
       <ul class="timeline-list">
         <li v-for="(job, index) in resumeForm.experience" :key="index">
           <div class="timeline-item">
-            <div class="timeline-date">{{ formatDate(job.time[0]) }} - {{ formatDate(job.time[1]) }}</div>
+            <div class="timeline-date">
+              {{ formatDate(job.time[0]) }} - {{ formatDate(job.time[1]) }}
+            </div>
             <div class="timeline-content">
               <div class="timeline-title">{{ job.company }} - {{ job.position }}</div>
               <div class="timeline-description">
@@ -148,7 +152,6 @@
     </div>
   </div>
 </template>
-
 
 <script setup lang="ts">
 import { defineProps, PropType, ref } from 'vue'
@@ -208,7 +211,7 @@ const handleFileUpload = (event: Event) => {
   if (input.files && input.files.length > 0) {
     const file = input.files[0]
     const reader = new FileReader()
-    reader.onload = (e) => {
+    reader.onload = e => {
       const result = e.target?.result as string
       // 更新 resumeForm 的 photoUrl 属性以显示新上传的图片
       props.resumeForm.photoUrl = result

@@ -280,7 +280,8 @@ canvas {
 }
 
 @keyframes dots {
-  0%, 20% {
+  0%,
+  20% {
     opacity: 0;
   }
   50% {
@@ -293,10 +294,16 @@ canvas {
 
 @keyframes glow {
   from {
-    text-shadow: 0 0 5px #00ffff, 0 0 10px #00ffff, 0 0 15px #00ffff;
+    text-shadow:
+      0 0 5px #00ffff,
+      0 0 10px #00ffff,
+      0 0 15px #00ffff;
   }
   to {
-    text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff, 0 0 30px #00ffff;
+    text-shadow:
+      0 0 10px #00ffff,
+      0 0 20px #00ffff,
+      0 0 30px #00ffff;
   }
 }
 

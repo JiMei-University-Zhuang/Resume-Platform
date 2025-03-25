@@ -1,9 +1,16 @@
 <template>
-  <aside class="sidebar" :class="{ 'collapsed': collapsed }">
+  <aside class="sidebar" :class="{ collapsed: collapsed }">
     <el-scrollbar>
-      <el-menu router class="menu" :collapse="collapsed" :default-active="route.path"
+      <el-menu
+        router
+        class="menu"
+        :collapse="collapsed"
+        :default-active="route.path"
         :background-color="menuBackgroundColor"
-        :text-color="menuTextColor" active-text-color="#409EFF" unique-opened>
+        :text-color="menuTextColor"
+        active-text-color="#409EFF"
+        unique-opened
+      >
         <el-menu-item index="/dashboard">
           <el-icon>
             <HomeFilled />
@@ -98,7 +105,6 @@
           <el-menu-item index="/exam/postgraduate">
             <span>考研备考</span>
           </el-menu-item>
-          
         </el-sub-menu>
       </el-menu>
     </el-scrollbar>
@@ -127,8 +133,8 @@ const appStore = useAppStore()
 const { collapsed, isDark } = storeToRefs(appStore)
 
 // 计算属性
-const menuBackgroundColor = computed(() => isDark.value ? '#141414' : '#304156')
-const menuTextColor = computed(() => isDark.value ? '#fff' : '#bfcbd9')
+const menuBackgroundColor = computed(() => (isDark.value ? '#141414' : '#304156'))
+const menuTextColor = computed(() => (isDark.value ? '#fff' : '#bfcbd9'))
 
 defineExpose({
   route,
@@ -179,7 +185,7 @@ html.dark :deep(.el-sub-menu__title) {
 }
 
 html.dark :deep(.el-menu-item.is-active) {
-  color: #409EFF !important;
+  color: #409eff !important;
 }
 
 :deep(.el-menu-item) {
@@ -188,7 +194,7 @@ html.dark :deep(.el-menu-item.is-active) {
 
   &.is-active {
     background-color: #263445 !important;
-    color: #409EFF !important;
+    color: #409eff !important;
   }
 
   &:hover {
@@ -206,7 +212,7 @@ html.dark :deep(.el-menu-item.is-active) {
   }
 
   &.is-active {
-    color: #409EFF !important;
+    color: #409eff !important;
   }
 }
 
@@ -244,7 +250,7 @@ html.dark :deep(.el-sub-menu__title) {
 }
 
 html.dark :deep(.el-menu-item.is-active) {
-  color: #409EFF !important;
+  color: #409eff !important;
 }
 :deep(.el-menu--collapse .el-sub-menu__title .el-icon) {
   margin: 0;
@@ -256,6 +262,6 @@ html.dark :deep(.el-sub-menu__title) {
 }
 
 html.dark :deep(.el-menu-item.is-active) {
-  color: #409EFF !important;
+  color: #409eff !important;
 }
 </style>

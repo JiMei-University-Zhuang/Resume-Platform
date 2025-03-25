@@ -12,8 +12,7 @@
   </div>
 </template>
 
-<script setup lang="ts" name="Error401">
-</script>
+<script setup lang="ts" name="Error401"></script>
 
 <style scoped>
 .error-container {
@@ -66,7 +65,9 @@
   border-radius: 25px;
   text-decoration: none;
   font-weight: bold;
-  transition: background-color 0.3s ease, transform 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    transform 0.3s ease;
 }
 
 .home-button:hover,
@@ -87,7 +88,11 @@
 }
 
 @keyframes bounce {
-  0%, 20%, 50%, 80%, 100% {
+  0%,
+  20%,
+  50%,
+  80%,
+  100% {
     transform: translateY(0);
   }
   40% {

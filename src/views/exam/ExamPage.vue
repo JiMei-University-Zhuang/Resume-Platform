@@ -58,65 +58,65 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import { useRoute } from 'vue-router';
-import { getCSPractice } from '@/api/exam';
+import { ref, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
+import { getCSPractice } from '@/api/exam'
 
 // 定义题目接口
 interface Question {
-  questionId: string;
-  questionContent: string;
-  optionA: string;
-  optionB: string;
-  optionC: string;
-  optionD: string;
+  questionId: string
+  questionContent: string
+  optionA: string
+  optionB: string
+  optionC: string
+  optionD: string
   expoundingOptionInfos?: Array<{
-    itemId: string;
-    itemContent: string;
-  }>;
+    itemId: string
+    itemContent: string
+  }>
 }
 
-const route = useRoute();
-const subject = ref(route.query.subject as string);
-const count = ref(parseInt(route.query.count as string, 10));
-const questions = ref<Question[]>([]);
-const answers = ref<string[]>([]);
-const essayAnswers = ref<string[]>([]);
+const route = useRoute()
+const subject = ref(route.query.subject as string)
+const count = ref(parseInt(route.query.count as string, 10))
+const questions = ref<Question[]>([])
+const answers = ref<string[]>([])
+const essayAnswers = ref<string[]>([])
 
 const fetchQuestions = async () => {
   try {
     const requestData = {
       subject: subject.value,
       count: count.value
-    };
-    const response = await getCSPractice(requestData);
+    }
+    const response = await getCSPractice(requestData)
     // 安全地处理响应数据
-    const responseData = response?.data ? (response.data as unknown as Question[]) : [];
-    questions.value = responseData;
-    
+    const responseData = response?.data ? (response.data as unknown as Question[]) : []
+    questions.value = responseData
+
     if (subject.value === '行测') {
-      answers.value = new Array(responseData.length).fill('');
+      answers.value = new Array(responseData.length).fill('')
     } else if (responseData.length > 0 && responseData[0]?.expoundingOptionInfos) {
-      essayAnswers.value = new Array(responseData[0].expoundingOptionInfos.length).fill('');
+      essayAnswers.value = new Array(responseData[0].expoundingOptionInfos.length).fill('')
     }
   } catch (error) {
-    console.error('获取题目失败：', error);
+    console.error('获取题目失败：', error)
   }
-};
+}
 
 const submitExam = () => {
   // 行测提交逻辑
-  console.log('提交的行测答案：', answers.value);
-};
+  console.log('提交的行测答案：', answers.value)
+}
 
 const submitEssayExam = () => {
   // 申论提交逻辑
-  console.log('提交的申论答案：', essayAnswers.value);
-};
+  console.log('提交的申论答案：', essayAnswers.value)
+}
 
 onMounted(() => {
-  fetchQuestions();
-});
+  fetchQuestions()
+})
 </script>
 
 <style scoped>
@@ -172,7 +172,7 @@ onMounted(() => {
 }
 
 .question-number {
-  color: #409EFF;
+  color: #409eff;
   font-weight: 500;
   font-size: 16px;
 }
@@ -228,7 +228,7 @@ onMounted(() => {
 }
 
 .el-radio.is-checked .option-text {
-  color: #409EFF;
+  color: #409eff;
 }
 
 .el-radio__input {
@@ -258,7 +258,7 @@ onMounted(() => {
 
 .essay-question p:first-child {
   font-weight: bold;
-  color: #409EFF;
+  color: #409eff;
   margin-bottom: 20px;
 }
 

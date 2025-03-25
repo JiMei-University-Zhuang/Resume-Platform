@@ -1,5 +1,5 @@
 <template>
-  <el-card style="padding:0  150px; display: flex; justify-content: space-between;">
+  <el-card style="padding: 0 150px; display: flex; justify-content: space-between">
     <div class="exam-page">
       <div class="question-area">
         <div class="question-header">
@@ -27,22 +27,30 @@
             </el-button>
           </div>
         </div>
-
       </div>
 
       <div class="answer-card-section">
         <div class="timer">
           <span>{{ `用时${timerText}` }}</span>
-          <br>
+          <br />
           <el-button icon="el-icon-video-pause" @click="pauseTimer">暂停</el-button>
-
         </div>
         <div class="answer-card">
           <span>答题卡 {{ currentQuestionIndex + 1 }} / {{ totalQuestionCount }}</span>
           <div class="answer-options">
-            <el-button v-for="(num, index) in totalQuestionCount" :key="index" style="border-radius: 50%;margin: 10px;"
-              :type="answerStatus[index] === 'answered' ? 'primary' : answerStatus[index] === 'marked' ? 'warning' : ''"
-              @click="jumpToQuestion(index)">
+            <el-button
+              v-for="(num, index) in totalQuestionCount"
+              :key="index"
+              style="border-radius: 50%; margin: 10px"
+              :type="
+                answerStatus[index] === 'answered'
+                  ? 'primary'
+                  : answerStatus[index] === 'marked'
+                    ? 'warning'
+                    : ''
+              "
+              @click="jumpToQuestion(index)"
+            >
               {{ num }}
             </el-button>
           </div>
@@ -61,89 +69,88 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue';
-import { ElButton, ElRadioGroup, ElRadio } from 'element-plus';
+import { ref, onMounted, watch } from 'vue'
+import { ElButton, ElRadioGroup, ElRadio } from 'element-plus'
 
 // 题目总数
-const totalQuestionCount = 9;
+const totalQuestionCount = 9
 // 当前题目索引
-const currentQuestionIndex = ref(1);
+const currentQuestionIndex = ref(1)
 // 已完成题目数量
-const completedCount = ref(1);
+const completedCount = ref(1)
 // 选中的答案
-const selectedAnswer = ref('');
+const selectedAnswer = ref('')
 // 答案状态，记录题目是否已答、标记等
-const answerStatus = ref(new Array(totalQuestionCount).fill('unanswered'));
+const answerStatus = ref(new Array(totalQuestionCount).fill('unanswered'))
 // 定时器相关
-let timerId: any;
-const startTime = ref(new Date().getTime());
-const timerText = ref('0:59');
-const isTimerRunning = ref(true);
+let timerId: any
+const startTime = ref(new Date().getTime())
+const timerText = ref('0:59')
+const isTimerRunning = ref(true)
 // 筛选类型
-const filterType = ref('');
+const filterType = ref('')
 
 // 模拟上一题
 const prevQuestion = () => {
   if (currentQuestionIndex.value > 0) {
-    currentQuestionIndex.value--;
+    currentQuestionIndex.value--
   }
-};
+}
 // 模拟下一题
 const nextQuestion = () => {
   if (currentQuestionIndex.value < totalQuestionCount - 1) {
     if (selectedAnswer.value) {
-      answerStatus.value[currentQuestionIndex.value] = 'answered';
-      completedCount.value++;
+      answerStatus.value[currentQuestionIndex.value] = 'answered'
+      completedCount.value++
     }
-    currentQuestionIndex.value++;
+    currentQuestionIndex.value++
   }
-};
+}
 
 // 模拟跳转到指定题目
 const jumpToQuestion = (index: number) => {
-  currentQuestionIndex.value = index;
-};
+  currentQuestionIndex.value = index
+}
 
 // 模拟标记题目
 const toggleMark = () => {
-  const status = answerStatus.value[currentQuestionIndex.value];
-  answerStatus.value[currentQuestionIndex.value] = status === 'marked' ? 'unanswered' : 'marked';
-};
+  const status = answerStatus.value[currentQuestionIndex.value]
+  answerStatus.value[currentQuestionIndex.value] = status === 'marked' ? 'unanswered' : 'marked'
+}
 
 // 模拟暂停定时器
 const pauseTimer = () => {
-  isTimerRunning.value = false;
-  clearInterval(timerId);
-};
-
+  isTimerRunning.value = false
+  clearInterval(timerId)
+}
 
 // 模拟交卷
 const submitExam = () => {
-  console.log('您已交卷');
-};
+  console.log('您已交卷')
+}
 
 // 计算剩余时间并更新timerText
 const updateTimer = () => {
   if (isTimerRunning.value) {
-    const now = new Date().getTime();
-    const elapsedTime = now - startTime.value;
-    const minutes = Math.floor(elapsedTime / (1000 * 60));
-    const seconds = Math.floor((elapsedTime % (1000 * 60)) / 1000);
-    timerText.value = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+    const now = new Date().getTime()
+    const elapsedTime = now - startTime.value
+    const minutes = Math.floor(elapsedTime / (1000 * 60))
+    const seconds = Math.floor((elapsedTime % (1000 * 60)) / 1000)
+    timerText.value = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`
   }
-};
+}
 
 onMounted(() => {
-  timerId = setInterval(updateTimer, 1000);
-});
+  timerId = setInterval(updateTimer, 1000)
+})
 
-watch(isTimerRunning, (newValue) => {
+watch(isTimerRunning, newValue => {
   if (newValue) {
-    timerId = setInterval(updateTimer, 1000);
+    timerId = setInterval(updateTimer, 1000)
   } else {
-    clearInterval(timerId);
+    clearInterval(timerId)
   }
-});
+})
 </script>
 
 <style scoped>
@@ -173,7 +180,6 @@ watch(isTimerRunning, (newValue) => {
   margin-top: 200px;
   display: flex;
   justify-content: right;
-
 }
 
 .action-buttons {

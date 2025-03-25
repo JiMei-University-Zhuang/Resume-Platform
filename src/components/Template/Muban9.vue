@@ -153,7 +153,7 @@ const handleFileUpload = (event: Event) => {
   const input = event.target as HTMLInputElement
   if (input.files && input.files[0]) {
     const reader = new FileReader()
-    reader.onload = (e) => {
+    reader.onload = e => {
       const result = e.target?.result as string
       props.resumeForm.photoUrl = result
     }

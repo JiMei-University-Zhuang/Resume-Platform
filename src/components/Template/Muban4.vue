@@ -15,7 +15,8 @@
           action="#"
           :auto-upload="false"
           :show-file-list="false"
-          :on-change="handlePhotoChange">
+          :on-change="handlePhotoChange"
+        >
           <img v-if="photoUrl" :src="photoUrl" class="photo" />
           <div v-else class="photo-placeholder">
             <el-icon><Plus /></el-icon>
@@ -93,16 +94,13 @@
       </div>
       <div class="section-content">
         <div class="skills-tags">
-          <el-tag
-            v-for="skill in resumeForm.skills"
-            :key="skill"
-            class="skill-tag"
-            effect="plain"
-          >
+          <el-tag v-for="skill in resumeForm.skills" :key="skill" class="skill-tag" effect="plain">
             {{ skill }}
           </el-tag>
         </div>
-        <p v-if="resumeForm.certifications" class="certifications">{{ resumeForm.certifications }}</p>
+        <p v-if="resumeForm.certifications" class="certifications">
+          {{ resumeForm.certifications }}
+        </p>
       </div>
     </section>
 
@@ -120,28 +118,28 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import { Plus } from '@element-plus/icons-vue';
+import { ref } from 'vue'
+import { Plus } from '@element-plus/icons-vue'
 
 const props = defineProps({
   resumeForm: {
     type: Object,
     required: true
   }
-});
+})
 
-const photoUrl = ref('');
+const photoUrl = ref('')
 
-const handlePhotoChange = (file) => {
-  photoUrl.value = URL.createObjectURL(file.raw);
-};
+const handlePhotoChange = file => {
+  photoUrl.value = URL.createObjectURL(file.raw)
+}
 
-const formatDateRange = (dateRange) => {
-  if (!dateRange || !Array.isArray(dateRange)) return '';
-  const startDate = new Date(dateRange[0]);
-  const endDate = new Date(dateRange[1]);
-  return `${startDate.getFullYear()}.${String(startDate.getMonth() + 1).padStart(2, '0')} - ${endDate.getFullYear()}.${String(endDate.getMonth() + 1).padStart(2, '0')}`;
-};
+const formatDateRange = dateRange => {
+  if (!dateRange || !Array.isArray(dateRange)) return ''
+  const startDate = new Date(dateRange[0])
+  const endDate = new Date(dateRange[1])
+  return `${startDate.getFullYear()}.${String(startDate.getMonth() + 1).padStart(2, '0')} - ${endDate.getFullYear()}.${String(endDate.getMonth() + 1).padStart(2, '0')}`
+}
 </script>
 
 <style scoped>

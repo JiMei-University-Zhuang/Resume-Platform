@@ -1,7 +1,7 @@
 <template>
   <div class="dashboard">
     <h1 class="dashboard-title">系统概览</h1>
-    
+
     <el-row :gutter="20">
       <el-col :span="8">
         <el-card class="dashboard-card" shadow="hover">
@@ -46,9 +46,7 @@
               </template>
             </el-statistic>
             <div class="trend-info">
-              <el-tag type="info" effect="plain">
-                运行正常
-              </el-tag>
+              <el-tag type="info" effect="plain"> 运行正常 </el-tag>
             </div>
           </div>
         </el-card>
@@ -65,7 +63,7 @@
             </div>
           </template>
           <div class="card-content">
-            <el-progress 
+            <el-progress
               type="dashboard"
               :percentage="80"
               :stroke-width="8"
@@ -74,9 +72,7 @@
               :color="progressColor"
             />
             <div class="trend-info">
-              <el-tag type="warning" effect="plain">
-                还有 3 个任务待处理
-              </el-tag>
+              <el-tag type="warning" effect="plain"> 还有 3 个任务待处理 </el-tag>
             </div>
           </div>
         </el-card>
@@ -109,7 +105,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { behaviorPredictor } from '@/utils/userBehaviorPredictor'
-import { 
+import {
   User,
   Monitor,
   List,
@@ -117,7 +113,7 @@ import {
   Close,
   InfoFilled,
   ArrowUp,
-  CircleCheck,
+  CircleCheck
 } from '@element-plus/icons-vue'
 
 const showSmartTips = ref(false)
@@ -135,7 +131,7 @@ const progressColor = [
 // 添加一些模拟的用户行为数据
 const initializeBehaviorData = () => {
   const actions = ['查看仪表盘', '查看用户列表', '系统设置', '查看日志']
-  
+
   // 记录一些模拟的用户行为
   for (let i = 0; i < 20; i++) {
     const randomAction = actions[Math.floor(Math.random() * actions.length)]
@@ -146,17 +142,14 @@ const initializeBehaviorData = () => {
 const updateSmartTips = async () => {
   const now = new Date()
   console.log('Updating smart tips...')
-  
-  const predictedAction = await behaviorPredictor.predictNextAction(
-    now.getHours(),
-    now.getDay()
-  )
-  
+
+  const predictedAction = await behaviorPredictor.predictNextAction(now.getHours(), now.getDay())
+
   console.log('Predicted action:', predictedAction)
-  
+
   showSmartTips.value = true
   smartTips.value = [
-    predictedAction 
+    predictedAction
       ? `根据您的使用习惯，现在可能需要${predictedAction}操作`
       : '欢迎使用智能助手！随着您的使用，我会逐渐学习您的操作习惯。',
     ...behaviorPredictor.getPatternAnalysis()
@@ -167,9 +160,12 @@ onMounted(async () => {
   console.log('Component mounted')
   initializeBehaviorData()
   await updateSmartTips()
-  setInterval(async () => {
-    await updateSmartTips()
-  }, 5 * 60 * 1000)
+  setInterval(
+    async () => {
+      await updateSmartTips()
+    },
+    5 * 60 * 1000
+  )
 })
 </script>
 
@@ -233,7 +229,7 @@ onMounted(async () => {
 }
 
 .status-icon {
-  color: #67C23A;
+  color: #67c23a;
   margin-right: 8px;
 }
 
@@ -266,7 +262,7 @@ onMounted(async () => {
 }
 
 .tip-item .el-icon {
-  color: #409EFF;
+  color: #409eff;
   flex-shrink: 0;
 }
 
