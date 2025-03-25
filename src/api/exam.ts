@@ -13,12 +13,11 @@ export interface ExamData {
     id: number
     content: string
     options: string[]
-    answer?: string     
+    answer?: string
   }[]
   duration: number
   mode: 'practice' | 'real' // 新增模式标识
 }
-
 
 //获取公务员考试练习
 export function getCSPractice(data: CSPractice) {

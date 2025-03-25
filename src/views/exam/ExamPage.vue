@@ -13,7 +13,11 @@
               <span class="question-score">分值{{ question.score }}</span>
             </div>
             <div class="question-content" v-html="formatText(question.questionContent)"></div>
-            <el-radio-group v-model="answers[index]" class="option-group" :disabled="showCorrectAnswers">
+            <el-radio-group
+              v-model="answers[index]"
+              class="option-group"
+              :disabled="showCorrectAnswers"
+            >
               <div class="options-container">
                 <div class="option-item">
                   <el-radio label="A" class="radio-option">
@@ -37,14 +41,24 @@
                 </div>
               </div>
             </el-radio-group>
-            <div v-if="showCorrectAnswers" :class="answerStatus[index]" class="correct-answer-container" >
+            <div
+              v-if="showCorrectAnswers"
+              :class="answerStatus[index]"
+              class="correct-answer-container"
+            >
               <div>
                 正确答案
                 <div class="correct-answer">{{ question.correctAnswer }}</div>
               </div>
-              <div  class="user-answer">
+              <div class="user-answer">
                 我的答案
-              <div :class="answers[index] === question.correctAnswer ? 'user-correct' : 'user-incorrect'">{{ answers[index] }}</div>
+                <div
+                  :class="
+                    answers[index] === question.correctAnswer ? 'user-correct' : 'user-incorrect'
+                  "
+                >
+                  {{ answers[index] }}
+                </div>
               </div>
             </div>
           </div>
@@ -59,7 +73,8 @@
           </div>
           <div v-for="(question, index) in questions[0]?.expoundingOptionInfos || []" :key="index">
             <p>题目编号：{{ questions[0]?.questionId }} - {{ question.itemId }}</p>
-            <p>题目内容：{{ question.itemContent }}
+            <p>
+              题目内容：{{ question.itemContent }}
               <span class="question-score">分值&nbsp;{{ question.itemScore }}</span>
             </p>
             <textarea v-model="essayAnswers[index]" rows="10" cols="80"></textarea>
@@ -75,38 +90,38 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted,computed } from 'vue';
-import { useRoute } from 'vue-router';
-import { getCSPractice } from '@/api/exam';
-import { ElMessage } from 'element-plus';
+import { ref, onMounted, computed } from 'vue'
+import { useRoute } from 'vue-router'
+import { getCSPractice } from '@/api/exam'
+import { ElMessage } from 'element-plus'
 
 // 定义题目接口
 interface Question {
-  questionId: string;
-  questionContent: string;
-  score: number;
-  isSensitive: number;
-  optionA: string;
-  optionB: string;
-  optionC: string;
-  optionD: string;
-  correctAnswer: string;
+  questionId: string
+  questionContent: string
+  score: number
+  isSensitive: number
+  optionA: string
+  optionB: string
+  optionC: string
+  optionD: string
+  correctAnswer: string
   expoundingOptionInfos?: Array<{
-    itemId: string;
-    itemContent: string;
-    correctAnswer: string;
-    itemScore: number;
-  }>;
+    itemId: string
+    itemContent: string
+    correctAnswer: string
+    itemScore: number
+  }>
 }
 
-const route = useRoute();
-const subject = ref(route.query.subject as string);
-const count = ref(parseInt(route.query.count as string, 10));
-const questions = ref<Question[]>([]);
-const answers = ref<string[]>([]);
-const essayAnswers = ref<string[]>([]);
-const totalScore = ref<number>(0);
-const showCorrectAnswers = ref<boolean>(false);
+const route = useRoute()
+const subject = ref(route.query.subject as string)
+const count = ref(parseInt(route.query.count as string, 10))
+const questions = ref<Question[]>([])
+const answers = ref<string[]>([])
+const essayAnswers = ref<string[]>([])
+const totalScore = ref<number>(0)
+const showCorrectAnswers = ref<boolean>(false)
 
 const fetchQuestions = async () => {
   try {
@@ -116,8 +131,8 @@ const fetchQuestions = async () => {
     }
     const response = await getCSPractice(requestData)
     // 安全地处理响应数据
-    const responseData = response?.data ? (response.data as unknown as Question[]) : [];
-    questions.value = responseData;
+    const responseData = response?.data ? (response.data as unknown as Question[]) : []
+    questions.value = responseData
 
     if (subject.value === '行测') {
       answers.value = new Array(responseData.length).fill('')
@@ -127,34 +142,33 @@ const fetchQuestions = async () => {
   } catch (error) {
     console.error('获取题目失败：', error)
   }
-};
+}
 const formatText = (text: string) => {
-  let processedText = text;
-  processedText = processedText.replace(/\\n/g, '\n');
-  processedText = processedText.replace(/\r\n/g, '<br>');
-  processedText = processedText.replace(/\n/g, '<br>');
-  return processedText;
-};
+  let processedText = text
+  processedText = processedText.replace(/\\n/g, '\n')
+  processedText = processedText.replace(/\r\n/g, '<br>')
+  processedText = processedText.replace(/\n/g, '<br>')
+  return processedText
+}
 const submitExam = () => {
-  let score = 0;
+  let score = 0
   questions.value.forEach((question, index) => {
     if (answers.value[index] === question.correctAnswer) {
-      score += question.score;
+      score += question.score
     }
-  });
-  totalScore.value = score;
+  })
+  totalScore.value = score
 
-  showCorrectAnswers.value = true;
+  showCorrectAnswers.value = true
 
-  ElMessage.success('提交成功！总分：' + totalScore.value);
-};
+  ElMessage.success('提交成功！总分：' + totalScore.value)
+}
 
 const answerStatus = computed(() => {
   return questions.value.map((question, index) => {
-    return answers.value[index] === question.correctAnswer ? 'correct' : 'incorrect';
-  });
-});
-
+    return answers.value[index] === question.correctAnswer ? 'correct' : 'incorrect'
+  })
+})
 
 const submitEssayExam = () => {
   // 申论提交逻辑
@@ -243,7 +257,7 @@ onMounted(() => {
   color: #303133;
 }
 /* 答案显示处理 */
-.correct-answer-container{
+.correct-answer-container {
   display: flex;
   gap: 20px;
   margin-top: 20px;
@@ -261,12 +275,12 @@ onMounted(() => {
 }
 
 .user-correct {
-  color: #67c23a; 
+  color: #67c23a;
   font-weight: bold;
 }
 
 .user-incorrect {
-  color: #f56c6c; 
+  color: #f56c6c;
   font-weight: bold;
 }
 
@@ -275,9 +289,8 @@ onMounted(() => {
   text-align: center;
   font-weight: bold;
 }
-.user-answer>div{
+.user-answer > div {
   text-align: center;
-
 }
 .option-group {
   width: 100%;
@@ -337,7 +350,7 @@ onMounted(() => {
   padding: 20px 0;
 }
 
-.essay-question>div {
+.essay-question > div {
   background-color: #fff;
   border: 1px solid #e4e7ed;
   border-radius: 8px;
