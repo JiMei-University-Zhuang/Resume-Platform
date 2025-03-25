@@ -13,6 +13,7 @@ export const uploadIdPhoto = (
   backgroundColor: string,
   options?: Record<string, any>
 ): Promise<AxiosResponse> => {
+   
   const formData = new FormData()
   formData.append('file', file)
   formData.append('colorHEX', backgroundColor)

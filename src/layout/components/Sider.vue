@@ -10,24 +10,6 @@
           </el-icon>
           <template #title>首页</template>
         </el-menu-item>
-
-
-
-        <el-menu-item index="/guide">
-          <el-icon>
-            <Position />
-          </el-icon>
-          <template #title>引导页</template>
-        </el-menu-item>
-
-        <el-menu-item index="/user">
-          <el-icon>
-            <User />
-          </el-icon>
-          <template #title>用户管理</template>
-        </el-menu-item>
-
-
         <el-sub-menu index="/error">
           <template #title>
             <el-icon>

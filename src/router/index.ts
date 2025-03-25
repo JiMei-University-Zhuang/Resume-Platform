@@ -31,13 +31,6 @@ const routes: RouteRecordRaw[] = [
         component: () => import('../views/dashboard/index.vue')
       },
       {
-        path: '/guide',
-        name: 'Guide',
-        component: () => import('@/views/guide/index.vue'),
-        meta: { title: '引导页' }
-      },
-
-      {
         path: '/error',
         name: 'Error',
         meta: { title: '错误页面' },
@@ -191,14 +184,14 @@ const router = createRouter({
   routes
 })
 
-// router.beforeEach((to, from, next) => {
-//   const isAuthenticated = localStorage.getItem('token')
+router.beforeEach((to, from, next) => {
+  const isAuthenticated = localStorage.getItem('token')
 
-//   if (to.path !== '/login' && !isAuthenticated) {
-//     next('/login')
-//   } else {
-//     next()
-//   }
-// })
+  if (to.path !== '/login' && !isAuthenticated) {
+    next('/login')
+  } else {
+    next()
+  }
+})
 
 export default router
