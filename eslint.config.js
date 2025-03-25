@@ -28,6 +28,7 @@ export default [
       globals: {
         File: true,
         FormData: true,
+        FileReader: true,
         console: true,
         document: true,
         window: true,
@@ -54,6 +55,7 @@ export default [
       globals: {
         File: true,
         FormData: true,
+        FileReader: true,
         console: true,
         document: true,
         window: true,
