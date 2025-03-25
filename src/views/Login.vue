@@ -143,8 +143,21 @@ import { ref, reactive, onUnmounted, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { getCaptcha, getCaptchaKey, login } from '@/api/user'
+import { ApiResponse } from '@/api/types'
 import axios from 'axios'
 import * as faceapi from 'face-api.js'
+
+interface AxiosResponse<T = any> {
+  data: T;
+  status: number;
+  statusText: string;
+  headers: Record<string, string>;
+  config: any;
+  request: any;
+}
+
+// 登录响应类型
+type LoginResponse = AxiosResponse<ApiResponse<string>>
 
 const router = useRouter()
 const loginFormRef = ref()
@@ -203,8 +216,8 @@ const captchaUrl = ref('')
 
 const getCaptchaData = async () => {
   try {
-    const prepareResponse = await getCaptchaKey();
-    if (prepareResponse.data?.code === 200) {
+    const prepareResponse = await getCaptchaKey() as AxiosResponse<ApiResponse<string>>;
+    if (prepareResponse.data.code === 200) {
       captchaKey.value = prepareResponse.data.data
       const captchaResponse = await getCaptcha(captchaKey.value)
       if (captchaUrl.value) {
@@ -252,13 +265,11 @@ const handleLogin = async (formEl: any) => {
           password: loginForm.password,
           captcha_key: captchaKey.value,
           captcha_value: loginForm.captcha_value
-        })
-
+        }) as any as LoginResponse
         if (response.data.code === 200 && response.data.data) {
           ElMessage.success('登录成功')
           router.push('/dashboard')
-          localStorage.setItem('token', JSON.stringify(response.data.data))
-
+          localStorage.setItem('token', response.data.data)
         }
       } catch (error: any) {
         const errorMessage = error.response?.data?.message || error.message || '登录失败，请检查用户名和密码'
