@@ -15,10 +15,9 @@ const service = axios.create({
 service.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     const token = globalThis.localStorage.getItem('token')
-    const newToken = token?.slice(1, token.length - 1)
-    if (newToken) {
-      config.headers.Authorization = `Bearer ${newToken}`
-      config.headers.token = newToken
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`
+      config.headers.token = token
     }
     return config
   },
