@@ -170,7 +170,6 @@ const handleFileUpload = (event: Event) => {
   border: 1px solid #eaeaea;
   font-family: Arial, sans-serif;
   color: #333;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
   transform: scale(0.7);
   transform-origin: top left;
@@ -192,18 +191,22 @@ const handleFileUpload = (event: Event) => {
 
 .section {
   margin: 20px;
-  padding-bottom: 20px;
+  padding: 15px 0;
   border-bottom: 1px solid #eaeaea;
+  background: transparent;
 }
 
 .section:last-child {
   border-bottom: none;
+  padding-bottom: 0;
 }
 
 .section-header {
   display: flex;
   align-items: center;
-  margin-bottom: 10px;
+  margin-bottom: 15px;
+  padding: 0;
+  background: transparent;
 }
 
 .section-header .icon {
@@ -225,12 +228,18 @@ const handleFileUpload = (event: Event) => {
   display: flex;
   justify-content: space-between;
   padding: 10px 0;
-  border-left: 4px solid #e7e4f7;
-  padding-left: 15px;
+  margin: 0;
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.info p {
+  margin: 8px 0;
+  line-height: 1.5;
 }
 
 .info > div {
-  flex: 1;
   margin-right: 20px;
 }
 
@@ -238,12 +247,43 @@ const handleFileUpload = (event: Event) => {
   width: 120px;
   height: 160px;
   border: 2px dashed #7f66b2;
-  border-radius: 5px;
+  border-radius: 4px;
   cursor: pointer;
   display: flex;
   justify-content: center;
   align-items: center;
   overflow: hidden;
+  background-color: #fff;
+  margin: 10px;
+  position: relative;
+  box-sizing: border-box;
+  transition: border-color 0.3s;
+  padding: 5px;
+}
+
+.photo:hover {
+  border-color: #5a4580;
+}
+
+.photo .upload-placeholder {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  color: #7f66b2;
+  font-size: 13px;
+  width: 100%;
+  padding: 0 5px;
+  line-height: 1.4;
+}
+
+.photo .avatar {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  background-color: #fff;
 }
 
 .avatar {

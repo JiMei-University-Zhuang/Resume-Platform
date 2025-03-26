@@ -80,8 +80,12 @@
           <div class="timeline-item">
             <div class="timeline-date">{{ formatDate(edu.time[0]) }} - {{ formatDate(edu.time[1]) }}</div>
             <div class="timeline-content">
-              <div class="timeline-title">{{ edu.school }} - {{ edu.major }}</div>
-              <div class="timeline-degree">{{ edu.degree }}</div>
+              <div class="timeline-title">
+                <div class="school">{{ edu.school }}</div>
+                <div class="major">{{ edu.major }}</div>
+                <div class="degree">{{ edu.degree }}</div>
+              </div>
+             
             </div>
           </div>
         </li>
@@ -220,6 +224,9 @@ const handleFileUpload = (event: Event) => {
 
 <style scoped>
 .resume {
+  transform: scale(0.65);
+  transform-origin: top left;
+  width: 800px;
   display: block;
   font-family: Arial, sans-serif;
   line-height: 1.6;
@@ -228,7 +235,6 @@ const handleFileUpload = (event: Event) => {
   border: 1px solid #ddd;
   padding: 0;
   background-color: #fff;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .resume-header {
@@ -260,7 +266,7 @@ const handleFileUpload = (event: Event) => {
 }
 
 .personal-section {
-  background-color: #f5f5f5;
+  background-color: #fff;
 }
 
 .personal-info {
@@ -333,8 +339,28 @@ const handleFileUpload = (event: Event) => {
 .timeline-title {
   font-weight: bold;
   margin-bottom: 5px;
+  display: flex;
+  gap: 20px;
 }
 
+.timeline-title > span {
+  flex: 1;
+  text-align: left;
+}
+
+.timeline-title {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 20px;
+}
+
+.timeline-title > * {
+  flex-basis: 30%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 .timeline-degree {
   color: #666;
   font-style: italic;

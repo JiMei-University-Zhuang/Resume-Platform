@@ -198,12 +198,14 @@ const handleFileUpload = (event: Event) => {
 .resume-container {
   font-family: "Arial", sans-serif;
   background-color: #f9fafa;
-  max-width: 820px;
-  margin: 20px auto;
+  width: 800px;
+  margin: 0;
   padding: 30px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
   color: #333;
+  transform: scale(0.65);
+  transform-origin: top left;
 }
 
 .header {
