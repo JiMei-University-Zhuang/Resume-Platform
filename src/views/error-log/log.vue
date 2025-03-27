@@ -1,5 +1,5 @@
 <template>
-  <div>错误日志页面</div>
+    <div>错误日志页面</div>
 </template>
 <script setup lang="ts" name="Log"></script>
 

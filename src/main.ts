@@ -12,10 +12,10 @@ import zhCn from 'element-plus/dist/locale/zh-cn.mjs'
 const app = createApp(App)
 
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
-  app.component(key, component)
+    app.component(key, component)
 }
 app.use(ElementPlus, {
-  locale: zhCn
+    locale: zhCn
 })
 app.use(router)
 app.use(createPinia())

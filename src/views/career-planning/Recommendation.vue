@@ -1,14 +1,14 @@
 <template>
-  <div class="career-recommendation">
-    <el-card>
-      <template #header>
-        <div class="card-header">
-          <span>职业推荐</span>
-        </div>
-      </template>
-      <div>职业推荐内容</div>
-    </el-card>
-  </div>
+    <div class="career-recommendation">
+        <el-card>
+            <template #header>
+                <div class="card-header">
+                    <span>职业推荐</span>
+                </div>
+            </template>
+            <div>职业推荐内容</div>
+        </el-card>
+    </div>
 </template>
 
 <script setup lang="ts">
@@ -17,6 +17,6 @@
 
 <style scoped>
 .career-recommendation {
-  padding: 20px;
+    padding: 20px;
 }
 </style>
