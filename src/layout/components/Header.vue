@@ -134,6 +134,7 @@ const handleTabClick = (tab: any) => {
   height: 64px;
   background: var(--el-bg-color);
   padding: 1px 16px;
+  padding-left: 22px;
   display: flex;
   align-items: center;
   justify-content: space-between;
