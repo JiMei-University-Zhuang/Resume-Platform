@@ -519,7 +519,7 @@ onMounted(async () => {
 }
 
 .logo-text {
-  font-size: 2.0rem;
+  font-size: 2rem;
   font-weight: 800;
   background: linear-gradient(135deg, #5ec89c 0%, #409eff 100%);
   -webkit-background-clip: text;
