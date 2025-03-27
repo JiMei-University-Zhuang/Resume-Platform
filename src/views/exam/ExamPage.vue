@@ -10,41 +10,73 @@
           <div v-for="(question, index) in questions" :key="index" class="question-item">
             <div class="question-header">
               <span class="question-number">题目编号：{{ question.questionId }}</span>
+              <span class="question-score">分值{{ question.score }}</span>
             </div>
-            <div class="question-content">{{ question.questionContent }}</div>
-            <el-radio-group v-model="answers[index]" class="option-group">
+            <div class="question-content" v-html="formatText(question.questionContent)"></div>
+            <el-radio-group
+              v-model="answers[index]"
+              class="option-group"
+              :disabled="showCorrectAnswers"
+            >
               <div class="options-container">
                 <div class="option-item">
                   <el-radio label="A" class="radio-option">
-                    <span class="option-text">{{ question.optionA }}</span>
+                    <span class="option-text" v-html="formatText(question.optionA)"></span>
                   </el-radio>
                 </div>
                 <div class="option-item">
                   <el-radio label="B" class="radio-option">
-                    <span class="option-text">{{ question.optionB }}</span>
+                    <span class="option-text" v-html="formatText(question.optionB)"></span>
                   </el-radio>
                 </div>
                 <div class="option-item">
                   <el-radio label="C" class="radio-option">
-                    <span class="option-text">{{ question.optionC }}</span>
+                    <span class="option-text" v-html="formatText(question.optionC)"></span>
                   </el-radio>
                 </div>
                 <div class="option-item">
                   <el-radio label="D" class="radio-option">
-                    <span class="option-text">{{ question.optionD }}</span>
+                    <span class="option-text" v-html="formatText(question.optionD)"></span>
                   </el-radio>
                 </div>
               </div>
             </el-radio-group>
+            <div
+              v-if="showCorrectAnswers"
+              :class="answerStatus[index]"
+              class="correct-answer-container"
+            >
+              <div>
+                正确答案
+                <div class="correct-answer">{{ question.correctAnswer }}</div>
+              </div>
+              <div class="user-answer">
+                我的答案
+                <div
+                  :class="
+                    answers[index] === question.correctAnswer ? 'user-correct' : 'user-incorrect'
+                  "
+                >
+                  {{ answers[index] }}
+                </div>
+              </div>
+            </div>
           </div>
           <el-button type="primary" @click="submitExam">提交试卷</el-button>
         </div>
       </template>
       <template v-else>
         <div class="essay-question">
+          <div class="question-title">
+            <p>{{ questions[0]?.questionContent }}</p>
+            <span class="question-score">分值{{ questions[0]?.score }}</span>
+          </div>
           <div v-for="(question, index) in questions[0]?.expoundingOptionInfos || []" :key="index">
             <p>题目编号：{{ questions[0]?.questionId }} - {{ question.itemId }}</p>
-            <p>题目内容：{{ question.itemContent }}</p>
+            <p>
+              题目内容：{{ question.itemContent }}
+              <span class="question-score">分值&nbsp;{{ question.itemScore }}</span>
+            </p>
             <textarea v-model="essayAnswers[index]" rows="10" cols="80"></textarea>
           </div>
           <el-button type="primary" @click="submitEssayExam">提交申论答案</el-button>
@@ -58,21 +90,27 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { getCSPractice } from '@/api/exam'
+import { ElMessage } from 'element-plus'
 
 // 定义题目接口
 interface Question {
   questionId: string
   questionContent: string
+  score: number
+  isSensitive: number
   optionA: string
   optionB: string
   optionC: string
   optionD: string
+  correctAnswer: string
   expoundingOptionInfos?: Array<{
     itemId: string
     itemContent: string
+    correctAnswer: string
+    itemScore: number
   }>
 }
 
@@ -82,6 +120,8 @@ const count = ref(parseInt(route.query.count as string, 10))
 const questions = ref<Question[]>([])
 const answers = ref<string[]>([])
 const essayAnswers = ref<string[]>([])
+const totalScore = ref<number>(0)
+const showCorrectAnswers = ref<boolean>(false)
 
 const fetchQuestions = async () => {
   try {
@@ -103,11 +143,32 @@ const fetchQuestions = async () => {
     console.error('获取题目失败：', error)
   }
 }
-
-const submitExam = () => {
-  // 行测提交逻辑
-  console.log('提交的行测答案：', answers.value)
+const formatText = (text: string) => {
+  let processedText = text
+  processedText = processedText.replace(/\\n/g, '\n')
+  processedText = processedText.replace(/\r\n/g, '<br>')
+  processedText = processedText.replace(/\n/g, '<br>')
+  return processedText
 }
+const submitExam = () => {
+  let score = 0
+  questions.value.forEach((question, index) => {
+    if (answers.value[index] === question.correctAnswer) {
+      score += question.score
+    }
+  })
+  totalScore.value = score
+
+  showCorrectAnswers.value = true
+
+  ElMessage.success('提交成功！总分：' + totalScore.value)
+}
+
+const answerStatus = computed(() => {
+  return questions.value.map((question, index) => {
+    return answers.value[index] === question.correctAnswer ? 'correct' : 'incorrect'
+  })
+})
 
 const submitEssayExam = () => {
   // 申论提交逻辑
@@ -177,13 +238,60 @@ onMounted(() => {
   font-size: 16px;
 }
 
+.question-score {
+  border: 1px rgb(240, 132, 132) solid;
+  background-color: rgb(233, 166, 177);
+  color: white;
+  border-radius: 10px;
+  padding: 3px 6px;
+  width: 60px;
+  text-align: center;
+  margin-left: 20px;
+  font-size: 14px;
+}
+
 .question-content {
   font-size: 16px;
   line-height: 1.6;
   margin-bottom: 25px;
   color: #303133;
 }
+/* 答案显示处理 */
+.correct-answer-container {
+  display: flex;
+  gap: 20px;
+  margin-top: 20px;
+  padding: 5px 20px;
+  line-height: 25px;
+  background-color: #c2e8cb;
+  border-radius: 15px;
+}
+.correct-answer-container.correct {
+  background-color: #c2e8cb; /* 绿色背景 */
+}
 
+.correct-answer-container.incorrect {
+  background-color: #fde2e2; /* 红色背景 */
+}
+
+.user-correct {
+  color: #67c23a;
+  font-weight: bold;
+}
+
+.user-incorrect {
+  color: #f56c6c;
+  font-weight: bold;
+}
+
+.correct-answer {
+  color: #67c23a;
+  text-align: center;
+  font-weight: bold;
+}
+.user-answer > div {
+  text-align: center;
+}
 .option-group {
   width: 100%;
   margin-top: 10px;
