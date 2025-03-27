@@ -23,6 +23,7 @@
     "@vueuse/core": "^12.7.0",
     "animate.css": "^4.1.1",
     "axios": "^1.7.9",
+    "canvas-confetti": "^1.9.3",
     "chart.js": "^4.4.1",
     "countup.js": "^2.8.0",
     "dayjs": "^1.11.13",
@@ -47,6 +48,7 @@
   "devDependencies": {
     "@tsparticles/engine": "^3.8.1",
     "@tsparticles/slim": "^3.8.1",
+    "@types/canvas-confetti": "^1.9.0",
     "@types/markdown-it": "^14.1.2",
     "@types/prismjs": "^1.26.5",
     "@typescript-eslint/eslint-plugin": "^8.24.0",

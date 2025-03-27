@@ -199,12 +199,12 @@ import axios from 'axios'
 import * as faceapi from 'face-api.js'
 
 interface AxiosResponse<T = any> {
-  data: T
-  status: number
-  statusText: string
-  headers: Record<string, string>
-  config: any
-  request: any
+    data: T
+    status: number
+    statusText: string
+    headers: Record<string, string>
+    config: any
+    request: any
 }
 
 // 登录响应类型
@@ -225,27 +225,30 @@ const isProcessing = ref(false)
 
 //登录表单
 const loginForm = reactive({
-  username: '账号1',
-  password: 'root',
-  captcha_key: '',
-  captcha_value: ''
+    username: '账号1',
+    password: 'root',
+    captcha_key: '',
+    captcha_value: ''
 })
 const loginrules = {
-  username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
-  password: [{ required: true, message: '请输入密码', trigger: 'blur' }],
-  captcha_value: [{ required: true, message: '请输入验证码', trigger: 'blur' }]
+    username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
+    password: [{ required: true, message: '请输入密码', trigger: 'blur' }],
+    captcha_value: [
+        { required: true, message: '请输入验证码', trigger: 'blur' }
+    ]
 }
 
 const registerForm = reactive({
-  username: '',
-  password: '',
-  name: '',
-  telephone: '',
-  email: '',
-  captcha_key: '',
-  captcha_value: ''
+    username: '',
+    password: '',
+    name: '',
+    telephone: '',
+    email: '',
+    captcha_key: '',
+    captcha_value: ''
 })
 const registerrules = {
+<<<<<<< HEAD
   username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
   password: [{ required: true, message: '请输入密码', trigger: 'blur' }],
   name: [{ required: true, message: '请输入昵称', trigger: 'blur' }],
@@ -266,12 +269,37 @@ const registerrules = {
     }
   ],
   captcha_value: [{ required: true, message: '请输入验证码', trigger: 'blur' }]
+=======
+    username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
+    password: [{ required: true, message: '请输入密码', trigger: 'blur' }],
+    name: [{ required: true, message: '请输入昵称', trigger: 'blur' }],
+    telephone: [
+        { required: true, message: '请输入手机号', trigger: 'blur' },
+        {
+            pattern: /^1[3-9]\d{9}$/,
+            message: '手机号格式不正确',
+            trigger: 'blur'
+        }
+    ],
+    email: [
+        { required: true, message: '请输入邮箱', trigger: 'blur' },
+        {
+            pattern: /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/,
+            message: '邮箱格式不正确',
+            trigger: 'blur'
+        }
+    ],
+    captcha_value: [
+        { required: true, message: '请输入验证码', trigger: 'blur' }
+    ]
+>>>>>>> d4ab17887d8985d12ba3afd904811d0f6bfc5f95
 }
 
 const captchaKey = ref('')
 const captchaUrl = ref('')
 
 const getCaptchaData = async () => {
+<<<<<<< HEAD
   try {
     const prepareResponse = (await getCaptchaKey()) as AxiosResponse<ApiResponse<string>>
     if (prepareResponse.data.code === 200) {
@@ -286,331 +314,374 @@ const getCaptchaData = async () => {
       captchaUrl.value = window.URL.createObjectURL(blob)
       loginForm.captcha_key = captchaKey.value
       registerForm.captcha_key = captchaKey.value
+=======
+    try {
+        const prepareResponse = (await getCaptchaKey()) as AxiosResponse<
+            ApiResponse<string>
+        >
+        if (prepareResponse.data.code === 200) {
+            captchaKey.value = prepareResponse.data.data
+            const captchaResponse = await getCaptcha(captchaKey.value)
+            if (captchaUrl.value) {
+                window.URL.revokeObjectURL(captchaUrl.value)
+            }
+            const blob = new Blob([captchaResponse.data], {
+                type: 'image/jpeg'
+            })
+            captchaUrl.value = window.URL.createObjectURL(blob)
+            loginForm.captcha_key = captchaKey.value
+            registerForm.captcha_key = captchaKey.value
+        }
+    } catch (error) {
+        ElMessage.error('获取验证码失败，请刷新重试')
+>>>>>>> d4ab17887d8985d12ba3afd904811d0f6bfc5f95
     }
-  } catch (error) {
-    ElMessage.error('获取验证码失败，请刷新重试')
-  }
 }
 
 const refreshCaptcha = () => {
-  getCaptchaData()
+    getCaptchaData()
 }
 
 const isLogin = ref(true)
 const gotoRegister = () => {
-  isLogin.value = false
+    isLogin.value = false
 }
 const gotoLogin = () => {
-  isLogin.value = true
+    isLogin.value = true
 }
 
-watch(isLogin, newVal => {
-  if (!newVal) {
-    registerForm.username = ''
-    registerForm.password = ''
-  }
+watch(isLogin, (newVal) => {
+    if (!newVal) {
+        registerForm.username = ''
+        registerForm.password = ''
+    }
 })
 
 const handleLogin = async (formEl: any) => {
-  if (!formEl) return
+    if (!formEl) return
 
-  await formEl.validate(async (valid: boolean) => {
-    if (valid) {
-      loading.value = true
-      try {
-        const response = (await login({
-          username: loginForm.username,
-          password: loginForm.password,
-          captcha_key: captchaKey.value,
-          captcha_value: loginForm.captcha_value
-        })) as any as LoginResponse
-        if (response.data.code === 200 && response.data.data) {
-          ElMessage.success('登录成功')
-          router.push('/dashboard')
-          localStorage.setItem('token', response.data.data)
+    await formEl.validate(async (valid: boolean) => {
+        if (valid) {
+            loading.value = true
+            try {
+                const response = (await login({
+                    username: loginForm.username,
+                    password: loginForm.password,
+                    captcha_key: captchaKey.value,
+                    captcha_value: loginForm.captcha_value
+                })) as any as LoginResponse
+                if (response.data.code === 200 && response.data.data) {
+                    ElMessage.success('登录成功')
+                    router.push('/dashboard')
+                    localStorage.setItem('token', response.data.data)
+                }
+            } catch (error: any) {
+                const errorMessage =
+                    error.response?.data?.message ||
+                    error.message ||
+                    '登录失败，请检查用户名和密码'
+                ElMessage.error(errorMessage)
+                refreshCaptcha()
+            } finally {
+                loading.value = false
+            }
         }
-      } catch (error: any) {
-        const errorMessage =
-          error.response?.data?.message || error.message || '登录失败，请检查用户名和密码'
-        ElMessage.error(errorMessage)
-        refreshCaptcha()
-      } finally {
-        loading.value = false
-      }
-    }
-  })
+    })
 }
 
 const handleRegister = async () => {
-  if (!registerFormRef.value) return
+    if (!registerFormRef.value) return
 
-  await registerFormRef.value.validate(async (valid: boolean) => {
-    if (valid) {
-      const registerUrl =
-        registerActiveTab.value === 'phone'
-          ? 'http://8.130.75.193:8081/auth/telephoneRegister'
-          : 'http://8.130.75.193:8081/auth/emailRegister'
+    await registerFormRef.value.validate(async (valid: boolean) => {
+        if (valid) {
+            const registerUrl =
+                registerActiveTab.value === 'phone'
+                    ? 'http://8.130.75.193:8081/auth/telephoneRegister'
+                    : 'http://8.130.75.193:8081/auth/emailRegister'
 
-      axios
-        .post(registerUrl, registerForm)
-        .then(() => {
-          ElMessage.success('注册成功')
-          gotoLogin()
-          refreshCaptcha()
-          registerForm.username = ''
-          registerForm.password = ''
-          registerForm.name = ''
-          registerForm.telephone = ''
-          registerForm.email = ''
-          registerForm.captcha_value = ''
-        })
-        .catch(error => {
-          if (error.response && error.response.status === 500) {
-            const errorMessage = error.response.data.message
-            if (errorMessage) {
-              if (errorMessage.includes('手机号参数错误')) {
-                ElMessage.error('请输入11位的手机号码')
-              } else if (errorMessage.includes('请输入包含英语和数字，在6-18位之间')) {
-                ElMessage.error('密码需包含数字和字母长度，在 6 到 18 位之间哈')
-              } else if (errorMessage.includes('账号已经存在')) {
-                ElMessage.error('此用户名已被占用，重新取一个吧')
-              } else if (errorMessage.includes('邮箱参数错误')) {
-                ElMessage.error('请输入正确的邮箱地址')
-              }
-            }
-          }
-        })
-    }
-  })
+            axios
+                .post(registerUrl, registerForm)
+                .then(() => {
+                    ElMessage.success('注册成功')
+                    gotoLogin()
+                    refreshCaptcha()
+                    registerForm.username = ''
+                    registerForm.password = ''
+                    registerForm.name = ''
+                    registerForm.telephone = ''
+                    registerForm.email = ''
+                    registerForm.captcha_value = ''
+                })
+                .catch((error) => {
+                    if (error.response && error.response.status === 500) {
+                        const errorMessage = error.response.data.message
+                        if (errorMessage) {
+                            if (errorMessage.includes('手机号参数错误')) {
+                                ElMessage.error('请输入11位的手机号码')
+                            } else if (
+                                errorMessage.includes(
+                                    '请输入包含英语和数字，在6-18位之间'
+                                )
+                            ) {
+                                ElMessage.error(
+                                    '密码需包含数字和字母长度，在 6 到 18 位之间哈'
+                                )
+                            } else if (errorMessage.includes('账号已经存在')) {
+                                ElMessage.error(
+                                    '此用户名已被占用，重新取一个吧'
+                                )
+                            } else if (errorMessage.includes('邮箱参数错误')) {
+                                ElMessage.error('请输入正确的邮箱地址')
+                            }
+                        }
+                    }
+                })
+        }
+    })
 }
 
 const startCamera = async () => {
-  try {
-    stream.value = await navigator.mediaDevices.getUserMedia({
-      video: true,
-      audio: false
-    })
-    if (videoRef.value) {
-      videoRef.value.srcObject = stream.value
+    try {
+        stream.value = await navigator.mediaDevices.getUserMedia({
+            video: true,
+            audio: false
+        })
+        if (videoRef.value) {
+            videoRef.value.srcObject = stream.value
+        }
+    } catch (error) {
+        console.error('摄像头调用失败:', error)
+        ElMessage.error('摄像头调用失败，请检查设备权限')
     }
-  } catch (error) {
-    console.error('摄像头调用失败:', error)
-    ElMessage.error('摄像头调用失败，请检查设备权限')
-  }
 }
 const stopCamera = () => {
-  if (stream.value) {
-    stream.value.getTracks().forEach(track => track.stop())
-    stream.value = null
-  }
+    if (stream.value) {
+        stream.value.getTracks().forEach((track) => track.stop())
+        stream.value = null
+    }
 }
 
-watch(activeTab, newVal => {
-  if (newVal === 'face') {
-    startCamera()
-  } else {
-    stopCamera()
-  }
+watch(activeTab, (newVal) => {
+    if (newVal === 'face') {
+        startCamera()
+    } else {
+        stopCamera()
+    }
 })
 
 onUnmounted(() => {
-  stopCamera(), getCaptchaData()
+    stopCamera(), getCaptchaData()
 })
 
 // 在组件挂载后延迟加载模型
 onMounted(() => {
-  // 给页面一些时间完成初始化
-  setTimeout(loadFaceModels, 1500)
-  getCaptchaData()
+    // 给页面一些时间完成初始化
+    setTimeout(loadFaceModels, 1500)
+    getCaptchaData()
 })
 
 // 人脸识别相关
 const loadFaceModels = async () => {
-  try {
-    const baseUrl = import.meta.env.BASE_URL.endsWith('/')
-      ? import.meta.env.BASE_URL.slice(0, -1)
-      : import.meta.env.BASE_URL
-    const MODEL_URL = `${baseUrl}/models`
-
-    console.log('开始加载模型...，路径:', MODEL_URL)
-
-    // 预先检查模型文件是否可访问
     try {
-      const manifestResponse = await fetch(
-        `${MODEL_URL}/tiny_face_detector_model-weights_manifest.json`
-      )
-      if (!manifestResponse.ok) {
-        throw new Error('无法访问模型文件，请检查文件路径是否正确')
-      }
+        const baseUrl = import.meta.env.BASE_URL.endsWith('/')
+            ? import.meta.env.BASE_URL.slice(0, -1)
+            : import.meta.env.BASE_URL
+        const MODEL_URL = `${baseUrl}/models`
+
+        console.log('开始加载模型...，路径:', MODEL_URL)
+
+        // 预先检查模型文件是否可访问
+        try {
+            const manifestResponse = await fetch(
+                `${MODEL_URL}/tiny_face_detector_model-weights_manifest.json`
+            )
+            if (!manifestResponse.ok) {
+                throw new Error('无法访问模型文件，请检查文件路径是否正确')
+            }
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                throw new Error(`模型文件访问失败: ${error.message}`)
+            } else {
+                throw new Error('模型文件访问失败: 未知错误')
+            }
+        }
+
+        // 设置 faceapi 参数
+        faceapi.env.monkeyPatch({
+            Canvas: HTMLCanvasElement,
+            Image: HTMLImageElement,
+            ImageData: ImageData,
+            Video: HTMLVideoElement,
+            createCanvasElement: () => document.createElement('canvas'),
+            createImageElement: () => document.createElement('img')
+        })
+
+        await faceapi.nets.tinyFaceDetector.load(MODEL_URL)
+        await faceapi.nets.faceLandmark68Net.load(MODEL_URL)
+
+        if (
+            !faceapi.nets.tinyFaceDetector.isLoaded ||
+            !faceapi.nets.faceLandmark68Net.isLoaded
+        ) {
+            throw new Error('模型加载失败')
+        }
+
+        isModelLoaded.value = true
+        ElMessage.success('人脸识别模型加载成功')
     } catch (error: unknown) {
-      if (error instanceof Error) {
-        throw new Error(`模型文件访问失败: ${error.message}`)
-      } else {
-        throw new Error('模型文件访问失败: 未知错误')
-      }
+        if (error instanceof Error) {
+            ElMessage.error(`人脸识别模型加载失败: ${error.message}`)
+        } else {
+            ElMessage.error('人脸识别模型加载失败: 未知错误')
+        }
+        isModelLoaded.value = false
     }
-
-    // 设置 faceapi 参数
-    faceapi.env.monkeyPatch({
-      Canvas: HTMLCanvasElement,
-      Image: HTMLImageElement,
-      ImageData: ImageData,
-      Video: HTMLVideoElement,
-      createCanvasElement: () => document.createElement('canvas'),
-      createImageElement: () => document.createElement('img')
-    })
-
-    await faceapi.nets.tinyFaceDetector.load(MODEL_URL)
-    await faceapi.nets.faceLandmark68Net.load(MODEL_URL)
-
-    if (!faceapi.nets.tinyFaceDetector.isLoaded || !faceapi.nets.faceLandmark68Net.isLoaded) {
-      throw new Error('模型加载失败')
-    }
-
-    isModelLoaded.value = true
-    ElMessage.success('人脸识别模型加载成功')
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      ElMessage.error(`人脸识别模型加载失败: ${error.message}`)
-    } else {
-      ElMessage.error('人脸识别模型加载失败: 未知错误')
-    }
-    isModelLoaded.value = false
-  }
 }
 
 // 头部姿态检测
 const detectHeadPose = (landmarks: any) => {
-  const nose = landmarks.getNose()
-  const jawOutline = landmarks.getJawOutline()
-  const leftEye = landmarks.getLeftEye()
-  const rightEye = landmarks.getRightEye()
+    const nose = landmarks.getNose()
+    const jawOutline = landmarks.getJawOutline()
+    const leftEye = landmarks.getLeftEye()
+    const rightEye = landmarks.getRightEye()
 
-  // 眼睛之间的距离
-  const eyeDistance = Math.sqrt(
-    Math.pow(leftEye[0].x - rightEye[3].x, 2) + Math.pow(leftEye[0].y - rightEye[3].y, 2)
-  )
+    // 眼睛之间的距离
+    const eyeDistance = Math.sqrt(
+        Math.pow(leftEye[0].x - rightEye[3].x, 2) +
+            Math.pow(leftEye[0].y - rightEye[3].y, 2)
+    )
 
-  // 鼻子相对于脸部中心的偏移
-  const faceCenter = {
-    x: (jawOutline[0].x + jawOutline[16].x) / 2,
-    y: (jawOutline[0].y + jawOutline[16].y) / 2
-  }
+    // 鼻子相对于脸部中心的偏移
+    const faceCenter = {
+        x: (jawOutline[0].x + jawOutline[16].x) / 2,
+        y: (jawOutline[0].y + jawOutline[16].y) / 2
+    }
 
-  const noseOffset = {
-    x: nose[0].x - faceCenter.x,
-    y: nose[0].y - faceCenter.y
-  }
+    const noseOffset = {
+        x: nose[0].x - faceCenter.x,
+        y: nose[0].y - faceCenter.y
+    }
 
-  // 根据偏移量判断头部姿态
-  const threshold = eyeDistance * 0.2 // 眼距的20%作阈值
+    // 根据偏移量判断头部姿态
+    const threshold = eyeDistance * 0.2 // 眼距的20%作阈值
 
-  if (noseOffset.x < -threshold) return 'left'
-  if (noseOffset.x > threshold) return 'right'
-  return 'center'
+    if (noseOffset.x < -threshold) return 'left'
+    if (noseOffset.x > threshold) return 'right'
+    return 'center'
 }
 
 // 提取人脸特征
 const extractFaceFeatures = async () => {
-  try {
-    if (!videoRef.value) return null
-    const descriptor = await faceapi
-      .detectSingleFace(videoRef.value)
-      .withFaceLandmarks()
-      .withFaceDescriptor()
-    return descriptor ? new Float32Array(descriptor.descriptor) : null
-  } catch (error) {
-    console.error('提取人脸特征失败:', error)
-    return null
-  }
+    try {
+        if (!videoRef.value) return null
+        const descriptor = await faceapi
+            .detectSingleFace(videoRef.value)
+            .withFaceLandmarks()
+            .withFaceDescriptor()
+        return descriptor ? new Float32Array(descriptor.descriptor) : null
+    } catch (error) {
+        console.error('提取人脸特征失败:', error)
+        return null
+    }
 }
 
 // 人脸登录
 const handleFaceLogin = async () => {
-  if (!videoRef.value || !canvasRef.value || isProcessing.value || !isModelLoaded.value) return
+    if (
+        !videoRef.value ||
+        !canvasRef.value ||
+        isProcessing.value ||
+        !isModelLoaded.value
+    )
+        return
 
-  isProcessing.value = true
-  const canvas = canvasRef.value
-  const ctx = canvas.getContext('2d')
-  if (!ctx) return
+    isProcessing.value = true
+    const canvas = canvasRef.value
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
 
-  try {
-    // 清除之前的绘制
-    ctx.clearRect(0, 0, canvas.width, canvas.height)
+    try {
+        // 清除之前的绘制
+        ctx.clearRect(0, 0, canvas.width, canvas.height)
 
-    // 设置画布尺寸与视频一致
-    canvas.width = videoRef.value.videoWidth
-    canvas.height = videoRef.value.videoHeight
+        // 设置画布尺寸与视频一致
+        canvas.width = videoRef.value.videoWidth
+        canvas.height = videoRef.value.videoHeight
 
-    // 检测人脸
-    const detection = await faceapi
-      .detectSingleFace(
-        videoRef.value,
-        new faceapi.TinyFaceDetectorOptions({
-          inputSize: 512,
-          scoreThreshold: 0.5
+        // 检测人脸
+        const detection = await faceapi
+            .detectSingleFace(
+                videoRef.value,
+                new faceapi.TinyFaceDetectorOptions({
+                    inputSize: 512,
+                    scoreThreshold: 0.5
+                })
+            )
+            .withFaceLandmarks()
+
+        if (!detection) {
+            ElMessage.warning('未检测到人脸，请正对摄像头')
+            isProcessing.value = false
+            return
+        }
+
+        // 绘制检测框和关键点
+        ctx.lineWidth = 3
+        ctx.strokeStyle = '#6cf9d3'
+        ctx.fillStyle = '#6cf9d3'
+
+        // 扩大检测框尺寸
+        const box = detection.detection.box
+        const padding = 20
+        ctx.beginPath()
+        ctx.rect(
+            box.x - padding,
+            box.y - padding,
+            box.width + padding * 2,
+            box.height + padding * 2
+        )
+        ctx.stroke()
+
+        // 添加半透明遮罩
+        ctx.fillStyle = 'rgba(108, 249, 211, 0.1)'
+        ctx.fill()
+
+        // 绘制关键点
+        const landmarks = detection.landmarks
+        const points = landmarks.positions
+        ctx.fillStyle = '#1849ea'
+        points.forEach((point) => {
+            ctx.beginPath()
+            ctx.arc(point.x, point.y, 2, 0, 2 * Math.PI)
+            ctx.fill()
         })
-      )
-      .withFaceLandmarks()
 
-    if (!detection) {
-      ElMessage.warning('未检测到人脸，请正对摄像头')
-      isProcessing.value = false
-      return
+        // 检测头部姿态
+        const pose = detectHeadPose(landmarks)
+        if (pose !== 'center') {
+            ElMessage.warning('请保持头部正对摄像头')
+            isProcessing.value = false
+            return
+        }
+
+        // 提取人脸特征
+        const features = await extractFaceFeatures()
+        if (!features) {
+            ElMessage.error('人脸特征提取失败，请重试')
+            isProcessing.value = false
+            return
+        }
+
+        ElMessage.success('人脸识别成功！')
+        setTimeout(() => {
+            router.push('/dashboard')
+        }, 1000)
+    } catch (error) {
+        console.error('人脸识别失败:', error)
+        ElMessage.error('人脸识别过程出错，请重试')
+    } finally {
+        isProcessing.value = false
     }
-
-    // 绘制检测框和关键点
-    ctx.lineWidth = 3
-    ctx.strokeStyle = '#6cf9d3'
-    ctx.fillStyle = '#6cf9d3'
-
-    // 扩大检测框尺寸
-    const box = detection.detection.box
-    const padding = 20
-    ctx.beginPath()
-    ctx.rect(box.x - padding, box.y - padding, box.width + padding * 2, box.height + padding * 2)
-    ctx.stroke()
-
-    // 添加半透明遮罩
-    ctx.fillStyle = 'rgba(108, 249, 211, 0.1)'
-    ctx.fill()
-
-    // 绘制关键点
-    const landmarks = detection.landmarks
-    const points = landmarks.positions
-    ctx.fillStyle = '#1849ea'
-    points.forEach(point => {
-      ctx.beginPath()
-      ctx.arc(point.x, point.y, 2, 0, 2 * Math.PI)
-      ctx.fill()
-    })
-
-    // 检测头部姿态
-    const pose = detectHeadPose(landmarks)
-    if (pose !== 'center') {
-      ElMessage.warning('请保持头部正对摄像头')
-      isProcessing.value = false
-      return
-    }
-
-    // 提取人脸特征
-    const features = await extractFaceFeatures()
-    if (!features) {
-      ElMessage.error('人脸特征提取失败，请重试')
-      isProcessing.value = false
-      return
-    }
-
-    ElMessage.success('人脸识别成功！')
-    setTimeout(() => {
-      router.push('/dashboard')
-    }, 1000)
-  } catch (error) {
-    console.error('人脸识别失败:', error)
-    ElMessage.error('人脸识别过程出错，请重试')
-  } finally {
-    isProcessing.value = false
-  }
 }
 </script>
 
