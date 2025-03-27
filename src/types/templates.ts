@@ -1,4 +1,4 @@
-export type FilterType = 'all' | 'fresh' | 'tech' | 'business'
+export type FilterType = 'all' | 'fresh' | 'tech' | 'business' | 'design' | 'academic' | 'marketing' | 'medical'
 
 export type TagType = 'success' | 'warning' | 'info' | 'primary' | 'danger'
 
@@ -21,4 +21,4 @@ export const getTagType = (tag: string): TagType => {
     case '创意类': return 'danger'
     default: return 'info'
   }
-} 
+}

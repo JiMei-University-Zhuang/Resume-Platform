@@ -207,6 +207,7 @@
               <span>预览</span>
               <div>
                 <el-button type="success" @click="exportPDF">导出 PDF</el-button>
+                <el-button type="primary" @click="previewResume">预览效果</el-button>
                 <el-button @click="changeTemplate">切换模板</el-button>
 
     <el-dialog v-model="templateDialogVisible" title="选择简历模板" width="70%">
@@ -287,6 +288,19 @@
           <el-button type="primary" @click="applyAISuggestions"> 应用 AI 建议 </el-button>
         </span>
       </template>
+    </el-dialog>
+
+    <el-dialog
+      v-model="previewDialogVisible"
+      title="简历预览"
+      width="60%"
+      modal-class="preview-modal"
+      :overlay-class="'preview-overlay'"
+      align-center
+    >
+      <div class="resume-preview-dialog">
+        <component :is="currentTemplate" :resumeForm="resumeForm" />
+      </div>
     </el-dialog>
   </div>
 </template>
@@ -559,9 +573,14 @@ const applyAISuggestions = () => {
 
 
 const templateDialogVisible = ref(false)
+const previewDialogVisible = ref(false)
 
 const changeTemplate = () => {
   templateDialogVisible.value = true
+}
+
+const previewResume = () => {
+  previewDialogVisible.value = true
 }
 
 const confirmClearResumeForm = () => {
@@ -619,6 +638,26 @@ const clearResumeForm = () => {
 <style scoped>
 .resume-create {
   padding: 20px;
+}
+
+.preview-overlay {
+  background-color: rgba(0, 0, 0, 0.7) !important;
+  backdrop-filter: blur(2px);
+}
+
+.preview-modal {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.resume-preview-dialog {
+  padding: 20px;
+  background-color: white;
+  border-radius: 4px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+  transform: scale(0.7);
+  transform-origin: center;
+  margin: -15% auto;
 }
 
 .card-header {
