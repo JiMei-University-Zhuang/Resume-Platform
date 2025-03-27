@@ -43,8 +43,8 @@ const particles: Array<{
 // 鼠标位置
 let mouseX = 0
 let mouseY = 0
-let lastTriggerTime = 0; // 上次触发时间
-const TRIGGER_INTERVAL = 100; // 触发间隔(毫秒)，降低到100ms
+let lastTriggerTime = 0 // 上次触发时间
+const TRIGGER_INTERVAL = 100 // 触发间隔(毫秒)，降低到100ms
 
 // 礼物特效实例
 let confettiInstance: ReturnType<typeof confetti.create> | null = null
@@ -81,24 +81,24 @@ function initTrailCanvas() {
     const speedX = Math.abs(mouseX - prevX)
     const speedY = Math.abs(mouseY - prevY)
     const speed = speedX + speedY
-    
-    const now = Date.now();
-    const timeSinceLastTrigger = now - lastTriggerTime;
+
+    const now = Date.now()
+    const timeSinceLastTrigger = now - lastTriggerTime
 
     // 如果移动速度足够快，且距离上次触发有足够间隔，才触发特效
     if (speed > 80 && showConfetti.value && timeSinceLastTrigger > 800) {
       triggerConfetti(mouseX, mouseY)
-      lastTriggerTime = now;
+      lastTriggerTime = now
     }
 
     // 只有在速度超过阈值且间隔足够时才添加新粒子
     if (speed > 8 && timeSinceLastTrigger > TRIGGER_INTERVAL && showTrail.value) {
       // 适当增加粒子数量
-      const particleCount = Math.min(3, Math.floor(speed / 25)) + 1;
-      
+      const particleCount = Math.min(3, Math.floor(speed / 25)) + 1
+
       // 更新触发时间
-      lastTriggerTime = now;
-      
+      lastTriggerTime = now
+
       for (let i = 0; i < particleCount; i++) {
         addParticle(mouseX, mouseY)
       }
@@ -108,14 +108,7 @@ function initTrailCanvas() {
   // 添加粒子
   const addParticle = (x: number, y: number) => {
     // 使用更丰富的配色，但仍保持协调
-    const colors = [
-      '#5EC8AD',
-      '#409EFF',
-      '#67C23A',
-      '#FFD6A5',
-      '#A0C4FF',
-      '#E98EAD'
-    ]
+    const colors = ['#5EC8AD', '#409EFF', '#67C23A', '#FFD6A5', '#A0C4FF', '#E98EAD']
 
     particles.push({
       x,
@@ -135,7 +128,7 @@ function initTrailCanvas() {
 
     // 限制粒子总数，但增加上限
     if (particles.length > 120) {
-      particles.splice(0, particles.length - 120);
+      particles.splice(0, particles.length - 120)
     }
 
     // 更新并绘制粒子
@@ -222,13 +215,7 @@ function triggerConfetti(x: number, y: number) {
     particleCount: count,
     spread: 65, // 增加扩散范围
     origin: { x: xRatio, y: yRatio },
-    colors: [
-      '#5EC8AD',
-      '#409EFF', 
-      '#67C23A',
-      '#FFD6A5',
-      '#A0C4FF'
-    ],
+    colors: ['#5EC8AD', '#409EFF', '#67C23A', '#FFD6A5', '#A0C4FF'],
     shapes: ['circle', 'square'], // 增加形状种类
     zIndex: 100,
     scalar: 0.6 // 增加粒子尺寸
