@@ -29,7 +29,7 @@
             <div class="suggestion-chip" @click="useSuggestion('表格')">创建表格</div>
           </div>
         </div>
-        
+
         <!-- 消息气泡 -->
         <div v-for="(msg, index) in messages" :key="index" :class="['message-container', msg.role]">
           <div class="avatar">
@@ -45,7 +45,7 @@
             </div>
           </div>
         </div>
-        
+
         <div v-if="isTyping" class="message-container ai typing">
           <div class="avatar">
             <div class="ai-avatar">AI</div>
@@ -62,24 +62,22 @@
 
       <div class="chat-input-container">
         <div class="input-wrapper">
-          <textarea 
-            v-model="userInput" 
+          <textarea
+            v-model="userInput"
             @keydown.enter.prevent="handleEnterPress"
-            placeholder="输入您的问题..." 
+            placeholder="输入您的问题..."
             rows="1"
             ref="inputRef"
           ></textarea>
-          <button 
-            class="send-button" 
-            @click="handleSendMessage" 
+          <button
+            class="send-button"
+            @click="handleSendMessage"
             :disabled="!userInput.trim() || isTyping"
           >
             <i class="el-icon-s-promotion"></i>
           </button>
         </div>
-        <div class="disclaimer">
-          智航AI助手可能会生成不准确的信息，请自行核实重要内容
-        </div>
+        <div class="disclaimer">智航AI助手可能会生成不准确的信息，请自行核实重要内容</div>
       </div>
     </div>
   </div>
@@ -95,7 +93,7 @@ import Prism from 'prismjs'
 import { ElMessage } from 'element-plus'
 import type { ChatMessage, MockData } from '@/types/chat'
 
-import 'prismjs/themes/prism-tomorrow.css' 
+import 'prismjs/themes/prism-tomorrow.css'
 import 'prismjs/components/prism-javascript'
 import 'prismjs/components/prism-typescript'
 import 'prismjs/components/prism-python'
@@ -122,7 +120,7 @@ const isTyping = ref(false)
 // 调整文本区域高度
 const adjustTextareaHeight = () => {
   if (!inputRef.value) return
-  
+
   inputRef.value.style.height = 'auto'
   const newHeight = Math.min(inputRef.value.scrollHeight, 150) // 最大高度为150px
   inputRef.value.style.height = `${newHeight}px`
@@ -135,7 +133,8 @@ watch(userInput, () => {
 })
 
 // 处理Enter键按下
-const handleEnterPress = (e: any) => { // 使用 any 类型暂时解决 KeyboardEvent 类型错误
+const handleEnterPress = (e: any) => {
+  // 使用 any 类型暂时解决 KeyboardEvent 类型错误
   if (e.shiftKey) {
     // Shift+Enter换行，不发送
     return
@@ -145,7 +144,8 @@ const handleEnterPress = (e: any) => { // 使用 any 类型暂时解决 Keyboard
 
 // 复制到剪贴板
 const copyToClipboard = (text: string) => {
-  navigator.clipboard.writeText(text)
+  navigator.clipboard
+    .writeText(text)
     .then(() => {
       ElMessage.success('已复制到剪贴板')
     })
@@ -240,7 +240,7 @@ const streamAiReply = async (fullText: string) => {
       scrollToBottom()
     }
   }
-  
+
   isTyping.value = false
 }
 
@@ -318,7 +318,7 @@ const handleSendMessage = async () => {
 // 生命周期钩子
 onMounted(() => {
   scrollToBottom()
-  
+
   // 确保输入框调整高度
   if (inputRef.value) {
     adjustTextareaHeight()
@@ -332,7 +332,11 @@ onMounted(() => {
   display: flex;
   height: calc(100vh - 84px);
   background-color: #f9f9fa;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family:
+    'Inter',
+    system-ui,
+    -apple-system,
+    sans-serif;
 }
 
 .chat-main {
@@ -588,7 +592,9 @@ onMounted(() => {
 }
 
 @keyframes typing {
-  0%, 60%, 100% {
+  0%,
+  60%,
+  100% {
     transform: translateY(0);
   }
   30% {
@@ -826,11 +832,11 @@ textarea {
   .chat-messages {
     padding: 16px;
   }
-  
+
   .chat-input-container {
     padding: 12px 16px;
   }
-  
+
   .action-button.new-chat-btn span {
     display: none;
   }
