@@ -28,7 +28,8 @@
               学校: {{ edu.school }}<br />
               专业: {{ edu.major }}<br />
               学历: {{ edu.degree }}<br />
-              时间: {{ formatDate(edu.time[0]) }} - {{ formatDate(edu.time[1]) }}
+              时间: {{ formatDate(edu.time[0]) }} -
+              {{ formatDate(edu.time[1]) }}
             </li>
           </ul>
         </section>

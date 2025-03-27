@@ -76,7 +76,9 @@
         <div class="item">
           <div v-html="resumeForm.certifications"></div>
           <ul v-if="resumeForm.skills.length">
-            <li v-for="(skill, index) in resumeForm.skills" :key="index">{{ skill }}</li>
+            <li v-for="(skill, index) in resumeForm.skills" :key="index">
+              {{ skill }}
+            </li>
           </ul>
         </div>
       </div>

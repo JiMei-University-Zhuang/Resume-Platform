@@ -36,12 +36,17 @@
     <div class="card-body">
       <el-card class="Specialized-exercises">
         <div class="exercise-title">专项练习</div>
-        <div class="exercise-description " style="line-height: 22px;">
+        <div class="exercise-description" style="line-height: 22px">
           无论你是<b>&nbsp;考公小白&nbsp;</b>，还是&nbsp;<b>久经沙场的老将</b>&nbsp;。我们的专项练习，就是你上岸的<span
-            style="color: #CB3F23;font-weight: bold;">
-            秘密武器</span>
-          ！通过行测和申论的专业训练，让你像超级英雄一样<span style="font-size: 17px;"><b>&nbsp;轻松攻克&nbsp;</b></span>每个考点。准备好了吗？快点击<span
-            style="color: gray;font-weight: 600;font-size: 17px;">" 练习设置 "</span>，把考点收入囊中吧！
+            style="color: #cb3f23; font-weight: bold"
+          >
+            秘密武器</span
+          >
+          ！通过行测和申论的专业训练，让你像超级英雄一样<span style="font-size: 17px"
+            ><b>&nbsp;轻松攻克&nbsp;</b></span
+          >每个考点。准备好了吗？快点击<span style="color: gray; font-weight: 600; font-size: 17px"
+            >" 练习设置 "</span
+          >，把考点收入囊中吧！
         </div>
         <div class="exercise-image">
           <img src="@/assets/images/exam_imgs/exercises.jpg" alt="专项练习" />
@@ -87,17 +92,19 @@
       <el-card class="Train-realexam">
         <div class="exercise-title">真题训练</div>
         <div class="exercise-image">
-          <div class="exercise-description " style="text-align: left;line-height: 22px;">
+          <div class="exercise-description" style="text-align: left; line-height: 22px">
             想要在考公大军中脱颖而出？真题训练就是你的<span
-              style="color: #CB3F23;font-weight: bold;">&nbsp;制胜法宝</span>&nbsp;！这里汇聚了历年海量真题。通过模拟真实考试情境，让你提前熟悉题型、把握节奏。<span
-              style="color: gray;font-weight: 600;font-size: 17px;">精准攻克薄弱环节，积累实战经验，增强考试自信。</span>
+              style="color: #cb3f23; font-weight: bold"
+              >&nbsp;制胜法宝</span
+            >&nbsp;！这里汇聚了历年海量真题。通过模拟真实考试情境，让你提前熟悉题型、把握节奏。<span
+              style="color: gray; font-weight: 600; font-size: 17px"
+              >精准攻克薄弱环节，积累实战经验，增强考试自信。</span
+            >
           </div>
-          <img src="@/assets/images/exam_imgs/realexam.jpg" alt="真题模考"></img>
+          <img src="@/assets/images/exam_imgs/realexam.jpg" alt="真题模考" />
         </div>
         <!-- 组卷按钮 -->
-        <el-button type="success" @click="showExamDialog" class="exam-button">
-          真题模考
-        </el-button>
+        <el-button type="success" @click="showExamDialog" class="exam-button"> 真题模考 </el-button>
         <!-- 试卷选择弹窗 -->
         <el-dialog v-model="examDialogVisible" title="选择真题试卷" width="600px" append-to-body>
           <div class="exam-settings">
@@ -316,9 +323,7 @@ onMounted(() => {
   flex: 1 1 0;
   padding: 20px;
   position: relative;
-
 }
-
 
 .el-button--primary {
   position: absolute;
@@ -393,7 +398,7 @@ onMounted(() => {
 
 .exam-button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px #67C23A;
+  box-shadow: 0 5px 15px #67c23a;
 }
 
 /* 设置项样式 */

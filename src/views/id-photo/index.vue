@@ -46,7 +46,9 @@
                     <el-button
                       v-for="color in presetColors"
                       :key="color.value"
-                      :style="{ backgroundColor: color.value }"
+                      :style="{
+                        backgroundColor: color.value
+                      }"
                       class="color-btn"
                       @click="photoSettings.backgroundColor = color.value"
                     >
