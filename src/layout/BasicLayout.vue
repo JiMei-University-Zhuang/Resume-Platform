@@ -42,6 +42,7 @@ const { collapsed } = storeToRefs(appStore)
 
 .content {
   padding: 20px;
+  padding-top: 0;
   box-sizing: border-box;
   position: relative;
   z-index: 1;
