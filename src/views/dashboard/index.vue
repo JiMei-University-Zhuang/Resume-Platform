@@ -2,7 +2,7 @@
   <div class="dashboard">
     <!-- 鼠标特效组件 -->
     <MouseEffects />
-    
+
     <!-- 顶部欢迎区域 -->
     <div class="hero-section">
       <div class="welcome-content">
@@ -12,7 +12,12 @@
         <h1 class="welcome-title">AI驱动的职业生涯规划平台</h1>
         <p class="welcome-subtitle">利用人工智能技术，定制你的专属职业发展方案</p>
         <div class="hero-actions">
-          <el-button type="primary" size="large" class="get-started-btn" @click="navigateTo('/career-planning/analysis')">
+          <el-button
+            type="primary"
+            size="large"
+            class="get-started-btn"
+            @click="navigateTo('/career-planning/analysis')"
+          >
             开始规划
             <el-icon class="el-icon--right"><ArrowRight /></el-icon>
           </el-button>
@@ -30,11 +35,15 @@
     <!-- 主要功能卡片区域 -->
     <div class="features-section">
       <h2 class="section-title">我们能帮你什么</h2>
-      
+
       <el-row :gutter="24">
         <!-- 职业分析卡片 -->
         <el-col :xs="24" :sm="12" :md="8">
-          <el-card class="feature-card" shadow="hover" @click="navigateTo('/career-planning/analysis')">
+          <el-card
+            class="feature-card"
+            shadow="hover"
+            @click="navigateTo('/career-planning/analysis')"
+          >
             <div class="card-content">
               <div class="card-icon">
                 <el-icon><Aim /></el-icon>
@@ -45,43 +54,53 @@
               </p>
             </div>
             <div class="card-action">
-              <el-button text>开始分析 <el-icon><ArrowRight /></el-icon></el-button>
+              <el-button text
+                >开始分析 <el-icon><ArrowRight /></el-icon
+              ></el-button>
             </div>
           </el-card>
         </el-col>
-        
+
         <!-- 发展规划卡片 -->
         <el-col :xs="24" :sm="12" :md="8">
-          <el-card class="feature-card" shadow="hover" @click="navigateTo('/career-planning/roadmap')">
+          <el-card
+            class="feature-card"
+            shadow="hover"
+            @click="navigateTo('/career-planning/roadmap')"
+          >
             <div class="card-content">
               <div class="card-icon">
                 <el-icon><Guide /></el-icon>
               </div>
               <h3 class="card-title">发展规划</h3>
-              <p class="card-description">
-                打造个性化的职业发展路径，清晰规划每一步成长目标
-              </p>
+              <p class="card-description">打造个性化的职业发展路径，清晰规划每一步成长目标</p>
             </div>
             <div class="card-action">
-              <el-button text>查看路径 <el-icon><ArrowRight /></el-icon></el-button>
+              <el-button text
+                >查看路径 <el-icon><ArrowRight /></el-icon
+              ></el-button>
             </div>
           </el-card>
         </el-col>
-        
+
         <!-- 职业推荐卡片 -->
         <el-col :xs="24" :sm="12" :md="8">
-          <el-card class="feature-card" shadow="hover" @click="navigateTo('/career-planning/recommendation')">
+          <el-card
+            class="feature-card"
+            shadow="hover"
+            @click="navigateTo('/career-planning/recommendation')"
+          >
             <div class="card-content">
               <div class="card-icon">
                 <el-icon><StarFilled /></el-icon>
               </div>
               <h3 class="card-title">职业推荐</h3>
-              <p class="card-description">
-                发掘隐藏的职业机会，推荐最适合你的工作和行业
-              </p>
+              <p class="card-description">发掘隐藏的职业机会，推荐最适合你的工作和行业</p>
             </div>
             <div class="card-action">
-              <el-button text>获取推荐 <el-icon><ArrowRight /></el-icon></el-button>
+              <el-button text
+                >获取推荐 <el-icon><ArrowRight /></el-icon
+              ></el-button>
             </div>
           </el-card>
         </el-col>
@@ -103,7 +122,7 @@
             </div>
           </div>
         </el-col>
-        
+
         <el-col :xs="24" :sm="12" :md="8">
           <div class="stat-card">
             <div class="stat-icon">
@@ -115,7 +134,7 @@
             </div>
           </div>
         </el-col>
-        
+
         <el-col :xs="24" :sm="12" :md="8">
           <div class="stat-card">
             <div class="stat-icon">
@@ -143,7 +162,7 @@
             采用先进的人工智能算法，根据个人特质与市场需求，提供精准的职业方向建议
           </p>
         </div>
-        
+
         <div class="advantage-card">
           <div class="advantage-icon">
             <el-icon><DataAnalysis /></el-icon>
@@ -153,7 +172,7 @@
             基于海量职业数据分析，为你提供最新的行业趋势和职业发展前景
           </p>
         </div>
-        
+
         <div class="advantage-card">
           <div class="advantage-icon">
             <el-icon><UserFilled /></el-icon>
@@ -163,7 +182,7 @@
             根据个人兴趣、能力和目标，量身定制专属职业发展路径和提升建议
           </p>
         </div>
-        
+
         <div class="advantage-card">
           <div class="advantage-icon">
             <el-icon><SetUp /></el-icon>
@@ -179,7 +198,7 @@
     <!-- 其他功能展示 -->
     <div class="additional-features">
       <h2 class="section-title">更多功能</h2>
-      
+
       <el-row :gutter="24">
         <!-- AI聊天 -->
         <el-col :xs="24" :sm="12">
@@ -190,28 +209,32 @@
               </div>
               <div class="additional-info">
                 <h3 class="additional-title">AI职业顾问</h3>
-                <p class="additional-description">
-                  随时随地与AI职业顾问交流，解答你的职场困惑
-                </p>
-                <el-button text>开始对话 <el-icon><ArrowRight /></el-icon></el-button>
+                <p class="additional-description">随时随地与AI职业顾问交流，解答你的职场困惑</p>
+                <el-button text
+                  >开始对话 <el-icon><ArrowRight /></el-icon
+                ></el-button>
               </div>
             </div>
           </el-card>
         </el-col>
-        
+
         <!-- 考试中心 -->
         <el-col :xs="24" :sm="12">
-          <el-card class="additional-card" shadow="hover" @click="navigateTo('/exam/civil-service')">
+          <el-card
+            class="additional-card"
+            shadow="hover"
+            @click="navigateTo('/exam/civil-service')"
+          >
             <div class="additional-content">
               <div class="additional-icon">
                 <el-icon><Reading /></el-icon>
               </div>
               <div class="additional-info">
                 <h3 class="additional-title">考试中心</h3>
-                <p class="additional-description">
-                  公务员考试、考研备考资源，助力你的升学就业之路
-                </p>
-                <el-button text>进入中心 <el-icon><ArrowRight /></el-icon></el-button>
+                <p class="additional-description">公务员考试、考研备考资源，助力你的升学就业之路</p>
+                <el-button text
+                  >进入中心 <el-icon><ArrowRight /></el-icon
+                ></el-button>
               </div>
             </div>
           </el-card>
@@ -278,7 +301,9 @@
         </div>
       </div>
       <div class="footer-bottom">
-        <p class="copyright">© {{ new Date().getFullYear() }} 智航 CareerAI 职业生涯规划平台 版权所有</p>
+        <p class="copyright">
+          © {{ new Date().getFullYear() }} 智航 CareerAI 职业生涯规划平台 版权所有
+        </p>
       </div>
     </footer>
   </div>
@@ -361,79 +386,80 @@ const initParticles = async () => {
   try {
     const { loadSlim } = await import('@tsparticles/slim')
     const { tsParticles } = await import('@tsparticles/engine')
-    
+
     await loadSlim(tsParticles)
-    
-    particleInstance = await tsParticles.load({
-      id: 'tsparticles',
-      options: {
-        particles: {
-          number: {
-            value: 80,
-            density: {
-              enable: true,
-              value_area: 800
-            }
-          },
-          color: {
-            value: ['#5ec89c', '#409EFF', '#67c23a', '#6f7ad3']
-          },
-          shape: {
-            type: 'circle'
-          },
-          opacity: {
-            value: 0.6,
-            random: true
-          },
-          size: {
-            value: 3,
-            random: true
-          },
-          line_linked: {
-            enable: true,
-            distance: 150,
-            color: '#5ec89c',
-            opacity: 0.4,
-            width: 1
-          },
-          move: {
-            enable: true,
-            speed: 2,
-            direction: 'none',
-            random: false,
-            straight: false,
-            out_mode: 'out',
-            bounce: false
-          }
-        },
-        interactivity: {
-          detect_on: 'canvas',
-          events: {
-            onhover: {
-              enable: true,
-              mode: 'grab'
-            },
-            onclick: {
-              enable: true,
-              mode: 'push'
-            },
-            resize: true
-          },
-          modes: {
-            grab: {
-              distance: 140,
-              line_linked: {
-                opacity: 1
+
+    particleInstance =
+      (await tsParticles.load({
+        id: 'tsparticles',
+        options: {
+          particles: {
+            number: {
+              value: 80,
+              density: {
+                enable: true,
+                value_area: 800
               }
             },
-            push: {
-              particles_nb: 4
+            color: {
+              value: ['#5ec89c', '#409EFF', '#67c23a', '#6f7ad3']
+            },
+            shape: {
+              type: 'circle'
+            },
+            opacity: {
+              value: 0.6,
+              random: true
+            },
+            size: {
+              value: 3,
+              random: true
+            },
+            line_linked: {
+              enable: true,
+              distance: 150,
+              color: '#5ec89c',
+              opacity: 0.4,
+              width: 1
+            },
+            move: {
+              enable: true,
+              speed: 2,
+              direction: 'none',
+              random: false,
+              straight: false,
+              out_mode: 'out',
+              bounce: false
             }
-          }
-        },
-        retina_detect: true
-      }
-    } as any) || null
+          },
+          interactivity: {
+            detect_on: 'canvas',
+            events: {
+              onhover: {
+                enable: true,
+                mode: 'grab'
+              },
+              onclick: {
+                enable: true,
+                mode: 'push'
+              },
+              resize: true
+            },
+            modes: {
+              grab: {
+                distance: 140,
+                line_linked: {
+                  opacity: 1
+                }
+              },
+              push: {
+                particles_nb: 4
+              }
+            }
+          },
+          retina_detect: true
+        }
+      } as any)) || null
   } catch (error) {
     console.error('Failed to initialize particles:', error)
   }
@@ -443,7 +469,7 @@ onMounted(async () => {
   initializeBehaviorData()
   await updateSmartTips()
   await initParticles()
-  
+
   // 设置智能提示更新定时器
   const tipsInterval = setInterval(
     async () => {
@@ -451,7 +477,7 @@ onMounted(async () => {
     },
     5 * 60 * 1000
   )
-  
+
   // 清理定时器
   onUnmounted(() => {
     clearInterval(tipsInterval)
@@ -493,9 +519,9 @@ onMounted(async () => {
 }
 
 .logo-text {
-  font-size: 2.2rem;
+  font-size: 2rem;
   font-weight: 800;
-  background: linear-gradient(135deg, #5ec89c 0%, #409EFF 100%);
+  background: linear-gradient(135deg, #5ec89c 0%, #409eff 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -503,11 +529,11 @@ onMounted(async () => {
 }
 
 .welcome-title {
-  font-size: 2.8rem;
+  font-size: 2.6rem;
   font-weight: 700;
   color: #303133;
   margin-bottom: 1rem;
-  background: linear-gradient(135deg, #303133 0%, #409EFF 100%);
+  background: linear-gradient(135deg, #303133 0%, #409eff 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -813,17 +839,17 @@ onMounted(async () => {
     flex-direction: column;
     height: auto;
   }
-  
+
   .welcome-content {
     max-width: 100%;
     margin-bottom: 40px;
   }
-  
+
   .welcome-decoration {
     width: 100%;
     height: 200px;
   }
-  
+
   .features-section,
   .stats-section,
   .additional-features,
@@ -831,24 +857,24 @@ onMounted(async () => {
   .footer {
     padding: 40px;
   }
-  
+
   .smart-tips-card {
     margin: 0 40px 40px 40px;
   }
-  
+
   .welcome-title {
     font-size: 2.2rem;
   }
-  
+
   .footer-content {
     flex-direction: column;
     align-items: flex-start;
   }
-  
+
   .footer-logo {
     margin-bottom: 30px;
   }
-  
+
   .footer-links {
     gap: 40px;
   }
@@ -858,12 +884,12 @@ onMounted(async () => {
   .hero-section {
     padding: 30px 20px;
   }
-  
+
   .hero-actions {
     flex-direction: column;
     gap: 10px;
   }
-  
+
   .features-section,
   .stats-section,
   .additional-features,
@@ -871,27 +897,27 @@ onMounted(async () => {
   .footer {
     padding: 30px 20px;
   }
-  
+
   .smart-tips-card {
     margin: 0 20px 30px 20px;
   }
-  
+
   .welcome-title {
     font-size: 1.8rem;
   }
-  
+
   .welcome-subtitle {
     font-size: 1rem;
   }
-  
+
   .section-title {
     font-size: 1.5rem;
   }
-  
+
   .advantages-container {
     grid-template-columns: 1fr;
   }
-  
+
   .footer-links {
     flex-direction: column;
     gap: 30px;
@@ -927,7 +953,7 @@ onMounted(async () => {
 
 .advantage-icon {
   font-size: 36px;
-  color: #409EFF;
+  color: #409eff;
   background: rgba(64, 158, 255, 0.1);
   width: 80px;
   height: 80px;
@@ -962,7 +988,7 @@ onMounted(async () => {
   .advantages-section {
     padding: 30px 20px;
   }
-  
+
   .advantages-container {
     grid-template-columns: 1fr;
   }
