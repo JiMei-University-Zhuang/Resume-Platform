@@ -1,5 +1,8 @@
 <template>
   <div class="dashboard">
+    <!-- 鼠标特效组件 -->
+    <MouseEffects />
+    
     <!-- 顶部欢迎区域 -->
     <div class="hero-section">
       <div class="welcome-content">
@@ -285,6 +288,7 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { behaviorPredictor } from '@/utils/userBehaviorPredictor'
+import MouseEffects from '@/components/MouseEffects/index.vue'
 import {
   User,
   ArrowRight,
