@@ -1,13 +1,13 @@
 interface BehaviorPrediction {
-  nextAction: string;
-  confidence: number;
+  nextAction: string
+  confidence: number
 }
 
 interface BehaviorPredictor {
-  recordAction(action: string): void;
-  predictNextAction(hour: number, day: number): Promise<string>;
-  getPatternAnalysis(): string[];
-  predict(): BehaviorPrediction;
+  recordAction(action: string): void
+  predictNextAction(hour: number, day: number): Promise<string>
+  getPatternAnalysis(): string[]
+  predict(): BehaviorPrediction
 }
 
 export const behaviorPredictor: BehaviorPredictor = {
@@ -16,12 +16,12 @@ export const behaviorPredictor: BehaviorPredictor = {
   },
   async predictNextAction() {
     // Implementation
-    return '';
+    return ''
   },
   getPatternAnalysis() {
-    return [];
+    return []
   },
   predict() {
-    return { nextAction: '', confidence: 0 };
+    return { nextAction: '', confidence: 0 }
   }
-}; 
+}

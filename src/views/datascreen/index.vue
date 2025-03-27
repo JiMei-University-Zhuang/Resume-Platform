@@ -158,9 +158,8 @@ const initRankChart = () => {
   if (!rankChartRef.value) return
   const chart = echarts.init(rankChartRef.value)
   charts.push(chart)
-  
-  const option = {
 
+  const option = {
     grid: {
       top: 10,
       right: 10,
@@ -201,7 +200,7 @@ const initRankChart = () => {
       }
     ]
   }
-  
+
   chart.setOption(option)
 }
 
@@ -209,9 +208,8 @@ const initTrendChart = () => {
   if (!trendChartRef.value) return
   const chart = echarts.init(trendChartRef.value)
   charts.push(chart)
-  
-  const option = {
 
+  const option = {
     grid: {
       top: 30,
       right: 30,
@@ -275,7 +273,7 @@ const initTrendChart = () => {
       }
     ]
   }
-  
+
   chart.setOption(option)
 }
 
@@ -283,10 +281,9 @@ const initMapChart = () => {
   if (!mapChartRef.value) return
   const chart = echarts.init(mapChartRef.value)
   charts.push(chart)
-  
+
   const option = {
     tooltip: {
-
       trigger: 'item'
     },
     legend: {
@@ -327,7 +324,7 @@ const initMapChart = () => {
       }
     ]
   }
-  
+
   chart.setOption(option)
 }
 
@@ -348,7 +345,7 @@ const initCharts = () => {
   // initMonitorChart()
 }
 
-// 
+//
 onMounted(() => {
   initCharts()
   initCountUp()
@@ -390,7 +387,12 @@ onUnmounted(() => {
     justify-content: space-between;
     align-items: center;
     padding: 0 40px;
-    background: linear-gradient(90deg, rgba(6,44,69,0) 0%, rgba(6,44,69,0.8) 50%, rgba(6,44,69,0) 100%);
+    background: linear-gradient(
+      90deg,
+      rgba(6, 44, 69, 0) 0%,
+      rgba(6, 44, 69, 0.8) 50%,
+      rgba(6, 44, 69, 0) 100%
+    );
     position: relative;
 
     &-left,
@@ -418,8 +420,12 @@ onUnmounted(() => {
           transform: translateX(-50%);
         }
 
-        &::before { top: 0; }
-        &::after { bottom: 0; }
+        &::before {
+          top: 0;
+        }
+        &::after {
+          bottom: 0;
+        }
       }
     }
 
@@ -433,7 +439,7 @@ onUnmounted(() => {
         -webkit-background-clip: text;
         background-clip: text;
         -webkit-text-fill-color: transparent;
-        text-shadow: 0 0 10px rgba(0,198,255,0.5);
+        text-shadow: 0 0 10px rgba(0, 198, 255, 0.5);
         margin: 0;
       }
     }
@@ -464,12 +470,12 @@ onUnmounted(() => {
     }
 
     .chart-box {
-      background: rgba(6,30,93,0.5);
+      background: rgba(6, 30, 93, 0.5);
       border-radius: 4px;
       padding: 12px;
-      box-shadow: 0 0 20px rgba(0,198,255,0.1);
+      box-shadow: 0 0 20px rgba(0, 198, 255, 0.1);
       backdrop-filter: blur(5px);
-      border: 1px solid rgba(0,198,255,0.1);
+      border: 1px solid rgba(0, 198, 255, 0.1);
       .panel-header {
         height: 40px;
         display: flex;
@@ -555,16 +561,21 @@ onUnmounted(() => {
     opacity: 0.6;
     pointer-events: none;
   }
-  
+
   .header {
     height: 80px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 0 40px;
-    background: linear-gradient(90deg, rgba(6,44,69,0) 0%, rgba(6,44,69,0.8) 50%, rgba(6,44,69,0) 100%);
+    background: linear-gradient(
+      90deg,
+      rgba(6, 44, 69, 0) 0%,
+      rgba(6, 44, 69, 0.8) 50%,
+      rgba(6, 44, 69, 0) 100%
+    );
     position: relative;
-    
+
     &::before,
     &::after {
       content: '';
@@ -574,22 +585,22 @@ onUnmounted(() => {
       height: 100%;
       z-index: -1;
     }
-    
+
     &::before {
       left: 0;
-      background: linear-gradient(90deg, transparent, rgba(0,198,255,0.1));
+      background: linear-gradient(90deg, transparent, rgba(0, 198, 255, 0.1));
     }
-    
+
     &::after {
       right: 0;
-      background: linear-gradient(-90deg, transparent, rgba(0,198,255,0.1));
+      background: linear-gradient(-90deg, transparent, rgba(0, 198, 255, 0.1));
     }
-    
+
     .decoration-left,
     .decoration-right {
       display: flex;
       gap: 8px;
-      
+
       .decoration-item {
         width: 4px;
         height: 30px;
@@ -597,11 +608,11 @@ onUnmounted(() => {
         transform: skewX(-15deg);
       }
     }
-    
+
     .decoration-right .decoration-item {
       transform: skewX(15deg);
     }
-    
+
     .title {
       font-size: 36px;
       position: relative;
@@ -610,10 +621,10 @@ onUnmounted(() => {
       -webkit-background-clip: text;
       background-clip: text;
       -webkit-text-fill-color: transparent;
-      text-shadow: 0 0 10px rgba(0,198,255,0.5);
+      text-shadow: 0 0 10px rgba(0, 198, 255, 0.5);
       font-weight: bold;
       letter-spacing: 4px;
-      
+
       .title-decoration {
         position: absolute;
         bottom: -10px;
@@ -621,7 +632,7 @@ onUnmounted(() => {
         transform: translateX(-50%);
         display: flex;
         gap: 6px;
-        
+
         .decoration-bar {
           width: 30px;
           height: 4px;
@@ -640,21 +651,21 @@ onUnmounted(() => {
     .left-panel,
     .right-panel {
       width: 25%;
-      
+
       .panel-item {
         height: 45%;
         margin-bottom: 20px;
-        
+
         .chart-title {
           height: 40px;
           line-height: 40px;
           text-align: center;
           font-size: 20px;
         }
-        
+
         .chart-content {
           height: calc(100% - 40px);
-          
+
           .echarts {
             width: 100%;
             height: 100%;
@@ -665,14 +676,14 @@ onUnmounted(() => {
 
     .center-panel {
       width: 45%;
-      
+
       .center-title {
         height: 60px;
         display: flex;
         justify-content: center;
         align-items: center;
         font-size: 24px;
-        
+
         span {
           margin: 0 20px;
         }
@@ -682,10 +693,10 @@ onUnmounted(() => {
         display: flex;
         justify-content: space-around;
         margin-top: 40px;
-        
+
         .digital-flop-item {
           text-align: center;
-          
+
           .digital-flop-title {
             margin-top: 10px;
             font-size: 16px;

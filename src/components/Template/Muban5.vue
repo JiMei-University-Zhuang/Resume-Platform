@@ -10,12 +10,21 @@
         <p>求职意向：{{ personal.intendedPosition }}</p>
       </div>
       <div class="contact">
-        <div class="icon" style="background-color: grey"></div> {{ personal.phone }}
-        <div class="icon" style="background-color: grey"></div> {{ personal.email }}
-        <div class="icon" style="background-color: grey"></div> {{ personal.location }}
+        <div class="icon" style="background-color: grey"></div>
+        {{ personal.phone }}
+        <div class="icon" style="background-color: grey"></div>
+        {{ personal.email }}
+        <div class="icon" style="background-color: grey"></div>
+        {{ personal.location }}
       </div>
       <div class="photo" @click="triggerFileInput">
-        <input type="file" ref="fileInput" @change="handleFileUpload" accept="image/*" style="display: none" />
+        <input
+          type="file"
+          ref="fileInput"
+          @change="handleFileUpload"
+          accept="image/*"
+          style="display: none"
+        />
         <div v-if="photoUrl" class="photo-preview">
           <img :src="photoUrl" alt="个人照片" />
         </div>
@@ -61,9 +70,7 @@
 
     <section class="section">
       <h3>荣誉奖励 / Certificate</h3>
-      <p v-for="certificate in certificates" :key="certificate">
-        - {{ certificate }}
-      </p>
+      <p v-for="certificate in certificates" :key="certificate">- {{ certificate }}</p>
     </section>
 
     <section class="section">
@@ -74,15 +81,15 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue';
-import dayjs from 'dayjs';
+import { computed, ref } from 'vue'
+import dayjs from 'dayjs'
 
 const props = defineProps({
   resumeForm: {
     type: Object,
     required: true
   }
-});
+})
 
 const personal = computed(() => ({
   name: props.resumeForm.name,
@@ -90,11 +97,11 @@ const personal = computed(() => ({
   phone: props.resumeForm.contact,
   email: props.resumeForm.email,
   location: props.resumeForm.currentResidence
-}));
+}))
 
 const education = computed(() => {
   if (props.resumeForm.education && props.resumeForm.education.length > 0) {
-    const edu = props.resumeForm.education[0];
+    const edu = props.resumeForm.education[0]
     return {
       startDate: dayjs(edu.time[0]).format('YYYY.MM'),
       endDate: dayjs(edu.time[1]).format('YYYY.MM'),
@@ -102,12 +109,12 @@ const education = computed(() => {
       degree: edu.degree,
       subject: edu.major,
       majorCourses: ''
-    };
+    }
   }
-  return null;
-});
+  return null
+})
 
-const experiences = computed(() => 
+const experiences = computed(() =>
   props.resumeForm.experience.map((exp, index) => ({
     id: index + 1,
     startDate: dayjs(exp.time[0]).format('YYYY.MM'),
@@ -117,7 +124,7 @@ const experiences = computed(() =>
     position: exp.position,
     details: exp.description.split('\n')
   }))
-);
+)
 
 const schoolExperience = computed(() => [
   {
@@ -128,32 +135,31 @@ const schoolExperience = computed(() => [
     role: '',
     description: props.resumeForm.campusExperience
   }
-]);
+])
 
-const certificates = computed(() => 
+const certificates = computed(() =>
   props.resumeForm.certifications.split('\n').filter(cert => cert.trim())
-);
+)
 
-const assessment = computed(() => props.resumeForm.selfAssessment);
+const assessment = computed(() => props.resumeForm.selfAssessment)
 
-const fileInput = ref<HTMLInputElement | null>(null);
-const photoUrl = ref<string>('');
+const fileInput = ref<HTMLInputElement | null>(null)
+const photoUrl = ref<string>('')
 
 const triggerFileInput = () => {
-  fileInput.value.click();
-};
+  fileInput.value.click()
+}
 
-const handleFileUpload = (event) => {
-  const file = event.target.files[0];
+const handleFileUpload = event => {
+  const file = event.target.files[0]
   if (file) {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      photoUrl.value = e.target.result;
-    };
-    reader.readAsDataURL(file);
+    const reader = new FileReader()
+    reader.onload = e => {
+      photoUrl.value = e.target.result
+    }
+    reader.readAsDataURL(file)
   }
-};
-
+}
 </script>
 
 <style scoped>

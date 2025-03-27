@@ -38,7 +38,11 @@
             </div>
           </template>
           <div class="chart-container">
+<<<<<<< HEAD
             <div id="salaryChart" ref="salaryChart" style="width: 100%; height: 300px;"></div>
+=======
+            <div ref="salaryChart" style="width: 100%; height: 300px"></div>
+>>>>>>> main
           </div>
         </el-card>
       </el-col>
@@ -70,7 +74,11 @@
             <div class="card-header">
               <span>职位发展趋势</span>
               <div class="trend-filters">
-                <el-select v-model="trendPosition" placeholder="选择职位" style="width: 150px; margin-right: 10px;">
+                <el-select
+                  v-model="trendPosition"
+                  placeholder="选择职位"
+                  style="width: 150px; margin-right: 10px"
+                >
                   <el-option
                     v-for="position in positions"
                     :key="position.value"
@@ -78,7 +86,7 @@
                     :value="position.value"
                   />
                 </el-select>
-                <el-select v-model="trendPeriod" placeholder="时间周期" style="width: 120px;">
+                <el-select v-model="trendPeriod" placeholder="时间周期" style="width: 120px">
                   <el-option label="近3个月" value="3" />
                   <el-option label="近6个月" value="6" />
                   <el-option label="近1年" value="12" />
@@ -87,7 +95,11 @@
             </div>
           </template>
           <div class="chart-container">
+<<<<<<< HEAD
             <div id="trendChart" ref="trendChart" style="width: 100%; height: 350px;"></div>
+=======
+            <div ref="trendChart" style="width: 100%; height: 350px"></div>
+>>>>>>> main
           </div>
         </el-card>
       </el-col>
@@ -100,9 +112,7 @@
           <template #header>
             <div class="card-header">
               <span>行业深度报告</span>
-              <el-button type="primary" text @click="generateReport">
-                生成完整报告
-              </el-button>
+              <el-button type="primary" text @click="generateReport"> 生成完整报告 </el-button>
             </div>
           </template>
           <div class="report-content" v-loading="generatingReport">
@@ -135,7 +145,7 @@
           </template>
           <div class="hotspot-list">
             <div v-for="(item, index) in hotspots" :key="index" class="hotspot-item">
-              <div class="hotspot-rank" :class="{ 'top3': index < 3 }">{{ index + 1 }}</div>
+              <div class="hotspot-rank" :class="{ top3: index < 3 }">{{ index + 1 }}</div>
               <div class="hotspot-info">
                 <div class="hotspot-title">{{ item.title }}</div>
                 <div class="hotspot-stats">
@@ -221,7 +231,8 @@ const trendChart = ref(null)
 const generatingReport = ref(false)
 const report = ref({
   title: '2025年互联网行业人才发展报告',
-  summary: '随着AI技术的快速发展，互联网行业的人才需求正在发生显著变化。本报告深入分析了当前市场趋势和未来发展方向。',
+  summary:
+    '随着AI技术的快速发展，互联网行业的人才需求正在发生显著变化。本报告深入分析了当前市场趋势和未来发展方向。',
   keyPoints: [
     {
       title: 'AI驱动的技术革新',
@@ -416,11 +427,23 @@ const generateReport = async () => {
     font-size: 24px;
     padding: 12px;
     border-radius: 8px;
-    
-    &.success { background: #f0f9eb; color: #67c23a; }
-    &.primary { background: #ecf5ff; color: #409eff; }
-    &.warning { background: #fdf6ec; color: #e6a23c; }
-    &.info { background: #f4f4f5; color: #909399; }
+
+    &.success {
+      background: #f0f9eb;
+      color: #67c23a;
+    }
+    &.primary {
+      background: #ecf5ff;
+      color: #409eff;
+    }
+    &.warning {
+      background: #fdf6ec;
+      color: #e6a23c;
+    }
+    &.info {
+      background: #f4f4f5;
+      color: #909399;
+    }
   }
 
   .stat-info {
@@ -442,9 +465,13 @@ const generateReport = async () => {
   .stat-trend {
     margin-top: 10px;
     font-size: 14px;
-    
-    &.up { color: #67c23a; }
-    &.down { color: #f56c6c; }
+
+    &.up {
+      color: #67c23a;
+    }
+    &.down {
+      color: #f56c6c;
+    }
   }
 }
 
@@ -555,7 +582,11 @@ const generateReport = async () => {
 .hotspot-trend {
   font-size: 14px;
 
-  &.up { color: #67c23a; }
-  &.down { color: #f56c6c; }
+  &.up {
+    color: #67c23a;
+  }
+  &.down {
+    color: #f56c6c;
+  }
 }
 </style>

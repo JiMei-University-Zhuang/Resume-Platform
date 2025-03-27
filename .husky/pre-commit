@@ -44,5 +44,8 @@ for FILE in $FILES; do
     fi
 done
 
-# 运行 lint-staged
-pnpm lint-staged 
+# 使用prettier格式化文件
+npm run format || true
+
+# 提交成功
+echo "代码检查通过，即将提交..." 

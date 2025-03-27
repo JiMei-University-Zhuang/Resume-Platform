@@ -101,27 +101,27 @@
 </template>
 
 <script setup lang="ts">
-import { ref, toRefs } from "vue";
-import dayjs from 'dayjs';
+import { ref, toRefs } from 'vue'
+import dayjs from 'dayjs'
 
 // 定义 props
 const props = defineProps({
   resumeForm: {
     type: Object,
-    required: true,
-  },
-});
+    required: true
+  }
+})
 
 // 将 props 解构为可响应式变量
-const { resumeForm } = toRefs(props);
+const { resumeForm } = toRefs(props)
 
 // 格式化日期
 const formatDate = (date: Date | null) => {
   if (date) {
-    return dayjs(date).format('YYYY.MM');
+    return dayjs(date).format('YYYY.MM')
   }
-  return '';
-};
+  return ''
+}
 </script>
 
 <style scoped>

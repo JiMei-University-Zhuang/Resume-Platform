@@ -1,11 +1,7 @@
 <template>
   <div class="chat-container">
     <div class="chat-box" ref="chatboxRef">
-      <div
-        v-for="(msg, index) in messages"
-        :key="index"
-        :class="['message', msg.role]"
-      >
+      <div v-for="(msg, index) in messages" :key="index" :class="['message', msg.role]">
         <div :class="msg.role + '_inner'">
           <div v-html="md.render(msg.text)"></div>
         </div>
@@ -13,41 +9,37 @@
       <div v-if="isTyping" class="message ai typing">AI 正在输入...</div>
     </div>
     <div class="input-area">
-      <input
-        v-model="userInput"
-        @keyup.enter="handleSendMessage"
-        placeholder="请输入消息..."
-      />
+      <input v-model="userInput" @keyup.enter="handleSendMessage" placeholder="请输入消息..." />
       <button @click="handleSendMessage">发送</button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, nextTick, onMounted } from "vue";
-import MarkdownIt from "markdown-it";
-import type { Options as MarkdownItOptions } from 'markdown-it';
-import Prism from "prismjs";
+import { ref, nextTick, onMounted } from 'vue'
+import MarkdownIt from 'markdown-it'
+import type { Options as MarkdownItOptions } from 'markdown-it'
+import Prism from 'prismjs'
 import { ElMessage } from 'element-plus'
 import type { ChatMessage, MockData } from '@/types/chat'
 
-import "prismjs/themes/prism-okaidia.css";
-import "prismjs/components/prism-javascript";
-import "prismjs/components/prism-markdown";
-import "prismjs/plugins/toolbar/prism-toolbar.css";
-import "prismjs/plugins/toolbar/prism-toolbar";
-import "prismjs/plugins/copy-to-clipboard/prism-copy-to-clipboard";
-import "prismjs/plugins/show-language/prism-show-language";
-import "katex/dist/katex.min.css";
-import markdownItKatexGpt from "markdown-it-katex-gpt";
+import 'prismjs/themes/prism-okaidia.css'
+import 'prismjs/components/prism-javascript'
+import 'prismjs/components/prism-markdown'
+import 'prismjs/plugins/toolbar/prism-toolbar.css'
+import 'prismjs/plugins/toolbar/prism-toolbar'
+import 'prismjs/plugins/copy-to-clipboard/prism-copy-to-clipboard'
+import 'prismjs/plugins/show-language/prism-show-language'
+import 'katex/dist/katex.min.css'
+import markdownItKatexGpt from 'markdown-it-katex-gpt'
 
-import { codeStr1, formulaStr1, tableStr } from "./mocks";
+import { codeStr1, formulaStr1, tableStr } from './mocks'
 
 // 初始化变量
-const chatboxRef = ref<HTMLDivElement | null>(null);
-const messages = ref<ChatMessage[]>([]);
-const userInput = ref("");
-const isTyping = ref(false);
+const chatboxRef = ref<HTMLDivElement | null>(null)
+const messages = ref<ChatMessage[]>([])
+const userInput = ref('')
+const isTyping = ref(false)
 
 // 初始化 Markdown
 const mdOptions: MarkdownItOptions = {
@@ -58,128 +50,132 @@ const mdOptions: MarkdownItOptions = {
   highlight: (str: string, lang: string) => {
     if (lang && Prism.languages[lang]) {
       try {
-        return `<pre class="code-block language-${lang}"><code class="language-${lang}">${
-          Prism.highlight(str, Prism.languages[lang], lang)
-        }</code></pre>`;
+        return `<pre class="code-block language-${lang}"><code class="language-${lang}">${Prism.highlight(
+          str,
+          Prism.languages[lang],
+          lang
+        )}</code></pre>`
       } catch (__) {}
     }
-    return `<pre class="code-block"><code>${str}</code></pre>`;
+    return `<pre class="code-block"><code>${str}</code></pre>`
   }
 }
 
-const md = new MarkdownIt(mdOptions);
+const md = new MarkdownIt(mdOptions)
 md.use(markdownItKatexGpt, {
   delimiters: [
-    { left: "\\[", right: "\\]", display: true },
-    { left: "\\(", right: "\\)", display: false },
-    { left: "$$", right: "$$", display: true },
-    { left: "$", right: "$", display: false },
-  ],
-});
+    { left: '\\[', right: '\\]', display: true },
+    { left: '\\(', right: '\\)', display: false },
+    { left: '$$', right: '$$', display: true },
+    { left: '$', right: '$', display: false }
+  ]
+})
 
 // 模拟数据
 const mockData: MockData = {
   代码: codeStr1,
   数学公式: formulaStr1,
-  表格: tableStr,
-};
+  表格: tableStr
+}
 
 // AI回复流式处理
 const streamAiReply = async (fullText: string) => {
-  const index = messages.value.length;
-  const message: ChatMessage = { role: "ai", text: "" };
-  messages.value.push(message);
+  const index = messages.value.length
+  const message: ChatMessage = { role: 'ai', text: '' }
+  messages.value.push(message)
 
   for (let i = 0; i < fullText.length; i++) {
-    await new Promise((resolve) => setTimeout(resolve, 50));
+    await new Promise(resolve => setTimeout(resolve, 50))
 
     if (messages.value[index]) {
       messages.value[index] = {
         ...messages.value[index],
-        text: messages.value[index].text + fullText[i],
-      };
+        text: messages.value[index].text + fullText[i]
+      }
 
-      await nextTick();
-      Prism.highlightAll();
-      
+      await nextTick()
+      Prism.highlightAll()
+
       if (chatboxRef.value) {
-        chatboxRef.value.scrollTop = chatboxRef.value.scrollHeight;
+        chatboxRef.value.scrollTop = chatboxRef.value.scrollHeight
       }
     }
   }
-};
+}
 
 // 消息处理函数
 const handleSendMessage = async () => {
-  if (!userInput.value.trim()) return;
-  const userMessage = userInput.value;
-  messages.value.push({ role: "user", text: userMessage });
-  userInput.value = "";
-  isTyping.value = true;
+  if (!userInput.value.trim()) return
+  const userMessage = userInput.value
+  messages.value.push({ role: 'user', text: userMessage })
+  userInput.value = ''
+  isTyping.value = true
 
   try {
     if (userMessage in mockData) {
-      await streamAiReply(mockData[userMessage]);
+      await streamAiReply(mockData[userMessage])
     } else {
       // 创建新的消息
-      messages.value.push({ role: "ai", text: "" });
-      const currentIndex = messages.value.length - 1;
+      messages.value.push({ role: 'ai', text: '' })
+      const currentIndex = messages.value.length - 1
 
       // 创建 EventSource 实例
-      const eventSource = new EventSource(`http://8.130.75.193:8081/ai/chat?message=${encodeURIComponent(userMessage)}`);
+      const eventSource = new EventSource(
+        `http://8.130.75.193:8081/ai/chat?message=${encodeURIComponent(userMessage)}`
+      )
 
       // 监听消息
-      eventSource.onmessage = async (event) => {
+      eventSource.onmessage = async event => {
         if (messages.value[currentIndex]) {
-          messages.value[currentIndex].text += event.data;
-          await nextTick();
+          messages.value[currentIndex].text += event.data
+          await nextTick()
           if (chatboxRef.value) {
-            chatboxRef.value.scrollTop = chatboxRef.value.scrollHeight;
+            chatboxRef.value.scrollTop = chatboxRef.value.scrollHeight
           }
-          Prism.highlightAll();
+          Prism.highlightAll()
         }
-      };
+      }
 
       // 监听错误
-      eventSource.onerror = (error) => {
-        console.error('SSE Error:', error);
-        eventSource.close();
-        isTyping.value = false;
-        ElMessage.error('连接中断，请重试');
-      };
+      eventSource.onerror = error => {
+        console.error('SSE Error:', error)
+        eventSource.close()
+        isTyping.value = false
+        ElMessage.error('连接中断，请重试')
+      }
 
       // 等待消息完成
-      await new Promise((resolve) => {
+      await new Promise(resolve => {
         eventSource.addEventListener('done', () => {
-          eventSource.close();
-          resolve(true);
-        });
-        
+          eventSource.close()
+          resolve(true)
+        })
+
         // 设置超时
         setTimeout(() => {
-          eventSource.close();
-          resolve(true);
-        }, 30000); // 30秒超时
-      });
+          eventSource.close()
+          resolve(true)
+        }, 30000) // 30秒超时
+      })
     }
   } catch (error) {
-    const err = error as Error;
-    ElMessage.error(err.message || '发送消息失败');
+    const err = error as Error
+    ElMessage.error(err.message || '发送消息失败')
     messages.value.push({
       role: 'ai',
       text: '❌ 发送消息失败，请重试'
-    });
+    })
   } finally {
-    isTyping.value = false;
+    isTyping.value = false
   }
-};
+}
 
 // 生命周期钩子
 onMounted(() => {
   if (chatboxRef.value) {
-    chatboxRef.value.scrollTop = chatboxRef.value.scrollHeight;
+    chatboxRef.value.scrollTop = chatboxRef.value.scrollHeight
   }
-});
+})
 </script>
 
 <style scoped>
@@ -220,7 +216,7 @@ onMounted(() => {
 }
 
 .user_inner {
-  background-color: #007AFF;
+  background-color: #007aff;
   color: white;
 }
 
@@ -248,7 +244,7 @@ input {
 
 button {
   padding: 10px 20px;
-  background-color: #007AFF;
+  background-color: #007aff;
   color: white;
   border: none;
   border-radius: 4px;

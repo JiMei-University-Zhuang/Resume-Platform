@@ -7,7 +7,7 @@
             <div class="card-header">
               <span>简历信息</span>
               <el-button type="primary" @click="analyzeResume">AI 分析优化</el-button>
-               <el-button type="danger" @click="confirmClearResumeForm">清空简历</el-button>
+              <el-button type="danger" @click="confirmClearResumeForm">清空简历</el-button>
             </div>
           </template>
 
@@ -210,21 +210,26 @@
                 <el-button type="primary" @click="previewResume">预览效果</el-button>
                 <el-button @click="changeTemplate">切换模板</el-button>
 
-    <el-dialog v-model="templateDialogVisible" title="选择简历模板" width="70%">
-      <el-row :gutter="20">
-        <el-col :span="6" v-for="template in Object.keys(templateComponents)" :key="template">
-          <el-card :body-style="{ padding: '0px' }" class="template-card">
-           
-            <div class="template-info">
-              <h3>{{ template }}</h3>
-              <div class="template-actions">
-                <el-button type="primary" @click="selectTemplate(template)">选择模板</el-button>
-              </div>
-            </div>
-          </el-card>
-        </el-col>
-      </el-row>
-    </el-dialog>
+                <el-dialog v-model="templateDialogVisible" title="选择简历模板" width="70%">
+                  <el-row :gutter="20">
+                    <el-col
+                      :span="6"
+                      v-for="template in Object.keys(templateComponents)"
+                      :key="template"
+                    >
+                      <el-card :body-style="{ padding: '0px' }" class="template-card">
+                        <div class="template-info">
+                          <h3>{{ template }}</h3>
+                          <div class="template-actions">
+                            <el-button type="primary" @click="selectTemplate(template)"
+                              >选择模板</el-button
+                            >
+                          </div>
+                        </div>
+                      </el-card>
+                    </el-col>
+                  </el-row>
+                </el-dialog>
               </div>
             </div>
           </template>
@@ -309,7 +314,7 @@
 import { templateConfig } from '@/components/Template/templateConfig'
 
 import { ref } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus';
+import { ElMessage, ElMessageBox } from 'element-plus'
 import { useRoute } from 'vue-router'
 import { watch } from 'vue'
 import html2canvas from 'html2canvas'
@@ -518,14 +523,16 @@ const analyzeResume = async () => {
     await new Promise(resolve => setTimeout(resolve, 2000))
 
     aiSuggestions.value = {
-      summary: '您的简历整体结构清晰，但在某些方面还可以进一步优化。',//AI对简历的总体评价
-      score: 85,//AI对简历的评分
-      suggestions: [//AI对简历的优化建议
+      summary: '您的简历整体结构清晰，但在某些方面还可以进一步优化。', //AI对简历的总体评价
+      score: 85, //AI对简历的评分
+      suggestions: [
+        //AI对简历的优化建议
         '建议在工作经验部分添加更多具体的数据和成果',
         '可以突出展示您的核心技能和专业认证',
         '教育背景部分可以补充相关的课程和学术成果'
       ],
-      revisions: [//AI对简历的修改建议
+      revisions: [
+        //AI对简历的修改建议
         {
           section: '工作描述',//建议修改的部分
           suggestions: [
@@ -542,7 +549,8 @@ const analyzeResume = async () => {
           suggestion: '5年前端开发经验，熟练掌握主流前端技术栈，具有良好的团队协作能力和沟通能力。'
         }
       ],
-      industryMatch: [//AI对简历的行业匹配
+      industryMatch: [
+        //AI对简历的行业匹配
         { industry: '互联网技术', score: 90 },
         { industry: '人工智能', score: 75 },
         { industry: '金融科技', score: 70 }
@@ -557,20 +565,21 @@ const analyzeResume = async () => {
 
 const applyAISuggestions = () => {
   ElMessage.success('已应用 AI 建议')
-  
+
   // 查找section为'在校经历'的建议
-  const campusExperienceSuggestion = aiSuggestions.value?.revisions.find(rev => rev.section === '在校经历');
-  
+  const campusExperienceSuggestion = aiSuggestions.value?.revisions.find(
+    rev => rev.section === '在校经历'
+  )
+
   // 如果找到了对应的建议，则更新resumeForm中的campusExperience
   if (campusExperienceSuggestion) {
-    resumeForm.value.campusExperience = campusExperienceSuggestion.suggestion;
+    resumeForm.value.campusExperience = campusExperienceSuggestion.suggestion
   } else {
     ElMessage.warning('未找到在校经历的修改建议')
   }
-  
+
   analysisDialogVisible.value = false
 }
-
 
 const templateDialogVisible = ref(false)
 const previewDialogVisible = ref(false)
@@ -587,7 +596,7 @@ const confirmClearResumeForm = () => {
   ElMessageBox.confirm('确定要清空简历信息吗？', '提示', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
-    type: 'warning',
+    type: 'warning'
   })
     .then(() => {
       clearResumeForm()
@@ -597,7 +606,6 @@ const confirmClearResumeForm = () => {
       ElMessage.info('已取消清空操作')
     })
 }
-
 
 const clearResumeForm = () => {
   resumeForm.value = {
@@ -617,20 +625,20 @@ const clearResumeForm = () => {
         school: '',
         major: '',
         degree: '',
-        time: [new Date(), new Date()],
-      },
+        time: [new Date(), new Date()]
+      }
     ],
     experience: [
       {
         company: '',
         position: '',
         description: '',
-        time: [new Date(), new Date()],
-      },
+        time: [new Date(), new Date()]
+      }
     ],
     campusExperience: '',
     skills: [],
-    selfAssessment: '',
+    selfAssessment: ''
   }
 }
 </script>
@@ -731,7 +739,7 @@ const clearResumeForm = () => {
 }
 
 .template-card:hover {
-  box-shadow: 0 6px 18px 0 rgba(0,0,0,0.1);
+  box-shadow: 0 6px 18px 0 rgba(0, 0, 0, 0.1);
   transform: translateY(-3px);
 }
 
@@ -778,7 +786,7 @@ const clearResumeForm = () => {
   .el-col {
     margin-bottom: 15px;
   }
-  
+
   .template-card {
     margin-bottom: 15px;
   }

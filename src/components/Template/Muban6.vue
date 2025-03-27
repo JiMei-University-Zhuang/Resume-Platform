@@ -82,7 +82,9 @@
           <span class="title-en">Skill</span>
         </div>
         <ul class="content">
-          <li v-for="(cert, index) in resumeForm.certifications.split(',')" :key="index">{{ cert.trim() }}</li>
+          <li v-for="(cert, index) in resumeForm.certifications.split(',')" :key="index">
+            {{ cert.trim() }}
+          </li>
         </ul>
       </div>
 
@@ -189,7 +191,7 @@ const formatDate = (date: Date | null) => {
   text-align: center;
 }
 .avatar {
-    width: 107px; /* 将宽高改成等比例 */
+  width: 107px; /* 将宽高改成等比例 */
   height: 150px;
   margin: 0 auto 10px;
   border: 2px dashed #ccc;
@@ -234,7 +236,7 @@ const formatDate = (date: Date | null) => {
   object-fit: cover;
 }
 
-input[type="file"] {
+input[type='file'] {
   display: none;
 }
 
