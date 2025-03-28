@@ -207,6 +207,7 @@
               <span>预览</span>
               <div>
                 <el-button type="success" @click="exportPDF">导出 PDF</el-button>
+                <el-button type="primary" @click="previewResume">预览效果</el-button>
                 <el-button @click="changeTemplate">切换模板</el-button>
 
                 <el-dialog v-model="templateDialogVisible" title="选择简历模板" width="70%">
@@ -293,6 +294,19 @@
           <el-button type="primary" @click="applyAISuggestions"> 应用 AI 建议 </el-button>
         </span>
       </template>
+    </el-dialog>
+
+    <el-dialog
+      v-model="previewDialogVisible"
+      title="简历预览"
+      width="60%"
+      modal-class="preview-modal"
+      :overlay-class="'preview-overlay'"
+      align-center
+    >
+      <div class="resume-preview-dialog">
+        <component :is="currentTemplate" :resumeForm="resumeForm" />
+      </div>
     </el-dialog>
   </div>
 </template>
@@ -521,14 +535,19 @@ const analyzeResume = async () => {
       revisions: [
         //AI对简历的修改建议
         {
-          section: '工作描述', //建议修改的部分
-          suggestion:
-            '在腾讯科技担任前端开发工程师期间，我主导负责公司核心产品的前端开发工作，深度运用 Vue.js 框架构建高性能、高可用性的用户界面。与产品、设计、后端团队紧密合作，确保产品的功能实现和用户体验达到最佳状态。同时，我持续关注前端技术的发展趋势，不断优化和改进现有技术方案，提升产品的性能和稳定性。'
-        }, //修改的内容
+          section: '工作描述',//建议修改的部分
+          suggestions: [
+            '在腾讯科技担任前端开发工程师期间，我主导负责公司核心产品的前端开发工作，深度运用 Vue.js 框架构建高性能、高可用性的用户界面。与产品、设计、后端团队紧密合作，确保产品的功能实现和用户体验达到最佳状态。同时，我持续关注前端技术的发展趋势，不断优化和改进现有技术方案，提升产品的性能和稳定性。',
+            '在阿里巴巴担任高级前端开发工程师期间，负责电商平台的前端架构设计和开发，优化用户体验并提升系统性能。与团队合作，成功实施了多项技术创新，显著提高了平台的稳定性和响应速度。'
+          ] // 修改的内容
+        },
         {
           section: '在校经历',
-          suggestion:
-            '在校期间担任学生会技术部部长，成功策划并组织了多场技术分享会。在此过程中，我负责了活动的整体策划，包括主题选定、嘉宾邀请以及流程设计等多个环节。同时，我还带领团队完成了活动的宣传推广以及现场执行工作，确保了每一场分享会的顺利进行，吸引了众多同学参与，有效提升了团队的影响力。'
+          suggestion: '在校期间担任学生会技术部部长，成功策划并组织了多场技术分享会。在此过程中，我负责了活动的整体策划，包括主题选定、嘉宾邀请以及流程设计等多个环节。同时，我还带领团队完成了活动的宣传推广以及现场执行工作，确保了每一场分享会的顺利进行，吸引了众多同学参与，有效提升了团队的影响力。'
+        },
+        {
+          section: '自我评价',
+          suggestion: '5年前端开发经验，熟练掌握主流前端技术栈，具有良好的团队协作能力和沟通能力。'
         }
       ],
       industryMatch: [
@@ -564,9 +583,14 @@ const applyAISuggestions = () => {
 }
 
 const templateDialogVisible = ref(false)
+const previewDialogVisible = ref(false)
 
 const changeTemplate = () => {
   templateDialogVisible.value = true
+}
+
+const previewResume = () => {
+  previewDialogVisible.value = true
 }
 
 const confirmClearResumeForm = () => {
@@ -623,6 +647,26 @@ const clearResumeForm = () => {
 <style scoped>
 .resume-create {
   padding: 20px;
+}
+
+.preview-overlay {
+  background-color: rgba(0, 0, 0, 0.7) !important;
+  backdrop-filter: blur(2px);
+}
+
+.preview-modal {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.resume-preview-dialog {
+  padding: 20px;
+  background-color: white;
+  border-radius: 4px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+  transform: scale(0.7);
+  transform-origin: center;
+  margin: -15% auto;
 }
 
 .card-header {
