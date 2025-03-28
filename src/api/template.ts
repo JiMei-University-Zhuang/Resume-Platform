@@ -43,8 +43,13 @@ interface AiSuggestions {
   }>
 }
 
-export function Youhua(data: ResumeForm) {
-  return request<AiSuggestions>({
+/**
+ * 使用AI分析并优化简历
+ * @param data 简历表单数据
+ * @returns 返回AI的优化建议
+ */
+export function analyzeResume(data: ResumeForm) {
+  return request<{ aiSuggestions: AiSuggestions }>({
     url: '/ai/cv',
     method: 'post',
     data
