@@ -268,8 +268,12 @@
                 </li>
               </ul>
             </el-collapse-item>
-            
-            <el-collapse-item title="修改建议" name="3" v-if="aiSuggestions.revisions && aiSuggestions.revisions.length">
+
+            <el-collapse-item
+              title="修改建议"
+              name="3"
+              v-if="aiSuggestions.revisions && aiSuggestions.revisions.length"
+            >
               <ul>
                 <li v-for="(revision, index) in aiSuggestions.revisions" :key="index">
                   <strong>{{ revision.section }}:</strong>
@@ -278,7 +282,11 @@
               </ul>
             </el-collapse-item>
 
-            <el-collapse-item title="行业匹配度" name="4" v-if="aiSuggestions.industryMatch && aiSuggestions.industryMatch.length">
+            <el-collapse-item
+              title="行业匹配度"
+              name="4"
+              v-if="aiSuggestions.industryMatch && aiSuggestions.industryMatch.length"
+            >
               <el-progress
                 v-for="(match, index) in aiSuggestions.industryMatch"
                 :key="index"
@@ -454,7 +462,7 @@ const loadTemplate = async (templateName?: string) => {
 // 使用正确的 watch 方法
 watch(
   () => route.params.template || 'Muban1',
-  (newTemplate) => {
+  newTemplate => {
     loadTemplate(newTemplate as string)
   },
   { immediate: true }
@@ -543,7 +551,9 @@ const analyzeResume = async () => {
     // 准备数据 - 将Date对象转换为字符串
     const formData = {
       ...resumeForm.value,
-      birthday: resumeForm.value.birthday ? dayjs(resumeForm.value.birthday).format('YYYY-MM-DD') : '',
+      birthday: resumeForm.value.birthday
+        ? dayjs(resumeForm.value.birthday).format('YYYY-MM-DD')
+        : '',
       education: resumeForm.value.education.map(edu => ({
         ...edu,
         time: [
@@ -562,17 +572,16 @@ const analyzeResume = async () => {
 
     // 调用API
     const response = await analyzeResumeApi(formData)
-    
+
     // 处理API响应 - 提取aiSuggestions数据
     console.log('API Response:', response)
-    
+
     // 提取aiSuggestions数据
     if (response.data && response.data.aiSuggestions) {
       aiSuggestions.value = response.data.aiSuggestions
     } else {
       throw new Error('响应数据格式不正确')
     }
-
   } catch (error) {
     console.error('分析失败:', error)
     ElMessage.error('简历分析失败，请稍后再试')
@@ -589,19 +598,19 @@ const applyAISuggestions = () => {
 
   // 查找各个部分的修改建议
   const revisions = aiSuggestions.value.revisions || []
-  
+
   // 处理工作描述修改
   const workDescriptionSuggestion = revisions.find(rev => rev.section === '工作描述')
   if (workDescriptionSuggestion && resumeForm.value.experience.length > 0) {
     resumeForm.value.experience[0].description = workDescriptionSuggestion.suggestion
   }
-  
+
   // 处理在校经历修改
   const campusExperienceSuggestion = revisions.find(rev => rev.section === '在校经历')
   if (campusExperienceSuggestion) {
     resumeForm.value.campusExperience = campusExperienceSuggestion.suggestion
   }
-  
+
   // 处理自我评价修改
   const selfAssessmentSuggestion = revisions.find(rev => rev.section === '自我评价')
   if (selfAssessmentSuggestion) {
