@@ -122,7 +122,9 @@
               <el-divider>核心观点</el-divider>
               <div class="key-points">
                 <div v-for="(point, index) in report.keyPoints" :key="index" class="point-item">
-                  <div class="point-number">{{ index + 1 }}</div>
+                  <div class="point-number">
+                    {{ index + 1 }}
+                  </div>
                   <div class="point-content">
                     <h4>{{ point.title }}</h4>
                     <p>{{ point.content }}</p>
@@ -145,16 +147,21 @@
           </template>
           <div class="hotspot-list">
             <div v-for="(item, index) in hotspots" :key="index" class="hotspot-item">
-              <div class="hotspot-rank" :class="{ top3: index < 3 }">{{ index + 1 }}</div>
+              <div class="hotspot-rank" :class="{ top3: index < 3 }">
+                {{ index + 1 }}
+              </div>
               <div class="hotspot-info">
-                <div class="hotspot-title">{{ item.title }}</div>
+                <div class="hotspot-title">
+                  {{ item.title }}
+                </div>
                 <div class="hotspot-stats">
                   <span>{{ item.companies }}家公司</span>
                   <span>{{ item.positions }}个职位</span>
                 </div>
               </div>
               <div class="hotspot-trend" :class="item.trend">
-                {{ item.trend === 'up' ? '↑' : '↓' }} {{ item.change }}%
+                {{ item.trend === 'up' ? '↑' : '↓' }}
+                {{ item.change }}%
               </div>
             </div>
           </div>

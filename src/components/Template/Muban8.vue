@@ -76,7 +76,9 @@
         <div class="item">
           <div v-html="resumeForm.certifications"></div>
           <ul v-if="resumeForm.skills.length">
-            <li v-for="(skill, index) in resumeForm.skills" :key="index">{{ skill }}</li>
+            <li v-for="(skill, index) in resumeForm.skills" :key="index">
+              {{ skill }}
+            </li>
           </ul>
         </div>
       </div>
@@ -157,11 +159,9 @@ const handleFileUpload = (event: Event) => {
   font-family: 'Arial', sans-serif;
   color: #333;
   background-color: #fff;
-  margin: 0;
+  margin: 20px auto;
   padding: 20px;
-  width: 800px;
-  transform: scale(0.65);
-  transform-origin: top left;
+  max-width: 900px;
   border: 1px solid #eee;
   border-radius: 5px;
 }
@@ -209,7 +209,6 @@ const handleFileUpload = (event: Event) => {
   grid-template-columns: repeat(2, 1fr);
   gap: 10px;
   position: relative;
-  padding-right: 120px;
 }
 .info-item {
   flex: 1 1 50%;
@@ -217,15 +216,13 @@ const handleFileUpload = (event: Event) => {
 }
 .photo {
   cursor: pointer;
-  position: absolute;
-  top: 0;
-  right: 0;
 }
 .photo img {
   width: 100px;
   height: 120px;
   object-fit: cover;
   border-radius: 5px;
+  margin-top: 10px;
 }
 .upload-placeholder {
   width: 100px;
@@ -238,6 +235,7 @@ const handleFileUpload = (event: Event) => {
   text-align: center;
   color: #e26386;
   font-size: 12px;
+  margin-top: 10px;
   padding: 5px;
 }
 .item {

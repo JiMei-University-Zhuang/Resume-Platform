@@ -148,11 +148,9 @@ const formatDateRange = dateRange => {
   font-family: Arial, sans-serif;
   color: #333;
   line-height: 1.6;
-  width: 800px;
-  margin: 0;
+  max-width: 800px;
+  margin: 0 auto;
   padding: 20px;
-  transform: scale(0.65);
-  transform-origin: top left;
 }
 
 /* Header */

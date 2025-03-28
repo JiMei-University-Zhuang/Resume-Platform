@@ -43,7 +43,9 @@
           </div>
           <div class="data-overview">
             <div class="overview-item" v-for="(item, index) in overviewData" :key="index">
-              <div class="data-value" ref="countRefs">{{ formatNumber(item.value) }}</div>
+              <div class="data-value" ref="countRefs">
+                {{ formatNumber(item.value) }}
+              </div>
               <div class="data-label">{{ item.label }}</div>
             </div>
           </div>
