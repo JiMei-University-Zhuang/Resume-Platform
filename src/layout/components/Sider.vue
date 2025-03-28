@@ -16,6 +16,7 @@
             to="/dashboard"
             class="category-item"
             :class="{ active: route.path === '/dashboard' }"
+            @click="navigateTo('/dashboard')"
           >
             <div class="category-icon">
               <el-icon><HomeFilled /></el-icon>
@@ -27,6 +28,7 @@
             to="/datascreen"
             class="category-item"
             :class="{ active: route.path === '/datascreen' }"
+            @click="navigateTo('/datascreen')"
           >
             <div class="category-icon">
               <el-icon><DataLine /></el-icon>
@@ -38,7 +40,7 @@
             <h3 class="section-title">AI工具</h3>
           </div>
 
-          <router-link to="/chat" class="category-item" :class="{ active: route.path === '/chat' }">
+          <router-link to="/chat" class="category-item" :class="{ active: route.path === '/chat' }" @click="navigateTo('/chat')">
             <div class="category-icon">
               <el-icon><ChatDotRound /></el-icon>
             </div>
@@ -75,6 +77,7 @@
             to="/resume/create"
             class="category-item"
             :class="{ active: route.path.startsWith('/resume/create') }"
+            @click="navigateTo('/resume/create')"
           >
             <div class="category-icon">
               <el-icon><Document /></el-icon>
@@ -86,6 +89,7 @@
             to="/resume/templates"
             class="category-item"
             :class="{ active: route.path === '/resume/templates' }"
+            @click="navigateTo('/resume/templates')"
           >
             <div class="category-icon">
               <el-icon><CopyDocument /></el-icon>
@@ -97,6 +101,7 @@
             to="/resume/analysis"
             class="category-item"
             :class="{ active: route.path === '/resume/analysis' }"
+            @click="navigateTo('/resume/analysis')"
           >
             <div class="category-icon">
               <el-icon><DataAnalysis /></el-icon>
@@ -108,6 +113,7 @@
             to="/resume/insights"
             class="category-item"
             :class="{ active: route.path === '/resume/insights' }"
+            @click="navigateTo('/resume/insights')"
           >
             <div class="category-icon">
               <el-icon><TrendCharts /></el-icon>
@@ -123,6 +129,7 @@
             to="/career-planning/analysis"
             class="category-item"
             :class="{ active: route.path === '/career-planning/analysis' }"
+            @click="navigateTo('/career-planning/analysis')"
           >
             <div class="category-icon">
               <el-icon><Aim /></el-icon>
@@ -134,6 +141,7 @@
             to="/career-planning/roadmap"
             class="category-item"
             :class="{ active: route.path === '/career-planning/roadmap' }"
+            @click="navigateTo('/career-planning/roadmap')"
           >
             <div class="category-icon">
               <el-icon><Compass /></el-icon>
@@ -145,6 +153,7 @@
             to="/career-planning/recommendation"
             class="category-item"
             :class="{ active: route.path === '/career-planning/recommendation' }"
+            @click="navigateTo('/career-planning/recommendation')"
           >
             <div class="category-icon">
               <el-icon><StarFilled /></el-icon>
@@ -160,6 +169,7 @@
             to="/exam/civil-service"
             class="category-item"
             :class="{ active: route.path === '/exam/civil-service' }"
+            @click="navigateTo('/exam/civil-service')"
           >
             <div class="category-icon">
               <el-icon><Reading /></el-icon>
@@ -171,6 +181,7 @@
             to="/exam/postgraduate"
             class="category-item"
             :class="{ active: route.path === '/exam/postgraduate' }"
+            @click="navigateTo('/exam/postgraduate')"
           >
             <div class="category-icon">
               <el-icon><Collection /></el-icon>
@@ -186,6 +197,7 @@
           to="/dashboard"
           class="category-icon-collapsed"
           :class="{ active: route.path === '/dashboard' }"
+          @click="navigateTo('/dashboard')"
         >
           <el-icon><HomeFilled /></el-icon>
         </router-link>
@@ -193,6 +205,7 @@
           to="/datascreen"
           class="category-icon-collapsed"
           :class="{ active: route.path === '/datascreen' }"
+          @click="navigateTo('/datascreen')"
         >
           <el-icon><DataLine /></el-icon>
         </router-link>
@@ -200,6 +213,7 @@
           to="/chat"
           class="category-icon-collapsed"
           :class="{ active: route.path === '/chat' }"
+          @click="navigateTo('/chat')"
         >
           <el-icon><ChatDotRound /></el-icon>
         </router-link>
@@ -221,6 +235,7 @@
           to="/resume/create"
           class="category-icon-collapsed"
           :class="{ active: route.path.startsWith('/resume') }"
+          @click="navigateTo('/resume/create')"
         >
           <el-icon><Document /></el-icon>
         </router-link>
@@ -228,6 +243,7 @@
           to="/career-planning/analysis"
           class="category-icon-collapsed"
           :class="{ active: route.path.startsWith('/career-planning') }"
+          @click="navigateTo('/career-planning/analysis')"
         >
           <el-icon><Compass /></el-icon>
         </router-link>
@@ -235,6 +251,7 @@
           to="/exam/civil-service"
           class="category-icon-collapsed"
           :class="{ active: route.path.startsWith('/exam') }"
+          @click="navigateTo('/exam/civil-service')"
         >
           <el-icon><Reading /></el-icon>
         </router-link>
@@ -261,24 +278,56 @@ import {
   Collection
 } from '@element-plus/icons-vue'
 import { useAppStore } from '@/stores'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { computed } from 'vue'
 
 const route = useRoute()
+const router = useRouter()
 const appStore = useAppStore()
 const { collapsed, isDark } = storeToRefs(appStore)
 
 // 计算属性
 const menuBackgroundColor = computed(() => (isDark.value ? '#141414' : '#304156'))
-const menuTextColor = computed(() => (isDark.value ? '#fff' : '#bfcbd9'))
+const menuTextColor = computed(() => (isDark.value ? '#bfcbd9' : '#fff'))
+
+// 优雅地处理导航，确保路由切换时页面总是更新
+const navigateTo = (path: string) => {
+  // 判断是否同路径或同模块内部导航
+  const isSamePath = route.path === path;
+  const isSameModule = 
+    (path.startsWith('/resume') && route.path.startsWith('/resume')) ||
+    (path.startsWith('/career-planning') && route.path.startsWith('/career-planning')) ||
+    (path.startsWith('/exam') && route.path.startsWith('/exam'));
+  
+  // 只有在相同路径或相同模块内导航时特殊处理
+  if (isSamePath || isSameModule) {
+    // 触发全局事件告知布局组件需要刷新
+    if (typeof window !== 'undefined') {
+      // 简单直接的方法 - 使用标准事件API
+      const event = document.createEvent('Event');
+      event.initEvent('force-route-refresh', true, true);
+      window.dispatchEvent(event);
+    }
+    
+    // 使用 router.replace 强制导航
+    router.replace({
+      path,
+      query: { 
+        ...route.query, // 保留现有查询参数
+        _r: Date.now().toString()  // 添加时间戳强制更新
+      }
+    });
+  }
+}
 
 defineExpose({
   route,
   collapsed,
   isDark,
   menuBackgroundColor,
-  menuTextColor
+  menuTextColor,
+  navigateTo
 })
 </script>
 

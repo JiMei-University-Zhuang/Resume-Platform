@@ -32,39 +32,17 @@
       </el-dropdown>
     </div>
   </header>
-  <div class="header-bottom">
-    <!-- 标签导航 -->
-    <div class="tabs-container">
-      <el-tabs
-        v-model="activeTab"
-        type="card"
-        closable
-        @tab-remove="removeTab"
-        @tab-click="handleTabClick"
-      >
-        <el-tab-pane
-          v-for="item in visitedViews"
-          :key="item.path"
-          :label="item.title"
-          :name="item.path"
-        >
-        </el-tab-pane>
-      </el-tabs>
-    </div>
-  </div>
 </template>
 
 <script setup lang="ts">
 import { Expand, Fold, Moon, Sunny } from '@element-plus/icons-vue'
-import { useRouter, useRoute } from 'vue-router'
+import { useRouter } from 'vue-router'
 import { useAppStore } from '@/stores'
-import { ref, watch } from 'vue'
 import Breadcrumb from '@/components/Breadcrumb.vue'
 import { logout } from '@/api/user'
 import { ElMessage } from 'element-plus'
 
 const router = useRouter()
-const route = useRoute()
 const appStore = useAppStore()
 
 //个人设置页面
@@ -84,49 +62,6 @@ const handleLogout = async () => {
     ElMessage.error('登出失败，请稍后重试')
   }
 }
-
-const activeTab = ref('')
-const visitedViews = ref<Array<{ path: string; title: string }>>([])
-
-watch(
-  () => route.path,
-  newPath => {
-    const matched = route.matched.find(item => item.path === newPath)
-    if (matched && matched.meta.title) {
-      const view = {
-        path: newPath,
-        title: matched.meta.title as string
-      }
-      if (!visitedViews.value.find(v => v.path === newPath)) {
-        visitedViews.value.push(view)
-      }
-      activeTab.value = newPath
-    }
-  },
-  { immediate: true }
-)
-
-const removeTab = (targetPath: string | number) => {
-  const tabs = visitedViews.value
-  let activePath = activeTab.value
-  if (activePath === targetPath) {
-    tabs.forEach((tab, index) => {
-      if (tab.path === targetPath) {
-        const nextTab = tabs[index + 1] || tabs[index - 1]
-        if (nextTab) {
-          activePath = nextTab.path
-        }
-      }
-    })
-  }
-  activeTab.value = activePath
-  visitedViews.value = tabs.filter(tab => tab.path !== targetPath)
-  router.push(activePath)
-}
-
-const handleTabClick = (tab: any) => {
-  router.push(tab.props.name)
-}
 </script>
 
 <style scoped>
@@ -134,6 +69,7 @@ const handleTabClick = (tab: any) => {
   height: 64px;
   background: var(--el-bg-color);
   padding: 1px 16px;
+  padding-left: 22px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -202,43 +138,5 @@ const handleTabClick = (tab: any) => {
 .el-breadcrumb {
   font-size: 14px;
   line-height: 64px;
-}
-
-.tabs-container {
-  margin-top: 0px;
-  padding: 0 16px;
-  background-color: var(--el-bg-color);
-}
-
-.tabs-container :deep(.el-tabs__header) {
-  margin: 0;
-  border-bottom: none;
-}
-
-.tabs-container :deep(.el-tabs__nav) {
-  border: none;
-}
-
-.tabs-container :deep(.el-tabs__item) {
-  height: 30px;
-  line-height: 30px;
-  border: none;
-  color: var(--el-text-color-regular);
-  background-color: var(--el-bg-color-overlay);
-  margin: 0 1px;
-  border-radius: 3px;
-}
-
-.tabs-container :deep(.el-tabs__item.is-active) {
-  color: var(--el-color-primary);
-  background-color: var(--el-color-primary-light-9);
-}
-
-.tabs-container :deep(.el-tabs__nav-wrap::after) {
-  display: none;
-}
-
-.header-bottom {
-  box-shadow: 0 1px 5px rgba(0, 21, 41, 0.08);
 }
 </style>
