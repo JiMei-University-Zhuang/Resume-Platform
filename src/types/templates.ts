@@ -1,4 +1,12 @@
-export type FilterType = 'all' | 'fresh' | 'tech' | 'business' | 'design' | 'academic' | 'marketing' | 'medical'
+export type FilterType =
+  | 'all'
+  | 'fresh'
+  | 'tech'
+  | 'business'
+  | 'design'
+  | 'academic'
+  | 'marketing'
+  | 'medical'
 
 export type TagType = 'success' | 'warning' | 'info' | 'primary' | 'danger'
 

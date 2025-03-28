@@ -7,10 +7,7 @@
         <!-- 使用多重保险确保组件重新渲染 -->
         <router-view v-slot="{ Component }">
           <keep-alive>
-            <component 
-              :is="Component" 
-              :key="$route.fullPath + '|' + refreshKey" 
-            />
+            <component :is="Component" :key="$route.fullPath + '|' + refreshKey" />
           </keep-alive>
         </router-view>
       </main>
@@ -38,11 +35,15 @@ const forceRefresh = () => {
 }
 
 // 监听路由变化
-watch(() => $route.fullPath, () => {
-  nextTick(() => {
-    forceRefresh()
-  })
-}, { immediate: true })
+watch(
+  () => $route.fullPath,
+  () => {
+    nextTick(() => {
+      forceRefresh()
+    })
+  },
+  { immediate: true }
+)
 
 // 监听自定义事件
 onMounted(() => {

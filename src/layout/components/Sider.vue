@@ -40,7 +40,12 @@
             <h3 class="section-title">AI工具</h3>
           </div>
 
-          <router-link to="/chat" class="category-item" :class="{ active: route.path === '/chat' }" @click="navigateTo('/chat')">
+          <router-link
+            to="/chat"
+            class="category-item"
+            :class="{ active: route.path === '/chat' }"
+            @click="navigateTo('/chat')"
+          >
             <div class="category-icon">
               <el-icon><ChatDotRound /></el-icon>
             </div>
@@ -294,30 +299,30 @@ const menuTextColor = computed(() => (isDark.value ? '#bfcbd9' : '#fff'))
 // 优雅地处理导航，确保路由切换时页面总是更新
 const navigateTo = (path: string) => {
   // 判断是否同路径或同模块内部导航
-  const isSamePath = route.path === path;
-  const isSameModule = 
+  const isSamePath = route.path === path
+  const isSameModule =
     (path.startsWith('/resume') && route.path.startsWith('/resume')) ||
     (path.startsWith('/career-planning') && route.path.startsWith('/career-planning')) ||
-    (path.startsWith('/exam') && route.path.startsWith('/exam'));
-  
+    (path.startsWith('/exam') && route.path.startsWith('/exam'))
+
   // 只有在相同路径或相同模块内导航时特殊处理
   if (isSamePath || isSameModule) {
     // 触发全局事件告知布局组件需要刷新
     if (typeof window !== 'undefined') {
       // 简单直接的方法 - 使用标准事件API
-      const event = document.createEvent('Event');
-      event.initEvent('force-route-refresh', true, true);
-      window.dispatchEvent(event);
+      const event = document.createEvent('Event')
+      event.initEvent('force-route-refresh', true, true)
+      window.dispatchEvent(event)
     }
-    
+
     // 使用 router.replace 强制导航
     router.replace({
       path,
-      query: { 
+      query: {
         ...route.query, // 保留现有查询参数
-        _r: Date.now().toString()  // 添加时间戳强制更新
+        _r: Date.now().toString() // 添加时间戳强制更新
       }
-    });
+    })
   }
 }
 
