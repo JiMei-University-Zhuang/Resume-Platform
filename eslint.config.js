@@ -51,7 +51,8 @@ export default [
         HTMLImageElement: true,
         EventSource: true,
         HTMLDivElement: true,
-        VNode: true
+        VNode: true,
+        sessionStorage: 'readonly',
       },
       parser: tsparser,
       ecmaVersion: 'latest',

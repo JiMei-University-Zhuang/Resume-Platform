@@ -42,7 +42,10 @@ export const sendChatMessage = async (message: string, system_message?: string) 
   try {
     while (true) {
       const { done, value } = await reader.read()
-      console.log('Read chunk:', { done, value: value ? decoder.decode(value) : null })
+      console.log('Read chunk:', {
+        done,
+        value: value ? decoder.decode(value) : null
+      })
 
       if (done) break
 

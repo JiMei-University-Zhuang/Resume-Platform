@@ -41,7 +41,10 @@
         <h2>教育背景</h2>
       </div>
       <div v-for="(edu, index) in resumeForm.education" :key="index" class="info">
-        <p>{{ formatDateRange(edu.time) }} | {{ edu.school }} | {{ edu.major }}</p>
+        <p>
+          {{ formatDateRange(edu.time) }} | {{ edu.school }} |
+          {{ edu.major }}
+        </p>
         <p>学历：{{ edu.degree }}</p>
       </div>
     </div>
@@ -53,7 +56,10 @@
         <h2>工作经历</h2>
       </div>
       <div v-for="(exp, index) in resumeForm.experience" :key="index" class="info">
-        <p>{{ formatDateRange(exp.time) }} | {{ exp.company }} | {{ exp.position }}</p>
+        <p>
+          {{ formatDateRange(exp.time) }} | {{ exp.company }} |
+          {{ exp.position }}
+        </p>
         <p>{{ exp.description }}</p>
       </div>
     </div>

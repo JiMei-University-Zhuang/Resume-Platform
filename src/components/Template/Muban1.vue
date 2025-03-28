@@ -79,7 +79,8 @@
         <li v-for="(edu, index) in resumeForm.education" :key="index">
           <div class="timeline-item">
             <div class="timeline-date">
-              {{ formatDate(edu.time[0]) }} - {{ formatDate(edu.time[1]) }}
+              {{ formatDate(edu.time[0]) }} -
+              {{ formatDate(edu.time[1]) }}
             </div>
             <div class="timeline-content">
               <div class="timeline-title">{{ edu.school }} - {{ edu.major }}</div>
@@ -97,7 +98,8 @@
         <li v-for="(job, index) in resumeForm.experience" :key="index">
           <div class="timeline-item">
             <div class="timeline-date">
-              {{ formatDate(job.time[0]) }} - {{ formatDate(job.time[1]) }}
+              {{ formatDate(job.time[0]) }} -
+              {{ formatDate(job.time[1]) }}
             </div>
             <div class="timeline-content">
               <div class="timeline-title">{{ job.company }} - {{ job.position }}</div>

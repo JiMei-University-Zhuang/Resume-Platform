@@ -38,7 +38,10 @@
         </div>
         <div class="section-content">
           <div v-for="(edu, index) in resumeForm.education" :key="index" class="education">
-            <div>{{ formatDate(edu.time[0]) }} 至 {{ formatDate(edu.time[1]) }}</div>
+            <div>
+              {{ formatDate(edu.time[0]) }} 至
+              {{ formatDate(edu.time[1]) }}
+            </div>
             <div>{{ edu.school }}</div>
             <div>{{ edu.major }}</div>
             <div>学历：{{ edu.degree }}</div>
