@@ -523,7 +523,7 @@ const exportPDF = async () => {
 
   try {
     ElMessage.info('正在生成PDF，请稍候...')
-    
+
     // 使用更稳定的配置
     const canvas = await html2canvas(resumePreview.value, {
       scale: 2, // 使用固定的缩放比例，提高清晰度
@@ -536,7 +536,7 @@ const exportPDF = async () => {
       windowWidth: document.documentElement.offsetWidth,
       windowHeight: document.documentElement.offsetHeight
     })
-    
+
     const imgData = canvas.toDataURL('image/jpeg', 1.0)
     const pdf = new jsPDF('p', 'mm', 'a4')
     const pdfWidth = pdf.internal.pageSize.getWidth()
