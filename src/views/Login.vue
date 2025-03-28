@@ -251,11 +251,7 @@ const registerrules = {
   name: [{ required: true, message: '请输入昵称', trigger: 'blur' }],
   telephone: [
     { required: true, message: '请输入手机号', trigger: 'blur' },
-    {
-      pattern: /^1[3-9]\d{9}$/,
-      message: '手机号格式不正确',
-      trigger: 'blur'
-    }
+    { pattern: /^1[3-9]\d{9}$/, message: '手机号格式不正确', trigger: 'blur' }
   ],
   email: [
     { required: true, message: '请输入邮箱', trigger: 'blur' },
@@ -280,9 +276,7 @@ const getCaptchaData = async () => {
       if (captchaUrl.value) {
         window.URL.revokeObjectURL(captchaUrl.value)
       }
-      const blob = new Blob([captchaResponse.data], {
-        type: 'image/jpeg'
-      })
+      const blob = new Blob([captchaResponse.data], { type: 'image/jpeg' })
       captchaUrl.value = window.URL.createObjectURL(blob)
       loginForm.captcha_key = captchaKey.value
       registerForm.captcha_key = captchaKey.value

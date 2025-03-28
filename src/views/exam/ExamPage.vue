@@ -10,7 +10,7 @@
           <div v-for="(question, index) in questions" :key="index" class="question-item">
             <div class="question-header">
               <span class="question-number">题目编号：{{ question.questionId }}</span>
-              <span class="question-score">分值{{ question.score }}</span>
+              <span class="question-score">分值&nbsp;{{ question.score }}</span>
             </div>
             <div class="question-content" v-html="formatText(question.questionContent)"></div>
             <el-radio-group
@@ -48,9 +48,7 @@
             >
               <div>
                 正确答案
-                <div class="correct-answer">
-                  {{ question.correctAnswer }}
-                </div>
+                <div class="correct-answer">{{ question.correctAnswer }}</div>
               </div>
               <div class="user-answer">
                 我的答案
@@ -64,7 +62,7 @@
               </div>
             </div>
           </div>
-          <el-button type="primary" @click="submitExam">提交试卷</el-button>
+          <el-button type="primary" @click="handleSubmit">提交试卷</el-button>
         </div>
       </template>
       <template v-else>
@@ -74,10 +72,7 @@
             <span class="question-score">分值{{ questions[0]?.score }}</span>
           </div>
           <div v-for="(question, index) in questions[0]?.expoundingOptionInfos || []" :key="index">
-            <p>
-              题目编号：{{ questions[0]?.questionId }} -
-              {{ question.itemId }}
-            </p>
+            <p>题目编号：{{ questions[0]?.questionId }} - {{ question.itemId }}</p>
             <p>
               题目内容：{{ question.itemContent }}
               <span class="question-score">分值&nbsp;{{ question.itemScore }}</span>
@@ -95,7 +90,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed, watch, onBeforeUnmount } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { getCSPractice } from '@/api/exam'
 import { ElMessageBox } from 'element-plus'
@@ -160,7 +155,24 @@ const formatText = (text: string) => {
   return processedText
 }
 
+const handleSubmit = async () => {
+  try {
+    await ElMessageBox.confirm(
+      '确定要提交试卷吗？提交后不可修改！',
+      '提交确认',
+      {
+        confirmButtonText: '确定提交',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }
+    )
+    submitExam()
+  } catch (error) {
+    console.log('用户取消提交')
+  }
+}
 const submitExam = () => {
+  
   let correctCount = 0
   questions.value.forEach((question, index) => {
     if (answers.value[index] === question.correctAnswer) {
@@ -257,40 +269,7 @@ const submitEssayExam = () => {
 
 onMounted(() => {
   fetchQuestions()
-  // // 从 sessionStorage 中恢复 answers
-  // const storedAnswers = sessionStorage.getItem('examAnswers')
-  // if (storedAnswers) {
-  //   answers.value = JSON.parse(storedAnswers)
-  // }
-
-  // // 从 sessionStorage 中恢复 essayAnswers
-  // const storedEssayAnswers = sessionStorage.getItem('examEssayAnswers')
-  // if (storedEssayAnswers) {
-  //   essayAnswers.value = JSON.parse(storedEssayAnswers)
-  // }
 })
-
-// // 监听 answers 变化并存储到 sessionStorage
-// watch(answers, newAnswers => {
-//   sessionStorage.setItem('examAnswers', JSON.stringify(newAnswers))
-// })
-
-// // 监听 essayAnswers 变化并存储到 sessionStorage
-// watch(essayAnswers, newEssayAnswers => {
-//   sessionStorage.setItem('examEssayAnswers', JSON.stringify(newEssayAnswers))
-// })
-
-// onBeforeUnmount(() => {
-//   if (questions.value.length > 0 && !showCorrectAnswers.value) {
-//     const confirmed = window.confirm('您还有未完成的练习，确定要离开吗？')
-//     if (confirmed) {
-//       sessionStorage.removeItem('examAnswers')
-//       sessionStorage.removeItem('examEssayAnswers')
-//     } else {
-//       throw new Error('Navigation cancelled by user')
-//     }
-//   }
-// })
 </script>
 
 <style scoped>
@@ -343,6 +322,9 @@ onMounted(() => {
 
 .question-header {
   margin-bottom: 20px;
+  padding: 4px 0;
+  display: flex;
+  align-items: center;
 }
 
 .question-number {
@@ -380,11 +362,11 @@ onMounted(() => {
   border-radius: 15px;
 }
 .correct-answer-container.correct {
-  background-color: #c2e8cb;
+  background-color: #c2e8cb; /* 绿色背景 */
 }
 
 .correct-answer-container.incorrect {
-  background-color: #fde2e2;
+  background-color: #fde2e2; /* 红色背景 */
 }
 
 .user-correct {
@@ -497,10 +479,13 @@ onMounted(() => {
 .el-button {
   display: block;
   margin: 30px auto;
-  padding: 12px 30px;
-  font-size: 16px;
+  padding: 20px 30px;
+  font-size: 20px;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: center;
 }
-/* 消除element默认宽度限制 */
+
 .el-message-box {
   width: auto !important;
   max-width: 90vw;
