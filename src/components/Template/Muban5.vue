@@ -168,9 +168,6 @@ const handleFileUpload = event => {
   color: #333;
   line-height: 1.6;
   padding: 20px;
-  width: 800px;
-  transform: scale(0.65);
-  transform-origin: top left;
 }
 
 .header {

@@ -4,8 +4,15 @@
     <div class="main" :class="{ collapsed: collapsed }">
       <LayoutHeader />
       <main class="content">
-        <!-- 展示区 -->
-        <router-view></router-view>
+        <!-- 使用多重保险确保组件重新渲染 -->
+        <router-view v-slot="{ Component }">
+          <keep-alive>
+            <component 
+              :is="Component" 
+              :key="$route.fullPath + '|' + refreshKey" 
+            />
+          </keep-alive>
+        </router-view>
       </main>
     </div>
   </div>
@@ -16,9 +23,35 @@ import { useAppStore } from '@/stores'
 import LayoutHeader from './components/Header.vue'
 import LayoutSider from './components/Sider.vue'
 import { storeToRefs } from 'pinia'
+import { useRoute, useRouter } from 'vue-router'
+import { onMounted, onUnmounted, ref, nextTick, watch } from 'vue'
 
 const appStore = useAppStore()
 const { collapsed } = storeToRefs(appStore)
+const $route = useRoute()
+const router = useRouter()
+
+// 强制刷新机制
+const refreshKey = ref(0)
+const forceRefresh = () => {
+  refreshKey.value += 1
+}
+
+// 监听路由变化
+watch(() => $route.fullPath, () => {
+  nextTick(() => {
+    forceRefresh()
+  })
+}, { immediate: true })
+
+// 监听自定义事件
+onMounted(() => {
+  window.addEventListener('force-route-refresh', forceRefresh)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('force-route-refresh', forceRefresh)
+})
 </script>
 
 <style scoped>
@@ -42,6 +75,7 @@ const { collapsed } = storeToRefs(appStore)
 
 .content {
   padding: 20px;
+  padding-top: 0;
   box-sizing: border-box;
   position: relative;
   z-index: 1;

@@ -56,7 +56,10 @@
         </div>
         <div class="content">
           <div class="education" v-for="(edu, index) in resumeForm.education" :key="index">
-            <div>{{ formatDate(edu.time[0]) }} -- {{ formatDate(edu.time[1]) }}</div>
+            <div>
+              {{ formatDate(edu.time[0]) }} --
+              {{ formatDate(edu.time[1]) }}
+            </div>
             <div>{{ edu.school }}</div>
             <div>{{ edu.major }}</div>
             <div>学历：{{ edu.degree }}</div>
@@ -107,12 +110,13 @@
         </div>
         <ul class="content">
           <li v-for="(exp, index) in resumeForm.experience" :key="index">
-            <div class="exp-header">
-              <span class="company">{{ exp.company }}</span>
-              <span class="position">{{ exp.position }}</span>
-              <span class="time">{{ formatDate(exp.time[0]) }} -- {{ formatDate(exp.time[1]) }}</span>
+            <div>{{ exp.company }}</div>
+            <div>{{ exp.position }}</div>
+            <div>
+              {{ formatDate(exp.time[0]) }} --
+              {{ formatDate(exp.time[1]) }}
             </div>
-            <div class="description">{{ exp.description }}</div>
+            <div>{{ exp.description }}</div>
           </li>
         </ul>
       </div>
@@ -165,26 +169,18 @@ const formatDate = (date: Date | null) => {
 .resume-container {
   display: flex;
   font-family: Arial, sans-serif;
-  width: 800px;
-  transform: scale(0.65);
-  transform-origin: top left;
- 
 }
 
 .left-panel {
   width: 35%;
   background-color: #f8f8f8;
-  padding: 30px;
+  padding: 20px;
   border-right: 1px solid #e0e0e0;
 }
 
 .right-panel {
   width: 65%;
-  padding: 30px;
-}
-
-.section {
-  margin-bottom: 30px;
+  padding: 20px;
 }
 
 .profile {
@@ -250,31 +246,7 @@ input[type='file'] {
 }
 
 .section {
-  margin-bottom: 40px;
-}
-
-.section-title {
-  margin-bottom: 25px;
-  padding-bottom: 15px;
-  border-bottom: 2px solid #e0e0e0;
-}
-
-.education {
   margin-bottom: 20px;
-  padding: 15px;
-  background-color: #fafafa;
-  border-radius: 5px;
-}
-
-.education > div {
-  margin-bottom: 8px;
-}
-
-.content li {
-  margin-bottom: 15px;
-  padding: 10px;
-  background-color: #fafafa;
-  border-radius: 5px;
 }
 
 .section-title {
@@ -319,30 +291,5 @@ input[type='file'] {
 
 .experience {
   margin-bottom: 20px;
-}
-.exp-header {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  margin-bottom: 10px;
-}
-
-.company {
-  font-weight: bold;
-  color: #307360;
-}
-
-.position {
-  color: #666;
-}
-
-.time {
-  color: #999;
-  margin-left: auto;
-}
-
-.description {
-  color: #333;
-  line-height: 1.5;
 }
 </style>
