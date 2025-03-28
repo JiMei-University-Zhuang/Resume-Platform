@@ -48,7 +48,9 @@
             >
               <div>
                 正确答案
-                <div class="correct-answer">{{ question.correctAnswer }}</div>
+                <div class="correct-answer">
+                  {{ question.correctAnswer }}
+                </div>
               </div>
               <div class="user-answer">
                 我的答案
@@ -72,7 +74,10 @@
             <span class="question-score">分值{{ questions[0]?.score }}</span>
           </div>
           <div v-for="(question, index) in questions[0]?.expoundingOptionInfos || []" :key="index">
-            <p>题目编号：{{ questions[0]?.questionId }} - {{ question.itemId }}</p>
+            <p>
+              题目编号：{{ questions[0]?.questionId }} -
+              {{ question.itemId }}
+            </p>
             <p>
               题目内容：{{ question.itemContent }}
               <span class="question-score">分值&nbsp;{{ question.itemScore }}</span>
@@ -90,10 +95,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch, onBeforeUnmount } from 'vue'
 import { useRoute } from 'vue-router'
 import { getCSPractice } from '@/api/exam'
-import { ElMessage } from 'element-plus'
+import { ElMessageBox } from 'element-plus'
+import passimg1 from '@/assets/images/exam_imgs/pass1.jpg'
+import passimg2 from '@/assets/images/exam_imgs/pass2.png'
+import failimg1 from '@/assets/images/exam_imgs/failpass1.png'
+import failimg2 from '@/assets/images/exam_imgs/failpass2.png'
 
 // 定义题目接口
 interface Question {
@@ -150,18 +159,89 @@ const formatText = (text: string) => {
   processedText = processedText.replace(/\n/g, '<br>')
   return processedText
 }
+
 const submitExam = () => {
-  let score = 0
+  let correctCount = 0
   questions.value.forEach((question, index) => {
     if (answers.value[index] === question.correctAnswer) {
-      score += question.score
+      correctCount++
     }
   })
-  totalScore.value = score
 
+  const accuracy = (correctCount / questions.value.length) * 100
+  totalScore.value = questions.value.reduce(
+    (sum, q, i) => (answers.value[i] === q.correctAnswer ? sum + q.score : sum),
+    0
+  )
+  //结果弹窗
+  const isPass = accuracy >= 60
+  const title = '本次专项练习成绩'
+  const statusText = isPass ? '正确率过六十啦🎉，真棒！' : '继续加油，相信自己一定行'
+  ElMessageBox({
+    message: `
+        <div style="text-align: center; padding: 25px 32px;">
+            <h3 style="margin: 0 0 20px 0; color: #333; font-size: 20px">${title}</h3>
+            
+            <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 40px;padding:20px">
+                ${
+                  isPass
+                    ? `<img src="${passimg1}" style="width: 120px; margin-right: 30px"/>`
+                    : `<img src="${failimg1}" style="width: 120px; margin-right: 30px"/>`
+                }
+                
+                <!-- 圆形框容器 -->
+                <div style="position: relative">
+                    <div style="
+                        width: 100px;
+                        height: 100px;
+                        border: 3px solid #FF4757;
+                        border-radius: 50%;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 24px;
+                        color: #FF4757;
+                        background: white;
+                        margin: 0 20px;
+                    ">
+                        ${accuracy.toFixed(1)}%
+                    </div>
+                    <p style="
+                        margin: 10px 0 0;
+                        color: #666;
+                        font-size: 18px;
+                        position: absolute;
+                        width: 100%;
+                        font-weight: bold;
+                        text-align: center;
+                    ">正确率</p>
+                </div>
+
+                ${
+                  isPass
+                    ? `<img src="${passimg2}" style="width: 120px; margin-left: 30px"/>`
+                    : `<img src="${failimg2}" style="width: 120px; margin-left: 30px"/>`
+                }
+            </div>
+
+            <div style="background: #f8f8f8; padding: 15px; border-radius: 8px; margin-top: 20px">
+                <p style="margin: 5px 0; color: #666;font-size:18px">总分：<strong style="color: #333">${totalScore.value}</strong></p>
+                <p style="margin: 5px 0; color: #FF4757; font-weight: bold">${statusText}</p>
+            </div>
+        </div>
+        `,
+    dangerouslyUseHTMLString: true,
+    confirmButtonText: '确定',
+    customClass: 'result-dialog',
+    customStyle: {
+      width: 'auto',
+      maxWidth: '90vw',
+      padding: '0 20px 20px'
+    }
+  })
   showCorrectAnswers.value = true
-
-  ElMessage.success('提交成功！总分：' + totalScore.value)
+  // sessionStorage.removeItem('examAnswers')
+  // sessionStorage.removeItem('examEssayAnswers')
 }
 
 const answerStatus = computed(() => {
@@ -177,7 +257,40 @@ const submitEssayExam = () => {
 
 onMounted(() => {
   fetchQuestions()
+  // // 从 sessionStorage 中恢复 answers
+  // const storedAnswers = sessionStorage.getItem('examAnswers')
+  // if (storedAnswers) {
+  //   answers.value = JSON.parse(storedAnswers)
+  // }
+
+  // // 从 sessionStorage 中恢复 essayAnswers
+  // const storedEssayAnswers = sessionStorage.getItem('examEssayAnswers')
+  // if (storedEssayAnswers) {
+  //   essayAnswers.value = JSON.parse(storedEssayAnswers)
+  // }
 })
+
+// // 监听 answers 变化并存储到 sessionStorage
+// watch(answers, newAnswers => {
+//   sessionStorage.setItem('examAnswers', JSON.stringify(newAnswers))
+// })
+
+// // 监听 essayAnswers 变化并存储到 sessionStorage
+// watch(essayAnswers, newEssayAnswers => {
+//   sessionStorage.setItem('examEssayAnswers', JSON.stringify(newEssayAnswers))
+// })
+
+// onBeforeUnmount(() => {
+//   if (questions.value.length > 0 && !showCorrectAnswers.value) {
+//     const confirmed = window.confirm('您还有未完成的练习，确定要离开吗？')
+//     if (confirmed) {
+//       sessionStorage.removeItem('examAnswers')
+//       sessionStorage.removeItem('examEssayAnswers')
+//     } else {
+//       throw new Error('Navigation cancelled by user')
+//     }
+//   }
+// })
 </script>
 
 <style scoped>
@@ -267,11 +380,11 @@ onMounted(() => {
   border-radius: 15px;
 }
 .correct-answer-container.correct {
-  background-color: #c2e8cb; /* 绿色背景 */
+  background-color: #c2e8cb;
 }
 
 .correct-answer-container.incorrect {
-  background-color: #fde2e2; /* 红色背景 */
+  background-color: #fde2e2;
 }
 
 .user-correct {
@@ -386,5 +499,24 @@ onMounted(() => {
   margin: 30px auto;
   padding: 12px 30px;
   font-size: 16px;
+}
+/* 消除element默认宽度限制 */
+.el-message-box {
+  width: auto !important;
+  max-width: 90vw;
+  min-width: 500px;
+}
+
+.result-dialog .el-message-box__content {
+  min-width: 500px;
+  padding: 15px 25px;
+}
+
+/* 图片容器自适应 */
+.result-dialog .image-container {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 20px;
 }
 </style>

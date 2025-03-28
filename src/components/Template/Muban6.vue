@@ -56,7 +56,10 @@
         </div>
         <div class="content">
           <div class="education" v-for="(edu, index) in resumeForm.education" :key="index">
-            <div>{{ formatDate(edu.time[0]) }} -- {{ formatDate(edu.time[1]) }}</div>
+            <div>
+              {{ formatDate(edu.time[0]) }} --
+              {{ formatDate(edu.time[1]) }}
+            </div>
             <div>{{ edu.school }}</div>
             <div>{{ edu.major }}</div>
             <div>学历：{{ edu.degree }}</div>
@@ -109,7 +112,10 @@
           <li v-for="(exp, index) in resumeForm.experience" :key="index">
             <div>{{ exp.company }}</div>
             <div>{{ exp.position }}</div>
-            <div>{{ formatDate(exp.time[0]) }} -- {{ formatDate(exp.time[1]) }}</div>
+            <div>
+              {{ formatDate(exp.time[0]) }} --
+              {{ formatDate(exp.time[1]) }}
+            </div>
             <div>{{ exp.description }}</div>
           </li>
         </ul>

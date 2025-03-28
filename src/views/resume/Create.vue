@@ -269,7 +269,8 @@
             <el-collapse-item title="修改建议" name="3">
               <ul>
                 <li v-for="(revisions, index) in aiSuggestions.revisions" :key="index">
-                  {{ revisions.section }}: {{ revisions.suggestion }}
+                  {{ revisions.section }}:
+                  {{ revisions.suggestion }}
                 </li>
               </ul>
             </el-collapse-item>

@@ -64,7 +64,8 @@
           <div class="section-content">
             <div class="timeline-item" v-for="(edu, index) in resumeForm.education" :key="index">
               <div class="timeline-date">
-                {{ formatDate(edu.time[0]) }} - {{ formatDate(edu.time[1]) }}
+                {{ formatDate(edu.time[0]) }} -
+                {{ formatDate(edu.time[1]) }}
               </div>
               <div class="timeline-content">
                 <div class="school">{{ edu.school }}</div>
@@ -83,12 +84,15 @@
           <div class="section-content">
             <div class="timeline-item" v-for="(exp, index) in resumeForm.experience" :key="index">
               <div class="timeline-date">
-                {{ formatDate(exp.time[0]) }} - {{ formatDate(exp.time[1]) }}
+                {{ formatDate(exp.time[0]) }} -
+                {{ formatDate(exp.time[1]) }}
               </div>
               <div class="timeline-content">
                 <div class="company">{{ exp.company }}</div>
                 <div class="position">{{ exp.position }}</div>
-                <div class="description">{{ exp.description }}</div>
+                <div class="description">
+                  {{ exp.description }}
+                </div>
               </div>
             </div>
           </div>
