@@ -18,8 +18,8 @@
             </el-form-item>
             <el-form-item label="性别">
               <el-radio-group v-model="resumeForm.gender">
-                <el-radio label="男">男</el-radio>
-                <el-radio label="女">女</el-radio>
+                <el-radio value="男" label="男">男</el-radio>
+                <el-radio value="女" label="女">女</el-radio>
               </el-radio-group>
             </el-form-item>
             <el-form-item label="求职意向">
@@ -442,28 +442,36 @@ const selectTemplate = async (template: string) => {
 
 // 定义模板加载函数
 const loadTemplate = async (templateName?: string) => {
-  const template = templateName || 'Muban1'
+  const template = templateName || 'muban1' // 使用小写模板名称
   try {
     // 安全地加载组件
-    if (template in templateComponents) {
-      const module = await templateComponents[template]()
+    const templateKey = template.toLowerCase() // 确保使用小写键名
+    if (templateKey in templateComponents) {
+      const module = await templateComponents[templateKey]()
       currentTemplate.value = module.default
     } else {
-      const fallback = await templateComponents['Muban1']()
+      // 回退到默认模板
+      const fallback = await templateComponents['muban1']()
       currentTemplate.value = fallback.default
     }
   } catch (error) {
     console.error('加载模板失败:', error)
-    const fallback = await templateComponents['Muban1']()
-    currentTemplate.value = fallback.default
+    try {
+      // 二次尝试加载默认模板
+      const fallback = await templateComponents['muban1']()
+      currentTemplate.value = fallback.default
+    } catch (err) {
+      console.error('无法加载默认模板:', err)
+      ElMessage.error('模板加载失败，请刷新页面重试')
+    }
   }
 }
 
 // 使用正确的 watch 方法
 watch(
-  () => route.params.template || 'Muban1',
+  () => route.params.template || 'muban1',
   newTemplate => {
-    loadTemplate(newTemplate as string)
+    loadTemplate(String(newTemplate).toLowerCase()) // 确保转换为小写字符串
   },
   { immediate: true }
 )
@@ -514,31 +522,37 @@ const exportPDF = async () => {
   if (!resumePreview.value) return
 
   try {
-    const scale = window.devicePixelRatio || 1
+    ElMessage.info('正在生成PDF，请稍候...')
+    
+    // 使用更稳定的配置
     const canvas = await html2canvas(resumePreview.value, {
-      scale: scale, // 使用设备像素比来提高分辨率
-      useCORS: true // 允许跨域资源
+      scale: 2, // 使用固定的缩放比例，提高清晰度
+      useCORS: true, // 允许跨域资源
+      logging: false, // 减少日志输出
+      allowTaint: true, // 允许污染
+      backgroundColor: '#ffffff', // 设置白色背景
+      scrollX: 0,
+      scrollY: 0,
+      windowWidth: document.documentElement.offsetWidth,
+      windowHeight: document.documentElement.offsetHeight
     })
-    const imgData = canvas.toDataURL('image/png')
+    
+    const imgData = canvas.toDataURL('image/jpeg', 1.0)
     const pdf = new jsPDF('p', 'mm', 'a4')
     const pdfWidth = pdf.internal.pageSize.getWidth()
-    const pageHeight = pdf.internal.pageSize.getHeight()
-    const imgHeight = (canvas.height * pdfWidth) / canvas.width
+    const pdfHeight = pdf.internal.pageSize.getHeight()
+    const imgWidth = canvas.width
+    const imgHeight = canvas.height
+    const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight)
+    const imgX = (pdfWidth - imgWidth * ratio) / 2
+    const imgY = 0
 
-    let position = 0
-
-    while (position < imgHeight) {
-      pdf.addImage(imgData, 'PNG', 0, -position, pdfWidth, imgHeight)
-      position += pageHeight
-      if (position < imgHeight) {
-        pdf.addPage()
-      }
-    }
-
+    pdf.addImage(imgData, 'JPEG', imgX, imgY, imgWidth * ratio, imgHeight * ratio)
     pdf.save('我的简历.pdf')
 
     ElMessage.success('PDF导出成功！')
   } catch (error) {
+    console.error('PDF导出失败:', error)
     ElMessage.error('PDF导出失败，请重试')
   }
 }
