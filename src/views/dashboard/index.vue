@@ -368,7 +368,7 @@ class BehaviorPredictor {
     // 根据时间和历史行为预测
     if (hour >= 9 && hour <= 12 && (day === 1 || day === 2)) {
       return '查看职业分析结果'
-    } else if (hour >= 14 && hour <= 18 && (day >= 3 && day <= 5)) {
+    } else if (hour >= 14 && hour <= 18 && day >= 3 && day <= 5) {
       return '完善您的简历'
     } else if (this.lastVisitedPage === '/career-planning/analysis') {
       return '生成职业发展规划'
@@ -1015,5 +1015,3 @@ onMounted(async () => {
   color: #606266;
 }
 </style>
-
-

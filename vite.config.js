@@ -6,7 +6,7 @@ import { fileURLToPath } from 'url';
 var __dirname = dirname(fileURLToPath(import.meta.url));
 // https://vite.dev/config/
 export default defineConfig({
-    base: '/Z-Admin/',
+    base: process.env.BASE_PATH || '/Z-Admin/',
     plugins: [vue()],
     resolve: {
         alias: {
