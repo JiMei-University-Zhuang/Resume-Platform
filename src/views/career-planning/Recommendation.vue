@@ -5,7 +5,9 @@
         <el-card class="form-card">
           <template #header>
             <div class="card-header">
-              <span><el-icon><StarFilled /></el-icon> 职业推荐</span>
+              <span
+                ><el-icon><StarFilled /></el-icon> 职业推荐</span
+              >
               <el-tooltip content="基于您的背景、技能和兴趣，推荐最适合您的职业选择">
                 <el-icon><QuestionFilled /></el-icon>
               </el-tooltip>
@@ -16,7 +18,11 @@
             <el-row :gutter="20">
               <el-col :xs="24" :sm="12">
                 <el-form-item label="教育背景" required>
-                  <el-select v-model="recommendationForm.education" placeholder="请选择您的最高学历" style="width: 100%">
+                  <el-select
+                    v-model="recommendationForm.education"
+                    placeholder="请选择您的最高学历"
+                    style="width: 100%"
+                  >
                     <el-option label="高中" value="high_school" />
                     <el-option label="专科" value="college" />
                     <el-option label="本科" value="bachelor" />
@@ -27,12 +33,12 @@
               </el-col>
               <el-col :xs="24" :sm="12">
                 <el-form-item label="工作经验" required>
-                  <el-input-number 
-                    v-model="recommendationForm.experience" 
-                    :min="0" 
-                    :precision="0" 
+                  <el-input-number
+                    v-model="recommendationForm.experience"
+                    :min="0"
+                    :precision="0"
                     style="width: 100%"
-                    placeholder="请输入您的工作年限" 
+                    placeholder="请输入您的工作年限"
                   />
                 </el-form-item>
               </el-col>
@@ -48,16 +54,36 @@
                 style="width: 100%"
               >
                 <el-option-group label="技术">
-                  <el-option v-for="skill in techSkills" :key="skill.id" :label="skill.name" :value="skill.name" />
+                  <el-option
+                    v-for="skill in techSkills"
+                    :key="skill.id"
+                    :label="skill.name"
+                    :value="skill.name"
+                  />
                 </el-option-group>
                 <el-option-group label="设计">
-                  <el-option v-for="skill in designSkills" :key="skill.id" :label="skill.name" :value="skill.name" />
+                  <el-option
+                    v-for="skill in designSkills"
+                    :key="skill.id"
+                    :label="skill.name"
+                    :value="skill.name"
+                  />
                 </el-option-group>
                 <el-option-group label="管理">
-                  <el-option v-for="skill in managementSkills" :key="skill.id" :label="skill.name" :value="skill.name" />
+                  <el-option
+                    v-for="skill in managementSkills"
+                    :key="skill.id"
+                    :label="skill.name"
+                    :value="skill.name"
+                  />
                 </el-option-group>
                 <el-option-group label="软技能">
-                  <el-option v-for="skill in softSkills" :key="skill.id" :label="skill.name" :value="skill.name" />
+                  <el-option
+                    v-for="skill in softSkills"
+                    :key="skill.id"
+                    :label="skill.name"
+                    :value="skill.name"
+                  />
                 </el-option-group>
               </el-select>
             </el-form-item>
@@ -84,7 +110,11 @@
             <el-row :gutter="20">
               <el-col :xs="24" :sm="8">
                 <el-form-item label="工作方式偏好">
-                  <el-select v-model="recommendationForm.preferredWorkStyle" placeholder="请选择工作方式" style="width: 100%">
+                  <el-select
+                    v-model="recommendationForm.preferredWorkStyle"
+                    placeholder="请选择工作方式"
+                    style="width: 100%"
+                  >
                     <el-option label="办公室全职" value="office" />
                     <el-option label="远程工作" value="remote" />
                     <el-option label="混合模式" value="hybrid" />
@@ -94,7 +124,11 @@
               </el-col>
               <el-col :xs="24" :sm="8">
                 <el-form-item label="行业偏好">
-                  <el-select v-model="recommendationForm.preferredIndustry" placeholder="请选择行业" style="width: 100%">
+                  <el-select
+                    v-model="recommendationForm.preferredIndustry"
+                    placeholder="请选择行业"
+                    style="width: 100%"
+                  >
                     <el-option label="互联网/科技" value="tech" />
                     <el-option label="金融/银行" value="finance" />
                     <el-option label="医疗/健康" value="healthcare" />
@@ -107,7 +141,11 @@
               </el-col>
               <el-col :xs="24" :sm="8">
                 <el-form-item label="地区偏好">
-                  <el-select v-model="recommendationForm.preferredLocation" placeholder="请选择地区" style="width: 100%">
+                  <el-select
+                    v-model="recommendationForm.preferredLocation"
+                    placeholder="请选择地区"
+                    style="width: 100%"
+                  >
                     <el-option label="北京" value="beijing" />
                     <el-option label="上海" value="shanghai" />
                     <el-option label="广州" value="guangzhou" />
@@ -136,13 +174,15 @@
         <el-card>
           <template #header>
             <div class="card-header">
-              <span><el-icon><Medal /></el-icon> 最佳职业推荐</span>
+              <span
+                ><el-icon><Medal /></el-icon> 最佳职业推荐</span
+              >
             </div>
           </template>
-          
+
           <el-tabs type="border-card">
-            <el-tab-pane 
-              v-for="(career, index) in recommendationResult.topRecommendations" 
+            <el-tab-pane
+              v-for="(career, index) in recommendationResult.topRecommendations"
               :key="index"
               :label="career.title + ' (' + career.matchScore + '%'"
             >
@@ -150,21 +190,21 @@
                 <div class="career-header">
                   <h2 class="career-title">{{ career.title }}</h2>
                   <div class="match-score">
-                    <el-progress 
-                      type="circle" 
-                      :percentage="career.matchScore" 
+                    <el-progress
+                      type="circle"
+                      :percentage="career.matchScore"
                       :status="getScoreStatus(career.matchScore)"
                     />
                     <div class="score-label">匹配度</div>
                   </div>
                 </div>
-                
+
                 <div class="career-description">
                   <p>{{ career.description }}</p>
                 </div>
-                
+
                 <el-divider />
-                
+
                 <div class="career-metrics">
                   <div class="metric-item">
                     <h4>平均薪资范围</h4>
@@ -179,9 +219,9 @@
                     <div class="metric-value">{{ career.workLifeBalance }}</div>
                   </div>
                 </div>
-                
+
                 <el-divider />
-                
+
                 <div class="required-skills">
                   <h3>所需技能</h3>
                   <div class="skill-tags">
@@ -198,14 +238,14 @@
               </div>
             </el-tab-pane>
           </el-tabs>
-          
+
           <div class="industry-trends" v-if="recommendationResult.industryTrends.length > 0">
             <h3>行业趋势分析</h3>
             <el-row :gutter="20">
-              <el-col 
-                v-for="(trend, index) in recommendationResult.industryTrends" 
+              <el-col
+                v-for="(trend, index) in recommendationResult.industryTrends"
                 :key="index"
-                :xs="24" 
+                :xs="24"
                 :md="8"
               >
                 <div class="trend-card">
@@ -218,14 +258,14 @@
               </el-col>
             </el-row>
           </div>
-          
+
           <div class="career-advice" v-if="recommendationResult.careerAdvice">
             <h3>职业发展建议</h3>
             <div class="advice-content">
               {{ recommendationResult.careerAdvice }}
             </div>
           </div>
-          
+
           <div class="action-buttons">
             <el-button type="primary" @click="goToRoadmap">制定职业规划</el-button>
             <el-button type="success" @click="goToCareerAnalysis">职业分析</el-button>
@@ -240,7 +280,7 @@
 import { ref, reactive, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import type { 
+import type {
   CareerRecommendationForm,
   CareerRecommendationResult,
   CareerSkill
@@ -254,7 +294,9 @@ const allSkills = ref<CareerSkill[]>([])
 
 const techSkills = computed(() => allSkills.value.filter(skill => skill.category === 'tech'))
 const designSkills = computed(() => allSkills.value.filter(skill => skill.category === 'design'))
-const managementSkills = computed(() => allSkills.value.filter(skill => skill.category === 'management'))
+const managementSkills = computed(() =>
+  allSkills.value.filter(skill => skill.category === 'management')
+)
 const softSkills = computed(() => allSkills.value.filter(skill => skill.category === 'soft'))
 
 const recommendationForm = reactive<CareerRecommendationForm>({
@@ -272,7 +314,7 @@ const recommendationResult = ref<CareerRecommendationResult | null>(null)
 onMounted(async () => {
   try {
     allSkills.value = await getCareerSkills()
-    
+
     // 如果URL有职业参数，自动添加到技能中
     const careerParam = route.query.career as string
     if (careerParam) {
@@ -294,7 +336,7 @@ const getRecommendations = async () => {
   try {
     recommendationResult.value = await getCareerRecommendations(recommendationForm)
     ElMessage.success('推荐获取成功')
-    
+
     // 滚动到结果区域
     setTimeout(() => {
       const resultElement = document.querySelector('.result-section')
@@ -327,9 +369,16 @@ const getScoreStatus = (score: number) => {
   return 'exception'
 }
 
-const getTagType = (index: number): 'success' | 'warning' | 'info' | 'primary' | 'danger' | undefined => {
-  const types: ('success' | 'warning' | 'info' | 'primary' | 'danger' | undefined)[] = 
-    ['success', 'warning', 'info', 'primary', 'danger']
+const getTagType = (
+  index: number
+): 'success' | 'warning' | 'info' | 'primary' | 'danger' | undefined => {
+  const types: ('success' | 'warning' | 'info' | 'primary' | 'danger' | undefined)[] = [
+    'success',
+    'warning',
+    'info',
+    'primary',
+    'danger'
+  ]
   return types[index % types.length]
 }
 
@@ -419,7 +468,7 @@ const goToCareerAnalysis = () => {
 }
 
 .metric-value.salary {
-  color: #67C23A;
+  color: #67c23a;
 }
 
 .required-skills {
@@ -428,7 +477,7 @@ const goToCareerAnalysis = () => {
 
 .required-skills h3 {
   margin-top: 0;
-  color: #409EFF;
+  color: #409eff;
 }
 
 .skill-tags {
@@ -448,7 +497,7 @@ const goToCareerAnalysis = () => {
 
 .industry-trends h3 {
   margin-bottom: 20px;
-  color: #409EFF;
+  color: #409eff;
 }
 
 .trend-card {
@@ -473,7 +522,7 @@ const goToCareerAnalysis = () => {
 
 .growth-rate {
   background-color: #f0f9eb;
-  color: #67C23A;
+  color: #67c23a;
   padding: 2px 8px;
   border-radius: 4px;
   font-size: 12px;
@@ -485,7 +534,7 @@ const goToCareerAnalysis = () => {
 }
 
 .career-advice h3 {
-  color: #409EFF;
+  color: #409eff;
 }
 
 .advice-content {
@@ -504,15 +553,16 @@ const goToCareerAnalysis = () => {
 }
 
 @media (max-width: 768px) {
-  .career-header, .career-metrics {
+  .career-header,
+  .career-metrics {
     flex-direction: column;
     gap: 20px;
   }
-  
+
   .metric-item {
     margin-bottom: 15px;
   }
-  
+
   .action-buttons {
     flex-direction: column;
     gap: 10px;

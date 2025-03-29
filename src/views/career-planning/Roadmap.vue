@@ -5,7 +5,9 @@
         <el-card class="form-card">
           <template #header>
             <div class="card-header">
-              <span><el-icon><Compass /></el-icon> 职业发展规划</span>
+              <span
+                ><el-icon><Compass /></el-icon> 职业发展规划</span
+              >
               <el-tooltip content="基于您的目标职位和背景，制定个性化的职业发展路线图">
                 <el-icon><QuestionFilled /></el-icon>
               </el-tooltip>
@@ -16,12 +18,18 @@
             <el-row :gutter="20">
               <el-col :xs="24" :sm="12">
                 <el-form-item label="当前职位" required>
-                  <el-input v-model="roadmapForm.currentPosition" placeholder="请输入您当前的职位" />
+                  <el-input
+                    v-model="roadmapForm.currentPosition"
+                    placeholder="请输入您当前的职位"
+                  />
                 </el-form-item>
               </el-col>
               <el-col :xs="24" :sm="12">
                 <el-form-item label="目标职位" required>
-                  <el-input v-model="roadmapForm.targetPosition" placeholder="请输入您希望达到的职位" />
+                  <el-input
+                    v-model="roadmapForm.targetPosition"
+                    placeholder="请输入您希望达到的职位"
+                  />
                 </el-form-item>
               </el-col>
             </el-row>
@@ -29,18 +37,22 @@
             <el-row :gutter="20">
               <el-col :xs="24" :sm="12">
                 <el-form-item label="工作经验" required>
-                  <el-input-number 
-                    v-model="roadmapForm.yearsOfExperience" 
-                    :min="0" 
-                    :precision="0" 
+                  <el-input-number
+                    v-model="roadmapForm.yearsOfExperience"
+                    :min="0"
+                    :precision="0"
                     style="width: 100%"
-                    placeholder="请输入您的工作年限" 
+                    placeholder="请输入您的工作年限"
                   />
                 </el-form-item>
               </el-col>
               <el-col :xs="24" :sm="12">
                 <el-form-item label="教育背景" required>
-                  <el-select v-model="roadmapForm.education" placeholder="请选择您的最高学历" style="width: 100%">
+                  <el-select
+                    v-model="roadmapForm.education"
+                    placeholder="请选择您的最高学历"
+                    style="width: 100%"
+                  >
                     <el-option label="高中" value="high_school" />
                     <el-option label="专科" value="college" />
                     <el-option label="本科" value="bachelor" />
@@ -61,16 +73,36 @@
                 style="width: 100%"
               >
                 <el-option-group label="技术">
-                  <el-option v-for="skill in techSkills" :key="skill.id" :label="skill.name" :value="skill.name" />
+                  <el-option
+                    v-for="skill in techSkills"
+                    :key="skill.id"
+                    :label="skill.name"
+                    :value="skill.name"
+                  />
                 </el-option-group>
                 <el-option-group label="设计">
-                  <el-option v-for="skill in designSkills" :key="skill.id" :label="skill.name" :value="skill.name" />
+                  <el-option
+                    v-for="skill in designSkills"
+                    :key="skill.id"
+                    :label="skill.name"
+                    :value="skill.name"
+                  />
                 </el-option-group>
                 <el-option-group label="管理">
-                  <el-option v-for="skill in managementSkills" :key="skill.id" :label="skill.name" :value="skill.name" />
+                  <el-option
+                    v-for="skill in managementSkills"
+                    :key="skill.id"
+                    :label="skill.name"
+                    :value="skill.name"
+                  />
                 </el-option-group>
                 <el-option-group label="软技能">
-                  <el-option v-for="skill in softSkills" :key="skill.id" :label="skill.name" :value="skill.name" />
+                  <el-option
+                    v-for="skill in softSkills"
+                    :key="skill.id"
+                    :label="skill.name"
+                    :value="skill.name"
+                  />
                 </el-option-group>
               </el-select>
             </el-form-item>
@@ -95,7 +127,11 @@
             </el-form-item>
 
             <el-form-item label="首选行业" required>
-              <el-select v-model="roadmapForm.preferredIndustry" placeholder="请选择您的首选行业" style="width: 100%">
+              <el-select
+                v-model="roadmapForm.preferredIndustry"
+                placeholder="请选择您的首选行业"
+                style="width: 100%"
+              >
                 <el-option label="互联网/科技" value="tech" />
                 <el-option label="金融/银行" value="finance" />
                 <el-option label="医疗/健康" value="healthcare" />
@@ -123,7 +159,10 @@
         <el-card>
           <template #header>
             <div class="card-header">
-              <span><el-icon><Connection /></el-icon> 职业发展路线图：从 {{ roadmapResult.currentLevel }} 到 {{ roadmapResult.targetPosition }}</span>
+              <span
+                ><el-icon><Connection /></el-icon> 职业发展路线图：从
+                {{ roadmapResult.currentLevel }} 到 {{ roadmapResult.targetPosition }}</span
+              >
               <el-button size="small" type="primary" plain @click="saveToPDF">
                 <el-icon><Download /></el-icon>
                 保存为 PDF
@@ -133,9 +172,7 @@
 
           <div class="roadmap-timeline">
             <div class="timeline-header">
-              <div class="timeline-years">
-                预计用时：约 {{ roadmapResult.timelineYears }} 年
-              </div>
+              <div class="timeline-years">预计用时：约 {{ roadmapResult.timelineYears }} 年</div>
             </div>
 
             <el-timeline>
@@ -152,7 +189,7 @@
                     <h3 class="milestone-title">{{ milestone.title }}</h3>
                     <span class="milestone-duration">{{ milestone.duration }}</span>
                   </div>
-                  
+
                   <div class="milestone-tasks">
                     <h4>关键任务</h4>
                     <ul>
@@ -161,7 +198,7 @@
                       </li>
                     </ul>
                   </div>
-                  
+
                   <div class="skills-to-acquire">
                     <h4>需掌握的技能</h4>
                     <div class="skill-tags">
@@ -204,15 +241,8 @@
 import { ref, reactive, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import type { 
-  CareerRoadmapForm, 
-  CareerRoadmapResult, 
-  CareerSkill 
-} from '@/types/career'
-import { 
-  submitCareerRoadmap, 
-  getCareerSkills 
-} from '@/api/career'
+import type { CareerRoadmapForm, CareerRoadmapResult, CareerSkill } from '@/types/career'
+import { submitCareerRoadmap, getCareerSkills } from '@/api/career'
 
 const router = useRouter()
 const generating = ref(false)
@@ -220,7 +250,9 @@ const allSkills = ref<CareerSkill[]>([])
 
 const techSkills = computed(() => allSkills.value.filter(skill => skill.category === 'tech'))
 const designSkills = computed(() => allSkills.value.filter(skill => skill.category === 'design'))
-const managementSkills = computed(() => allSkills.value.filter(skill => skill.category === 'management'))
+const managementSkills = computed(() =>
+  allSkills.value.filter(skill => skill.category === 'management')
+)
 const softSkills = computed(() => allSkills.value.filter(skill => skill.category === 'soft'))
 
 const roadmapForm = reactive<CareerRoadmapForm>({
@@ -244,7 +276,12 @@ onMounted(async () => {
 })
 
 const generateRoadmap = async () => {
-  if (!roadmapForm.currentPosition || !roadmapForm.targetPosition || !roadmapForm.education || roadmapForm.skills.length === 0) {
+  if (
+    !roadmapForm.currentPosition ||
+    !roadmapForm.targetPosition ||
+    !roadmapForm.education ||
+    roadmapForm.skills.length === 0
+  ) {
     ElMessage.warning('请填写必要的信息')
     return
   }
@@ -253,7 +290,7 @@ const generateRoadmap = async () => {
   try {
     roadmapResult.value = await submitCareerRoadmap(roadmapForm)
     ElMessage.success('路线图生成成功')
-    
+
     // 滚动到结果区域
     setTimeout(() => {
       const resultElement = document.querySelector('.result-section')
@@ -290,9 +327,16 @@ const getTimelineItemColor = (stage: number) => {
   return colors[(stage - 1) % colors.length]
 }
 
-const getTagType = (index: number): 'success' | 'warning' | 'info' | 'primary' | 'danger' | undefined => {
-  const types: ('success' | 'warning' | 'info' | 'primary' | 'danger' | undefined)[] = 
-    ['success', 'warning', 'info', 'primary', 'danger']
+const getTagType = (
+  index: number
+): 'success' | 'warning' | 'info' | 'primary' | 'danger' | undefined => {
+  const types: ('success' | 'warning' | 'info' | 'primary' | 'danger' | undefined)[] = [
+    'success',
+    'warning',
+    'info',
+    'primary',
+    'danger'
+  ]
   return types[index % types.length]
 }
 
@@ -343,7 +387,7 @@ const goToRecommendation = () => {
 .timeline-years {
   font-size: 16px;
   font-weight: bold;
-  color: #409EFF;
+  color: #409eff;
   background-color: #ecf5ff;
   padding: 8px 15px;
   border-radius: 4px;
@@ -377,7 +421,8 @@ const goToRecommendation = () => {
   border-radius: 4px;
 }
 
-.milestone-tasks h4, .skills-to-acquire h4 {
+.milestone-tasks h4,
+.skills-to-acquire h4 {
   font-size: 15px;
   color: #606266;
   margin: 15px 0 10px 0;
@@ -411,7 +456,7 @@ const goToRecommendation = () => {
 
 .recommendations-section h3 {
   margin-top: 0;
-  color: #409EFF;
+  color: #409eff;
 }
 
 .recommendations-list {
@@ -443,7 +488,7 @@ const goToRecommendation = () => {
     align-items: flex-start;
     gap: 10px;
   }
-  
+
   .action-buttons {
     flex-direction: column;
     gap: 10px;
