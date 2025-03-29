@@ -5,6 +5,9 @@
 
     <!-- 顶部欢迎区域 -->
     <div class="hero-section">
+      <div class="robot-container">
+        <img src="@/assets/images/robot.png" alt="AI Robot" class="robot-image" />
+      </div>
       <div class="welcome-content">
         <div class="platform-logo">
           <span class="logo-text">智航 CareerAI</span>
@@ -26,9 +29,6 @@
             <el-icon class="el-icon--right"><ArrowDown /></el-icon>
           </el-button>
         </div>
-      </div>
-      <div class="welcome-decoration">
-        <div id="tsparticles" class="particle-container" ref="particleContainer"></div>
       </div>
     </div>
 
@@ -312,36 +312,36 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { behaviorPredictor } from '@/utils/userBehaviorPredictor'
 import MouseEffects from '@/components/MouseEffects/index.vue'
 import {
-  User,
-  ArrowRight,
-  ArrowDown,
-  Close,
-  InfoFilled,
   Aim,
   Guide,
   StarFilled,
-  ChatDotRound,
-  Reading,
-  Service,
+  ArrowRight,
+  ArrowDown,
+  User,
   Briefcase,
   DocumentChecked,
   Cpu,
   DataAnalysis,
   UserFilled,
-  SetUp
+  SetUp,
+  ChatDotRound,
+  Reading,
+  Service,
+  Close,
+  InfoFilled
 } from '@element-plus/icons-vue'
-import { Container } from '@tsparticles/engine'
 
-// 路由导航
+// 创建路由实例
 const router = useRouter()
+
+// 跳转函数
 const navigateTo = (path: string) => {
   router.push(path)
 }
 
-// 平滑滚动到功能区
+// 滚动到特性区域
 const scrollToFeatures = () => {
   const featuresSection = document.querySelector('.features-section')
   if (featuresSection) {
@@ -349,23 +349,54 @@ const scrollToFeatures = () => {
   }
 }
 
-// 智能提示相关
+// 智能提示数据
 const showSmartTips = ref(false)
 const smartTips = ref<string[]>([])
-const particleContainer = ref(null)
-let particleInstance: Container | null = null
 
-// 添加一些模拟的用户行为数据
-const initializeBehaviorData = () => {
-  const actions = ['查看职业分析', '查看发展规划', '进入AI聊天', '访问考试中心']
+// 用户行为预测模拟
+class BehaviorPredictor {
+  private usagePattern: Map<string, number> = new Map()
+  private lastVisitedPage: string = ''
 
-  // 记录一些模拟的用户行为
-  for (let i = 0; i < 20; i++) {
-    const randomAction = actions[Math.floor(Math.random() * actions.length)]
-    behaviorPredictor.recordAction(randomAction)
+  recordVisit(page: string): void {
+    this.lastVisitedPage = page
+    const count = this.usagePattern.get(page) || 0
+    this.usagePattern.set(page, count + 1)
+  }
+
+  async predictNextAction(hour: number, day: number): Promise<string> {
+    // 根据时间和历史行为预测
+    if (hour >= 9 && hour <= 12 && (day === 1 || day === 2)) {
+      return '查看职业分析结果'
+    } else if (hour >= 14 && hour <= 18 && (day >= 3 && day <= 5)) {
+      return '完善您的简历'
+    } else if (this.lastVisitedPage === '/career-planning/analysis') {
+      return '生成职业发展规划'
+    } else if (this.usagePattern.get('/resume/create') || 0 > 2) {
+      return '探索更多简历模板'
+    }
+    return ''
+  }
+
+  getPatternAnalysis(): string[] {
+    return [
+      '我们发现多数用户在完成职业分析后会更新简历',
+      '提示：定期更新您的技能和经验，可以获得更精准的职业建议'
+    ]
   }
 }
 
+const behaviorPredictor = new BehaviorPredictor()
+
+// 初始化用户行为数据
+const initializeBehaviorData = () => {
+  // 模拟历史访问数据
+  behaviorPredictor.recordVisit('/dashboard')
+  behaviorPredictor.recordVisit('/career-planning/analysis')
+  behaviorPredictor.recordVisit('/resume/create')
+}
+
+// 更新智能提示
 const updateSmartTips = async () => {
   const now = new Date()
   const predictedAction = await behaviorPredictor.predictNextAction(now.getHours(), now.getDay())
@@ -379,96 +410,9 @@ const updateSmartTips = async () => {
   ]
 }
 
-// 初始化粒子效果
-const initParticles = async () => {
-  if (!particleContainer.value) return
-
-  try {
-    const { loadSlim } = await import('@tsparticles/slim')
-    const { tsParticles } = await import('@tsparticles/engine')
-
-    await loadSlim(tsParticles)
-
-    particleInstance =
-      (await tsParticles.load({
-        id: 'tsparticles',
-        options: {
-          particles: {
-            number: {
-              value: 80,
-              density: {
-                enable: true,
-                value_area: 800
-              }
-            },
-            color: {
-              value: ['#5ec89c', '#409EFF', '#67c23a', '#6f7ad3']
-            },
-            shape: {
-              type: 'circle'
-            },
-            opacity: {
-              value: 0.6,
-              random: true
-            },
-            size: {
-              value: 3,
-              random: true
-            },
-            line_linked: {
-              enable: true,
-              distance: 150,
-              color: '#5ec89c',
-              opacity: 0.4,
-              width: 1
-            },
-            move: {
-              enable: true,
-              speed: 2,
-              direction: 'none',
-              random: false,
-              straight: false,
-              out_mode: 'out',
-              bounce: false
-            }
-          },
-          interactivity: {
-            detect_on: 'canvas',
-            events: {
-              onhover: {
-                enable: true,
-                mode: 'grab'
-              },
-              onclick: {
-                enable: true,
-                mode: 'push'
-              },
-              resize: true
-            },
-            modes: {
-              grab: {
-                distance: 140,
-                line_linked: {
-                  opacity: 1
-                }
-              },
-              push: {
-                particles_nb: 4
-              }
-            }
-          },
-          retina_detect: true
-        }
-      } as any)) || null
-  } catch (error) {
-    console.error('Failed to initialize particles:', error)
-  }
-}
-
 onMounted(async () => {
   initializeBehaviorData()
   await updateSmartTips()
-  await initParticles()
 
   // 设置智能提示更新定时器
   const tipsInterval = setInterval(
@@ -481,9 +425,6 @@ onMounted(async () => {
   // 清理定时器
   onUnmounted(() => {
     clearInterval(tipsInterval)
-    if (particleInstance) {
-      particleInstance.destroy()
-    }
   })
 })
 </script>
@@ -508,9 +449,38 @@ onMounted(async () => {
   height: 420px;
 }
 
+.robot-container {
+  position: relative;
+  width: 40%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+
+.robot-image {
+  max-width: 280px;
+  height: auto;
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
 .welcome-content {
   position: relative;
   z-index: 2;
+  width: 60%;
   max-width: 600px;
 }
 
@@ -550,20 +520,6 @@ onMounted(async () => {
 .hero-actions {
   display: flex;
   gap: 16px;
-}
-
-.welcome-decoration {
-  position: relative;
-  width: 50%;
-  height: 100%;
-}
-
-.particle-container {
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 100%;
-  height: 100%;
 }
 
 .get-started-btn {
@@ -840,14 +796,14 @@ onMounted(async () => {
     height: auto;
   }
 
-  .welcome-content {
-    max-width: 100%;
-    margin-bottom: 40px;
+  .robot-container {
+    width: 100%;
+    margin-bottom: 30px;
   }
 
-  .welcome-decoration {
+  .welcome-content {
     width: 100%;
-    height: 200px;
+    max-width: 100%;
   }
 
   .features-section,
@@ -1059,3 +1015,5 @@ onMounted(async () => {
   color: #606266;
 }
 </style>
+
+
