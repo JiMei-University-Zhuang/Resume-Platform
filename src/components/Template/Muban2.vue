@@ -297,12 +297,7 @@ ul li {
 
 h2,
 p {
-<<<<<<< HEAD
-  margin: 5px 0;
-  line-height: 1.5;
-=======
     margin: 5px 0;
     line-height: 1.5;
->>>>>>> d4ab17887d8985d12ba3afd904811d0f6bfc5f95
 }
 </style>

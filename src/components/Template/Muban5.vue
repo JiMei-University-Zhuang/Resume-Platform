@@ -36,12 +36,12 @@
 
     <section class="section">
       <h3>教育背景 / Education</h3>
-      <p>
+      <p v-if="education">
         {{ education.startDate }} - {{ education.endDate }}
         <span class="school">{{ education.school }}</span>
         <span class="details"> {{ education.subject }} / {{ education.degree }}</span>
       </p>
-      <p>主修课程：{{ education.majorCourses }}</p>
+      <p v-if="education">主修课程：{{ education.majorCourses }}</p>
     </section>
 
     <section class="section">
@@ -115,7 +115,7 @@ const education = computed(() => {
 })
 
 const experiences = computed(() =>
-  props.resumeForm.experience.map((exp, index) => ({
+  props.resumeForm.experience.map((exp: any, index: number) => ({
     id: index + 1,
     startDate: dayjs(exp.time[0]).format('YYYY.MM'),
     endDate: dayjs(exp.time[1]).format('YYYY.MM'),
@@ -138,7 +138,7 @@ const schoolExperience = computed(() => [
 ])
 
 const certificates = computed(() =>
-  props.resumeForm.certifications.split('\n').filter(cert => cert.trim())
+  props.resumeForm.certifications.split('\n').filter((cert: string) => cert.trim())
 )
 
 const assessment = computed(() => props.resumeForm.selfAssessment)
@@ -147,15 +147,19 @@ const fileInput = ref<HTMLInputElement | null>(null)
 const photoUrl = ref<string>('')
 
 const triggerFileInput = () => {
-  fileInput.value.click()
+  if (fileInput.value) {
+    fileInput.value.click()
+  }
 }
 
-const handleFileUpload = event => {
-  const file = event.target.files[0]
+const handleFileUpload = (event: Event) => {
+  const file = (event.target as HTMLInputElement).files?.[0]
   if (file) {
     const reader = new FileReader()
-    reader.onload = e => {
-      photoUrl.value = e.target.result
+    reader.onload = (e: any) => {
+      if (e.target && e.target.result) {
+        photoUrl.value = e.target.result as string
+      }
     }
     reader.readAsDataURL(file)
   }

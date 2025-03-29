@@ -95,7 +95,8 @@ const previewTemplate = (template: Template) => {
   previewDialogVisible.value = true
 }
 
-const useTemplate = (template: Template) => {
+const useTemplate = (template: Template | null) => {
+  if (!template) return
   router.push({
     name: 'ResumeCreate',
     params: {

@@ -131,11 +131,11 @@ const adjustTextareaHeight = () => {
 
   // 重置高度以便准确计算
   inputRef.value.style.height = 'auto'
-  
+
   // 根据内容长度计算合适的高度
   const contentLength = userInput.value.length
   let newHeight
-  
+
   if (contentLength === 0) {
     // 当没有内容时，设置为最小高度
     newHeight = 24
@@ -146,7 +146,7 @@ const adjustTextareaHeight = () => {
     // 长内容时，允许更多高度但不超过最大值
     newHeight = Math.min(inputRef.value.scrollHeight, 150)
   }
-  
+
   inputRef.value.style.height = `${newHeight}px`
 }
 
@@ -719,8 +719,10 @@ onMounted(() => {
   border: 1px solid #e6e6fa;
   border-radius: 8px;
   padding: 8px 12px;
-  transition: border-color 0.2s, height 0.2s ease;
-  width: 100%; 
+  transition:
+    border-color 0.2s,
+    height 0.2s ease;
+  width: 100%;
   max-width: 800px; /* 限制最大宽度 */
 }
 
