@@ -182,7 +182,7 @@ const routes: RouteRecordRaw[] = [
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes,
-  scrollBehavior: (to, from, savedPosition) => {
+  scrollBehavior: (_to, _from, savedPosition) => {
     if (savedPosition) {
       return savedPosition
     } else {
@@ -209,7 +209,7 @@ router.replace = function replace(location) {
   })
 }
 
-router.beforeEach((to, from, next) => {
+router.beforeEach((to, _from, next) => {
   const isAuthenticated = localStorage.getItem('token')
 
   if (to.path !== '/login' && !isAuthenticated) {

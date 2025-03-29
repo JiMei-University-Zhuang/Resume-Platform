@@ -21,15 +21,12 @@
               电话：<span>{{ resumeForm.contact }}</span>
             </p>
             <p>
-              QQ：<span>{{ resumeForm.qq }}</span>
+              邮箱：<span>{{ resumeForm.email }}</span>
             </p>
           </div>
           <div class="info-column">
             <p>
               籍贯：<span>{{ resumeForm.origin }}</span>
-            </p>
-            <p>
-              邮箱：<span>{{ resumeForm.email }}</span>
             </p>
             <p>
               性别：<span>{{ resumeForm.gender }}</span>

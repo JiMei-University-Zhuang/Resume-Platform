@@ -129,8 +129,24 @@ const isTyping = ref(false)
 const adjustTextareaHeight = () => {
   if (!inputRef.value) return
 
+  // 重置高度以便准确计算
   inputRef.value.style.height = 'auto'
-  const newHeight = Math.min(inputRef.value.scrollHeight, 150) // 最大高度为150px
+
+  // 根据内容长度计算合适的高度
+  const contentLength = userInput.value.length
+  let newHeight
+
+  if (contentLength === 0) {
+    // 当没有内容时，设置为最小高度
+    newHeight = 24
+  } else if (contentLength < 50) {
+    // 短内容时，适当增加一点高度来容纳一行文本
+    newHeight = Math.max(24, Math.min(36, inputRef.value.scrollHeight))
+  } else {
+    // 长内容时，允许更多高度但不超过最大值
+    newHeight = Math.min(inputRef.value.scrollHeight, 150)
+  }
+
   inputRef.value.style.height = `${newHeight}px`
 }
 
@@ -583,6 +599,8 @@ onMounted(() => {
 
 .user-message {
   text-align: right;
+  display: flex;
+  justify-content: flex-end;
 }
 
 .message-bubble {
@@ -597,6 +615,9 @@ onMounted(() => {
   background-color: #6a5acd;
   color: white;
   border-radius: 12px 12px 0 12px;
+  width: fit-content; /* 根据内容自适应宽度 */
+  max-width: 100%; /* 最大宽度限制 */
+  margin-left: auto; /* 确保短消息靠右对齐 */
 }
 
 .ai .message-bubble {
@@ -604,6 +625,7 @@ onMounted(() => {
   color: #111827;
   border: 1px solid #e6e6fa;
   border-radius: 12px 12px 12px 0;
+  width: auto; /* 恢复默认宽度 */
 }
 
 .message-actions {
@@ -697,8 +719,10 @@ onMounted(() => {
   border: 1px solid #e6e6fa;
   border-radius: 8px;
   padding: 8px 12px;
-  transition: border-color 0.2s;
-  width: 100%; /* 确保宽度一致 */
+  transition:
+    border-color 0.2s,
+    height 0.2s ease;
+  width: 100%;
   max-width: 800px; /* 限制最大宽度 */
 }
 
@@ -719,6 +743,8 @@ textarea {
   min-height: 24px;
   outline: none;
   align-self: center; /* 垂直居中 */
+  transition: height 0.2s ease;
+  padding: 0;
 }
 
 .send-button {

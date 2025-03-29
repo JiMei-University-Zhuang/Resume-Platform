@@ -29,3 +29,33 @@ export interface AnalysisResult {
   suggestions: Suggestion[]
   industryMatch: IndustryMatch[]
 }
+
+export interface ResumeForm {
+  name: string
+  gender: string
+  jobTitle: string
+  birthday: Date | null
+  origin: string
+  currentResidence: string
+  politicalStatus: string
+  contact: string
+  email: string
+  honors: string
+  certifications: string
+  education: {
+    school: string
+    major: string
+    degree: string
+    time: [Date | null, Date | null]
+  }[]
+  experience: {
+    company: string
+    position: string
+    description: string
+    time: [Date | null, Date | null]
+  }[]
+  campusExperience: string
+  skills: string[]
+  selfAssessment: string
+  photoUrl?: string
+}

@@ -20,13 +20,12 @@ import { useAppStore } from '@/stores'
 import LayoutHeader from './components/Header.vue'
 import LayoutSider from './components/Sider.vue'
 import { storeToRefs } from 'pinia'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
 import { onMounted, onUnmounted, ref, nextTick, watch } from 'vue'
 
 const appStore = useAppStore()
 const { collapsed } = storeToRefs(appStore)
 const $route = useRoute()
-const router = useRouter()
 
 // 强制刷新机制
 const refreshKey = ref(0)
