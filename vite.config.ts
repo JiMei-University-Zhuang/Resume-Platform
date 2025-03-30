@@ -28,7 +28,7 @@ export default defineConfig({
         // priority: 100
       },
       '/api': {
-        target: 'http://8.130.75.193:8081',
+        target: 'http://view.yinhenx.cn',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, '')
       }
