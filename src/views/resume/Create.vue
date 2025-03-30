@@ -274,11 +274,19 @@
               name="3"
               v-if="aiSuggestions && aiSuggestions.revisions && aiSuggestions.revisions.length"
             >
-              <div v-for="(revision, index) in aiSuggestions.revisions" :key="index" class="revision-item">
+              <div
+                v-for="(revision, index) in aiSuggestions.revisions"
+                :key="index"
+                class="revision-item"
+              >
                 <h4>{{ revision.section }}</h4>
                 <template v-if="Array.isArray(revision.suggestion)">
-                  <div v-for="(item, i) in revision.suggestion" :key="i" class="revision-comparison">
-                    <template v-if="item.original && item.optimized">
+                  <div
+                    v-for="(item, i) in revision.suggestion"
+                    :key="i"
+                    class="revision-comparison"
+                  >
+                    <template v-if="isSuggestionItemTemplate(item)">
                       <div class="original-content">
                         <h5>原内容:</h5>
                         <p>{{ item.original }}</p>
@@ -358,20 +366,20 @@ interface TemplateComponents {
 const templateComponents = templateConfig as unknown as TemplateComponents
 
 interface SuggestionItem {
-  original: string;
-  optimized: string;
+  original: string
+  optimized: string
 }
 
 // 类型谓词函数，用于判断一个对象是否是 SuggestionItem 类型
 function isSuggestionItem(suggestion: any): suggestion is SuggestionItem {
   return (
-    typeof suggestion === 'object' && 
-    suggestion !== null && 
-    'original' in suggestion && 
-    'optimized' in suggestion && 
-    typeof suggestion.original === 'string' && 
+    typeof suggestion === 'object' &&
+    suggestion !== null &&
+    'original' in suggestion &&
+    'optimized' in suggestion &&
+    typeof suggestion.original === 'string' &&
     typeof suggestion.optimized === 'string'
-  );
+  )
 }
 
 interface AISuggestions {
@@ -625,8 +633,8 @@ const analyzeResume = async () => {
     // 提取aiSuggestions数据
     if (response.data && response.data.aiSuggestions) {
       // 转换 API 响应数据中的字符串数字为实际数字
-      const apiData = response.data.aiSuggestions;
-      
+      const apiData = response.data.aiSuggestions
+
       aiSuggestions.value = {
         summary: apiData.summary,
         score: typeof apiData.score === 'string' ? parseFloat(apiData.score) : apiData.score,
@@ -636,7 +644,7 @@ const analyzeResume = async () => {
           industry: match.industry,
           score: typeof match.score === 'string' ? parseFloat(match.score) : match.score
         }))
-      };
+      }
     } else {
       throw new Error('响应数据格式不正确')
     }
@@ -661,30 +669,30 @@ const applyAISuggestions = () => {
   const workExperienceSuggestion = revisions.find(rev => rev.section === '工作经历')
   if (workExperienceSuggestion && Array.isArray(workExperienceSuggestion.suggestion)) {
     // 获取每个工作经历的优化建议
-    const suggestions = workExperienceSuggestion.suggestion as SuggestionItem[];
-    
+    const suggestions = workExperienceSuggestion.suggestion as SuggestionItem[]
+
     // 遍历建议，根据原始内容匹配对应的工作经历并应用优化
     suggestions.forEach(suggestion => {
       if ('original' in suggestion && 'optimized' in suggestion) {
         // 查找匹配的工作经历
         const experienceIndex = resumeForm.value.experience.findIndex(
           exp => exp.description.trim() === suggestion.original.trim()
-        );
-        
+        )
+
         // 如果找到匹配的工作经历，应用优化建议
         if (experienceIndex !== -1) {
-          resumeForm.value.experience[experienceIndex].description = suggestion.optimized;
+          resumeForm.value.experience[experienceIndex].description = suggestion.optimized
         }
       }
-    });
+    })
   }
 
   // 处理教育经历修改
   const educationSuggestion = revisions.find(rev => rev.section === '教育经历')
   if (educationSuggestion && Array.isArray(educationSuggestion.suggestion)) {
     // 获取教育经历的优化建议
-    const suggestions = educationSuggestion.suggestion as SuggestionItem[];
-    
+    const suggestions = educationSuggestion.suggestion as SuggestionItem[]
+
     // 尝试匹配校园经历并应用优化
     suggestions.forEach(suggestion => {
       if ('original' in suggestion && 'optimized' in suggestion) {
@@ -692,12 +700,12 @@ const applyAISuggestions = () => {
         if (resumeForm.value.campusExperience.includes(suggestion.original)) {
           // 替换匹配的部分
           resumeForm.value.campusExperience = resumeForm.value.campusExperience.replace(
-            suggestion.original, 
+            suggestion.original,
             suggestion.optimized
-          );
+          )
         }
       }
-    });
+    })
   }
 
   // 处理在校经历修改
@@ -710,18 +718,18 @@ const applyAISuggestions = () => {
           // 如果是包含original和optimized的对象
           if (resumeForm.value.campusExperience.includes(suggestion.original)) {
             resumeForm.value.campusExperience = resumeForm.value.campusExperience.replace(
-              suggestion.original, 
+              suggestion.original,
               suggestion.optimized
-            );
+            )
           }
         } else if (typeof suggestion === 'string') {
           // 如果是字符串类型
-          resumeForm.value.campusExperience = suggestion;
+          resumeForm.value.campusExperience = suggestion
         }
-      });
+      })
     } else if (typeof campusExperienceSuggestion.suggestion === 'string') {
       // 处理字符串类型的建议
-      resumeForm.value.campusExperience = campusExperienceSuggestion.suggestion;
+      resumeForm.value.campusExperience = campusExperienceSuggestion.suggestion
     }
   }
 
@@ -730,24 +738,24 @@ const applyAISuggestions = () => {
   if (selfAssessmentSuggestion) {
     if (Array.isArray(selfAssessmentSuggestion.suggestion)) {
       // 处理数组类型的建议
-      const optimizedSuggestions: string[] = [];
-      
+      const optimizedSuggestions: string[] = []
+
       selfAssessmentSuggestion.suggestion.forEach(suggestion => {
         if (isSuggestionItem(suggestion)) {
           // 如果是包含original和optimized的对象
-          optimizedSuggestions.push(suggestion.optimized);
+          optimizedSuggestions.push(suggestion.optimized)
         } else if (typeof suggestion === 'string') {
           // 如果是字符串类型
-          optimizedSuggestions.push(suggestion);
+          optimizedSuggestions.push(suggestion)
         }
-      });
-      
+      })
+
       if (optimizedSuggestions.length > 0) {
-        resumeForm.value.selfAssessment = optimizedSuggestions.join('\n\n');
+        resumeForm.value.selfAssessment = optimizedSuggestions.join('\n\n')
       }
     } else if (typeof selfAssessmentSuggestion.suggestion === 'string') {
       // 处理字符串类型的建议
-      resumeForm.value.selfAssessment = selfAssessmentSuggestion.suggestion;
+      resumeForm.value.selfAssessment = selfAssessmentSuggestion.suggestion
     }
   }
 
@@ -818,9 +826,21 @@ const clearResumeForm = () => {
 
 // 返回进度条颜色
 const getProgressColor = (score: number): string => {
-  if (score > 80) return '#67C23A';
-  if (score > 60) return '#E6A23C';
-  return '#F56C6C';
+  if (score > 80) return '#67C23A'
+  if (score > 60) return '#E6A23C'
+  return '#F56C6C'
+}
+
+// 新增的类型守卫函数
+function isSuggestionItemTemplate(item: any): item is SuggestionItem {
+  return (
+    typeof item === 'object' &&
+    item !== null &&
+    'original' in item &&
+    'optimized' in item &&
+    typeof item.original === 'string' &&
+    typeof item.optimized === 'string'
+  )
 }
 </script>
 
@@ -980,13 +1000,13 @@ const getProgressColor = (score: number): string => {
 .revision-item {
   margin-bottom: 20px;
   padding: 10px;
-  border-left: 3px solid #409EFF;
+  border-left: 3px solid #409eff;
   background-color: #f8f9fa;
 }
 
 .revision-item h4 {
   margin-top: 0;
-  color: #409EFF;
+  color: #409eff;
   font-weight: 600;
 }
 
@@ -996,7 +1016,8 @@ const getProgressColor = (score: number): string => {
   padding-bottom: 10px;
 }
 
-.original-content, .optimized-content {
+.original-content,
+.optimized-content {
   margin-bottom: 10px;
 }
 
@@ -1008,7 +1029,7 @@ const getProgressColor = (score: number): string => {
 
 .optimized-content h5 {
   margin: 5px 0;
-  color: #67C23A;
+  color: #67c23a;
   font-size: 14px;
 }
 
@@ -1016,7 +1037,7 @@ const getProgressColor = (score: number): string => {
   background-color: #f0f9eb;
   padding: 8px;
   border-radius: 4px;
-  border-left: 2px solid #67C23A;
+  border-left: 2px solid #67c23a;
 }
 
 .revision-item ul {

@@ -8,7 +8,8 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: process.env.BASE_PATH || '/Z-Admin/',
+  // 设置为空字符串或相对路径'.'，以允许使用相对路径部署
+  base: process.env.BASE_PATH || './',
   plugins: [vue()],
   resolve: {
     alias: {
