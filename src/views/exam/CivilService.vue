@@ -212,31 +212,31 @@ const startCountdown = () => {
 
 const startExam = () => {
   // 立即关闭弹窗
-  dialogVisible.value = false;
+  dialogVisible.value = false
 
   // 添加微任务确保弹窗状态更新
   Promise.resolve().then(() => {
     // 手动清理残留弹窗
-    const dialogs = document.querySelectorAll('.el-dialog__wrapper');
+    const dialogs = document.querySelectorAll('.el-dialog__wrapper')
     dialogs.forEach(dialog => {
       if (dialog.parentNode) {
-        dialog.parentNode.removeChild(dialog);
+        dialog.parentNode.removeChild(dialog)
       }
-    });
+    })
 
     // 执行路由跳转
     const requestData = {
       subject: selectedSubject.value,
       count: parseInt(selectedCount.value, 10)
-    };
-    router.push({ name: 'ExamPage', query: requestData });
-  });
-};
+    }
+    router.push({ name: 'ExamPage', query: requestData })
+  })
+}
 
 // 处理 keep-alive 缓存
 onBeforeRouteLeave(() => {
-  dialogVisible.value = false;
-});
+  dialogVisible.value = false
+})
 onMounted(() => {
   startCountdown()
 })

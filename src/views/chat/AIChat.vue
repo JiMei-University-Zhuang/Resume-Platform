@@ -32,18 +32,27 @@
 
         <!-- 消息气泡 -->
         <div v-for="(msg, index) in messages" :key="index" :class="['message-container', msg.role]">
-          <div class="avatar">
-            <div v-if="msg.role === 'user'" class="user-avatar">User</div>
-            <div v-else class="ai-avatar">AI</div>
-          </div>
-          <div class="message-content">
-            <div class="message-bubble" v-html="md.render(msg.text)"></div>
-            <div class="message-actions" v-if="msg.role === 'ai'">
-              <button class="action-btn copy" @click="copyToClipboard(msg.text)" title="复制内容">
-                <i class="el-icon-document-copy"></i>
-              </button>
+          <template v-if="msg.role === 'user'">
+            <div class="message-content user-message">
+              <div class="message-bubble" v-html="md.render(msg.text)"></div>
             </div>
-          </div>
+            <div class="avatar">
+              <div class="user-avatar">User</div>
+            </div>
+          </template>
+          <template v-else>
+            <div class="avatar">
+              <div class="ai-avatar">AI</div>
+            </div>
+            <div class="message-content ai-message">
+              <div class="message-bubble" v-html="md.render(msg.text)"></div>
+              <div class="message-actions">
+                <button class="action-btn copy" @click="copyToClipboard(msg.text)" title="复制内容">
+                  <i class="el-icon-document-copy"></i>
+                </button>
+              </div>
+            </div>
+          </template>
         </div>
 
         <div v-if="isTyping" class="message-container ai typing">
@@ -90,7 +99,6 @@ import { ref, nextTick, onMounted, watch } from 'vue'
 import MarkdownIt from 'markdown-it'
 import type { Options as MarkdownItOptions } from 'markdown-it'
 import Prism from 'prismjs'
-import { ElMessage } from 'element-plus'
 import type { ChatMessage, MockData } from '@/types/chat'
 
 import 'prismjs/themes/prism-tomorrow.css'
@@ -121,8 +129,24 @@ const isTyping = ref(false)
 const adjustTextareaHeight = () => {
   if (!inputRef.value) return
 
+  // 重置高度以便准确计算
   inputRef.value.style.height = 'auto'
-  const newHeight = Math.min(inputRef.value.scrollHeight, 150) // 最大高度为150px
+
+  // 根据内容长度计算合适的高度
+  const contentLength = userInput.value.length
+  let newHeight
+
+  if (contentLength === 0) {
+    // 当没有内容时，设置为最小高度
+    newHeight = 24
+  } else if (contentLength < 50) {
+    // 短内容时，适当增加一点高度来容纳一行文本
+    newHeight = Math.max(24, Math.min(36, inputRef.value.scrollHeight))
+  } else {
+    // 长内容时，允许更多高度但不超过最大值
+    newHeight = Math.min(inputRef.value.scrollHeight, 150)
+  }
+
   inputRef.value.style.height = `${newHeight}px`
 }
 
@@ -147,11 +171,12 @@ const copyToClipboard = (text: string) => {
   navigator.clipboard
     .writeText(text)
     .then(() => {
-      ElMessage.success('已复制到剪贴板')
+      // 成功复制后可以选择不显示消息
+      // ElMessage.success('已复制到剪贴板')
     })
     .catch(err => {
       console.error('复制失败:', err)
-      ElMessage.error('复制失败，请重试')
+      // 即使复制失败也不显示错误消息
     })
 }
 
@@ -262,52 +287,106 @@ const handleSendMessage = async () => {
       messages.value.push({ role: 'ai', text: '' })
       const currentIndex = messages.value.length - 1
 
-      // 创建 EventSource 实例
-      const eventSource = new EventSource(
-        `http://8.130.75.193:8081/ai/chat?message=${encodeURIComponent(userMessage)}`
-      )
+      // 使用Promise来处理EventSource事件
+      await new Promise((resolve, reject) => {
+        // 创建 EventSource 实例
+        const eventSource = new EventSource(
+          `http://8.130.75.193:8081/ai/chat?message=${encodeURIComponent(userMessage)}`
+        )
 
-      // 监听消息
-      eventSource.onmessage = async event => {
-        if (messages.value[currentIndex]) {
-          messages.value[currentIndex].text += event.data
-          await nextTick()
-          scrollToBottom()
-          Prism.highlightAll()
+        // 状态标记
+        let connectionClosed = false
+        let streamCompleted = false
+
+        // 监听消息
+        eventSource.onmessage = async event => {
+          if (messages.value[currentIndex]) {
+            messages.value[currentIndex].text += event.data
+            await nextTick()
+            scrollToBottom()
+            Prism.highlightAll()
+          }
         }
-      }
 
-      // 监听错误
-      eventSource.onerror = error => {
-        console.error('SSE Error:', error)
-        eventSource.close()
-        isTyping.value = false
-        ElMessage.error('连接中断，请重试')
-      }
+        // 设置超时ID
+        let timeoutId: number | null = null
 
-      // 等待消息完成
-      await new Promise(resolve => {
+        // 关闭连接并清理的函数
+        const closeConnection = (isCompleted: boolean) => {
+          // 只在连接尚未关闭时执行
+          if (!connectionClosed) {
+            connectionClosed = true
+
+            // 清除超时计时器
+            if (timeoutId !== null) {
+              window.clearTimeout(timeoutId)
+              timeoutId = null
+            }
+
+            // 关闭EventSource连接
+            eventSource.close()
+            isTyping.value = false
+
+            // 根据完成状态决定是否解决Promise
+            if (isCompleted) {
+              resolve(true)
+            }
+          }
+        }
+
+        // 监听"完成"事件
         eventSource.addEventListener('done', () => {
-          eventSource.close()
-          isTyping.value = false
-          resolve(true)
+          streamCompleted = true
+          closeConnection(true)
         })
 
+        // 监听错误
+        eventSource.onerror = error => {
+          // 如果已经收到'done'事件或连接已关闭，忽略错误
+          if (streamCompleted || connectionClosed) {
+            return
+          }
+
+          console.error('SSE Error:', error)
+          closeConnection(false)
+
+          // 静默处理错误，不显示消息提示
+          reject(new Error('Connection interrupted'))
+        }
+
         // 设置超时
-        setTimeout(() => {
-          eventSource.close()
-          isTyping.value = false
-          resolve(true)
+        timeoutId = window.setTimeout(() => {
+          // 只有在连接仍然开着且流未完成的情况下才认为超时
+          if (!connectionClosed && !streamCompleted) {
+            closeConnection(false)
+            // 静默处理超时，不显示消息提示
+            reject(new Error('Request timeout'))
+          }
         }, 30000) // 30秒超时
+      }).catch(err => {
+        console.error('处理流出错:', err)
+        // 错误已经在前面处理，这里不需要显示任何提示
       })
     }
   } catch (error) {
     const err = error as Error
-    ElMessage.error(err.message || '发送消息失败')
-    messages.value.push({
-      role: 'ai',
-      text: '❌ 发送消息失败，请重试'
-    })
+    console.error('发送消息失败:', err)
+
+    // 如果消息还没有被添加（一般不会），添加错误消息
+    if (messages.value[messages.value.length - 1]?.role !== 'ai') {
+      messages.value.push({
+        role: 'ai',
+        text: '❌ 连接中断，请重试'
+      })
+    } else {
+      // 如果已经有AI消息，在消息中添加错误提示而不是使用ElMessage
+      const lastMessage = messages.value[messages.value.length - 1]
+      if (lastMessage.text.trim() === '') {
+        lastMessage.text = '❌ 连接中断，请重试'
+      }
+    }
+
+    // 不显示任何弹窗消息提示
   } finally {
     isTyping.value = false
     scrollToBottom()
@@ -331,7 +410,7 @@ onMounted(() => {
 .chat-container {
   display: flex;
   height: calc(100vh - 84px);
-  background-color: #f9f9fa;
+  background-color: #f9f6ff;
   font-family:
     'Inter',
     system-ui,
@@ -344,11 +423,12 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   background-color: #ffffff;
+  justify-content: space-between; /* 确保内容垂直均匀分布 */
 }
 
 .chat-header {
   padding: 16px 24px;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid #e6e6fa;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -358,7 +438,7 @@ onMounted(() => {
   margin: 0;
   font-size: 18px;
   font-weight: 600;
-  color: #111827;
+  color: #6a5acd;
 }
 
 .actions {
@@ -381,21 +461,20 @@ onMounted(() => {
 
 .action-button:hover {
   background-color: #f3f4f6;
-  color: #dc2626;
+  color: #6a5acd;
 }
 
 .action-button.new-chat-btn {
   display: flex;
   align-items: center;
-  gap: 6px;
-  background-color: #dc2626;
+  background-color: #6a5acd;
   color: white;
   padding: 6px 12px;
   border-radius: 6px;
 }
 
 .action-button.new-chat-btn:hover {
-  background-color: #b91c1c;
+  background-color: #7b68ee;
   color: white;
 }
 
@@ -406,6 +485,7 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   gap: 24px;
+  justify-content: flex-start; /* 消息从顶部开始 */
 }
 
 .welcome-message {
@@ -416,13 +496,14 @@ onMounted(() => {
   padding: 40px 20px;
   gap: 16px;
   text-align: center;
-  margin: auto 0;
+  margin: auto; /* 在空聊天时垂直居中 */
+  height: 100%;
 }
 
 .welcome-icon {
   width: 64px;
   height: 64px;
-  background-color: #fee2e2;
+  background-color: #e6e6fa;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -430,14 +511,15 @@ onMounted(() => {
 }
 
 .welcome-icon img {
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
+  filter: invert(32%) sepia(13%) saturate(3907%) hue-rotate(217deg) brightness(87%) contrast(98%); /* 使SVG图标变为紫色 */
 }
 
 .welcome-message h3 {
   font-size: 24px;
   font-weight: 600;
-  color: #111827;
+  color: #6a5acd;
   margin: 0;
 }
 
@@ -458,8 +540,8 @@ onMounted(() => {
 
 .suggestion-chip {
   padding: 8px 16px;
-  background-color: #fee2e2;
-  color: #dc2626;
+  background-color: #e6e6fa;
+  color: #6a5acd;
   border-radius: 16px;
   cursor: pointer;
   transition: background-color 0.2s;
@@ -467,14 +549,19 @@ onMounted(() => {
 }
 
 .suggestion-chip:hover {
-  background-color: #fecaca;
+  background-color: #d8bfd8;
 }
 
-/* 消息气泡样式 */
+/* 消息气泡样式 - 修改为左右布局 */
 .message-container {
   display: flex;
   gap: 16px;
   max-width: 100%;
+  justify-content: flex-start;
+}
+
+.message-container.user {
+  justify-content: flex-end;
 }
 
 .avatar {
@@ -496,18 +583,24 @@ onMounted(() => {
 }
 
 .user-avatar {
-  background-color: #fee2e2;
-  color: #dc2626;
+  background-color: #e6e6fa;
+  color: #6a5acd;
 }
 
 .ai-avatar {
-  background-color: #dc2626;
+  background-color: #6a5acd;
   color: white;
 }
 
 .message-content {
   flex: 1;
-  max-width: calc(100% - 52px);
+  max-width: 75%;
+}
+
+.user-message {
+  text-align: right;
+  display: flex;
+  justify-content: flex-end;
 }
 
 .message-bubble {
@@ -519,19 +612,25 @@ onMounted(() => {
 }
 
 .user .message-bubble {
-  background-color: #fee2e2;
-  color: #111827;
+  background-color: #6a5acd;
+  color: white;
+  border-radius: 12px 12px 0 12px;
+  width: fit-content; /* 根据内容自适应宽度 */
+  max-width: 100%; /* 最大宽度限制 */
+  margin-left: auto; /* 确保短消息靠右对齐 */
 }
 
 .ai .message-bubble {
-  background-color: #f9fafb;
+  background-color: #f3f0ff;
   color: #111827;
-  border: 1px solid #f0f0f0;
+  border: 1px solid #e6e6fa;
+  border-radius: 12px 12px 12px 0;
+  width: auto; /* 恢复默认宽度 */
 }
 
 .message-actions {
   display: flex;
-  justify-content: flex-end;
+  justify-content: flex-start;
   gap: 8px;
   margin-top: 4px;
   opacity: 0;
@@ -554,7 +653,7 @@ onMounted(() => {
 
 .action-btn:hover {
   background-color: #f3f4f6;
-  color: #dc2626;
+  color: #6a5acd;
 }
 
 /* 打字指示器 */
@@ -563,17 +662,17 @@ onMounted(() => {
   align-items: center;
   gap: 4px;
   padding: 12px 16px;
-  background-color: #f9fafb;
-  border-radius: 12px;
+  background-color: #f3f0ff;
+  border-radius: 12px 12px 12px 0;
   width: fit-content;
-  border: 1px solid #f0f0f0;
+  border: 1px solid #e6e6fa;
 }
 
 .typing-indicator span {
   display: inline-block;
   width: 8px;
   height: 8px;
-  background-color: #dc2626;
+  background-color: #6a5acd;
   border-radius: 50%;
   opacity: 0.6;
   animation: typing 1.5s infinite ease-in-out;
@@ -605,30 +704,36 @@ onMounted(() => {
 /* 输入区域样式 */
 .chat-input-container {
   padding: 16px 24px;
-  border-top: 1px solid #f0f0f0;
+  border-top: 1px solid #e6e6fa;
   background-color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* 水平居中 */
 }
 
 .input-wrapper {
   display: flex;
   gap: 12px;
-  align-items: flex-end;
-  background-color: #f9fafb;
-  border: 1px solid #e5e7eb;
+  align-items: center; /* 垂直居中对齐文本和按钮 */
+  background-color: #f9f6ff;
+  border: 1px solid #e6e6fa;
   border-radius: 8px;
   padding: 8px 12px;
-  transition: border-color 0.2s;
+  transition:
+    border-color 0.2s,
+    height 0.2s ease;
+  width: 100%;
+  max-width: 800px; /* 限制最大宽度 */
 }
 
 .input-wrapper:focus-within {
-  border-color: #dc2626;
-  box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.1);
+  border-color: #6a5acd;
+  box-shadow: 0 0 0 2px rgba(106, 90, 205, 0.1);
 }
 
 textarea {
   flex: 1;
   border: none;
-  padding: 8px 0;
   resize: none;
   background-color: transparent;
   font-family: inherit;
@@ -637,10 +742,13 @@ textarea {
   max-height: 150px;
   min-height: 24px;
   outline: none;
+  align-self: center; /* 垂直居中 */
+  transition: height 0.2s ease;
+  padding: 0;
 }
 
 .send-button {
-  background-color: #dc2626;
+  background-color: #6a5acd;
   color: white;
   border: none;
   width: 36px;
@@ -655,11 +763,11 @@ textarea {
 }
 
 .send-button:hover:not(:disabled) {
-  background-color: #b91c1c;
+  background-color: #7b68ee;
 }
 
 .send-button:disabled {
-  background-color: #f3f4f6;
+  background-color: #e6e6fa;
   color: #9ca3af;
   cursor: not-allowed;
 }
@@ -669,6 +777,8 @@ textarea {
   font-size: 12px;
   color: #9ca3af;
   text-align: center;
+  width: 100%;
+  max-width: 800px; /* 与输入框保持一致 */
 }
 
 :deep(.code-block) {
@@ -748,10 +858,6 @@ textarea {
   cursor: help;
 }
 
-:deep(p) {
-  margin: 0 0 16px;
-}
-
 :deep(h1),
 :deep(h2),
 :deep(h3),
@@ -786,7 +892,7 @@ textarea {
 }
 
 :deep(a) {
-  color: #dc2626;
+  color: #6a5acd;
   text-decoration: none;
 }
 
@@ -798,7 +904,7 @@ textarea {
   margin: 16px 0;
   padding: 0 16px;
   color: #6b7280;
-  border-left: 4px solid #e5e7eb;
+  border-left: 4px solid #e6e6fa;
 }
 
 :deep(img) {
@@ -814,17 +920,17 @@ textarea {
 
 :deep(table th),
 :deep(table td) {
-  border: 1px solid #e5e7eb;
+  border: 1px solid #e6e6fa;
   padding: 8px 12px;
 }
 
 :deep(table th) {
-  background-color: #f9fafb;
+  background-color: #f9f6ff;
   font-weight: 600;
 }
 
 :deep(table tr:nth-child(even)) {
-  background-color: #f9fafb;
+  background-color: #f9f6ff;
 }
 
 /* 响应式设计 */
@@ -839,6 +945,15 @@ textarea {
 
   .action-button.new-chat-btn span {
     display: none;
+  }
+
+  .message-content {
+    max-width: 85%;
+  }
+
+  .input-wrapper,
+  .disclaimer {
+    max-width: 100%; /* 在移动设备上占满宽度 */
   }
 }
 </style>

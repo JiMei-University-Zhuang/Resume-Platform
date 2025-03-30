@@ -86,7 +86,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, toRefs } from 'vue'
+import { toRefs } from 'vue'
 import dayjs from 'dayjs'
 
 // 定义 props

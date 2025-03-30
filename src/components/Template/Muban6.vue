@@ -136,9 +136,13 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps } from 'vue'
+import { defineProps, ref } from 'vue'
 import dayjs from 'dayjs'
-import { ref } from 'vue'
+import type { ResumeForm } from '@/types/resume'
+
+defineProps<{
+  resumeForm: ResumeForm
+}>()
 
 const profilePic = ref('') // 保存上传的图片
 
@@ -152,12 +156,6 @@ const handleFileUpload = (event: Event) => {
     reader.readAsDataURL(file)
   }
 }
-const props = defineProps({
-  resumeForm: {
-    type: Object,
-    required: true
-  }
-})
 
 const formatDate = (date: Date | null) => {
   if (!date) return ''

@@ -426,8 +426,8 @@ defineExpose({
 }
 
 .category-item.active {
-  background-color: #f0f7ff;
-  color: #1a73e8;
+  background-color: #f0f0f0;
+  color: #4b4b4b;
 }
 
 .category-icon {
@@ -441,7 +441,7 @@ defineExpose({
 }
 
 .category-item.active .category-icon {
-  color: #1a73e8;
+  color: #4b4b4b;
 }
 
 .category-label {
@@ -450,7 +450,7 @@ defineExpose({
 }
 
 .category-item.active .category-label {
-  color: #1a73e8;
+  color: #4b4b4b;
   font-weight: 500;
 }
 
@@ -478,8 +478,8 @@ defineExpose({
 }
 
 .category-icon-collapsed.active {
-  background-color: #f0f7ff;
-  color: #1a73e8;
+  background-color: #f0f0f0;
+  color: #4b4b4b;
 }
 
 html.dark .sidebar {
@@ -513,7 +513,12 @@ html.dark .category-item:hover {
 }
 
 html.dark .category-item.active {
-  background-color: #1a2033;
+  background-color: #404040;
+}
+
+html.dark .category-item.active .category-icon,
+html.dark .category-item.active .category-label {
+  color: #e0e0e0;
 }
 
 html.dark .category-icon-collapsed {
@@ -525,6 +530,7 @@ html.dark .category-icon-collapsed:hover {
 }
 
 html.dark .category-icon-collapsed.active {
-  background-color: #1a2033;
+  background-color: #404040;
+  color: #e0e0e0;
 }
 </style>

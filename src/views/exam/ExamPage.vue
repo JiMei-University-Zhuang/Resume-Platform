@@ -157,22 +157,17 @@ const formatText = (text: string) => {
 
 const handleSubmit = async () => {
   try {
-    await ElMessageBox.confirm(
-      '确定要提交试卷吗？提交后不可修改！',
-      '提交确认',
-      {
-        confirmButtonText: '确定提交',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }
-    )
+    await ElMessageBox.confirm('确定要提交试卷吗？提交后不可修改！', '提交确认', {
+      confirmButtonText: '确定提交',
+      cancelButtonText: '取消',
+      type: 'warning'
+    })
     submitExam()
   } catch (error) {
     console.log('用户取消提交')
   }
 }
 const submitExam = () => {
-  
   let correctCount = 0
   questions.value.forEach((question, index) => {
     if (answers.value[index] === question.correctAnswer) {

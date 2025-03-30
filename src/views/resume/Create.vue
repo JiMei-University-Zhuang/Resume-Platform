@@ -18,8 +18,8 @@
             </el-form-item>
             <el-form-item label="性别">
               <el-radio-group v-model="resumeForm.gender">
-                <el-radio label="男">男</el-radio>
-                <el-radio label="女">女</el-radio>
+                <el-radio value="男" label="男">男</el-radio>
+                <el-radio value="女" label="女">女</el-radio>
               </el-radio-group>
             </el-form-item>
             <el-form-item label="求职意向">
@@ -30,6 +30,7 @@
                 v-model="resumeForm.birthday"
                 type="date"
                 placeholder="请选择生日"
+                value-format="YYYY-MM-DD"
               ></el-date-picker>
             </el-form-item>
             <el-form-item label="籍贯">
@@ -57,7 +58,7 @@
               <el-input
                 type="textarea"
                 v-model="resumeForm.honors"
-                rows="4"
+                :rows="4"
                 placeholder="请输入荣誉奖励信息"
               ></el-input>
             </el-form-item>
@@ -67,7 +68,7 @@
               <el-input
                 type="textarea"
                 v-model="resumeForm.certifications"
-                rows="4"
+                :rows="4"
                 placeholder="请输入技能证书信息"
               ></el-input>
             </el-form-item>
@@ -144,7 +145,7 @@
                 <el-input
                   type="textarea"
                   v-model="exp.description"
-                  rows="4"
+                  :rows="4"
                   placeholder="请输入工作内容"
                 ></el-input>
               </el-form-item>
@@ -159,7 +160,7 @@
               <el-input
                 type="textarea"
                 v-model="resumeForm.campusExperience"
-                rows="4"
+                :rows="4"
                 placeholder="请输入在校经历"
               ></el-input>
             </el-form-item>
@@ -192,7 +193,7 @@
               <el-input
                 type="textarea"
                 v-model="resumeForm.selfAssessment"
-                rows="4"
+                :rows="4"
                 placeholder="请输入自我评价"
               ></el-input>
             </el-form-item>
@@ -267,22 +268,55 @@
                 </li>
               </ul>
             </el-collapse-item>
-            <el-collapse-item title="修改建议" name="3">
-              <ul>
-                <li v-for="(revisions, index) in aiSuggestions.revisions" :key="index">
-                  {{ revisions.section }}:
-                  {{ revisions.suggestion }}
-                </li>
-              </ul>
+
+            <el-collapse-item
+              title="修改建议"
+              name="3"
+              v-if="aiSuggestions && aiSuggestions.revisions && aiSuggestions.revisions.length"
+            >
+              <div
+                v-for="(revision, index) in aiSuggestions.revisions"
+                :key="index"
+                class="revision-item"
+              >
+                <h4>{{ revision.section }}</h4>
+                <template v-if="Array.isArray(revision.suggestion)">
+                  <div
+                    v-for="(item, i) in revision.suggestion"
+                    :key="i"
+                    class="revision-comparison"
+                  >
+                    <template v-if="isSuggestionItemTemplate(item)">
+                      <div class="original-content">
+                        <h5>原内容:</h5>
+                        <p>{{ item.original }}</p>
+                      </div>
+                      <div class="optimized-content">
+                        <h5>优化建议:</h5>
+                        <p>{{ item.optimized }}</p>
+                      </div>
+                    </template>
+                    <template v-else>
+                      <p>{{ item }}</p>
+                    </template>
+                  </div>
+                </template>
+                <p v-else>{{ revision.suggestion }}</p>
+              </div>
             </el-collapse-item>
 
-            <el-collapse-item title="行业匹配度" name="4">
+            <el-collapse-item
+              title="行业匹配度"
+              name="4"
+              v-if="aiSuggestions.industryMatch && aiSuggestions.industryMatch.length"
+            >
               <el-progress
                 v-for="(match, index) in aiSuggestions.industryMatch"
                 :key="index"
                 :percentage="match.score"
                 :text="match.industry"
-                :color="match.score > 80 ? '#67C23A' : match.score > 60 ? '#E6A23C' : '#F56C6C'"
+                :color="getProgressColor(match.score)"
+                class="industry-match-item"
               ></el-progress>
             </el-collapse-item>
           </el-collapse>
@@ -313,6 +347,7 @@
 
 <script setup lang="ts">
 import { templateConfig } from '@/components/Template/templateConfig'
+import { analyzeResume as analyzeResumeApi } from '@/api/template'
 
 import { ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
@@ -322,13 +357,50 @@ import html2canvas from 'html2canvas'
 import jsPDF from 'jspdf'
 import dayjs from 'dayjs'
 
-const templateComponents = templateConfig
+// 修复模板相关的类型
+interface TemplateComponents {
+  [key: string]: any
+}
+
+// 将 templateComponents 定义为具体类型
+const templateComponents = templateConfig as unknown as TemplateComponents
+
+interface SuggestionItem {
+  original: string
+  optimized: string
+}
+
+// 类型谓词函数，用于判断一个对象是否是 SuggestionItem 类型
+function isSuggestionItem(suggestion: any): suggestion is SuggestionItem {
+  return (
+    typeof suggestion === 'object' &&
+    suggestion !== null &&
+    'original' in suggestion &&
+    'optimized' in suggestion &&
+    typeof suggestion.original === 'string' &&
+    typeof suggestion.optimized === 'string'
+  )
+}
+
+interface AISuggestions {
+  summary: string
+  score: number
+  suggestions: string[]
+  revisions: Array<{
+    section: string
+    suggestion: string | string[] | SuggestionItem[]
+  }>
+  industryMatch: Array<{
+    industry: string
+    score: number
+  }>
+}
 
 interface ResumeForm {
   name: string
   gender: string
   jobTitle: string
-  birthday: Date | null
+  birthday: string | Date
   origin: string
   currentResidence: string
   politicalStatus: string
@@ -353,25 +425,15 @@ interface ResumeForm {
   selfAssessment: string
 }
 
-interface AISuggestions {
-  summary: string
-  score: number
-  suggestions: string[]
-  industryMatch: {
-    industry: string
-    score: number
-  }[]
-}
-
 const route = useRoute()
-const currentTemplate = ref(templateComponents.Muban1)
+const currentTemplate = ref(null) // 初始化为 null
 const inputVisible = ref(false)
 const inputValue = ref('')
 const resumeForm = ref<ResumeForm>({
   name: '张三',
   gender: '男',
   jobTitle: '前端开发工程师',
-  birthday: new Date('1995-05-15'),
+  birthday: '1995-05-15',
   origin: '北京',
   currentResidence: '上海',
   politicalStatus: '团员',
@@ -418,22 +480,38 @@ const selectTemplate = async (template: string) => {
   templateDialogVisible.value = false
 }
 
+// 定义模板加载函数
 const loadTemplate = async (templateName?: string) => {
-  const template = (templateName || 'Muban1').toLowerCase() // 确保模板名称小写
+  const template = templateName || 'muban1' // 使用小写模板名称
   try {
-    const component = await templateConfig[template]()
-    currentTemplate.value = component.default
+    // 安全地加载组件
+    const templateKey = template.toLowerCase() // 确保使用小写键名
+    if (templateKey in templateComponents) {
+      const module = await templateComponents[templateKey]()
+      currentTemplate.value = module.default
+    } else {
+      // 回退到默认模板
+      const fallback = await templateComponents['muban1']()
+      currentTemplate.value = fallback.default
+    }
   } catch (error) {
     console.error('加载模板失败:', error)
-    currentTemplate.value = (await templateConfig['muban1']()).default
+    try {
+      // 二次尝试加载默认模板
+      const fallback = await templateComponents['muban1']()
+      currentTemplate.value = fallback.default
+    } catch (err) {
+      console.error('无法加载默认模板:', err)
+      ElMessage.error('模板加载失败，请刷新页面重试')
+    }
   }
 }
 
-// 修改watch监听
+// 使用正确的 watch 方法
 watch(
-  () => route.params.template || 'Muban1',
-  async (newTemplate: string) => {
-    await loadTemplate(newTemplate)
+  () => route.params.template || 'muban1',
+  newTemplate => {
+    loadTemplate(String(newTemplate).toLowerCase()) // 确保转换为小写字符串
   },
   { immediate: true }
 )
@@ -471,7 +549,8 @@ const addExperience = () => {
   resumeForm.value.experience.push({
     company: '',
     position: '',
-    description: ''
+    description: '',
+    time: [new Date(), new Date()]
   })
 }
 
@@ -479,39 +558,41 @@ const removeExperience = (index: number) => {
   resumeForm.value.experience.splice(index, 1)
 }
 
-const formatDate = (date: Date) => {
-  return dayjs(date).format('YYYY.MM')
-}
-
 const exportPDF = async () => {
   if (!resumePreview.value) return
 
   try {
-    const scale = window.devicePixelRatio || 1
+    ElMessage.info('正在生成PDF，请稍候...')
+
+    // 使用更稳定的配置
     const canvas = await html2canvas(resumePreview.value, {
-      scale: scale, // 使用设备像素比来提高分辨率
-      useCORS: true // 允许跨域资源
+      scale: 2, // 使用固定的缩放比例，提高清晰度
+      useCORS: true, // 允许跨域资源
+      logging: false, // 减少日志输出
+      allowTaint: true, // 允许污染
+      backgroundColor: '#ffffff', // 设置白色背景
+      scrollX: 0,
+      scrollY: 0,
+      windowWidth: document.documentElement.offsetWidth,
+      windowHeight: document.documentElement.offsetHeight
     })
-    const imgData = canvas.toDataURL('image/png')
+
+    const imgData = canvas.toDataURL('image/jpeg', 1.0)
     const pdf = new jsPDF('p', 'mm', 'a4')
     const pdfWidth = pdf.internal.pageSize.getWidth()
-    const pageHeight = pdf.internal.pageSize.getHeight()
-    const imgHeight = (canvas.height * pdfWidth) / canvas.width
+    const pdfHeight = pdf.internal.pageSize.getHeight()
+    const imgWidth = canvas.width
+    const imgHeight = canvas.height
+    const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight)
+    const imgX = (pdfWidth - imgWidth * ratio) / 2
+    const imgY = 0
 
-    let position = 0
-
-    while (position < imgHeight) {
-      pdf.addImage(imgData, 'PNG', 0, -position, pdfWidth, imgHeight)
-      position += pageHeight
-      if (position < imgHeight) {
-        pdf.addPage()
-      }
-    }
-
+    pdf.addImage(imgData, 'JPEG', imgX, imgY, imgWidth * ratio, imgHeight * ratio)
     pdf.save('我的简历.pdf')
 
     ElMessage.success('PDF导出成功！')
   } catch (error) {
+    console.error('PDF导出失败:', error)
     ElMessage.error('PDF导出失败，请重试')
   }
 }
@@ -521,65 +602,164 @@ const analyzeResume = async () => {
   analyzing.value = true
 
   try {
-    await new Promise(resolve => setTimeout(resolve, 2000))
+    // 准备数据 - 将Date对象转换为字符串
+    const formData = {
+      ...resumeForm.value,
+      birthday: resumeForm.value.birthday
+        ? dayjs(resumeForm.value.birthday).format('YYYY-MM-DD')
+        : '',
+      education: resumeForm.value.education.map(edu => ({
+        ...edu,
+        time: [
+          dayjs(edu.time[0]).format('YYYY-MM-DD'),
+          dayjs(edu.time[1]).format('YYYY-MM-DD')
+        ] as [string, string]
+      })),
+      experience: resumeForm.value.experience.map(exp => ({
+        ...exp,
+        time: [
+          dayjs(exp.time[0]).format('YYYY-MM-DD'),
+          dayjs(exp.time[1]).format('YYYY-MM-DD')
+        ] as [string, string]
+      }))
+    }
 
-    aiSuggestions.value = {
-      summary: '您的简历整体结构清晰，但在某些方面还可以进一步优化。', //AI对简历的总体评价
-      score: 85, //AI对简历的评分
-      suggestions: [
-        //AI对简历的优化建议
-        '建议在工作经验部分添加更多具体的数据和成果',
-        '可以突出展示您的核心技能和专业认证',
-        '教育背景部分可以补充相关的课程和学术成果'
-      ],
-      revisions: [
-        //AI对简历的修改建议
-        {
-          section: '工作描述', //建议修改的部分
-          suggestions: [
-            '在腾讯科技担任前端开发工程师期间，我主导负责公司核心产品的前端开发工作，深度运用 Vue.js 框架构建高性能、高可用性的用户界面。与产品、设计、后端团队紧密合作，确保产品的功能实现和用户体验达到最佳状态。同时，我持续关注前端技术的发展趋势，不断优化和改进现有技术方案，提升产品的性能和稳定性。',
-            '在阿里巴巴担任高级前端开发工程师期间，负责电商平台的前端架构设计和开发，优化用户体验并提升系统性能。与团队合作，成功实施了多项技术创新，显著提高了平台的稳定性和响应速度。'
-          ] // 修改的内容
-        },
-        {
-          section: '在校经历',
-          suggestion:
-            '在校期间担任学生会技术部部长，成功策划并组织了多场技术分享会。在此过程中，我负责了活动的整体策划，包括主题选定、嘉宾邀请以及流程设计等多个环节。同时，我还带领团队完成了活动的宣传推广以及现场执行工作，确保了每一场分享会的顺利进行，吸引了众多同学参与，有效提升了团队的影响力。'
-        },
-        {
-          section: '自我评价',
-          suggestion: '5年前端开发经验，熟练掌握主流前端技术栈，具有良好的团队协作能力和沟通能力。'
-        }
-      ],
-      industryMatch: [
-        //AI对简历的行业匹配
-        { industry: '互联网技术', score: 90 },
-        { industry: '人工智能', score: 75 },
-        { industry: '金融科技', score: 70 }
-      ]
+    // 调用API
+    const response = await analyzeResumeApi(formData)
+
+    // 处理API响应 - 提取aiSuggestions数据
+    console.log('API Response:', response)
+
+    // 提取aiSuggestions数据
+    if (response.data && response.data.aiSuggestions) {
+      // 转换 API 响应数据中的字符串数字为实际数字
+      const apiData = response.data.aiSuggestions
+
+      aiSuggestions.value = {
+        summary: apiData.summary,
+        score: typeof apiData.score === 'string' ? parseFloat(apiData.score) : apiData.score,
+        suggestions: apiData.suggestions,
+        revisions: apiData.revisions,
+        industryMatch: apiData.industryMatch.map(match => ({
+          industry: match.industry,
+          score: typeof match.score === 'string' ? parseFloat(match.score) : match.score
+        }))
+      }
+    } else {
+      throw new Error('响应数据格式不正确')
     }
   } catch (error) {
-    ElMessage.error('分析失败，请重试')
+    console.error('分析失败:', error)
+    ElMessage.error('简历分析失败，请稍后再试')
   } finally {
     analyzing.value = false
   }
 }
 
 const applyAISuggestions = () => {
-  ElMessage.success('已应用 AI 建议')
-
-  // 查找section为'在校经历'的建议
-  const campusExperienceSuggestion = aiSuggestions.value?.revisions.find(
-    rev => rev.section === '在校经历'
-  )
-
-  // 如果找到了对应的建议，则更新resumeForm中的campusExperience
-  if (campusExperienceSuggestion) {
-    resumeForm.value.campusExperience = campusExperienceSuggestion.suggestion
-  } else {
-    ElMessage.warning('未找到在校经历的修改建议')
+  if (!aiSuggestions.value) {
+    ElMessage.warning('没有可用的 AI 建议')
+    return
   }
 
+  // 查找各个部分的修改建议
+  const revisions = aiSuggestions.value.revisions || []
+
+  // 处理工作经历修改
+  const workExperienceSuggestion = revisions.find(rev => rev.section === '工作经历')
+  if (workExperienceSuggestion && Array.isArray(workExperienceSuggestion.suggestion)) {
+    // 获取每个工作经历的优化建议
+    const suggestions = workExperienceSuggestion.suggestion as SuggestionItem[]
+
+    // 遍历建议，根据原始内容匹配对应的工作经历并应用优化
+    suggestions.forEach(suggestion => {
+      if ('original' in suggestion && 'optimized' in suggestion) {
+        // 查找匹配的工作经历
+        const experienceIndex = resumeForm.value.experience.findIndex(
+          exp => exp.description.trim() === suggestion.original.trim()
+        )
+
+        // 如果找到匹配的工作经历，应用优化建议
+        if (experienceIndex !== -1) {
+          resumeForm.value.experience[experienceIndex].description = suggestion.optimized
+        }
+      }
+    })
+  }
+
+  // 处理教育经历修改
+  const educationSuggestion = revisions.find(rev => rev.section === '教育经历')
+  if (educationSuggestion && Array.isArray(educationSuggestion.suggestion)) {
+    // 获取教育经历的优化建议
+    const suggestions = educationSuggestion.suggestion as SuggestionItem[]
+
+    // 尝试匹配校园经历并应用优化
+    suggestions.forEach(suggestion => {
+      if ('original' in suggestion && 'optimized' in suggestion) {
+        // 如果原始内容与校园经历匹配
+        if (resumeForm.value.campusExperience.includes(suggestion.original)) {
+          // 替换匹配的部分
+          resumeForm.value.campusExperience = resumeForm.value.campusExperience.replace(
+            suggestion.original,
+            suggestion.optimized
+          )
+        }
+      }
+    })
+  }
+
+  // 处理在校经历修改
+  const campusExperienceSuggestion = revisions.find(rev => rev.section === '在校经历')
+  if (campusExperienceSuggestion) {
+    if (Array.isArray(campusExperienceSuggestion.suggestion)) {
+      // 处理数组类型的建议
+      campusExperienceSuggestion.suggestion.forEach(suggestion => {
+        if (isSuggestionItem(suggestion)) {
+          // 如果是包含original和optimized的对象
+          if (resumeForm.value.campusExperience.includes(suggestion.original)) {
+            resumeForm.value.campusExperience = resumeForm.value.campusExperience.replace(
+              suggestion.original,
+              suggestion.optimized
+            )
+          }
+        } else if (typeof suggestion === 'string') {
+          // 如果是字符串类型
+          resumeForm.value.campusExperience = suggestion
+        }
+      })
+    } else if (typeof campusExperienceSuggestion.suggestion === 'string') {
+      // 处理字符串类型的建议
+      resumeForm.value.campusExperience = campusExperienceSuggestion.suggestion
+    }
+  }
+
+  // 处理自我评价修改
+  const selfAssessmentSuggestion = revisions.find(rev => rev.section === '自我评价')
+  if (selfAssessmentSuggestion) {
+    if (Array.isArray(selfAssessmentSuggestion.suggestion)) {
+      // 处理数组类型的建议
+      const optimizedSuggestions: string[] = []
+
+      selfAssessmentSuggestion.suggestion.forEach(suggestion => {
+        if (isSuggestionItem(suggestion)) {
+          // 如果是包含original和optimized的对象
+          optimizedSuggestions.push(suggestion.optimized)
+        } else if (typeof suggestion === 'string') {
+          // 如果是字符串类型
+          optimizedSuggestions.push(suggestion)
+        }
+      })
+
+      if (optimizedSuggestions.length > 0) {
+        resumeForm.value.selfAssessment = optimizedSuggestions.join('\n\n')
+      }
+    } else if (typeof selfAssessmentSuggestion.suggestion === 'string') {
+      // 处理字符串类型的建议
+      resumeForm.value.selfAssessment = selfAssessmentSuggestion.suggestion
+    }
+  }
+
+  ElMessage.success('已应用 AI 建议')
   analysisDialogVisible.value = false
 }
 
@@ -614,7 +794,7 @@ const clearResumeForm = () => {
     name: '',
     gender: '',
     jobTitle: '',
-    birthday: null,
+    birthday: '1995-05-15',
     origin: '',
     currentResidence: '',
     politicalStatus: '',
@@ -642,6 +822,25 @@ const clearResumeForm = () => {
     skills: [],
     selfAssessment: ''
   }
+}
+
+// 返回进度条颜色
+const getProgressColor = (score: number): string => {
+  if (score > 80) return '#67C23A'
+  if (score > 60) return '#E6A23C'
+  return '#F56C6C'
+}
+
+// 新增的类型守卫函数
+function isSuggestionItemTemplate(item: any): item is SuggestionItem {
+  return (
+    typeof item === 'object' &&
+    item !== null &&
+    'original' in item &&
+    'optimized' in item &&
+    typeof item.original === 'string' &&
+    typeof item.optimized === 'string'
+  )
 }
 </script>
 
@@ -792,5 +991,61 @@ const clearResumeForm = () => {
   .template-card {
     margin-bottom: 15px;
   }
+}
+
+.industry-match-item {
+  margin-bottom: 15px;
+}
+
+.revision-item {
+  margin-bottom: 20px;
+  padding: 10px;
+  border-left: 3px solid #409eff;
+  background-color: #f8f9fa;
+}
+
+.revision-item h4 {
+  margin-top: 0;
+  color: #409eff;
+  font-weight: 600;
+}
+
+.revision-comparison {
+  margin-bottom: 15px;
+  border-bottom: 1px dashed #e0e0e0;
+  padding-bottom: 10px;
+}
+
+.original-content,
+.optimized-content {
+  margin-bottom: 10px;
+}
+
+.original-content h5 {
+  margin: 5px 0;
+  color: #909399;
+  font-size: 14px;
+}
+
+.optimized-content h5 {
+  margin: 5px 0;
+  color: #67c23a;
+  font-size: 14px;
+}
+
+.optimized-content p {
+  background-color: #f0f9eb;
+  padding: 8px;
+  border-radius: 4px;
+  border-left: 2px solid #67c23a;
+}
+
+.revision-item ul {
+  padding-left: 20px;
+  margin-bottom: 0;
+}
+
+.revision-item li {
+  margin-bottom: 8px;
 }
 </style>
