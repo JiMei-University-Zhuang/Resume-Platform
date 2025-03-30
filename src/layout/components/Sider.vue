@@ -7,7 +7,7 @@
       </a>
     </div>
 
-    <el-scrollbar>
+    <el-scrollbar height="100%">
       <div class="categories-section" v-if="!collapsed">
         <h2 class="categories-title">功能导航</h2>
 
@@ -349,6 +349,8 @@ defineExpose({
   transition: width 0.28s;
   z-index: 1001;
   border-right: 1px solid #f0f0f0;
+  display: flex;
+  flex-direction: column;
 }
 
 .sidebar.collapsed {
@@ -361,6 +363,7 @@ defineExpose({
   display: flex;
   align-items: center;
   border-bottom: 1px solid #f0f0f0;
+  flex-shrink: 0;
 }
 
 .logo-link {
@@ -381,8 +384,14 @@ defineExpose({
   margin-left: 10px;
 }
 
+.el-scrollbar {
+  flex: 1;
+  height: calc(100% - 60px);
+}
+
 .categories-section {
   padding: 16px;
+  padding-bottom: 15px;
 }
 
 .categories-title {
