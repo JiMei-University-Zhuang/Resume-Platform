@@ -95,7 +95,8 @@ const previewTemplate = (template: Template) => {
   previewDialogVisible.value = true
 }
 
-const useTemplate = (template: Template) => {
+const useTemplate = (template: Template | null) => {
+  if (!template) return
   router.push({
     name: 'ResumeCreate',
     params: {
@@ -222,14 +223,22 @@ const filteredTemplates = computed(() => {
   return templates.filter(template =>
     template.tags.some(tag => {
       switch (filter.value) {
-        case 'fresh': return tag === '应届生'
-        case 'tech': return tag === '技术类'
-        case 'business': return tag === '商务类'
-        case 'design': return tag === '设计类'
-        case 'academic': return tag === '学术类'
-        case 'marketing': return tag === '市场类'
-        case 'medical': return tag === '医疗类'
-        default: return true
+        case 'fresh':
+          return tag === '应届生'
+        case 'tech':
+          return tag === '技术类'
+        case 'business':
+          return tag === '商务类'
+        case 'design':
+          return tag === '设计类'
+        case 'academic':
+          return tag === '学术类'
+        case 'marketing':
+          return tag === '市场类'
+        case 'medical':
+          return tag === '医疗类'
+        default:
+          return true
       }
     })
   )

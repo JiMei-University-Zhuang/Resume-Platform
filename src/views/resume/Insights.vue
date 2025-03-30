@@ -38,11 +38,11 @@
             </div>
           </template>
           <div class="chart-container">
-<<<<<<< HEAD
-            <div id="salaryChart" ref="salaryChart" style="width: 100%; height: 300px;"></div>
-=======
+            <<<<<<< HEAD
+            <div id="salaryChart" ref="salaryChart" style="width: 100%; height: 300px"></div>
+            =======
             <div ref="salaryChart" style="width: 100%; height: 300px"></div>
->>>>>>> main
+            >>>>>>> main
           </div>
         </el-card>
       </el-col>
@@ -60,7 +60,7 @@
             </div>
           </template>
           <div class="chart-container">
-            <div id="skillsChart" ref="skillsChart" style="width: 100%; height: 300px;"></div>
+            <div id="skillsChart" ref="skillsChart" style="width: 100%; height: 300px"></div>
           </div>
         </el-card>
       </el-col>
@@ -95,11 +95,11 @@
             </div>
           </template>
           <div class="chart-container">
-<<<<<<< HEAD
-            <div id="trendChart" ref="trendChart" style="width: 100%; height: 350px;"></div>
-=======
+            <<<<<<< HEAD
+            <div id="trendChart" ref="trendChart" style="width: 100%; height: 350px"></div>
+            =======
             <div ref="trendChart" style="width: 100%; height: 350px"></div>
->>>>>>> main
+            >>>>>>> main
           </div>
         </el-card>
       </el-col>
@@ -298,7 +298,7 @@ const hotspots = [
 // 初始化图表
 const initCharts = () => {
   if (!salaryChart.value || !skillsChart.value || !trendChart.value) return
-  
+
   const salary = echarts.init(salaryChart.value)
   salary.setOption({
     // ... 薪资分布图表配置
@@ -314,14 +314,16 @@ const initCharts = () => {
       type: 'value',
       name: '职位数量'
     },
-    series: [{
-      data: [120, 200, 150, 80, 70, 110, 130],
-      type: 'bar',
-      barWidth: '60%',
-      itemStyle: {
-        color: '#409EFF'
+    series: [
+      {
+        data: [120, 200, 150, 80, 70, 110, 130],
+        type: 'bar',
+        barWidth: '60%',
+        itemStyle: {
+          color: '#409EFF'
+        }
       }
-    }]
+    ]
   })
 
   const skills = echarts.init(skillsChart.value)
@@ -330,24 +332,26 @@ const initCharts = () => {
     tooltip: {
       trigger: 'item'
     },
-    series: [{
-      type: 'pie',
-      radius: '70%',
-      data: [
-        { value: 40, name: 'JavaScript' },
-        { value: 38, name: 'Python' },
-        { value: 32, name: 'Java' },
-        { value: 30, name: 'React' },
-        { value: 28, name: 'Vue' }
-      ],
-      emphasis: {
-        itemStyle: {
-          shadowBlur: 10,
-          shadowOffsetX: 0,
-          shadowColor: 'rgba(0, 0, 0, 0.5)'
+    series: [
+      {
+        type: 'pie',
+        radius: '70%',
+        data: [
+          { value: 40, name: 'JavaScript' },
+          { value: 38, name: 'Python' },
+          { value: 32, name: 'Java' },
+          { value: 30, name: 'React' },
+          { value: 28, name: 'Vue' }
+        ],
+        emphasis: {
+          itemStyle: {
+            shadowBlur: 10,
+            shadowOffsetX: 0,
+            shadowColor: 'rgba(0, 0, 0, 0.5)'
+          }
         }
       }
-    }]
+    ]
   })
 
   const trend = echarts.init(trendChart.value)
@@ -364,11 +368,13 @@ const initCharts = () => {
       type: 'value',
       name: '职位数量'
     },
-    series: [{
-      data: [150, 230, 224, 218, 135, 147],
-      type: 'line',
-      smooth: true
-    }]
+    series: [
+      {
+        data: [150, 230, 224, 218, 135, 147],
+        type: 'line',
+        smooth: true
+      }
+    ]
   })
 }
 
@@ -390,9 +396,12 @@ onMounted(() => {
 })
 
 // 监听路由变化
-watch(() => route.path, () => {
-  handleRouteChange()
-})
+watch(
+  () => route.path,
+  () => {
+    handleRouteChange()
+  }
+)
 
 // 生成报告
 const generateReport = async () => {

@@ -66,7 +66,7 @@ const handleLogout = async () => {
 
 <style scoped>
 .header {
-  height: 64px;
+  height: 59px;
   background: var(--el-bg-color);
   padding: 1px 16px;
   padding-left: 22px;
