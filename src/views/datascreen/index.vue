@@ -114,6 +114,10 @@ const toggleFullScreen = () => {
 // 自动刷新数据的定时器
 let dataRefreshTimer: number | null = null
 
+
+
+
+
 // 核心指标数据
 const overviewData = ref([
   { 

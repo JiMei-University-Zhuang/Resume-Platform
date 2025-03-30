@@ -8,7 +8,7 @@ import router from './router'
 import { createPinia } from 'pinia'
 import 'element-plus/theme-chalk/dark/css-vars.css'
 import zhCn from 'element-plus/dist/locale/zh-cn.mjs'
-import DataV from '@jiaminghi/data-view'
+
 
 
 
@@ -25,4 +25,3 @@ app.use(ElementPlus, {
 app.use(router)
 app.use(createPinia())
 app.mount('#app')
-app.use(DataV)
