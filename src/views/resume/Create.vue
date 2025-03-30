@@ -272,14 +272,37 @@
             <el-collapse-item
               title="修改建议"
               name="3"
-              v-if="aiSuggestions.revisions && aiSuggestions.revisions.length"
+              v-if="aiSuggestions && aiSuggestions.revisions && aiSuggestions.revisions.length"
             >
-              <ul>
-                <li v-for="(revision, index) in aiSuggestions.revisions" :key="index">
-                  <strong>{{ revision.section }}:</strong>
-                  <p>{{ revision.suggestion }}</p>
-                </li>
-              </ul>
+              <div
+                v-for="(revision, index) in aiSuggestions.revisions"
+                :key="index"
+                class="revision-item"
+              >
+                <h4>{{ revision.section }}</h4>
+                <template v-if="Array.isArray(revision.suggestion)">
+                  <div
+                    v-for="(item, i) in revision.suggestion"
+                    :key="i"
+                    class="revision-comparison"
+                  >
+                    <template v-if="isSuggestionItemTemplate(item)">
+                      <div class="original-content">
+                        <h5>原内容:</h5>
+                        <p>{{ item.original }}</p>
+                      </div>
+                      <div class="optimized-content">
+                        <h5>优化建议:</h5>
+                        <p>{{ item.optimized }}</p>
+                      </div>
+                    </template>
+                    <template v-else>
+                      <p>{{ item }}</p>
+                    </template>
+                  </div>
+                </template>
+                <p v-else>{{ revision.suggestion }}</p>
+              </div>
             </el-collapse-item>
 
             <el-collapse-item
@@ -292,7 +315,7 @@
                 :key="index"
                 :percentage="match.score"
                 :text="match.industry"
-                :color="match.score > 80 ? '#67C23A' : match.score > 60 ? '#E6A23C' : '#F56C6C'"
+                :color="getProgressColor(match.score)"
                 class="industry-match-item"
               ></el-progress>
             </el-collapse-item>
@@ -342,6 +365,37 @@ interface TemplateComponents {
 // 将 templateComponents 定义为具体类型
 const templateComponents = templateConfig as unknown as TemplateComponents
 
+interface SuggestionItem {
+  original: string
+  optimized: string
+}
+
+// 类型谓词函数，用于判断一个对象是否是 SuggestionItem 类型
+function isSuggestionItem(suggestion: any): suggestion is SuggestionItem {
+  return (
+    typeof suggestion === 'object' &&
+    suggestion !== null &&
+    'original' in suggestion &&
+    'optimized' in suggestion &&
+    typeof suggestion.original === 'string' &&
+    typeof suggestion.optimized === 'string'
+  )
+}
+
+interface AISuggestions {
+  summary: string
+  score: number
+  suggestions: string[]
+  revisions: Array<{
+    section: string
+    suggestion: string | string[] | SuggestionItem[]
+  }>
+  industryMatch: Array<{
+    industry: string
+    score: number
+  }>
+}
+
 interface ResumeForm {
   name: string
   gender: string
@@ -369,20 +423,6 @@ interface ResumeForm {
   campusExperience: string
   skills: string[]
   selfAssessment: string
-}
-
-interface AISuggestions {
-  summary: string
-  score: number
-  suggestions: string[]
-  revisions: Array<{
-    section: string
-    suggestion: string
-  }>
-  industryMatch: Array<{
-    industry: string
-    score: number
-  }>
 }
 
 const route = useRoute()
@@ -592,7 +632,19 @@ const analyzeResume = async () => {
 
     // 提取aiSuggestions数据
     if (response.data && response.data.aiSuggestions) {
-      aiSuggestions.value = response.data.aiSuggestions
+      // 转换 API 响应数据中的字符串数字为实际数字
+      const apiData = response.data.aiSuggestions
+
+      aiSuggestions.value = {
+        summary: apiData.summary,
+        score: typeof apiData.score === 'string' ? parseFloat(apiData.score) : apiData.score,
+        suggestions: apiData.suggestions,
+        revisions: apiData.revisions,
+        industryMatch: apiData.industryMatch.map(match => ({
+          industry: match.industry,
+          score: typeof match.score === 'string' ? parseFloat(match.score) : match.score
+        }))
+      }
     } else {
       throw new Error('响应数据格式不正确')
     }
@@ -613,22 +665,98 @@ const applyAISuggestions = () => {
   // 查找各个部分的修改建议
   const revisions = aiSuggestions.value.revisions || []
 
-  // 处理工作描述修改
-  const workDescriptionSuggestion = revisions.find(rev => rev.section === '工作描述')
-  if (workDescriptionSuggestion && resumeForm.value.experience.length > 0) {
-    resumeForm.value.experience[0].description = workDescriptionSuggestion.suggestion
+  // 处理工作经历修改
+  const workExperienceSuggestion = revisions.find(rev => rev.section === '工作经历')
+  if (workExperienceSuggestion && Array.isArray(workExperienceSuggestion.suggestion)) {
+    // 获取每个工作经历的优化建议
+    const suggestions = workExperienceSuggestion.suggestion as SuggestionItem[]
+
+    // 遍历建议，根据原始内容匹配对应的工作经历并应用优化
+    suggestions.forEach(suggestion => {
+      if ('original' in suggestion && 'optimized' in suggestion) {
+        // 查找匹配的工作经历
+        const experienceIndex = resumeForm.value.experience.findIndex(
+          exp => exp.description.trim() === suggestion.original.trim()
+        )
+
+        // 如果找到匹配的工作经历，应用优化建议
+        if (experienceIndex !== -1) {
+          resumeForm.value.experience[experienceIndex].description = suggestion.optimized
+        }
+      }
+    })
+  }
+
+  // 处理教育经历修改
+  const educationSuggestion = revisions.find(rev => rev.section === '教育经历')
+  if (educationSuggestion && Array.isArray(educationSuggestion.suggestion)) {
+    // 获取教育经历的优化建议
+    const suggestions = educationSuggestion.suggestion as SuggestionItem[]
+
+    // 尝试匹配校园经历并应用优化
+    suggestions.forEach(suggestion => {
+      if ('original' in suggestion && 'optimized' in suggestion) {
+        // 如果原始内容与校园经历匹配
+        if (resumeForm.value.campusExperience.includes(suggestion.original)) {
+          // 替换匹配的部分
+          resumeForm.value.campusExperience = resumeForm.value.campusExperience.replace(
+            suggestion.original,
+            suggestion.optimized
+          )
+        }
+      }
+    })
   }
 
   // 处理在校经历修改
   const campusExperienceSuggestion = revisions.find(rev => rev.section === '在校经历')
   if (campusExperienceSuggestion) {
-    resumeForm.value.campusExperience = campusExperienceSuggestion.suggestion
+    if (Array.isArray(campusExperienceSuggestion.suggestion)) {
+      // 处理数组类型的建议
+      campusExperienceSuggestion.suggestion.forEach(suggestion => {
+        if (isSuggestionItem(suggestion)) {
+          // 如果是包含original和optimized的对象
+          if (resumeForm.value.campusExperience.includes(suggestion.original)) {
+            resumeForm.value.campusExperience = resumeForm.value.campusExperience.replace(
+              suggestion.original,
+              suggestion.optimized
+            )
+          }
+        } else if (typeof suggestion === 'string') {
+          // 如果是字符串类型
+          resumeForm.value.campusExperience = suggestion
+        }
+      })
+    } else if (typeof campusExperienceSuggestion.suggestion === 'string') {
+      // 处理字符串类型的建议
+      resumeForm.value.campusExperience = campusExperienceSuggestion.suggestion
+    }
   }
 
   // 处理自我评价修改
   const selfAssessmentSuggestion = revisions.find(rev => rev.section === '自我评价')
   if (selfAssessmentSuggestion) {
-    resumeForm.value.selfAssessment = selfAssessmentSuggestion.suggestion
+    if (Array.isArray(selfAssessmentSuggestion.suggestion)) {
+      // 处理数组类型的建议
+      const optimizedSuggestions: string[] = []
+
+      selfAssessmentSuggestion.suggestion.forEach(suggestion => {
+        if (isSuggestionItem(suggestion)) {
+          // 如果是包含original和optimized的对象
+          optimizedSuggestions.push(suggestion.optimized)
+        } else if (typeof suggestion === 'string') {
+          // 如果是字符串类型
+          optimizedSuggestions.push(suggestion)
+        }
+      })
+
+      if (optimizedSuggestions.length > 0) {
+        resumeForm.value.selfAssessment = optimizedSuggestions.join('\n\n')
+      }
+    } else if (typeof selfAssessmentSuggestion.suggestion === 'string') {
+      // 处理字符串类型的建议
+      resumeForm.value.selfAssessment = selfAssessmentSuggestion.suggestion
+    }
   }
 
   ElMessage.success('已应用 AI 建议')
@@ -694,6 +822,25 @@ const clearResumeForm = () => {
     skills: [],
     selfAssessment: ''
   }
+}
+
+// 返回进度条颜色
+const getProgressColor = (score: number): string => {
+  if (score > 80) return '#67C23A'
+  if (score > 60) return '#E6A23C'
+  return '#F56C6C'
+}
+
+// 新增的类型守卫函数
+function isSuggestionItemTemplate(item: any): item is SuggestionItem {
+  return (
+    typeof item === 'object' &&
+    item !== null &&
+    'original' in item &&
+    'optimized' in item &&
+    typeof item.original === 'string' &&
+    typeof item.optimized === 'string'
+  )
 }
 </script>
 
@@ -848,5 +995,57 @@ const clearResumeForm = () => {
 
 .industry-match-item {
   margin-bottom: 15px;
+}
+
+.revision-item {
+  margin-bottom: 20px;
+  padding: 10px;
+  border-left: 3px solid #409eff;
+  background-color: #f8f9fa;
+}
+
+.revision-item h4 {
+  margin-top: 0;
+  color: #409eff;
+  font-weight: 600;
+}
+
+.revision-comparison {
+  margin-bottom: 15px;
+  border-bottom: 1px dashed #e0e0e0;
+  padding-bottom: 10px;
+}
+
+.original-content,
+.optimized-content {
+  margin-bottom: 10px;
+}
+
+.original-content h5 {
+  margin: 5px 0;
+  color: #909399;
+  font-size: 14px;
+}
+
+.optimized-content h5 {
+  margin: 5px 0;
+  color: #67c23a;
+  font-size: 14px;
+}
+
+.optimized-content p {
+  background-color: #f0f9eb;
+  padding: 8px;
+  border-radius: 4px;
+  border-left: 2px solid #67c23a;
+}
+
+.revision-item ul {
+  padding-left: 20px;
+  margin-bottom: 0;
+}
+
+.revision-item li {
+  margin-bottom: 8px;
 }
 </style>
