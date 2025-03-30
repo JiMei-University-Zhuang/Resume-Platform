@@ -7,10 +7,10 @@ const getBaseURL = () => {
   if (import.meta.env.PROD) {
     // 判断是否是特定域名
     if (window.location.hostname === 'view.yinhenx.cn') {
-      return '/api'  // 生产环境使用绝对路径
+      return '/api' // 生产环境使用绝对路径
     }
   }
-  return '/api'  // 默认情况
+  return '/api' // 默认情况
 }
 
 // 创建 axios 实例
