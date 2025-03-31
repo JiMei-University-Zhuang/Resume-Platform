@@ -40,7 +40,6 @@
                 <span>题目数量：</span>
                 <el-radio-group>
                   <el-radio label="1题">1题</el-radio>
-                
                 </el-radio-group>
               </div>
             </div>

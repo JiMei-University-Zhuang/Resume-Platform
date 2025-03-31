@@ -199,13 +199,13 @@ const startRealExam = async () => {
   try {
     loadingExam.value = true
     const { data } = await getCSExam({
-      examName: selectedExam.value 
+      examName: selectedExam.value
     })
 
     router.push({
       name: 'ExamPage',
       query: {
-        examId: data.examId,
+        examId: data.questions[0].id,
         examType: selectedExam.value.includes('行测') ? 'xingce' : 'shenlun',
         isRealExam: 'true', // 添加真题标识
         examName: selectedExam.value
