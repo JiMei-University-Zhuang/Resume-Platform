@@ -6,18 +6,18 @@
     </div>
     
     <!-- 头部 -->
-    <decoration-10 class="header-decoration" />
+    <Decoration10 class="header-decoration" />
     <header class="header">
       <div class="header-left">
-        <decoration-5 style="width:200px;height:60px;" />
+        <Decoration5 style="width:200px;height:60px;" />
       </div>
       <div class="header-center">
-        <border-box-12>
+        <BorderBox12>
           <h1 class="title">AI职业助手数据监控平台</h1>
-        </border-box-12>
+        </BorderBox12>
       </div>
       <div class="header-right">
-        <decoration-5 style="width:200px;height:60px;" :reverse="true" />
+        <Decoration5 style="width:200px;height:60px;" :reverse="true" />
       </div>
     </header>
 
@@ -25,77 +25,119 @@
     <main class="main-content">
       <!-- 左侧面板 -->
       <section class="left-panel">
-        <border-box-8 class="panel-item">
+        <BorderBox8 class="panel-item">
           <div class="panel-header">
             <h3>日活跃用户</h3>
           </div>
-          <div class="chart-container" ref="activeUsersChartRef">
-            <active-ring-chart :config="activeRingConfig" />
+          <div class="chart-container" v-if="mounted">
+            <ActiveRingChart :config="activeRingConfig" />
           </div>
-        </border-box-8>
+        </BorderBox8>
         
-        <border-box-8 class="panel-item">
+        <BorderBox8 class="panel-item">
           <div class="panel-header">
             <h3>用户年龄分布</h3>
           </div>
-          <div class="chart-container" ref="ageDistributionChartRef">
-            <capsule-chart :config="ageDistributionConfig" />
+          <div class="chart-container" v-if="mounted">
+            <CapsuleChart :config="ageDistributionConfig" />
           </div>
-        </border-box-8>
+        </BorderBox8>
       </section>
 
       <!-- 中间面板 -->
       <section class="center-panel">
-        <border-box-7 class="panel-item center-top">
+        <BorderBox7 class="panel-item center-top">
           <div class="panel-header center">
             <h3>核心指标</h3>
           </div>
           <div class="data-overview">
             <div class="overview-item" v-for="(item, index) in overviewData" :key="index">
-              <digital-flop :config="item.config" />
+              <DigitalFlop v-if="mounted" :config="item.config" />
               <div class="data-label">{{ item.label }}</div>
             </div>
           </div>
-        </border-box-7>
+        </BorderBox7>
         
-        <border-box-7 class="panel-item center-bottom">
+        <BorderBox7 class="panel-item center-bottom">
           <div class="panel-header center">
             <h3>每日答题量</h3>
           </div>
-          <div class="chart-container" ref="examChartRef">
-            <charts-line :config="examLineConfig" />
+          <div class="chart-container" v-if="mounted">
+            <div ref="lineChartRef" style="width: 100%; height: 100%;"></div>
           </div>
-        </border-box-7>
+        </BorderBox7>
       </section>
 
       <!-- 右侧面板 -->
       <section class="right-panel">
-        <border-box-8 class="panel-item">
+        <BorderBox8 class="panel-item">
           <div class="panel-header">
             <h3>用户地域分布</h3>
           </div>
-          <div class="chart-container" ref="mapChartRef">
-            <scroll-board :config="regionConfig" />
+          <div class="chart-container" v-if="mounted">
+            <ScrollBoard :config="regionConfig" />
           </div>
-        </border-box-8>
+        </BorderBox8>
         
-        <border-box-8 class="panel-item">
+        <BorderBox8 class="panel-item">
           <div class="panel-header">
             <h3>简历制作量</h3>
           </div>
-          <div class="chart-container" ref="resumeChartRef">
-            <water-level-pond :config="resumeConfig" />
+          <div class="chart-container" v-if="mounted">
+            <WaterLevelPond :config="resumeConfig" />
           </div>
-        </border-box-8>
+        </BorderBox8>
       </section>
     </main>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, onUnmounted, reactive } from 'vue'
+import { ref, onMounted, onUnmounted, reactive, nextTick, watch } from 'vue'
 import { useEventListener } from '@vueuse/core'
 import { gsap } from 'gsap'
+
+// 确保正确引入DataV组件，使用正确的大写命名
+import {
+  BorderBox7,
+  BorderBox8,
+  BorderBox12,
+  Decoration5,
+  Decoration10,
+  ActiveRingChart,
+  CapsuleChart,
+  DigitalFlop,
+  ScrollBoard,
+  WaterLevelPond,
+} from '@kjgl77/datav-vue3'
+
+// 引入 echarts
+import * as echarts from 'echarts/core'
+import { LineChart } from 'echarts/charts'
+import {
+  TitleComponent,
+  TooltipComponent,
+  GridComponent,
+  LegendComponent,
+} from 'echarts/components'
+import { CanvasRenderer } from 'echarts/renderers'
+
+// 注册 ECharts 必须的组件
+echarts.use([
+  TitleComponent,
+  TooltipComponent,
+  GridComponent,
+  LegendComponent,
+  LineChart,
+  CanvasRenderer
+])
+
+// 添加一个状态来控制组件渲染
+const mounted = ref(false)
+// 引用 DOM 元素
+const lineChartRef = ref(null)
+// 存储 ECharts 实例
+let lineChart: echarts.ECharts | null = null
 
 // 全屏控制
 const isFullscreen = ref(false)
@@ -113,10 +155,6 @@ const toggleFullScreen = () => {
 
 // 自动刷新数据的定时器
 let dataRefreshTimer: number | null = null
-
-
-
-
 
 // 核心指标数据
 const overviewData = ref([
@@ -257,23 +295,120 @@ const regionConfig = reactive({
 
 // 每日答题量折线图配置
 const examLineConfig = reactive({
-  data: [
+  title: {
+    text: '',
+    textStyle: {
+      color: '#fff'
+    }
+  },
+  legend: {
+    show: true,
+    top: '5%',
+    textStyle: {
+      color: '#fff'
+    }
+  },
+  grid: {
+    left: '5%',
+    right: '5%',
+    top: '15%',
+    bottom: '10%',
+    containLabel: true
+  },
+  tooltip: {
+    trigger: 'axis',
+    axisPointer: {
+      type: 'line'
+    }
+  },
+  xAxis: {
+    type: 'category',
+    data: ['00:00', '02:00', '04:00', '06:00', '08:00', '10:00', '12:00', '14:00', '16:00', '18:00'],
+    axisLine: {
+      lineStyle: {
+        color: '#1D385A'
+      }
+    },
+    axisLabel: {
+      color: '#7EB9FF',
+      fontSize: 12
+    }
+  },
+  yAxis: {
+    type: 'value',
+    splitLine: {
+      lineStyle: {
+        color: '#1D385A'
+      }
+    },
+    axisLine: {
+      show: false
+    },
+    axisLabel: {
+      color: '#7EB9FF',
+      fontSize: 12
+    }
+  },
+  series: [
     {
       name: '答题量',
-      data: [45, 65, 78, 52, 67, 82, 59, 71, 49, 68]
+      type: 'line',
+      smooth: true,
+      symbol: 'circle',
+      symbolSize: 8,
+      data: [45, 65, 78, 52, 67, 82, 59, 71, 49, 68],
+      itemStyle: {
+        color: '#00BAFF'
+      },
+      lineStyle: {
+        width: 2,
+        shadowColor: 'rgba(0, 186, 255, 0.3)',
+        shadowBlur: 10
+      },
+      areaStyle: {
+        color: {
+          type: 'linear',
+          x: 0,
+          y: 0,
+          x2: 0,
+          y2: 1,
+          colorStops: [
+            { offset: 0, color: 'rgba(0, 186, 255, 0.3)' },
+            { offset: 1, color: 'rgba(0, 186, 255, 0.1)' }
+          ]
+        }
+      }
     },
     {
       name: '简历生成',
-      data: [35, 45, 58, 42, 57, 62, 49, 61, 39, 58]
+      type: 'line',
+      smooth: true,
+      symbol: 'circle',
+      symbolSize: 8,
+      data: [35, 45, 58, 42, 57, 62, 49, 61, 39, 58],
+      itemStyle: {
+        color: '#3DE7C9'
+      },
+      lineStyle: {
+        width: 2,
+        shadowColor: 'rgba(61, 231, 201, 0.3)',
+        shadowBlur: 10
+      },
+      areaStyle: {
+        color: {
+          type: 'linear',
+          x: 0,
+          y: 0,
+          x2: 0,
+          y2: 1,
+          colorStops: [
+            { offset: 0, color: 'rgba(61, 231, 201, 0.3)' },
+            { offset: 1, color: 'rgba(61, 231, 201, 0.1)' }
+          ]
+        }
+      }
     }
-  ],
-  xAxis: {
-    data: ['00:00', '02:00', '04:00', '06:00', '08:00', '10:00', '12:00', '14:00', '16:00', '18:00']
-  },
-  yAxis: {
-    data: 'value'
-  },
-  color: ['#00baff', '#3de7c9']
+  ]
 })
 
 // 简历制作量水位图配置
@@ -287,12 +422,43 @@ const resumeConfig = reactive({
   formatter: '{value}%'
 })
 
-// 图表引用
-const activeUsersChartRef = ref<HTMLElement | null>(null)
-const ageDistributionChartRef = ref<HTMLElement | null>(null)
-const examChartRef = ref<HTMLElement | null>(null)
-const mapChartRef = ref<HTMLElement | null>(null)
-const resumeChartRef = ref<HTMLElement | null>(null)
+// 初始化折线图
+const initLineChart = () => {
+  if (lineChartRef.value) {
+    // 初始化图表
+    lineChart = echarts.init(lineChartRef.value)
+    // 设置配置
+    lineChart.setOption(examLineConfig)
+  }
+}
+
+// 重新调整图表大小
+const resizeLineChart = () => {
+  if (lineChart) {
+    lineChart.resize()
+  }
+}
+
+// 更新折线图数据
+const updateLineChart = () => {
+  if (lineChart) {
+    lineChart.setOption({
+      series: [
+        {
+          data: examLineConfig.series[0].data
+        },
+        {
+          data: examLineConfig.series[1].data
+        }
+      ]
+    })
+  }
+}
+
+// 监听配置变化
+watch(() => [examLineConfig.series[0].data, examLineConfig.series[1].data], () => {
+  updateLineChart()
+}, { deep: true })
 
 // 模拟数据刷新函数
 const refreshData = () => {
@@ -330,10 +496,11 @@ const refreshData = () => {
   ]
   
   // 更新每日答题量折线图数据
-  const newExamData = examLineConfig.data[0].data.map(() => Math.floor(40 + Math.random() * 80))
-  examLineConfig.data[0].data = newExamData
-  const newResumeData = examLineConfig.data[1].data.map(() => Math.floor(30 + Math.random() * 60))
-  examLineConfig.data[1].data = newResumeData
+  const newExamData = Array(10).fill(0).map(() => Math.floor(40 + Math.random() * 80))
+  const newResumeData = Array(10).fill(0).map(() => Math.floor(30 + Math.random() * 60))
+  
+  examLineConfig.series[0].data = newExamData
+  examLineConfig.series[1].data = newResumeData
 
   // 更新用户年龄分布数据
   ageDistributionConfig.data = [
@@ -367,16 +534,41 @@ const initEnterAnimation = () => {
   })
 }
 
-onMounted(() => {
-  initEnterAnimation()
+onMounted(async () => {
+  // 确保所有DOM元素已加载完成
+  await nextTick()
+  
+  // 立即初始化
+  mounted.value = true
+  
+  // 等待图表组件挂载后开始动画
+  await nextTick()
+  
+  // 延迟执行动画效果
+  setTimeout(async () => {
+    try {
+      // 初始化折线图
+      initLineChart()
+      
+      // 执行进入动画
+      initEnterAnimation()
+      
+      // 初始刷新一次数据
+      refreshData()
+    } catch (error) {
+      console.error('初始化图表错误:', error)
+    }
+  }, 500) // 增加延迟时间以确保DOM完全渲染
   
   // 设置定时刷新数据
   dataRefreshTimer = window.setInterval(() => {
     refreshData()
   }, 30000) // 每30秒刷新一次数据
   
+  // 监听窗口调整大小事件
   useEventListener(window, 'resize', () => {
-    // DataV组件会自动处理resize
+    // 重新调整图表大小
+    resizeLineChart()
   })
 })
 
@@ -385,6 +577,12 @@ onUnmounted(() => {
   if (dataRefreshTimer) {
     clearInterval(dataRefreshTimer)
     dataRefreshTimer = null
+  }
+  
+  // 销毁图表实例
+  if (lineChart) {
+    lineChart.dispose()
+    lineChart = null
   }
 })
 </script>
@@ -518,6 +716,7 @@ onUnmounted(() => {
       position: relative;
       box-sizing: border-box;
       padding: 5px;
+      overflow: hidden; /* 防止内容溢出 */
 
       .panel-header {
         height: 40px;
@@ -542,9 +741,27 @@ onUnmounted(() => {
 
       .chart-container {
         height: calc(100% - 50px);
+        width: 100%;
+        position: relative; /* 为绝对定位的子元素提供参考 */
         display: flex;
         justify-content: center;
         align-items: center;
+
+        & > div {
+          width: 100%;
+          height: 100%;
+        }
+
+        /* 确保DataV组件能够正确充满容器 */
+        :deep(.dv-charts-container) {
+          width: 100% !important;
+          height: 100% !important;
+        }
+
+        :deep(canvas) {
+          width: 100% !important;
+          height: 100% !important;
+        }
       }
     }
 
@@ -570,7 +787,26 @@ onUnmounted(() => {
       }
     }
   }
+
+  /* 确保DataV组件能够正确充满容器 */
+  :deep(.dv-border-box-7),
+  :deep(.dv-border-box-8),
+  :deep(.dv-border-box-12),
+  :deep(.dv-decoration-5),
+  :deep(.dv-decoration-10) {
+    width: 100% !important;
+    height: 100% !important;
+  }
+
+  :deep(.dv-active-ring-chart),
+  :deep(.dv-capsule-chart),
+  :deep(.dv-water-level-pond),
+  :deep(.dv-scroll-board) {
+    width: 100% !important; 
+    height: 100% !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+  }
 }
-
-
 </style>
