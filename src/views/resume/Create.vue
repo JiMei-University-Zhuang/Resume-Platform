@@ -5,13 +5,19 @@
         <el-card class="edit-area">
           <template #header>
             <div class="card-header">
-              <span>简历信息</span>
-              <el-button type="primary" @click="analyzeResume">AI 分析优化</el-button>
-              <el-button type="danger" @click="confirmClearResumeForm">清空简历</el-button>
+              <span class="card-title">简历信息</span>
+              <div class="header-actions">
+                <el-button type="primary" @click="analyzeResume" size="small">
+                  <el-icon><OfficeBuilding /></el-icon> AI 分析优化
+                </el-button>
+                <el-button type="danger" @click="confirmClearResumeForm" size="small">
+                  <el-icon><Delete /></el-icon> 清空简历
+                </el-button>
+              </div>
             </div>
           </template>
 
-          <el-form :model="resumeForm" label-width="100px">
+          <el-form :model="resumeForm" label-width="100px" class="resume-form">
             <el-divider>个人信息</el-divider>
             <el-form-item label="姓名">
               <el-input v-model="resumeForm.name" placeholder="请输入姓名"></el-input>
@@ -205,24 +211,49 @@
         <el-card class="preview-area">
           <template #header>
             <div class="card-header">
-              <span>预览</span>
-              <div>
-                <el-button type="success" @click="exportPDF">导出 PDF</el-button>
-                <el-button type="primary" @click="previewResume">预览效果</el-button>
-                <el-button @click="changeTemplate">切换模板</el-button>
+              <span class="card-title">预览</span>
+              <div class="header-actions">
+                <el-button type="success" @click="exportPDF" size="small">
+                  <el-icon><DocumentCopy /></el-icon> 导出 PDF
+                </el-button>
+                <el-button type="primary" @click="previewResume" size="small">
+                  <el-icon><View /></el-icon> 预览效果
+                </el-button>
+                <el-button @click="changeTemplate" size="small">
+                  <el-icon><SwitchButton /></el-icon> 切换模板
+                </el-button>
 
-                <el-dialog v-model="templateDialogVisible" title="选择简历模板" width="70%">
-                  <el-row :gutter="20">
+                <el-dialog 
+                  v-model="templateDialogVisible" 
+                  title="选择简历模板" 
+                  width="70%"
+                  :z-index="2000"
+                  :modal-append-to-body="false"
+                  append-to-body
+                  class="template-selection-dialog"
+                  destroy-on-close
+                >
+                  <el-row :gutter="20" class="template-grid">
                     <el-col
                       :span="6"
+                      :xs="12"
+                      :sm="8"
+                      :md="6"
+                      :lg="6"
                       v-for="template in Object.keys(templateComponents)"
                       :key="template"
                     >
                       <el-card :body-style="{ padding: '0px' }" class="template-card">
+                        <div class="template-preview-box">
+                          <img :src="getTemplatePreviewImage(template)" class="template-thumbnail" alt="简历模板预览" />
+                        </div>
                         <div class="template-info">
-                          <h3>{{ template }}</h3>
+                          <h3>{{ getTemplateDisplayName(template) }}</h3>
+                          <div class="template-tags">
+                            <el-tag size="small" type="info">{{ getTemplateStyle(template) }}</el-tag>
+                          </div>
                           <div class="template-actions">
-                            <el-button type="primary" @click="selectTemplate(template)"
+                            <el-button type="primary" @click="selectTemplate(template)" size="small"
                               >选择模板</el-button
                             >
                           </div>
@@ -334,11 +365,15 @@
       v-model="previewDialogVisible"
       title="简历预览"
       width="60%"
+      :z-index="2000"
+      :modal-append-to-body="false"
+      append-to-body
       modal-class="preview-modal"
       :overlay-class="'preview-overlay'"
       align-center
+      class="resume-preview-dialog"
     >
-      <div class="resume-preview-dialog">
+      <div class="resume-preview-dialog-content">
         <component :is="currentTemplate" :resumeForm="resumeForm" />
       </div>
     </el-dialog>
@@ -348,6 +383,13 @@
 <script setup lang="ts">
 import { templateConfig } from '@/components/Template/templateConfig'
 import { analyzeResume as analyzeResumeApi } from '@/api/template'
+import { 
+  Delete, 
+  DocumentCopy, 
+  View, 
+  SwitchButton,
+  OfficeBuilding
+} from '@element-plus/icons-vue'
 
 import { ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
@@ -563,20 +605,28 @@ const exportPDF = async () => {
 
   try {
     ElMessage.info('正在生成PDF，请稍候...')
-
+    
+    // 确保模板完全渲染
+    await new Promise(resolve => setTimeout(resolve, 500))
+    
+    // 直接使用DOM节点，而不是克隆节点
+    const element = resumePreview.value
+    
     // 使用更稳定的配置
-    const canvas = await html2canvas(resumePreview.value, {
-      scale: 2, // 使用固定的缩放比例，提高清晰度
+    const canvas = await html2canvas(element, {
+      scale: 2, // 提高清晰度
       useCORS: true, // 允许跨域资源
       logging: false, // 减少日志输出
       allowTaint: true, // 允许污染
       backgroundColor: '#ffffff', // 设置白色背景
-      scrollX: 0,
-      scrollY: 0,
-      windowWidth: document.documentElement.offsetWidth,
-      windowHeight: document.documentElement.offsetHeight
+      ignoreElements: (element) => {
+        // 忽略某些可能导致问题的元素
+        return element.tagName === 'IFRAME' ||
+          element.classList.contains('ignore-pdf')
+      }
     })
 
+    // 创建PDF
     const imgData = canvas.toDataURL('image/jpeg', 1.0)
     const pdf = new jsPDF('p', 'mm', 'a4')
     const pdfWidth = pdf.internal.pageSize.getWidth()
@@ -591,9 +641,9 @@ const exportPDF = async () => {
     pdf.save('我的简历.pdf')
 
     ElMessage.success('PDF导出成功！')
-  } catch (error) {
+  } catch (error: any) {
     console.error('PDF导出失败:', error)
-    ElMessage.error('PDF导出失败，请重试')
+    ElMessage.error(`PDF导出失败: ${error.message || '未知错误'}`)
   }
 }
 
@@ -842,11 +892,229 @@ function isSuggestionItemTemplate(item: any): item is SuggestionItem {
     typeof item.optimized === 'string'
   )
 }
+
+// 获取模板预览图片
+const getTemplatePreviewImage = (templateKey: string) => {
+  const templateIndex = parseInt(templateKey.replace('muban', '')) || 1
+  const validIndex = templateIndex > 0 && templateIndex <= 10 ? templateIndex : 1
+  
+  // 使用相对于公共目录的路径
+  return `/template_imgs/${validIndex}.png`
+}
+
+// 获取模板显示名称
+const getTemplateDisplayName = (templateKey: string) => {
+  const nameMap: Record<string, string> = {
+    muban1: '清新简约风格',
+    muban2: '专业技术风格',
+    muban3: '商务精英风格',
+    muban4: '创意设计风格',
+    muban5: '学术研究风格',
+    muban6: '市场营销风格',
+    muban7: '医疗护理风格',
+    muban8: '教育培训风格',
+    muban9: '工程技术风格',
+    muban10: '金融财务风格'
+  }
+  return nameMap[templateKey.toLowerCase()] || templateKey
+}
+
+// 获取模板风格标签
+const getTemplateStyle = (templateKey: string) => {
+  const styleMap: Record<string, string> = {
+    muban1: '简约风格',
+    muban2: '技术风格',
+    muban3: '商务风格',
+    muban4: '创意风格',
+    muban5: '学术风格',
+    muban6: '营销风格',
+    muban7: '医疗风格',
+    muban8: '教育风格',
+    muban9: '工程风格',
+    muban10: '金融风格'
+  }
+  return styleMap[templateKey.toLowerCase()] || '标准风格'
+}
+
+// 暴露函数给模板使用
+defineExpose({
+  resumeForm,
+  currentTemplate,
+  analyzing,
+  analysisDialogVisible,
+  activeCollapse,
+  aiSuggestions,
+  templateDialogVisible,
+  previewDialogVisible,
+  exportPDF,
+  analyzeResume,
+  applyAISuggestions,
+  getProgressColor,
+  getTemplatePreviewImage,
+  getTemplateDisplayName,
+  getTemplateStyle,
+  templateComponents,
+  selectTemplate,
+  loadTemplate,
+  handleClose,
+  showInput,
+  handleInputConfirm,
+  addEducation,
+  removeEducation,
+  addExperience,
+  removeExperience,
+  changeTemplate,
+  previewResume,
+  confirmClearResumeForm,
+  clearResumeForm,
+  isSuggestionItemTemplate
+})
 </script>
 
 <style scoped>
 .resume-create {
   padding: 20px;
+  background-color: #f5f7fa;
+  min-height: calc(100vh - 64px);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 0;
+}
+
+.card-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #303133;
+  position: relative;
+  padding-left: 12px;
+}
+
+.card-title::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 16px;
+  background-color: #409EFF;
+  border-radius: 2px;
+}
+
+.header-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.edit-area,
+.preview-area {
+  height: calc(100vh - 120px);
+  overflow-y: auto;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.edit-area:hover,
+.preview-area:hover {
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+}
+
+.resume-form :deep(.el-divider__text) {
+  background-color: #f8f9fa;
+  color: #409EFF;
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.resume-form :deep(.el-form-item__label) {
+  font-weight: 500;
+}
+
+.education-item,
+.experience-item {
+  margin-bottom: 20px;
+  padding: 20px;
+  border: 1px solid #ebeef5;
+  border-radius: 8px;
+  background-color: #f8f9fa;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.education-item:hover,
+.experience-item:hover {
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+  border-color: #dcdfe6;
+}
+
+.education-item .el-button,
+.experience-item .el-button {
+  position: absolute;
+  right: 15px;
+  bottom: 15px;
+}
+
+.skill-tag {
+  margin-right: 10px;
+  margin-bottom: 10px;
+  transition: all 0.3s ease;
+}
+
+.skill-tag:hover {
+  transform: translateY(-2px);
+}
+
+.input-new-tag {
+  width: 120px;
+  margin-right: 10px;
+  vertical-align: bottom;
+}
+
+.resume-preview {
+  padding: 20px;
+  min-height: 800px;
+  background-color: white;
+  border-radius: 4px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* 创建简历的按钮样式 */
+.el-button--primary {
+  background-color: #409EFF;
+  border-color: #409EFF;
+}
+
+.el-button--danger {
+  background-color: #F56C6C;
+  border-color: #F56C6C;
+}
+
+.el-button--success {
+  background-color: #67C23A;
+  border-color: #67C23A;
+}
+
+.el-button--primary:hover,
+.el-button--primary:focus {
+  background-color: #66b1ff;
+  border-color: #66b1ff;
+}
+
+.el-button--danger:hover,
+.el-button--danger:focus {
+  background-color: #f78989;
+  border-color: #f78989;
+}
+
+.el-button--success:hover,
+.el-button--success:focus {
+  background-color: #85ce61;
+  border-color: #85ce61;
 }
 
 .preview-overlay {
@@ -859,50 +1127,24 @@ function isSuggestionItemTemplate(item: any): item is SuggestionItem {
   overflow: hidden;
 }
 
-.resume-preview-dialog {
+.resume-preview-dialog :deep(.el-dialog) {
+  max-width: 90vw;
+  max-height: 90vh;
+  margin: 5vh auto !important;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+}
+
+.resume-preview-dialog-content {
   padding: 20px;
   background-color: white;
   border-radius: 4px;
-  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
-  transform: scale(0.7);
+  transform: scale(0.85);
   transform-origin: center;
-  margin: -15% auto;
-}
-
-.card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.edit-area,
-.preview-area {
-  height: calc(100vh - 120px);
+  margin: 0 auto;
+  max-height: 70vh;
   overflow-y: auto;
-}
-
-.education-item,
-.experience-item {
-  margin-bottom: 20px;
-  padding: 20px;
-  border: 1px solid #eee;
-  border-radius: 4px;
-}
-
-.skill-tag {
-  margin-right: 10px;
-  margin-bottom: 10px;
-}
-
-.input-new-tag {
-  width: 90px;
-  margin-right: 10px;
-  vertical-align: bottom;
-}
-
-.resume-preview {
-  padding: 20px;
-  min-height: 800px;
 }
 
 .mb-20 {
@@ -931,44 +1173,69 @@ function isSuggestionItemTemplate(item: any): item is SuggestionItem {
   margin: 5px 0;
   line-height: 1.6;
 }
+
 .template-card {
   margin-bottom: 20px;
   transition: all 0.3s;
   border: 1px solid #e4e7ed;
   border-radius: 8px;
   overflow: hidden;
+  height: 240px;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
 }
 
 .template-card:hover {
   box-shadow: 0 6px 18px 0 rgba(0, 0, 0, 0.1);
   transform: translateY(-3px);
+  border-color: #409eff;
 }
 
-.template-preview {
-  height: 200px;
+.template-preview-box {
+  height: 140px;
   display: flex;
   align-items: center;
   justify-content: center;
   background: #f8f9fa;
   border-bottom: 1px solid #e4e7ed;
+  overflow: hidden;
 }
 
-.template-preview img {
+.template-thumbnail {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.template-preview-box:hover .template-thumbnail {
+  transform: scale(1.05);
 }
 
 .template-info {
-  padding: 15px;
+  padding: 12px;
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  flex: 1;
 }
 
 .template-info h3 {
-  margin: 0 0 12px 0;
-  font-size: 16px;
+  margin: 0 0 8px 0;
+  font-size: 15px;
   color: #303133;
   font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.template-tags {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 8px;
 }
 
 .template-actions {
@@ -1047,5 +1314,40 @@ function isSuggestionItemTemplate(item: any): item is SuggestionItem {
 
 .revision-item li {
   margin-bottom: 8px;
+}
+
+.template-selection-dialog :deep(.el-dialog) {
+  max-width: 90vw;
+  max-height: 90vh;
+  margin: 5vh auto !important;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+}
+
+.template-selection-dialog :deep(.el-dialog__body) {
+  padding: 20px;
+  max-height: 65vh;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.template-selection-dialog :deep(.el-dialog__header) {
+  padding: 15px 20px;
+  border-bottom: 1px solid #f0f0f0;
+  background-color: #f8f9fa;
+}
+
+.template-selection-dialog :deep(.el-dialog__footer) {
+  padding: 15px 20px;
+  border-top: 1px solid #f0f0f0;
+  background-color: #f8f9fa;
+}
+
+.template-grid {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  margin: 0 -10px;
 }
 </style>

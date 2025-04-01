@@ -45,30 +45,80 @@
       </el-col>
     </el-row>
 
-    <el-dialog v-model="previewDialogVisible" title="模板预览" width="70%">
+    <el-dialog 
+      v-model="previewDialogVisible" 
+      title="模板预览" 
+      width="70%" 
+      :z-index="2000"
+      :modal-append-to-body="false"
+      append-to-body
+      class="template-preview-dialog"
+    >
       <div class="template-preview" v-if="selectedTemplate">
-        <img :src="selectedTemplate.preview" class="preview-image" />
+        <img :src="selectedTemplate.preview" alt="模板预览" class="preview-image" />
         <div class="preview-info">
           <h2>{{ selectedTemplate.name }}</h2>
           <p>{{ selectedTemplate.description }}</p>
+          
+          <div class="template-rating">
+            <span class="rating-label">推荐指数：</span>
+            <el-rate
+              :model-value="4.5"
+              disabled
+              show-score
+              text-color="#ff9900"
+              score-template="{value}"
+            ></el-rate>
+          </div>
+          
+          <div class="template-stats">
+            <div class="stat-item">
+              <el-icon><User /></el-icon>
+              <span>已使用：1,234次</span>
+            </div>
+            <div class="stat-item">
+              <el-icon><Star /></el-icon>
+              <span>收藏：568次</span>
+            </div>
+          </div>
+          
           <h3>适用场景</h3>
           <ul>
             <li v-for="(scene, index) in selectedTemplate.scenes" :key="index">
               {{ scene }}
             </li>
           </ul>
+          
           <h3>模板特点</h3>
           <ul>
             <li v-for="(feature, index) in selectedTemplate.features" :key="index">
               {{ feature }}
             </li>
           </ul>
+          
+          <h3>使用技巧</h3>
+          <div class="tips-container">
+            <div class="tip-item">
+              <el-icon><InfoFilled /></el-icon>
+              <span>突出你在该领域的专业技能和成就</span>
+            </div>
+            <div class="tip-item">
+              <el-icon><InfoFilled /></el-icon>
+              <span>使用量化的数据展示工作成果</span>
+            </div>
+            <div class="tip-item">
+              <el-icon><InfoFilled /></el-icon>
+              <span>根据目标职位调整简历内容的侧重点</span>
+            </div>
+          </div>
         </div>
       </div>
       <template #footer>
         <span class="dialog-footer">
           <el-button @click="previewDialogVisible = false">关闭</el-button>
-          <el-button type="primary" @click="useTemplate(selectedTemplate)"> 使用此模板 </el-button>
+          <el-button type="primary" @click="useTemplate(selectedTemplate)">
+            使用此模板
+          </el-button>
         </span>
       </template>
     </el-dialog>
@@ -80,6 +130,7 @@ import { ref, computed, defineExpose } from 'vue'
 import { useRouter } from 'vue-router'
 import type { FilterType, Template } from '@/types/templates'
 import { getTagType } from '@/types/templates'
+import { User, Star, InfoFilled } from '@element-plus/icons-vue'
 
 const router = useRouter()
 const filter = ref<FilterType>('all')
@@ -97,6 +148,10 @@ const previewTemplate = (template: Template) => {
 
 const useTemplate = (template: Template | null) => {
   if (!template) return
+  
+  // 关闭弹窗
+  previewDialogVisible.value = false
+  
   router.push({
     name: 'ResumeCreate',
     params: {
@@ -342,38 +397,60 @@ defineExpose({
   width: 100%;
   height: 100%;
   align-items: flex-start;
+  padding-top: 0;
 }
 
 .preview-image {
-  width: 50%;
+  width: 45%;
   height: auto;
   max-height: 100%;
   object-fit: contain;
+  border: 1px solid #eaeaea;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
 }
 
 .preview-info {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 12px;
+  overflow-y: auto;
+  max-height: 65vh;
+  padding-right: 10px;
 }
 
 .preview-info h2 {
-  margin: 0;
+  margin: 0 0 5px 0;
   font-size: 24px;
   color: #303133;
+  border-bottom: 2px solid #409EFF;
+  padding-bottom: 8px;
 }
 
 .preview-info h3 {
-  margin: 10px 0 0;
+  margin: 15px 0 5px;
   font-size: 18px;
-  color: #606266;
+  color: #409EFF;
+  display: flex;
+  align-items: center;
+}
+
+.preview-info h3::before {
+  content: "";
+  display: inline-block;
+  width: 4px;
+  height: 16px;
+  background-color: #409EFF;
+  margin-right: 8px;
+  border-radius: 2px;
 }
 
 .preview-info p {
   margin: 0;
   color: #606266;
   line-height: 1.6;
+  font-size: 15px;
 }
 
 .preview-info ul {
@@ -385,5 +462,93 @@ defineExpose({
   margin-bottom: 8px;
   color: #606266;
   line-height: 1.6;
+}
+
+.template-rating {
+  display: flex;
+  align-items: center;
+  margin: 8px 0;
+}
+
+.rating-label {
+  margin-right: 8px;
+  font-weight: bold;
+  color: #606266;
+}
+
+.template-stats {
+  display: flex;
+  gap: 20px;
+  margin: 5px 0 15px;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  color: #606266;
+  background-color: #f5f7fa;
+  padding: 5px 10px;
+  border-radius: 4px;
+}
+
+.stat-item .el-icon {
+  margin-right: 5px;
+  color: #909399;
+}
+
+.tips-container {
+  background-color: #f0f9eb;
+  border-radius: 4px;
+  padding: 10px;
+  border-left: 3px solid #67c23a;
+  margin-bottom: 15px;
+}
+
+.tip-item {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 8px;
+  line-height: 1.5;
+}
+
+.tip-item:last-child {
+  margin-bottom: 0;
+}
+
+.tip-item .el-icon {
+  color: #67c23a;
+  margin-right: 5px;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.template-preview-dialog :deep(.el-dialog) {
+  display: flex;
+  flex-direction: column;
+  height: 85vh;
+  margin: 5vh auto !important;
+  max-width: 90vw;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.template-preview-dialog :deep(.el-dialog__body) {
+  flex: 1;
+  padding: 15px 20px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  overflow-y: auto;
+}
+
+.template-preview-dialog :deep(.el-dialog__header) {
+  padding: 15px 20px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.template-preview-dialog :deep(.el-dialog__footer) {
+  padding: 12px 20px;
+  border-top: 1px solid #f0f0f0;
 }
 </style>
