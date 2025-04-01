@@ -103,10 +103,19 @@
           </div>
           <img src="@/assets/images/exam_imgs/realexam.jpg" alt="真题模考" />
         </div>
-        <!-- 组卷按钮 -->
-        <el-button type="success" @click="showExamDialog" class="exam-button"> 真题模考 </el-button>
-        <!-- 试卷选择弹窗 -->
-        <el-dialog v-model="examDialogVisible" title="选择真题试卷" width="600px" append-to-body>
+        <el-button type="success" @click="showExamDialog" class="exam-button">
+          <i class="el-icon-document-checked"></i>
+          真题模考
+        </el-button>
+
+        <!-- 真题试卷选择弹窗 -->
+        <el-dialog
+          v-model="examDialogVisible"
+          title="选择真题试卷"
+          width="600px"
+          append-to-body
+          class="exam-dialog"
+        >
           <div class="exam-settings">
             <div class="setting-item">
               <span>试卷名称：</span>
@@ -115,21 +124,30 @@
                 placeholder="请选择试卷"
                 filterable
                 style="width: 100%"
+                class="exam-select"
               >
                 <el-option
-                  v-for="exam in examList"
-                  :key="exam.value"
-                  :label="exam.label"
-                  :value="exam.value"
+                  v-for="item in examList"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
                 />
               </el-select>
             </div>
           </div>
           <template #footer>
-            <el-button @click="examDialogVisible = false">取消</el-button>
-            <!-- <el-button type="primary" @click="startRealExam" :loading="loadingExam" :disabled="!selectedExam">
-              开始考试
-            </el-button> -->
+            <div class="dialog-footer">
+              <el-button
+                @click="startRealExam"
+                :loading="loadingExam"
+                :disabled="!selectedExam"
+                class="start-btn"
+                style="color: white"
+              >
+                开始考试
+              </el-button>
+              <el-button @click="examDialogVisible = false" class="cancel-btn"> 取消 </el-button>
+            </div>
           </template>
         </el-dialog>
       </el-card>
@@ -141,6 +159,8 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { onBeforeRouteLeave } from 'vue-router'
+import { ElNotification } from 'element-plus'
+import { getCSExam } from '@/api/exam'
 
 const router = useRouter()
 const dialogVisible = ref(false)
@@ -150,7 +170,7 @@ const targetDate = new Date('2025-11-30T00:00:00').getTime()
 const timeDifference = ref(targetDate - new Date().getTime())
 const examDialogVisible = ref(false)
 const selectedExam = ref('')
-// const loadingExam = ref(false)
+const loadingExam = ref(false)
 
 const showDialog = () => {
   dialogVisible.value = true
@@ -175,29 +195,32 @@ const showExamDialog = () => {
   }
 }
 
-// // 开始真题考试
-// const startRealExam = async () => {
-//   try {
-//     loadingExam.value = true
-//     const { data } = await getCSExam({
-//       examName: selectedExam.value
-//     })
+const startRealExam = async () => {
+  try {
+    loadingExam.value = true
+    const { data } = await getCSExam({
+      examName: selectedExam.value
+    })
 
-//     router.push({
-//       name: 'ExamPage',
-//       query: {
-//         examId: data.examId,
-//         examType: selectedExam.value.includes('行测') ? 'xingce' : 'shenlun'
-//       }
-//     })
-//   } catch (error) {
-//     console.error('试卷获取失败:', error)
-//   } finally {
-//     loadingExam.value = false
-//     examDialogVisible.value = false
-//   }
-// }
-
+    router.push({
+      name: 'ExamPage',
+      query: {
+        examId: data.questions[0].id,
+        examType: selectedExam.value.includes('行测') ? 'xingce' : 'shenlun',
+        isRealExam: 'true', // 添加真题标识
+        examName: selectedExam.value
+      }
+    })
+  } catch (error) {
+    ElNotification.error({
+      title: '错误',
+      message: '试卷获取失败，请重试'
+    })
+  } finally {
+    loadingExam.value = false
+    examDialogVisible.value = false
+  }
+}
 const days = computed(() => Math.floor(timeDifference.value / (1000 * 60 * 60 * 24)))
 let timerId: any = null
 const startCountdown = () => {
@@ -223,8 +246,6 @@ const startExam = () => {
         dialog.parentNode.removeChild(dialog)
       }
     })
-
-    // 执行路由跳转
     const requestData = {
       subject: selectedSubject.value,
       count: parseInt(selectedCount.value, 10)
@@ -247,7 +268,7 @@ onMounted(() => {
   width: 100%;
   display: flex;
   gap: 60px;
-  padding: 20px 80px 0 80px;
+  padding: 60px 80px 0 80px;
 }
 
 .card-header {
@@ -268,7 +289,7 @@ onMounted(() => {
   text-shadow: 2px 2px 4px rgba(45, 52, 54, 0.1);
   position: relative;
   padding-bottom: 15px;
-  margin: 0.5rem 0;
+  margin: 1.5rem 0 1.5rem 0;
 }
 
 .welcome-title:hover {
@@ -295,7 +316,7 @@ onMounted(() => {
   padding: 0.6rem 1rem;
   box-shadow: 0 6px 20px rgba(206, 83, 83, 0.08);
   position: absolute;
-  top: 90%;
+  top: 150%;
   right: 8%;
   border: none;
   transform: translateY(-50%);
@@ -436,5 +457,74 @@ onMounted(() => {
     font-size: 14px;
     color: #606266;
   }
+}
+.setting-item {
+  > span[data-v-d06752ee] {
+    width: 100px;
+  }
+}
+.el-select__wrapper {
+  width: 95%;
+}
+.dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+/* 新增弹窗按钮样式 */
+.dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 20px; /* 增加按钮间距 */
+  padding: 16px 24px;
+  border-top: 1px solid #ebeef5;
+}
+
+.start-btn {
+  padding: 12px 28px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  background: linear-gradient(135deg, #5ec89c, #67c23a);
+  border: none;
+}
+
+.start-btn i {
+  margin-right: 8px;
+}
+
+.cancel-btn {
+  padding: 12px 24px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  border: 1px solid #dcdfe6;
+}
+
+.cancel-btn:hover {
+  color: #5ec89c;
+  border-color: #5ec89c;
+  background-color: #f5fffb;
+}
+
+/* 优化真题卡片样式 */
+.Train-realexam {
+  flex: 1 1 0;
+  padding: 20px;
+  position: relative;
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+}
+
+.exam-select {
+  margin-top: 16px;
+}
+
+.exam-dialog {
+  border-radius: 12px;
+}
+
+/* 按钮悬停效果 */
+.start-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(94, 200, 156, 0.4);
 }
 </style>

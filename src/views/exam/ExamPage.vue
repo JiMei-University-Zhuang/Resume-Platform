@@ -1,8 +1,17 @@
 <template>
   <div class="exam-page">
     <div class="card-header">
-      <h1 class="exam-title">考试开始</h1>
-      <p class="exam-subtitle">本次考试科目：{{ subject }}，题目数量：{{ count }}</p>
+      <h1 class="exam-title">{{ route.query.isRealExam === 'true' ? '考试开始' : '练习开始' }}</h1>
+      <p class="exam-subtitle">
+        <span v-if="route.query.isRealExam === 'true'">
+          当前试卷：{{ route.query.examType === 'xingce' ? '行政职业能力测验' : '申论' }}
+        </span>
+        <span v-else> 本次练习科目：{{ subject }}，题目数量：{{ count }} </span>
+      </p>
+    </div>
+    <div v-if="route.query.isRealExam" class="real-exam-badge">
+      <el-tag type="danger" effect="dark">真题模式</el-tag>
+      <div class="timer">考试剩余时间：{{ formatTime(timeLeft) }}</div>
     </div>
     <div v-if="questions?.length > 0">
       <template v-if="subject === '行测'">
@@ -68,7 +77,7 @@
       <template v-else>
         <div class="essay-question">
           <div class="question-title">
-            <p>{{ questions[0]?.questionContent }}</p>
+            <span v-html="formatText(questions[0]?.questionContent)"></span>
             <span class="question-score">分值{{ questions[0]?.score }}</span>
           </div>
           <div v-for="(question, index) in questions[0]?.expoundingOptionInfos || []" :key="index">
@@ -92,7 +101,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { useRoute } from 'vue-router'
-import { getCSPractice } from '@/api/exam'
+import { getCSPractice, getCSExam } from '@/api/exam'
 import { ElMessageBox } from 'element-plus'
 import passimg1 from '@/assets/images/exam_imgs/pass1.jpg'
 import passimg2 from '@/assets/images/exam_imgs/pass2.png'
@@ -126,22 +135,55 @@ const answers = ref<string[]>([])
 const essayAnswers = ref<string[]>([])
 const totalScore = ref<number>(0)
 const showCorrectAnswers = ref<boolean>(false)
+const timeLeft = ref(7200)
+
+// const fetchQuestions = async () => {
+//   try {
+//     const requestData = {
+//       subject: subject.value,
+//       count: count.value
+//     }
+//     const response = await getCSPractice(requestData)
+//     // 安全地处理响应数据
+//     const responseData = response?.data ? (response.data as unknown as Question[]) : []
+//     questions.value = responseData
+
+//     if (subject.value === '行测') {
+//       answers.value = new Array(responseData.length).fill('')
+//     } else if (responseData.length > 0 && responseData[0]?.expoundingOptionInfos) {
+//       essayAnswers.value = new Array(responseData[0].expoundingOptionInfos.length).fill('')
+//     }
+//   } catch (error) {
+//     console.error('获取题目失败：', error)
+//   }
+// }
 
 const fetchQuestions = async () => {
   try {
-    const requestData = {
-      subject: subject.value,
-      count: count.value
-    }
-    const response = await getCSPractice(requestData)
-    // 安全地处理响应数据
-    const responseData = response?.data ? (response.data as unknown as Question[]) : []
-    questions.value = responseData
+    const isRealExam = route.query.isRealExam === 'true'
 
-    if (subject.value === '行测') {
-      answers.value = new Array(responseData.length).fill('')
-    } else if (responseData.length > 0 && responseData[0]?.expoundingOptionInfos) {
-      essayAnswers.value = new Array(responseData[0].expoundingOptionInfos.length).fill('')
+    if (isRealExam) {
+      // 调用真题接口
+      const response = await getCSExam({
+        examName:
+          route.query.examType === 'xingce'
+            ? '2020年国家公务员考试行测真题'
+            : '2020年国家公务员考试申论真题'
+      })
+      questions.value = (response.data?.questions || []) as unknown as Question[];
+    } else {
+      const requestData = {
+        subject: subject.value,
+        count: count.value
+      }
+      const response = await getCSPractice(requestData)
+      questions.value = response?.data ? (response.data as unknown as Question[]) : []
+    }
+
+    if (subject.value === '行测' || isRealExam) {
+      answers.value = new Array(questions.value.length).fill('')
+    } else if (questions.value[0]?.expoundingOptionInfos) {
+      essayAnswers.value = new Array(questions.value[0].expoundingOptionInfos.length).fill('')
     }
   } catch (error) {
     console.error('获取题目失败：', error)
@@ -153,6 +195,13 @@ const formatText = (text: string) => {
   processedText = processedText.replace(/\r\n/g, '<br>')
   processedText = processedText.replace(/\n/g, '<br>')
   return processedText
+}
+// 添加时间格式化方法
+const formatTime = (seconds: number) => {
+  const h = Math.floor(seconds / 3600)
+  const m = Math.floor((seconds % 3600) / 60)
+  const s = seconds % 60
+  return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`
 }
 
 const handleSubmit = async () => {
@@ -188,14 +237,14 @@ const submitExam = () => {
     message: `
         <div style="text-align: center; padding: 25px 32px;">
             <h3 style="margin: 0 0 20px 0; color: #333; font-size: 20px">${title}</h3>
-            
+
             <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 40px;padding:20px">
                 ${
                   isPass
                     ? `<img src="${passimg1}" style="width: 120px; margin-right: 30px"/>`
                     : `<img src="${failimg1}" style="width: 120px; margin-right: 30px"/>`
                 }
-                
+
                 <!-- 圆形框容器 -->
                 <div style="position: relative">
                     <div style="
@@ -247,8 +296,6 @@ const submitExam = () => {
     }
   })
   showCorrectAnswers.value = true
-  // sessionStorage.removeItem('examAnswers')
-  // sessionStorage.removeItem('examEssayAnswers')
 }
 
 const answerStatus = computed(() => {
@@ -264,6 +311,16 @@ const submitEssayExam = () => {
 
 onMounted(() => {
   fetchQuestions()
+  if (route.query.isRealExam === 'true') {
+    const timer = setInterval(() => {
+      if (timeLeft.value > 0) {
+        timeLeft.value--
+      } else {
+        clearInterval(timer)
+        submitExam()
+      }
+    }, 1000)
+  }
 })
 </script>
 
@@ -498,5 +555,25 @@ onMounted(() => {
   justify-content: center;
   flex-wrap: wrap;
   gap: 20px;
+}
+
+.real-exam-badge {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  z-index: 1000;
+}
+
+.timer {
+  font-size: 18px;
+  color: #c0392b;
+  font-weight: bold;
+  padding: 8px 15px;
+  border: 2px solid #c0392b;
+  border-radius: 8px;
+  background: #fff0f0;
 }
 </style>

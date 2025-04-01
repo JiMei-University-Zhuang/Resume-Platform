@@ -4,6 +4,10 @@ import path from 'path';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
 var __dirname = dirname(fileURLToPath(import.meta.url));
+
+// 根据环境使用不同的API地址
+const apiBaseUrl = 'http://8.130.75.193:8081';
+
 // https://vite.dev/config/
 export default defineConfig({
     // 设置为空字符串或相对路径'.'，以允许使用相对路径部署
@@ -23,12 +27,17 @@ export default defineConfig({
                 target: 'http://localhost:8000',
                 changeOrigin: true,
                 rewrite: function (path) { return path.replace(/^\/api/, ''); },
-                // priority: 100
             },
-            '/api': {
-                target: 'http://view.yinhenx.cn',
+            '/api/auth': {
+                target: apiBaseUrl,
                 changeOrigin: true,
-                rewrite: function (path) { return path.replace(/^\/api/, ''); }
+                rewrite: function (path) { return path.replace(/^\/api/, ''); },
+                secure: false,
+            },
+            '^/api/(?!auth|chat)': {
+                target: apiBaseUrl,
+                changeOrigin: true,
+                secure: false,
             }
         }
     },
