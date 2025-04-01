@@ -79,19 +79,34 @@
       </template>
       <template v-else>
         <div class="essay-question">
-          <div class="question-title" style="font-size: 17px;">
-            <span v-html="formatText(questions[0]?.questionContent)"></span>
+          <div class="question-title" style="font-size: 17px">
+            <span v-html="formatText(questions[0].questionContent)"></span>
           </div>
-          <div v-for="(question, index) in questions[0]?.expoundingOptionInfos || []" :key="index">
-            <div  class="question-header">
-              <p>第{{ question.itemId }}小题</p>
-              <span class="question-score">分值&nbsp;{{ question.itemScore }}</span>
+          <div v-for="(question, questionIndex) in questions" :key="questionIndex">
+            <div class="question-title" style="font-size: 17px">
+              <span v-html="formatText(question.questionContent)"></span>
             </div>
-
-            <p>
-              <span v-html="formatText(question.itemContent)"></span>
-            </p>
-            <textarea v-model="essayAnswers[index]" rows="10" cols="80"></textarea>
+            <div
+              v-for="(subQuestion, subIndex) in question.expoundingOptionInfos || []"
+              :key="subIndex"
+            >
+              <div class="question-header">
+                <p>第{{ subQuestion.itemId }}小题</p>
+                <span class="question-score">分值&nbsp;{{ subQuestion.itemScore }}</span>
+              </div>
+              <p>
+                <span v-html="formatText(subQuestion.itemContent)"></span>
+              </p>
+              <textarea
+                v-model="
+                  essayAnswers[
+                    questionIndex * (question.expoundingOptionInfos?.length || 1) + subIndex
+                  ]
+                "
+                rows="10"
+                cols="80"
+              ></textarea>
+            </div>
           </div>
           <el-button type="primary" @click="submitRealExam">提交答案</el-button>
         </div>
@@ -208,57 +223,57 @@ const submitExam = () => {
   const statusText = isPass ? '正确率过六十啦🎉，真棒！' : '继续加油，相信自己一定行'
   ElMessageBox({
     message: `
-        <div style="text-align: center; padding: 25px 32px;">
-            <h3 style="margin: 0 0 20px 0; color: #333; font-size: 20px">${title}</h3>
+          <div style="text-align: center; padding: 25px 32px;">
+              <h3 style="margin: 0 0 20px 0; color: #333; font-size: 20px">${title}</h3>
 
-            <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 40px;padding:20px">
-                ${
-                  isPass
-                    ? `<img src="${passimg1}" style="width: 120px; margin-right: 30px"/>`
-                    : `<img src="${failimg1}" style="width: 120px; margin-right: 30px"/>`
-                }
+              <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 40px;padding:20px">
+                  ${
+                    isPass
+                      ? `<img src="${passimg1}" style="width: 120px; margin-right: 30px"/>`
+                      : `<img src="${failimg1}" style="width: 120px; margin-right: 30px"/>`
+                  }
 
-                <!-- 圆形框容器 -->
-                <div style="position: relative">
-                    <div style="
-                        width: 100px;
-                        height: 100px;
-                        border: 3px solid #FF4757;
-                        border-radius: 50%;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        font-size: 24px;
-                        color: #FF4757;
-                        background: white;
-                        margin: 0 20px;
-                    ">
-                        ${accuracy.toFixed(1)}%
-                    </div>
-                    <p style="
-                        margin: 10px 0 0;
-                        color: #666;
-                        font-size: 18px;
-                        position: absolute;
-                        width: 100%;
-                        font-weight: bold;
-                        text-align: center;
-                    ">正确率</p>
-                </div>
+                  <!-- 圆形框容器 -->
+                  <div style="position: relative">
+                      <div style="
+                          width: 100px;
+                          height: 100px;
+                          border: 3px solid #FF4757;
+                          border-radius: 50%;
+                          display: flex;
+                          align-items: center;
+                          justify-content: center;
+                          font-size: 24px;
+                          color: #FF4757;
+                          background: white;
+                          margin: 0 20px;
+                      ">
+                          ${accuracy.toFixed(1)}%
+                      </div>
+                      <p style="
+                          margin: 10px 0 0;
+                          color: #666;
+                          font-size: 18px;
+                          position: absolute;
+                          width: 100%;
+                          font-weight: bold;
+                          text-align: center;
+                      ">正确率</p>
+                  </div>
 
-                ${
-                  isPass
-                    ? `<img src="${passimg2}" style="width: 120px; margin-left: 30px"/>`
-                    : `<img src="${failimg2}" style="width: 120px; margin-left: 30px"/>`
-                }
-            </div>
+                  ${
+                    isPass
+                      ? `<img src="${passimg2}" style="width: 120px; margin-left: 30px"/>`
+                      : `<img src="${failimg2}" style="width: 120px; margin-left: 30px"/>`
+                  }
+              </div>
 
-            <div style="background: #f8f8f8; padding: 15px; border-radius: 8px; margin-top: 20px">
-                <p style="margin: 5px 0; color: #666;font-size:18px">总分：<strong style="color: #333">${totalScore.value}</strong></p>
-                <p style="margin: 5px 0; color: #FF4757; font-weight: bold">${statusText}</p>
-            </div>
-        </div>
-        `,
+              <div style="background: #f8f8f8; padding: 15px; border-radius: 8px; margin-top: 20px">
+                  <p style="margin: 5px 0; color: #666;font-size:18px">总分：<strong style="color: #333">${totalScore.value}</strong></p>
+                  <p style="margin: 5px 0; color: #FF4757; font-weight: bold">${statusText}</p>
+              </div>
+          </div>
+          `,
     dangerouslyUseHTMLString: true,
     confirmButtonText: '确定',
     customClass: 'result-dialog',
@@ -296,6 +311,7 @@ onMounted(() => {
   }
 })
 </script>
+
 
 <style scoped>
 .exam-page {
@@ -369,7 +385,6 @@ onMounted(() => {
   font-size: 16px;
   white-space: nowrap; /* 防止文本换行 */
 }
-
 
 .question-content {
   font-size: 16px;
