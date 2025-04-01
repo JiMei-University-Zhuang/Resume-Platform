@@ -6,7 +6,9 @@
         <el-icon><Aim /></el-icon>
         职业倾向分析
       </h1>
-      <p class="page-description">基于您的背景、技能和兴趣，我们将为您分析最适合的职业方向和发展路径。</p>
+      <p class="page-description">
+        基于您的背景、技能和兴趣，我们将为您分析最适合的职业方向和发展路径。
+      </p>
     </div>
 
     <!-- 主要内容区域 -->
@@ -40,11 +42,17 @@
             <!-- 步骤1：基本背景 -->
             <div v-if="currentStep === 1" class="step-content">
               <h2 class="step-title">您的教育背景</h2>
-              <p class="step-description">请告诉我们您的学历和专业方向，这将帮助我们更准确地分析适合您的职业路径。</p>
-              
+              <p class="step-description">
+                请告诉我们您的学历和专业方向，这将帮助我们更准确地分析适合您的职业路径。
+              </p>
+
               <el-form :model="analysisForm" label-position="top">
                 <el-form-item label="最高学历" required>
-                  <el-select v-model="analysisForm.education" placeholder="请选择您的学历" class="full-width">
+                  <el-select
+                    v-model="analysisForm.education"
+                    placeholder="请选择您的学历"
+                    class="full-width"
+                  >
                     <el-option-group label="学历层次">
                       <el-option label="高中/中专" value="high_school" />
                       <el-option label="大专" value="college" />
@@ -56,9 +64,9 @@
                 </el-form-item>
 
                 <el-form-item label="专业方向" required>
-                  <el-input 
-                    v-model="analysisForm.major" 
-                    placeholder="例如：计算机科学、市场营销、心理学..." 
+                  <el-input
+                    v-model="analysisForm.major"
+                    placeholder="例如：计算机科学、市场营销、心理学..."
                     clearable
                   />
                 </el-form-item>
@@ -73,13 +81,15 @@
             <!-- 步骤2：技能特长 -->
             <div v-if="currentStep === 2" class="step-content">
               <h2 class="step-title">您的技能特长</h2>
-              <p class="step-description">选择或添加您擅长的技能，这些技能将帮助我们找到最匹配的职业方向。</p>
-              
+              <p class="step-description">
+                选择或添加您擅长的技能，这些技能将帮助我们找到最匹配的职业方向。
+              </p>
+
               <el-form :model="analysisForm" label-position="top">
                 <el-form-item required>
                   <div class="skill-categories">
-                    <div 
-                      v-for="(cat, index) in ['技术', '设计', '管理', '软技能']" 
+                    <div
+                      v-for="(cat, index) in ['技术', '设计', '管理', '软技能']"
                       :key="index"
                       class="skill-category"
                       :class="{ active: activeCategory === cat }"
@@ -137,9 +147,9 @@
                   </div>
 
                   <div class="custom-skill">
-                    <el-input 
-                      v-model="newSkill" 
-                      placeholder="添加自定义技能..." 
+                    <el-input
+                      v-model="newSkill"
+                      placeholder="添加自定义技能..."
                       clearable
                       @keyup.enter="addCustomSkill"
                     >
@@ -175,13 +185,15 @@
             <!-- 步骤3：兴趣偏好 -->
             <div v-if="currentStep === 3" class="step-content">
               <h2 class="step-title">您的兴趣偏好</h2>
-              <p class="step-description">选择您感兴趣的领域和工作方向，这将帮助我们找到更适合您性格和爱好的职业。</p>
-              
+              <p class="step-description">
+                选择您感兴趣的领域和工作方向，这将帮助我们找到更适合您性格和爱好的职业。
+              </p>
+
               <el-form :model="analysisForm" label-position="top">
                 <el-form-item label="兴趣方向">
                   <div class="interest-selection">
-                    <div 
-                      v-for="interest in interestOptions" 
+                    <div
+                      v-for="interest in interestOptions"
                       :key="interest.value"
                       class="interest-option"
                       :class="{ selected: analysisForm.interests.includes(interest.value) }"
@@ -194,9 +206,9 @@
                 </el-form-item>
 
                 <div class="custom-interest">
-                  <el-input 
-                    v-model="newInterest" 
-                    placeholder="添加其他兴趣..." 
+                  <el-input
+                    v-model="newInterest"
+                    placeholder="添加其他兴趣..."
                     clearable
                     @keyup.enter="addCustomInterest"
                   >
@@ -226,8 +238,10 @@
             <!-- 步骤4：工作经验 -->
             <div v-if="currentStep === 4" class="step-content">
               <h2 class="step-title">您的工作经验</h2>
-              <p class="step-description">请告诉我们您的工作年限，这将影响我们对您职业发展阶段的判断。</p>
-              
+              <p class="step-description">
+                请告诉我们您的工作年限，这将影响我们对您职业发展阶段的判断。
+              </p>
+
               <el-form :model="analysisForm" label-position="top">
                 <el-form-item label="工作年限">
                   <div class="experience-slider">
@@ -248,7 +262,13 @@
               </el-form>
 
               <div class="form-action">
-                <el-button type="primary" size="large" @click="submitAnalysis" :loading="analyzing" class="submit-button">
+                <el-button
+                  type="primary"
+                  size="large"
+                  @click="submitAnalysis"
+                  :loading="analyzing"
+                  class="submit-button"
+                >
                   开始职业分析
                   <el-icon><ArrowRight /></el-icon>
                 </el-button>
@@ -257,16 +277,16 @@
 
             <!-- 步骤导航按钮 -->
             <div class="step-navigation">
-              <el-button 
-                v-if="currentStep > 1" 
+              <el-button
+                v-if="currentStep > 1"
                 @click="currentStep--"
                 class="nav-button prev-button"
               >
                 <el-icon><ArrowLeft /></el-icon>
                 上一步
               </el-button>
-              <el-button 
-                v-if="currentStep < 4" 
+              <el-button
+                v-if="currentStep < 4"
                 @click="nextStep"
                 type="primary"
                 class="nav-button next-button"
@@ -287,12 +307,14 @@
               <template #header>
                 <div class="preview-header">
                   <span>实时职业预测</span>
-                  <el-tooltip content="根据您已填写的信息进行的初步预测，完成全部信息可获得更准确分析">
+                  <el-tooltip
+                    content="根据您已填写的信息进行的初步预测，完成全部信息可获得更准确分析"
+                  >
                     <el-icon><QuestionFilled /></el-icon>
                   </el-tooltip>
                 </div>
               </template>
-              
+
               <div class="preview-content">
                 <!-- 当用户还未填写足够信息时 -->
                 <div v-if="isFormEmpty" class="preview-empty">
@@ -300,16 +322,20 @@
                     <el-button type="primary" @click="currentStep = 1">开始填写</el-button>
                   </el-empty>
                 </div>
-                
+
                 <!-- 当用户正在填写信息时的实时预测 -->
                 <div v-else class="preview-data">
                   <div class="preview-section">
                     <h3>可能适合的职业方向</h3>
                     <div class="preview-careers">
-                      <div v-for="(career, index) in previewCareers" :key="index" class="preview-career-item">
-                        <el-progress 
-                          type="dashboard" 
-                          :percentage="career.match" 
+                      <div
+                        v-for="(career, index) in previewCareers"
+                        :key="index"
+                        class="preview-career-item"
+                      >
+                        <el-progress
+                          type="dashboard"
+                          :percentage="career.match"
                           :color="getCareerColor(career.match)"
                           :stroke-width="10"
                         />
@@ -317,12 +343,12 @@
                       </div>
                     </div>
                   </div>
-                  
+
                   <div class="preview-section">
                     <h3>优势技能</h3>
                     <div class="preview-skills">
-                      <el-tag 
-                        v-for="(skill, index) in previewStrengths" 
+                      <el-tag
+                        v-for="(skill, index) in previewStrengths"
                         :key="index"
                         :type="getPreviewTagType(index)"
                       >
@@ -330,7 +356,7 @@
                       </el-tag>
                     </div>
                   </div>
-                  
+
                   <div class="preview-tip">
                     <el-alert
                       title="填写更多信息以获得更准确的分析"
@@ -343,14 +369,18 @@
               </div>
             </el-card>
           </div>
-          
+
           <!-- 分析结果展示 -->
           <div v-else class="result-container">
             <el-card class="result-summary-card" shadow="hover">
               <div class="result-summary">
                 <div class="result-header">
                   <div class="result-title">
-                    <h2>您最适合的职业：<span class="highlight">{{ analysisResult.recommendedCareer }}</span></h2>
+                    <h2>
+                      您最适合的职业：<span class="highlight">{{
+                        analysisResult.recommendedCareer
+                      }}</span>
+                    </h2>
                     <el-button type="primary" size="small" @click="showAnalysisDetails = true">
                       查看详细分析
                     </el-button>
@@ -365,14 +395,16 @@
                     <div class="score-label">匹配度</div>
                   </div>
                 </div>
-                
+
                 <div class="result-advantages">
-                  <h3><el-icon><Star /></el-icon> 职业优势</h3>
+                  <h3>
+                    <el-icon><Star /></el-icon> 职业优势
+                  </h3>
                   <p>{{ analysisResult.advantages }}</p>
                 </div>
               </div>
             </el-card>
-            
+
             <!-- 雷达图展示能力分布 -->
             <el-card class="result-detail-card" shadow="hover">
               <template #header>
@@ -385,7 +417,7 @@
               </template>
               <div class="radar-chart-container" ref="radarChartRef"></div>
             </el-card>
-            
+
             <!-- 优劣势分析 -->
             <el-row :gutter="20" class="strength-weakness-row">
               <el-col :xs="24" :md="12">
@@ -421,7 +453,7 @@
                 </el-card>
               </el-col>
             </el-row>
-            
+
             <!-- 相关职业推荐 -->
             <el-card class="related-careers-card" shadow="hover">
               <template #header>
@@ -430,8 +462,8 @@
                 </div>
               </template>
               <div class="related-careers-container">
-                <div 
-                  v-for="(career, index) in analysisResult.relatedCareers" 
+                <div
+                  v-for="(career, index) in analysisResult.relatedCareers"
                   :key="index"
                   class="related-career-item"
                   @click="goToRecommendationWithCareer(career)"
@@ -439,7 +471,11 @@
                   <div class="career-info">
                     <h3>{{ career }}</h3>
                     <div class="career-match">
-                      <el-progress :percentage="getRelatedCareerMatch(index)" :stroke-width="8" :show-text="false" />
+                      <el-progress
+                        :percentage="getRelatedCareerMatch(index)"
+                        :stroke-width="8"
+                        :show-text="false"
+                      />
                       <span>匹配度 {{ getRelatedCareerMatch(index) }}%</span>
                     </div>
                   </div>
@@ -449,7 +485,7 @@
                 </div>
               </div>
             </el-card>
-            
+
             <!-- 发展建议 -->
             <el-card class="suggestions-card" shadow="hover">
               <template #header>
@@ -486,12 +522,12 @@
     >
       <div class="analysis-report">
         <h2 class="report-title">{{ analysisResult?.recommendedCareer || '职业' }}分析报告</h2>
-        
+
         <div class="report-section">
           <h3>职业概述</h3>
           <p>{{ getCareerDescription() }}</p>
         </div>
-        
+
         <div class="report-section">
           <h3>您的优势匹配</h3>
           <div class="match-bars">
@@ -501,16 +537,20 @@
             </div>
           </div>
         </div>
-        
+
         <div class="report-section">
           <h3>发展建议</h3>
           <p>{{ analysisResult?.suggestions || '' }}</p>
         </div>
-        
+
         <div class="report-section">
           <h3>推荐学习资源</h3>
           <div class="resource-list">
-            <div v-for="(resource, index) in getLearningResources()" :key="index" class="resource-item">
+            <div
+              v-for="(resource, index) in getLearningResources()"
+              :key="index"
+              class="resource-item"
+            >
               <el-icon><Document /></el-icon>
               <div class="resource-info">
                 <div class="resource-title">{{ resource.title }}</div>
@@ -521,7 +561,7 @@
           </div>
         </div>
       </div>
-      
+
       <template #footer>
         <div class="dialog-footer">
           <el-button @click="showAnalysisDetails = false">关闭</el-button>
@@ -556,7 +596,7 @@ import {
   Document,
   Download,
   Connection,
-  ChatLineRound,
+  ChatLineRound
 } from '@element-plus/icons-vue'
 
 const router = useRouter()
@@ -605,20 +645,21 @@ const analysisForm = reactive<CareerAnalysisForm>({
 const analysisResult = ref<CareerAnalysisResult | null>(null)
 
 // 预览数据
-const isFormEmpty = computed(() => 
-  !analysisForm.education && 
-  !analysisForm.major && 
-  analysisForm.skills.length === 0 && 
-  analysisForm.interests.length === 0
+const isFormEmpty = computed(
+  () =>
+    !analysisForm.education &&
+    !analysisForm.major &&
+    analysisForm.skills.length === 0 &&
+    analysisForm.interests.length === 0
 )
 
 // 预览职业
 const previewCareers = computed(() => {
   if (isFormEmpty.value) return []
-  
+
   // 根据已填写的信息生成初步职业预测
   const careers = []
-  
+
   if (analysisForm.education === 'bachelor' || analysisForm.education === 'master') {
     careers.push({ name: '软件开发工程师', match: 85 })
     careers.push({ name: '数据分析师', match: 76 })
@@ -632,7 +673,7 @@ const previewCareers = computed(() => {
     careers.push({ name: 'UI设计师', match: 72 })
     careers.push({ name: '技术支持', match: 65 })
   }
-  
+
   // 根据技能进行调整
   if (analysisForm.skills.includes('编程开发')) {
     careers[0].match += 8
@@ -640,12 +681,12 @@ const previewCareers = computed(() => {
   if (analysisForm.skills.includes('数据分析')) {
     careers[1].match += 10
   }
-  
+
   // 确保百分比不超过100
   careers.forEach(career => {
     career.match = Math.min(career.match, 100)
   })
-  
+
   return careers
 })
 
@@ -678,7 +719,7 @@ const initializeRadarChart = () => {
 // 更新雷达图数据
 const updateRadarChart = () => {
   if (!radarChart || !analysisResult.value) return
-  
+
   const option = {
     tooltip: {
       trigger: 'item'
@@ -713,29 +754,30 @@ const updateRadarChart = () => {
       }
     ]
   }
-  
+
   radarChart.setOption(option)
 }
 
 // 生成雷达图数据
 const getRadarValues = () => {
   if (!analysisResult.value) return [0, 0, 0, 0, 0, 0]
-  
+
   // 根据分析结果生成各维度的值
   const technicalSkill = Math.min(95, analysisResult.value.suitabilityScore + 5)
   const analyticalThinking = analysisForm.skills.includes('数据分析') ? 90 : 75
   const innovation = analysisForm.interests.includes('creative_design') ? 85 : 70
   const communication = analysisForm.interests.includes('communication') ? 90 : 65
   const leadership = analysisForm.workExperience > 5 ? 80 : 60
-  const expertise = analysisForm.education === 'phd' ? 95 : (analysisForm.education === 'master' ? 85 : 75)
-  
+  const expertise =
+    analysisForm.education === 'phd' ? 95 : analysisForm.education === 'master' ? 85 : 75
+
   return [technicalSkill, analyticalThinking, innovation, communication, leadership, expertise]
 }
 
 // 分析报告匹配因素
 const matchFactors = computed(() => {
   if (!analysisResult.value) return []
-  
+
   return [
     { factor: '教育背景', score: getEducationScore() },
     { factor: '技能匹配', score: analysisResult.value.suitabilityScore },
@@ -759,7 +801,7 @@ const getEducationScore = () => {
 
 // 计算兴趣吻合度得分
 const getInterestScore = () => {
-  return analysisForm.interests.length > 3 ? 85 : (analysisForm.interests.length > 1 ? 75 : 65)
+  return analysisForm.interests.length > 3 ? 85 : analysisForm.interests.length > 1 ? 75 : 65
 }
 
 // 计算经验水平得分
@@ -791,7 +833,7 @@ const nextStep = () => {
       return
     }
   }
-  
+
   currentStep.value++
 }
 
@@ -886,7 +928,7 @@ const submitAnalysis = async () => {
   try {
     analysisResult.value = await submitCareerAnalysis(analysisForm)
     ElMessage.success('分析完成')
-    
+
     // 初始化雷达图
     nextTick(() => {
       initializeRadarChart()
@@ -936,95 +978,102 @@ const getPreviewTagType = (
 // 获取职业描述
 const getCareerDescription = () => {
   if (!analysisResult.value) return ''
-  
+
   const careers: Record<string, string> = {
-    '软件开发工程师': '软件开发工程师负责设计、编写和测试软件应用程序。他们需要熟练掌握多种编程语言和开发工具，具备较强的逻辑思维和问题解决能力。随着数字化转型的加速，软件开发人才的需求持续增长，发展前景良好。',
-    '数据分析师': '数据分析师负责收集、处理和分析大量数据，提取有价值的信息和洞察。他们需要掌握统计学、数据挖掘和数据可视化技能，并能使用相关工具如SQL、Python或R语言进行数据处理。',
-    '产品经理': '产品经理负责产品的整个生命周期，包括市场调研、需求分析、功能设计和产品迭代。他们需要平衡用户需求、技术可行性和商业目标，协调各团队共同推进产品开发。'
+    软件开发工程师:
+      '软件开发工程师负责设计、编写和测试软件应用程序。他们需要熟练掌握多种编程语言和开发工具，具备较强的逻辑思维和问题解决能力。随着数字化转型的加速，软件开发人才的需求持续增长，发展前景良好。',
+    数据分析师:
+      '数据分析师负责收集、处理和分析大量数据，提取有价值的信息和洞察。他们需要掌握统计学、数据挖掘和数据可视化技能，并能使用相关工具如SQL、Python或R语言进行数据处理。',
+    产品经理:
+      '产品经理负责产品的整个生命周期，包括市场调研、需求分析、功能设计和产品迭代。他们需要平衡用户需求、技术可行性和商业目标，协调各团队共同推进产品开发。'
   }
-  
-  return careers[analysisResult.value.recommendedCareer] || 
+
+  return (
+    careers[analysisResult.value.recommendedCareer] ||
     `${analysisResult.value.recommendedCareer}是一个需要专业知识和实践经验的职业，根据您的背景和技能，这是一个非常适合您的发展方向。`
+  )
 }
 
 // 获取学习资源
 const getLearningResources = () => {
   if (!analysisResult.value) return []
-  
+
   // 根据推荐职业返回相应的学习资源
   const career = analysisResult.value.recommendedCareer
-  
+
   const resourceMap: Record<string, any[]> = {
-    '软件开发工程师': [
-      { 
-        title: '《代码大全》', 
-        description: '软件构建的实用指南，涵盖了从变量命名到架构设计的各个方面。', 
-        link: '#' 
+    软件开发工程师: [
+      {
+        title: '《代码大全》',
+        description: '软件构建的实用指南，涵盖了从变量命名到架构设计的各个方面。',
+        link: '#'
       },
-      { 
-        title: 'LeetCode编程训练', 
-        description: '通过解决算法问题提升编程能力和逻辑思维。', 
-        link: 'https://leetcode.com' 
+      {
+        title: 'LeetCode编程训练',
+        description: '通过解决算法问题提升编程能力和逻辑思维。',
+        link: 'https://leetcode.com'
       },
-      { 
-        title: 'GitHub开源项目', 
-        description: '参与开源项目，提升实际项目经验和协作能力。', 
-        link: 'https://github.com' 
+      {
+        title: 'GitHub开源项目',
+        description: '参与开源项目，提升实际项目经验和协作能力。',
+        link: 'https://github.com'
       }
     ],
-    '数据分析师': [
-      { 
-        title: 'Python数据分析', 
-        description: '掌握Python数据分析库如Pandas、NumPy和Matplotlib的使用。', 
-        link: '#' 
+    数据分析师: [
+      {
+        title: 'Python数据分析',
+        description: '掌握Python数据分析库如Pandas、NumPy和Matplotlib的使用。',
+        link: '#'
       },
-      { 
-        title: 'SQL数据库查询', 
-        description: '学习SQL语言，提升数据库操作和查询能力。', 
-        link: '#' 
+      {
+        title: 'SQL数据库查询',
+        description: '学习SQL语言，提升数据库操作和查询能力。',
+        link: '#'
       },
-      { 
-        title: '数据可视化工具', 
-        description: '学习Tableau、Power BI等数据可视化工具的使用。', 
-        link: '#' 
+      {
+        title: '数据可视化工具',
+        description: '学习Tableau、Power BI等数据可视化工具的使用。',
+        link: '#'
       }
     ],
-    '产品经理': [
-      { 
-        title: '《人人都是产品经理》', 
-        description: '产品思维入门书籍，帮助理解产品经理的工作职责和思考方式。', 
-        link: '#' 
+    产品经理: [
+      {
+        title: '《人人都是产品经理》',
+        description: '产品思维入门书籍，帮助理解产品经理的工作职责和思考方式。',
+        link: '#'
       },
-      { 
-        title: '原型设计工具', 
-        description: '学习Axure、Figma等原型设计工具，提升产品设计能力。', 
-        link: '#' 
+      {
+        title: '原型设计工具',
+        description: '学习Axure、Figma等原型设计工具，提升产品设计能力。',
+        link: '#'
       },
-      { 
-        title: '用户研究方法', 
-        description: '学习用户访谈、用户测试等用户研究方法。', 
-        link: '#' 
+      {
+        title: '用户研究方法',
+        description: '学习用户访谈、用户测试等用户研究方法。',
+        link: '#'
       }
     ]
   }
-  
-  return resourceMap[career] || [
-    { 
-      title: '相关行业书籍', 
-      description: '阅读行业相关的书籍，了解专业知识和最新趋势。', 
-      link: '#' 
-    },
-    { 
-      title: '在线学习平台', 
-      description: '通过Coursera、Udemy等平台学习相关专业课程。', 
-      link: '#' 
-    },
-    { 
-      title: '行业认证', 
-      description: '获取行业认证，提升专业资质和竞争力。', 
-      link: '#' 
-    }
-  ]
+
+  return (
+    resourceMap[career] || [
+      {
+        title: '相关行业书籍',
+        description: '阅读行业相关的书籍，了解专业知识和最新趋势。',
+        link: '#'
+      },
+      {
+        title: '在线学习平台',
+        description: '通过Coursera、Udemy等平台学习相关专业课程。',
+        link: '#'
+      },
+      {
+        title: '行业认证',
+        description: '获取行业认证，提升专业资质和竞争力。',
+        link: '#'
+      }
+    ]
+  )
 }
 
 // 导出报告
@@ -1740,11 +1789,15 @@ window.addEventListener('resize', () => {
 }
 
 /* 动画 */
-.fade-enter-active, .fade-leave-active {
-  transition: opacity 0.5s ease, transform 0.5s ease;
+.fade-enter-active,
+.fade-leave-active {
+  transition:
+    opacity 0.5s ease,
+    transform 0.5s ease;
 }
 
-.fade-enter-from, .fade-leave-to {
+.fade-enter-from,
+.fade-leave-to {
   opacity: 0;
   transform: translateY(20px);
 }

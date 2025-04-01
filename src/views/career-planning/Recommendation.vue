@@ -34,7 +34,7 @@
               </el-select>
             </el-form-item>
           </el-col>
-          
+
           <el-col :span="8">
             <el-form-item label="工作地点">
               <el-select
@@ -53,7 +53,7 @@
               </el-select>
             </el-form-item>
           </el-col>
-          
+
           <el-col :span="8">
             <el-form-item label="期望薪资">
               <el-select
@@ -105,15 +105,21 @@
                   {{ job.matchScore }}% 匹配
                 </el-tag>
               </div>
-              
+
               <p class="job-description">{{ job.description }}</p>
-              
+
               <div class="job-details">
-                <div class="job-detail"><el-icon><Money /></el-icon> {{ job.averageSalary }}</div>
-                <div class="job-detail"><el-icon><TrendCharts /></el-icon> 发展前景: {{ job.growthProspect }}</div>
-                <div class="job-detail"><el-icon><MagicStick /></el-icon> 工作生活平衡: {{ job.workLifeBalance }}</div>
+                <div class="job-detail">
+                  <el-icon><Money /></el-icon> {{ job.averageSalary }}
+                </div>
+                <div class="job-detail">
+                  <el-icon><TrendCharts /></el-icon> 发展前景: {{ job.growthProspect }}
+                </div>
+                <div class="job-detail">
+                  <el-icon><MagicStick /></el-icon> 工作生活平衡: {{ job.workLifeBalance }}
+                </div>
               </div>
-              
+
               <div class="job-skills">
                 <h4>所需技能</h4>
                 <div class="skill-tags">
@@ -128,18 +134,18 @@
                   </el-tag>
                 </div>
               </div>
-              
+
               <div class="job-links">
                 <h4>去这里应聘</h4>
                 <div class="platform-links">
-                  <a 
-                    v-for="link in job.jobLinks" 
+                  <a
+                    v-for="link in job.jobLinks"
                     :key="link.platform"
-                    :href="link.url" 
+                    :href="link.url"
                     target="_blank"
                     class="platform-link"
                   >
-                    <img :src="link.logo" :alt="link.platform" class="platform-logo">
+                    <img :src="link.logo" :alt="link.platform" class="platform-logo" />
                     <span>{{ link.platform }}</span>
                   </a>
                 </div>
@@ -170,23 +176,31 @@
           <el-col :xs="24" :sm="12" v-for="job in filteredHotJobs" :key="job.id">
             <el-card class="hot-job-card" shadow="hover">
               <div class="company-info">
-                <img :src="job.companyLogo" :alt="job.company" class="company-logo">
+                <img :src="job.companyLogo" :alt="job.company" class="company-logo" />
                 <div>
                   <h3 class="job-name">{{ job.title }}</h3>
                   <p class="company-name">{{ job.company }}</p>
                 </div>
               </div>
-              
+
               <div class="job-info">
-                <div class="info-item"><el-icon><Money /></el-icon> {{ job.salary }}</div>
-                <div class="info-item"><el-icon><Location /></el-icon> {{ job.location }}</div>
-                <div class="info-item"><el-icon><Reading /></el-icon> {{ job.education }}</div>
-                <div class="info-item"><el-icon><Stopwatch /></el-icon> {{ job.experience }}</div>
+                <div class="info-item">
+                  <el-icon><Money /></el-icon> {{ job.salary }}
+                </div>
+                <div class="info-item">
+                  <el-icon><Location /></el-icon> {{ job.location }}
+                </div>
+                <div class="info-item">
+                  <el-icon><Reading /></el-icon> {{ job.education }}
+                </div>
+                <div class="info-item">
+                  <el-icon><Stopwatch /></el-icon> {{ job.experience }}
+                </div>
               </div>
-              
+
               <div class="job-tags">
-                <el-tag 
-                  v-for="(tag, index) in job.tags" 
+                <el-tag
+                  v-for="(tag, index) in job.tags"
                   :key="index"
                   :type="getHotJobTagType(index)"
                   effect="plain"
@@ -196,13 +210,13 @@
                   {{ tag }}
                 </el-tag>
               </div>
-              
+
               <div class="job-actions">
                 <div class="platform-buttons">
-                  <a 
-                    v-for="link in job.jobLinks" 
+                  <a
+                    v-for="link in job.jobLinks"
                     :key="link.platform"
-                    :href="link.url" 
+                    :href="link.url"
                     target="_blank"
                     class="platform-button"
                   >
@@ -225,7 +239,12 @@
       </h2>
 
       <el-row :gutter="20">
-        <el-col :xs="24" :md="8" v-for="(trend, index) in recommendationResult.industryTrends" :key="index">
+        <el-col
+          :xs="24"
+          :md="8"
+          v-for="(trend, index) in recommendationResult.industryTrends"
+          :key="index"
+        >
           <el-card class="trend-card" shadow="hover">
             <div class="trend-header">
               <h3>{{ trend.industry }}</h3>
@@ -330,7 +349,7 @@ const searchJobs = async () => {
       currentPosition: searchForm.currentPosition,
       preferredLocation: searchForm.location || undefined,
       // 薪资范围通过搜索条件传递，后端可根据此调整推荐结果
-      preferredIndustry: searchForm.salary ? 'salary:' + searchForm.salary : undefined 
+      preferredIndustry: searchForm.salary ? 'salary:' + searchForm.salary : undefined
     }
 
     recommendationResult.value = await getCareerRecommendations(form)
@@ -360,14 +379,14 @@ const recommendedJobs = computed<CareerRecommendation[]>(() => {
 // 根据标签类型过滤热门职位
 const filteredHotJobs = computed<HotJob[]>(() => {
   if (!recommendationResult.value?.hotJobs) return []
-  
+
   const hotJobs = recommendationResult.value.hotJobs
-  
+
   // 根据标签过滤
   if (activeTab.value === 'all') {
     return hotJobs
   }
-  
+
   // 这里使用简单的标题匹配来筛选职位类别
   // 实际项目中应该在后端添加职位类别字段或使用更精确的匹配
   const jobTypeMap: Record<string, string[]> = {
@@ -376,11 +395,9 @@ const filteredHotJobs = computed<HotJob[]>(() => {
     design: ['设计', 'UI', 'UX'],
     operation: ['运营', '市场', '营销']
   }
-  
+
   const keywords = jobTypeMap[activeTab.value] || []
-  return hotJobs.filter(job => 
-    keywords.some(keyword => job.title.includes(keyword))
-  )
+  return hotJobs.filter(job => keywords.some(keyword => job.title.includes(keyword)))
 })
 
 // 获取技能标签类型
@@ -722,16 +739,16 @@ const getHotJobTagType = (
   .job-info {
     grid-template-columns: 1fr;
   }
-  
+
   .platform-buttons {
     flex-direction: column;
     width: 100%;
   }
-  
+
   .job-links {
     flex-direction: column;
   }
-  
+
   .platform-link {
     width: 100%;
   }

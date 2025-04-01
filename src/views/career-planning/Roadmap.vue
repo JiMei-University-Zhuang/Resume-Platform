@@ -6,7 +6,9 @@
         <el-icon><Connection /></el-icon>
         职业发展规划
       </h1>
-      <p class="page-description">基于您的目标和当前状态，量身定制个性化的职业发展路线图，指引您的职业成长之路。</p>
+      <p class="page-description">
+        基于您的目标和当前状态，量身定制个性化的职业发展路线图，指引您的职业成长之路。
+      </p>
     </div>
 
     <el-row :gutter="24" class="main-content">
@@ -245,7 +247,11 @@
             </template>
 
             <div class="tasks-reminder">
-              <div v-for="(milestone, index) in roadmapResult.milestones" :key="index" class="task-item">
+              <div
+                v-for="(milestone, index) in roadmapResult.milestones"
+                :key="index"
+                class="task-item"
+              >
                 <div class="task-stage">阶段 {{ index + 1 }}</div>
                 <div class="task-highlight">{{ getHighlightTask(milestone) }}</div>
               </div>
@@ -260,7 +266,11 @@
           <div class="placeholder-content">
             <el-empty description="填写左侧表单，生成您的个性化职业发展路线图">
               <template #image>
-                <img src="https://cdn.jsdelivr.net/gh/amariliscamargo/imgs@main/roadmap-placeholder.svg" alt="路线图" class="placeholder-image" />
+                <img
+                  src="https://cdn.jsdelivr.net/gh/amariliscamargo/imgs@main/roadmap-placeholder.svg"
+                  alt="路线图"
+                  class="placeholder-image"
+                />
               </template>
               <el-button type="primary" @click="activeTab = 'position'">开始规划</el-button>
             </el-empty>
@@ -283,7 +293,7 @@
                 </el-button>
               </el-button-group>
             </div>
-            
+
             <div class="view-controls">
               <el-radio-group v-model="viewMode" size="small">
                 <el-radio-button label="timeline">时间线</el-radio-button>
@@ -318,7 +328,11 @@
                   :hollow="milestone.stage === roadmapResult.milestones.length"
                   placement="top"
                 >
-                  <el-card class="milestone-card" shadow="hover" :class="{ 'current-stage': milestone.stage === 1 }">
+                  <el-card
+                    class="milestone-card"
+                    shadow="hover"
+                    :class="{ 'current-stage': milestone.stage === 1 }"
+                  >
                     <template #header>
                       <div class="milestone-header">
                         <div class="milestone-title">
@@ -351,7 +365,12 @@
                               </el-tag>
                               <div class="skill-resources">
                                 <el-tooltip content="查看学习资源">
-                                  <el-button type="primary" link size="small" @click="showSkillResources(skill)">
+                                  <el-button
+                                    type="primary"
+                                    link
+                                    size="small"
+                                    @click="showSkillResources(skill)"
+                                  >
                                     <el-icon><Reading /></el-icon>
                                   </el-button>
                                 </el-tooltip>
@@ -390,11 +409,21 @@
                           <el-icon><EditPen /></el-icon>
                           添加笔记
                         </el-button>
-                        <el-button type="success" text @click="markAsCompleted(index)" v-if="index === 0 && !isStageCompleted(index)">
+                        <el-button
+                          type="success"
+                          text
+                          @click="markAsCompleted(index)"
+                          v-if="index === 0 && !isStageCompleted(index)"
+                        >
                           <el-icon><Check /></el-icon>
                           标记完成
                         </el-button>
-                        <el-button type="warning" text @click="markAsIncomplete(index)" v-if="isStageCompleted(index)">
+                        <el-button
+                          type="warning"
+                          text
+                          @click="markAsIncomplete(index)"
+                          v-if="isStageCompleted(index)"
+                        >
                           <el-icon><Close /></el-icon>
                           取消完成
                         </el-button>
@@ -410,15 +439,15 @@
               <div class="skills-map" ref="skillsMapRef"></div>
               <div class="skills-legend">
                 <div class="legend-item">
-                  <div class="legend-color" style="background-color: #67c23a;"></div>
+                  <div class="legend-color" style="background-color: #67c23a"></div>
                   <span>核心技能</span>
                 </div>
                 <div class="legend-item">
-                  <div class="legend-color" style="background-color: #409eff;"></div>
+                  <div class="legend-color" style="background-color: #409eff"></div>
                   <span>重要技能</span>
                 </div>
                 <div class="legend-item">
-                  <div class="legend-color" style="background-color: #909399;"></div>
+                  <div class="legend-color" style="background-color: #909399"></div>
                   <span>辅助技能</span>
                 </div>
               </div>
@@ -443,7 +472,7 @@
 
               <div class="comparison-content">
                 <div class="comparison-chart" ref="comparisonChartRef"></div>
-                
+
                 <div class="gap-analysis">
                   <h3>差距分析</h3>
                   <ul class="gap-list">
@@ -473,7 +502,10 @@
                 :autoplay="true"
                 :interval="6000"
               >
-                <el-carousel-item v-for="(recommendation, index) in roadmapResult.recommendations" :key="index">
+                <el-carousel-item
+                  v-for="(recommendation, index) in roadmapResult.recommendations"
+                  :key="index"
+                >
                   <div class="recommendation-item">
                     <el-icon><Star /></el-icon>
                     <p>{{ recommendation }}</p>
@@ -501,11 +533,20 @@
     <el-dialog v-model="showResourcesDialog" title="技能学习资源" width="600px">
       <div class="resources-dialog">
         <h3>{{ selectedSkill }} 学习资源</h3>
-        
+
         <div class="resources-list">
           <div v-for="(resource, index) in getSkillResources()" :key="index" class="resource-item">
             <div class="resource-icon">
-              <el-icon><component :is="resource.type === 'video' ? 'VideoCamera' : (resource.type === 'course' ? 'Reading' : 'Document')" /></el-icon>
+              <el-icon
+                ><component
+                  :is="
+                    resource.type === 'video'
+                      ? 'VideoCamera'
+                      : resource.type === 'course'
+                        ? 'Reading'
+                        : 'Document'
+                  "
+              /></el-icon>
             </div>
             <div class="resource-info">
               <div class="resource-title">{{ resource.title }}</div>
@@ -526,7 +567,7 @@
     <el-dialog v-model="showNoteDialog" title="阶段笔记" width="500px">
       <div class="note-dialog">
         <p class="note-stage-info">{{ getNoteStageInfo() }}</p>
-        
+
         <el-form>
           <el-form-item>
             <el-input
@@ -538,7 +579,7 @@
           </el-form-item>
         </el-form>
       </div>
-      
+
       <template #footer>
         <div class="dialog-footer">
           <el-button @click="showNoteDialog = false">取消</el-button>
@@ -564,9 +605,13 @@
             <span>生成二维码</span>
           </div>
         </div>
-        
+
         <div v-if="showQRCode" class="qrcode-container">
-          <img src="https://cdn.jsdelivr.net/gh/amariliscamargo/imgs@main/qrcode-placeholder.png" alt="QR Code" class="qrcode-image" />
+          <img
+            src="https://cdn.jsdelivr.net/gh/amariliscamargo/imgs@main/qrcode-placeholder.png"
+            alt="QR Code"
+            class="qrcode-image"
+          />
           <el-button size="small" type="primary" @click="downloadQRCode">
             <el-icon><Download /></el-icon>
             下载二维码
@@ -582,7 +627,12 @@ import { ref, reactive, computed, onMounted, nextTick, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import * as echarts from 'echarts'
-import type { CareerRoadmapForm, CareerRoadmapResult, CareerSkill, CareerMilestone } from '@/types/career'
+import type {
+  CareerRoadmapForm,
+  CareerRoadmapResult,
+  CareerSkill,
+  CareerMilestone
+} from '@/types/career'
 import { submitCareerRoadmap, getCareerSkills } from '@/api/career'
 import {
   Connection,
@@ -608,7 +658,7 @@ import {
   Link,
   Message,
   PictureFilled,
-  Warning,
+  Warning
 } from '@element-plus/icons-vue'
 
 const router = useRouter()
@@ -706,15 +756,15 @@ const generateRoadmap = async () => {
   generating.value = true
   try {
     roadmapResult.value = await submitCareerRoadmap(roadmapForm)
-    
+
     // 重置视图状态
     viewMode.value = 'timeline'
     zoomLevel.value = 1
     completedStages.value = []
     stageNotes.value = {}
-    
+
     ElMessage.success('路线图生成成功')
-    
+
     // 初始化图表
     nextTick(() => {
       if (viewMode.value === 'skills') {
@@ -822,7 +872,7 @@ const getStageAdvice = (index: number) => {
     '作为职业发展的关键阶段，需要在专业领域建立自己的影响力和声誉。参与具有挑战性的项目，培养领导力和团队协作能力。',
     '这是向管理岗位过渡的重要阶段，需要平衡技术专长与管理技能，提升战略思维和决策能力，为更高级别的职位做准备。'
   ]
-  
+
   return adviceMap[index % adviceMap.length]
 }
 
@@ -836,7 +886,7 @@ const getStageDifficulty = (index: number) => {
 const getStageImportance = (index: number) => {
   if (index === 0) return 90 // 第一阶段非常重要
   if (index === roadmapResult.value!.milestones.length - 1) return 85 // 最后阶段也很重要
-  
+
   // 中间阶段根据位置递减重要性
   return 80 - (index - 1) * 5
 }
@@ -893,7 +943,7 @@ const showSkillResources = (skill: string) => {
 const getSkillResources = () => {
   // 示例资源数据
   const skillResources = {
-    '系统设计': [
+    系统设计: [
       {
         title: '系统设计入门与实践',
         description: '从基础概念到实际案例，系统地学习分布式系统设计原则',
@@ -913,7 +963,7 @@ const getSkillResources = () => {
         url: 'https://example.com/book/system-architecture'
       }
     ],
-    '代码审查': [
+    代码审查: [
       {
         title: '有效的代码审查流程与实践',
         description: '学习如何进行高效、有建设性的代码审查',
@@ -927,7 +977,7 @@ const getSkillResources = () => {
         url: 'https://example.com/video/code-review-patterns'
       }
     ],
-    '技术指导': [
+    技术指导: [
       {
         title: '技术导师：如何指导和培养团队',
         description: '学习成为高效技术导师的方法和技巧',
@@ -942,7 +992,7 @@ const getSkillResources = () => {
       }
     ]
   }
-  
+
   const defaultResources = [
     {
       title: `${selectedSkill.value} 基础与实践`,
@@ -963,7 +1013,7 @@ const getSkillResources = () => {
       url: 'https://example.com'
     }
   ]
-  
+
   // @ts-ignore
   return skillResources[selectedSkill.value] || defaultResources
 }
@@ -976,7 +1026,7 @@ const openResource = (url: string) => {
 // 差距分析
 const getGapAnalysis = () => {
   if (!roadmapResult.value) return []
-  
+
   return [
     '技术深度：需要在核心技术领域建立专家级别的知识体系',
     '管理经验：需要积累项目和团队管理经验，培养领导力',
@@ -999,14 +1049,14 @@ const printRoadmap = () => {
 const shareViaEmail = () => {
   const subject = `职业发展路线图：${roadmapForm.currentPosition} 到 ${roadmapResult.value?.targetPosition}`
   const body = `我生成了一份从 ${roadmapForm.currentPosition} 到 ${roadmapResult.value?.targetPosition} 的职业发展路线图，预计用时 ${roadmapResult.value?.timelineYears} 年，一起来看看吧！`
-  
+
   window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
   ElMessage.success('已打开邮件客户端')
 }
 
 const copyShareLink = () => {
   const text = `我的职业发展路线图：从 ${roadmapForm.currentPosition} 到 ${roadmapResult.value?.targetPosition}，路线图链接：https://example.com/roadmap/share/123456`
-  
+
   navigator.clipboard.writeText(text).then(() => {
     ElMessage.success('链接已复制到剪贴板')
   })
@@ -1041,10 +1091,10 @@ const initializeSkillsChart = () => {
       if (skillsChart) {
         skillsChart.dispose()
       }
-      
+
       skillsChart = echarts.init(skillsMapRef.value)
       updateSkillsChart()
-      
+
       window.addEventListener('resize', () => {
         if (skillsChart) {
           skillsChart.resize()
@@ -1057,7 +1107,7 @@ const initializeSkillsChart = () => {
 // 更新技能树图表
 const updateSkillsChart = () => {
   if (!skillsChart || !roadmapResult.value) return
-  
+
   // 收集所有技能
   const allSkillsNeeded: string[] = []
   roadmapResult.value.milestones.forEach(milestone => {
@@ -1067,11 +1117,11 @@ const updateSkillsChart = () => {
       }
     })
   })
-  
+
   // 构建图表数据
   const nodes: any[] = []
   const links: any[] = []
-  
+
   // 添加中心节点
   nodes.push({
     name: roadmapResult.value.targetPosition,
@@ -1081,10 +1131,10 @@ const updateSkillsChart = () => {
     },
     category: 0
   })
-  
+
   // 添加一级节点（主要技能类别）
   const categories = ['技术技能', '管理技能', '软技能', '领域知识']
-  categories.forEach((category) => {
+  categories.forEach(category => {
     nodes.push({
       name: category,
       symbolSize: 50,
@@ -1093,7 +1143,7 @@ const updateSkillsChart = () => {
       },
       category: 1
     })
-    
+
     links.push({
       source: roadmapResult.value!.targetPosition,
       target: category,
@@ -1102,12 +1152,17 @@ const updateSkillsChart = () => {
       }
     })
   })
-  
+
   // 添加技能节点
-  allSkillsNeeded.forEach((skill) => {
+  allSkillsNeeded.forEach(skill => {
     // 确定技能属于哪个类别
     let category
-    if (skill.includes('设计') || skill.includes('架构') || skill.includes('开发') || skill.includes('编程')) {
+    if (
+      skill.includes('设计') ||
+      skill.includes('架构') ||
+      skill.includes('开发') ||
+      skill.includes('编程')
+    ) {
       category = '技术技能'
     } else if (skill.includes('管理') || skill.includes('领导') || skill.includes('团队')) {
       category = '管理技能'
@@ -1116,7 +1171,7 @@ const updateSkillsChart = () => {
     } else {
       category = '领域知识'
     }
-    
+
     nodes.push({
       name: skill,
       symbolSize: 35,
@@ -1125,7 +1180,7 @@ const updateSkillsChart = () => {
       },
       category: 2
     })
-    
+
     links.push({
       source: category,
       target: skill,
@@ -1134,7 +1189,7 @@ const updateSkillsChart = () => {
       }
     })
   })
-  
+
   // 设置图表选项
   const option: any = {
     tooltip: {
@@ -1152,11 +1207,7 @@ const updateSkillsChart = () => {
         layout: 'force',
         data: nodes,
         links: links,
-        categories: [
-          { name: '目标职位' },
-          { name: '技能类别' },
-          { name: '具体技能' }
-        ],
+        categories: [{ name: '目标职位' }, { name: '技能类别' }, { name: '具体技能' }],
         roam: true,
         label: {
           show: true,
@@ -1178,7 +1229,7 @@ const updateSkillsChart = () => {
       }
     ]
   }
-  
+
   skillsChart.setOption(option)
 }
 
@@ -1189,10 +1240,10 @@ const initializeComparisonChart = () => {
       if (comparisonChart) {
         comparisonChart.dispose()
       }
-      
+
       comparisonChart = echarts.init(comparisonChartRef.value)
       updateComparisonChart()
-      
+
       window.addEventListener('resize', () => {
         if (comparisonChart) {
           comparisonChart.resize()
@@ -1205,12 +1256,12 @@ const initializeComparisonChart = () => {
 // 更新对比图表
 const updateComparisonChart = () => {
   if (!comparisonChart || !roadmapResult.value) return
-  
+
   // 构建对比数据
   const categories = ['技术能力', '管理能力', '沟通协作', '专业知识', '行业视野', '领导力']
   const currentValues = [60, 40, 70, 65, 50, 30]
   const targetValues = [85, 80, 90, 85, 75, 85]
-  
+
   // 设置图表选项
   const option: any = {
     tooltip: {
@@ -1264,7 +1315,7 @@ const updateComparisonChart = () => {
       }
     ]
   }
-  
+
   comparisonChart.setOption(option)
 }
 
@@ -1278,7 +1329,7 @@ const goToRecommendation = () => {
 }
 
 // 监听视图模式变化
-watch(viewMode, (newMode) => {
+watch(viewMode, newMode => {
   nextTick(() => {
     if (newMode === 'skills') {
       initializeSkillsChart()

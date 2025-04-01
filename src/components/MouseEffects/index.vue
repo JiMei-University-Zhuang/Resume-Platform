@@ -13,7 +13,7 @@
       class="confetti-canvas"
       :style="{ display: showConfetti ? 'block' : 'none' }"
     ></canvas>
-    
+
     <!-- 点击效果容器 -->
     <canvas
       ref="clickCanvas"
@@ -128,8 +128,18 @@ function initTrailCanvas() {
   const addParticle = (x: number, y: number) => {
     // 使用更丰富的配色，包括渐变色
     const colors = [
-      '#5EC8AD', '#409EFF', '#67C23A', '#FFD6A5', '#A0C4FF', '#E98EAD',
-      '#F56C6C', '#909399', '#E6A23C', '#DCDFE6', '#8E44AD', '#16A085'
+      '#5EC8AD',
+      '#409EFF',
+      '#67C23A',
+      '#FFD6A5',
+      '#A0C4FF',
+      '#E98EAD',
+      '#F56C6C',
+      '#909399',
+      '#E6A23C',
+      '#DCDFE6',
+      '#8E44AD',
+      '#16A085'
     ]
 
     particles.push({
@@ -168,19 +178,19 @@ function initTrailCanvas() {
 
       p.x += p.dx
       p.y += p.dy
-      
+
       // 添加轻微重力效果
       p.dy += 0.02
 
       // 绘制粒子 - 使用更漂亮的渐变圆
       ctx.save()
       ctx.globalAlpha = p.alpha
-      
+
       // 创建径向渐变
       const gradient = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size)
       gradient.addColorStop(0, p.color)
       gradient.addColorStop(1, 'rgba(255, 255, 255, 0)')
-      
+
       ctx.fillStyle = gradient
       ctx.beginPath()
       ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2)
@@ -225,7 +235,7 @@ function initClickCanvas() {
   const handleMouseClick = (e: globalThis.MouseEvent) => {
     // 为点击添加涟漪效果
     addClickEffect(e.clientX, e.clientY)
-    
+
     // 同时触发礼物特效
     if (showConfetti.value) {
       triggerConfetti(e.clientX, e.clientY, true) // 传入true表示这是点击触发的
@@ -236,7 +246,7 @@ function initClickCanvas() {
   const addClickEffect = (x: number, y: number) => {
     // 使用明亮的颜色
     const colors = ['#409EFF', '#67C23A', '#E6A23C', '#F56C6C', '#8E44AD']
-    
+
     clickEffects.push({
       x,
       y,
@@ -253,18 +263,18 @@ function initClickCanvas() {
 
     for (let i = 0; i < clickEffects.length; i++) {
       const effect = clickEffects[i]
-      
+
       // 半径增长
       effect.radius += 2
       // 透明度随半径增大而减小
-      effect.alpha = 1 - (effect.radius / effect.maxRadius)
-      
+      effect.alpha = 1 - effect.radius / effect.maxRadius
+
       if (effect.radius >= effect.maxRadius) {
         clickEffects.splice(i, 1)
         i--
         continue
       }
-      
+
       // 绘制圆环
       ctx.save()
       ctx.globalAlpha = effect.alpha
@@ -273,15 +283,19 @@ function initClickCanvas() {
       ctx.beginPath()
       ctx.arc(effect.x, effect.y, effect.radius, 0, Math.PI * 2)
       ctx.stroke()
-      
+
       // 添加内部填充
       const gradient = ctx.createRadialGradient(
-        effect.x, effect.y, 0, 
-        effect.x, effect.y, effect.radius
+        effect.x,
+        effect.y,
+        0,
+        effect.x,
+        effect.y,
+        effect.radius
       )
       gradient.addColorStop(0, 'rgba(255, 255, 255, 0.2)')
       gradient.addColorStop(0.7, 'rgba(255, 255, 255, 0)')
-      
+
       ctx.fillStyle = gradient
       ctx.fill()
       ctx.restore()

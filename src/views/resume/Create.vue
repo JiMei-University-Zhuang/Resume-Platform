@@ -223,9 +223,9 @@
                   <el-icon><SwitchButton /></el-icon> 切换模板
                 </el-button>
 
-                <el-dialog 
-                  v-model="templateDialogVisible" 
-                  title="选择简历模板" 
+                <el-dialog
+                  v-model="templateDialogVisible"
+                  title="选择简历模板"
                   width="70%"
                   :z-index="2000"
                   :modal-append-to-body="false"
@@ -245,12 +245,18 @@
                     >
                       <el-card :body-style="{ padding: '0px' }" class="template-card">
                         <div class="template-preview-box">
-                          <img :src="getTemplatePreviewImage(template)" class="template-thumbnail" alt="简历模板预览" />
+                          <img
+                            :src="getTemplatePreviewImage(template)"
+                            class="template-thumbnail"
+                            alt="简历模板预览"
+                          />
                         </div>
                         <div class="template-info">
                           <h3>{{ getTemplateDisplayName(template) }}</h3>
                           <div class="template-tags">
-                            <el-tag size="small" type="info">{{ getTemplateStyle(template) }}</el-tag>
+                            <el-tag size="small" type="info">{{
+                              getTemplateStyle(template)
+                            }}</el-tag>
                           </div>
                           <div class="template-actions">
                             <el-button type="primary" @click="selectTemplate(template)" size="small"
@@ -383,13 +389,7 @@
 <script setup lang="ts">
 import { templateConfig } from '@/components/Template/templateConfig'
 import { analyzeResume as analyzeResumeApi } from '@/api/template'
-import { 
-  Delete, 
-  DocumentCopy, 
-  View, 
-  SwitchButton,
-  OfficeBuilding
-} from '@element-plus/icons-vue'
+import { Delete, DocumentCopy, View, SwitchButton, OfficeBuilding } from '@element-plus/icons-vue'
 
 import { ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
@@ -605,13 +605,13 @@ const exportPDF = async () => {
 
   try {
     ElMessage.info('正在生成PDF，请稍候...')
-    
+
     // 确保模板完全渲染
     await new Promise(resolve => setTimeout(resolve, 500))
-    
+
     // 直接使用DOM节点，而不是克隆节点
     const element = resumePreview.value
-    
+
     // 使用更稳定的配置
     const canvas = await html2canvas(element, {
       scale: 2, // 提高清晰度
@@ -619,10 +619,9 @@ const exportPDF = async () => {
       logging: false, // 减少日志输出
       allowTaint: true, // 允许污染
       backgroundColor: '#ffffff', // 设置白色背景
-      ignoreElements: (element) => {
+      ignoreElements: element => {
         // 忽略某些可能导致问题的元素
-        return element.tagName === 'IFRAME' ||
-          element.classList.contains('ignore-pdf')
+        return element.tagName === 'IFRAME' || element.classList.contains('ignore-pdf')
       }
     })
 
@@ -897,7 +896,7 @@ function isSuggestionItemTemplate(item: any): item is SuggestionItem {
 const getTemplatePreviewImage = (templateKey: string) => {
   const templateIndex = parseInt(templateKey.replace('muban', '')) || 1
   const validIndex = templateIndex > 0 && templateIndex <= 10 ? templateIndex : 1
-  
+
   // 使用相对于公共目录的路径
   return `/template_imgs/${validIndex}.png`
 }
@@ -994,14 +993,14 @@ defineExpose({
 }
 
 .card-title::before {
-  content: "";
+  content: '';
   position: absolute;
   left: 0;
   top: 50%;
   transform: translateY(-50%);
   width: 4px;
   height: 16px;
-  background-color: #409EFF;
+  background-color: #409eff;
   border-radius: 2px;
 }
 
@@ -1026,7 +1025,7 @@ defineExpose({
 
 .resume-form :deep(.el-divider__text) {
   background-color: #f8f9fa;
-  color: #409EFF;
+  color: #409eff;
   font-weight: 600;
   font-size: 15px;
 }
@@ -1085,18 +1084,18 @@ defineExpose({
 
 /* 创建简历的按钮样式 */
 .el-button--primary {
-  background-color: #409EFF;
-  border-color: #409EFF;
+  background-color: #409eff;
+  border-color: #409eff;
 }
 
 .el-button--danger {
-  background-color: #F56C6C;
-  border-color: #F56C6C;
+  background-color: #f56c6c;
+  border-color: #f56c6c;
 }
 
 .el-button--success {
-  background-color: #67C23A;
-  border-color: #67C23A;
+  background-color: #67c23a;
+  border-color: #67c23a;
 }
 
 .el-button--primary:hover,

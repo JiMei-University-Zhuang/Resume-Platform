@@ -224,7 +224,8 @@ export const getCareerRecommendations = async (
             location: '北京',
             education: '本科及以上',
             experience: '3-5年',
-            companyLogo: 'https://img.bosszhipin.com/beijin/mcs/banner/20210329/a9998add30b5c174b665bed292c5742e90c6b8d0b473145e95ffb120fe462a4a.png',
+            companyLogo:
+              'https://img.bosszhipin.com/beijin/mcs/banner/20210329/a9998add30b5c174b665bed292c5742e90c6b8d0b473145e95ffb120fe462a4a.png',
             tags: ['六险一金', '定期体检', '团队氛围好'],
             jobLinks: [
               {
@@ -247,7 +248,8 @@ export const getCareerRecommendations = async (
             location: '深圳',
             education: '硕士及以上',
             experience: '3-5年',
-            companyLogo: 'https://img.bosszhipin.com/beijin/mcs/bar/20191010/c08de38f7e12e58584a352a7988c7915be1bd4a3bd2a63f070bdbdada9aad826.jpg',
+            companyLogo:
+              'https://img.bosszhipin.com/beijin/mcs/bar/20191010/c08de38f7e12e58584a352a7988c7915be1bd4a3bd2a63f070bdbdada9aad826.jpg',
             tags: ['年终奖丰厚', '技术大牛多', '晋升机会多'],
             jobLinks: [
               {
@@ -270,7 +272,8 @@ export const getCareerRecommendations = async (
             location: '杭州',
             education: '本科及以上',
             experience: '3年以上',
-            companyLogo: 'https://img.bosszhipin.com/beijin/mcs/bar/20200430/9d5faccd9d16e3db74db3c04e5676307ceee93a50e3c128456b3e67e3cdf35b9.png',
+            companyLogo:
+              'https://img.bosszhipin.com/beijin/mcs/bar/20200430/9d5faccd9d16e3db74db3c04e5676307ceee93a50e3c128456b3e67e3cdf35b9.png',
             tags: ['期权激励', '弹性工作', '免费三餐'],
             jobLinks: [
               {
@@ -293,7 +296,8 @@ export const getCareerRecommendations = async (
             location: '上海',
             education: '本科及以上',
             experience: '1-3年',
-            companyLogo: 'https://img.bosszhipin.com/beijin/mcs/banner/20211130/1cd2eb36aad61bb0ca85a8473f15ec0e34d5f23cb8d86043cf42e39ec56feba3.png',
+            companyLogo:
+              'https://img.bosszhipin.com/beijin/mcs/banner/20211130/1cd2eb36aad61bb0ca85a8473f15ec0e34d5f23cb8d86043cf42e39ec56feba3.png',
             tags: ['五险一金', '年终奖', '加班补助'],
             jobLinks: [
               {
@@ -316,7 +320,8 @@ export const getCareerRecommendations = async (
             location: '北京',
             education: '本科及以上',
             experience: '2-4年',
-            companyLogo: 'https://img.bosszhipin.com/beijin/mcs/banner/20201225/09c47f7cfc1fa67ee1ef9b1e5368816ae7d74a1f3add8bfe7af29779c6584328.jpg',
+            companyLogo:
+              'https://img.bosszhipin.com/beijin/mcs/banner/20201225/09c47f7cfc1fa67ee1ef9b1e5368816ae7d74a1f3add8bfe7af29779c6584328.jpg',
             tags: ['带薪年假', '节日福利', '团队氛围好'],
             jobLinks: [
               {
@@ -339,7 +344,8 @@ export const getCareerRecommendations = async (
             location: '杭州',
             education: '本科及以上',
             experience: '1-3年',
-            companyLogo: 'https://img.bosszhipin.com/beijin/mcs/banner/20190930/9aeaf0fb28b50fc3e752c788b28c3e1a0138c7e508727f48fdf5394138f1f9a7.jpg',
+            companyLogo:
+              'https://img.bosszhipin.com/beijin/mcs/banner/20190930/9aeaf0fb28b50fc3e752c788b28c3e1a0138c7e508727f48fdf5394138f1f9a7.jpg',
             tags: ['五险一金', '弹性工作', '免费班车'],
             jobLinks: [
               {

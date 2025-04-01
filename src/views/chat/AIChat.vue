@@ -292,11 +292,11 @@ const handleSendMessage = async () => {
 
       // 使用Promise来处理EventSource事件
       await new Promise((resolve, reject) => {
-        let hasReceivedData = false;
+        let hasReceivedData = false
 
         const connection = connectAIChatSSE(userMessage, {
-          onMessage: async (data) => {
-            hasReceivedData = true;
+          onMessage: async data => {
+            hasReceivedData = true
             if (messages.value[currentIndex]) {
               messages.value[currentIndex].text += data
               await nextTick()
@@ -308,10 +308,10 @@ const handleSendMessage = async () => {
             isTyping.value = false
             resolve(true)
           },
-          onError: (error) => {
+          onError: error => {
             console.error('SSE Error:', error)
             isTyping.value = false
-            
+
             // 如果在错误发生前已经接收到一些数据，则附加错误信息
             if (hasReceivedData && messages.value[currentIndex]) {
               messages.value[currentIndex].text += '\n\n> ⚠️ 连接中断，部分回复可能丢失。'

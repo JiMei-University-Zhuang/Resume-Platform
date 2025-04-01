@@ -45,10 +45,10 @@
       </el-col>
     </el-row>
 
-    <el-dialog 
-      v-model="previewDialogVisible" 
-      title="模板预览" 
-      width="70%" 
+    <el-dialog
+      v-model="previewDialogVisible"
+      title="模板预览"
+      width="70%"
       :z-index="2000"
       :modal-append-to-body="false"
       append-to-body
@@ -59,7 +59,7 @@
         <div class="preview-info">
           <h2>{{ selectedTemplate.name }}</h2>
           <p>{{ selectedTemplate.description }}</p>
-          
+
           <div class="template-rating">
             <span class="rating-label">推荐指数：</span>
             <el-rate
@@ -70,7 +70,7 @@
               score-template="{value}"
             ></el-rate>
           </div>
-          
+
           <div class="template-stats">
             <div class="stat-item">
               <el-icon><User /></el-icon>
@@ -81,21 +81,21 @@
               <span>收藏：568次</span>
             </div>
           </div>
-          
+
           <h3>适用场景</h3>
           <ul>
             <li v-for="(scene, index) in selectedTemplate.scenes" :key="index">
               {{ scene }}
             </li>
           </ul>
-          
+
           <h3>模板特点</h3>
           <ul>
             <li v-for="(feature, index) in selectedTemplate.features" :key="index">
               {{ feature }}
             </li>
           </ul>
-          
+
           <h3>使用技巧</h3>
           <div class="tips-container">
             <div class="tip-item">
@@ -116,9 +116,7 @@
       <template #footer>
         <span class="dialog-footer">
           <el-button @click="previewDialogVisible = false">关闭</el-button>
-          <el-button type="primary" @click="useTemplate(selectedTemplate)">
-            使用此模板
-          </el-button>
+          <el-button type="primary" @click="useTemplate(selectedTemplate)"> 使用此模板 </el-button>
         </span>
       </template>
     </el-dialog>
@@ -148,10 +146,10 @@ const previewTemplate = (template: Template) => {
 
 const useTemplate = (template: Template | null) => {
   if (!template) return
-  
+
   // 关闭弹窗
   previewDialogVisible.value = false
-  
+
   router.push({
     name: 'ResumeCreate',
     params: {
@@ -424,24 +422,24 @@ defineExpose({
   margin: 0 0 5px 0;
   font-size: 24px;
   color: #303133;
-  border-bottom: 2px solid #409EFF;
+  border-bottom: 2px solid #409eff;
   padding-bottom: 8px;
 }
 
 .preview-info h3 {
   margin: 15px 0 5px;
   font-size: 18px;
-  color: #409EFF;
+  color: #409eff;
   display: flex;
   align-items: center;
 }
 
 .preview-info h3::before {
-  content: "";
+  content: '';
   display: inline-block;
   width: 4px;
   height: 16px;
-  background-color: #409EFF;
+  background-color: #409eff;
   margin-right: 8px;
   border-radius: 2px;
 }

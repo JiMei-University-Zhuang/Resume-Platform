@@ -429,33 +429,33 @@ onMounted(async () => {
     clearInterval(tipsInterval)
   })
 
-  initRobotParticles();
+  initRobotParticles()
 })
 
 // 初始化机器人区域的粒子动画
 function initRobotParticles() {
-  const container = document.querySelector('.particles-background') as HTMLElement;
-  if (!container) return;
-  
+  const container = document.querySelector('.particles-background') as HTMLElement
+  if (!container) return
+
   // 创建粒子
-  const particleCount = 50;
+  const particleCount = 50
   for (let i = 0; i < particleCount; i++) {
-    const particle = document.createElement('div');
-    particle.className = 'robot-particle';
-    
+    const particle = document.createElement('div')
+    particle.className = 'robot-particle'
+
     // 随机位置
-    const posX = Math.random() * 100;
-    const posY = Math.random() * 100;
-    
+    const posX = Math.random() * 100
+    const posY = Math.random() * 100
+
     // 随机大小 (1-4px)
-    const size = Math.random() * 3 + 1;
-    
+    const size = Math.random() * 3 + 1
+
     // 随机动画延迟
-    const delay = Math.random() * 5;
-    
+    const delay = Math.random() * 5
+
     // 随机动画持续时间 (5-15s)
-    const duration = 5 + Math.random() * 10;
-    
+    const duration = 5 + Math.random() * 10
+
     // 设置样式
     particle.style.cssText = `
       left: ${posX}%;
@@ -464,9 +464,9 @@ function initRobotParticles() {
       height: ${size}px;
       animation-delay: ${delay}s;
       animation-duration: ${duration}s;
-    `;
-    
-    container.appendChild(particle);
+    `
+
+    container.appendChild(particle)
   }
 }
 </script>
@@ -538,7 +538,8 @@ function initRobotParticles() {
 }
 
 @keyframes floatParticle {
-  0%, 100% {
+  0%,
+  100% {
     transform: translate(0, 0) scale(1);
     opacity: 0.6;
   }
@@ -560,7 +561,12 @@ function initRobotParticles() {
   position: absolute;
   width: 300px;
   height: 300px;
-  background: radial-gradient(circle, rgba(94, 200, 156, 0.3) 0%, rgba(64, 158, 255, 0.1) 50%, rgba(0, 0, 0, 0) 70%);
+  background: radial-gradient(
+    circle,
+    rgba(94, 200, 156, 0.3) 0%,
+    rgba(64, 158, 255, 0.1) 50%,
+    rgba(0, 0, 0, 0) 70%
+  );
   border-radius: 50%;
   z-index: -1;
   opacity: 0.5;
@@ -570,7 +576,8 @@ function initRobotParticles() {
 }
 
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
     opacity: 0.5;
   }
