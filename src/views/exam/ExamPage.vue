@@ -1,23 +1,26 @@
 <template>
   <div class="exam-page">
     <div class="card-header">
-      <h1 class="exam-title">{{ route.query.isRealExam === 'true' ? '考试开始' : '练习开始' }}</h1>
+      <h1 class="exam-title">{{ route.query.type === 'exam' ? '考试开始' : '练习开始' }}</h1>
       <p class="exam-subtitle">
-        <span v-if="route.query.isRealExam === 'true'">
-          当前试卷：{{ route.query.examType === 'xingce' ? '行政职业能力测验' : '申论' }}
+        <span v-if="route.query.type === 'exam'">
+          当前试卷：{{ route.query.examName || '未知试卷' }}
         </span>
         <span v-else> 本次练习科目：{{ subject }}，题目数量：{{ count }} </span>
       </p>
     </div>
-    <div v-if="route.query.isRealExam" class="real-exam-badge">
-      <el-tag type="danger" effect="dark">真题模式</el-tag>
-      <div class="timer">考试剩余时间：{{ formatTime(timeLeft) }}</div>
+    <div v-if="route.query.type === 'exam'" class="real-exam-badge">
+      <div
+        class="timer"
+        style="text-align: center"
+        v-html="formatTime(timeLeft) + '<br>考试剩余时间'"
+      ></div>
     </div>
     <div v-if="questions?.length > 0">
       <template v-if="subject === '行测'">
         <div class="question-list">
           <div v-for="(question, index) in questions" :key="index" class="question-item">
-            <div class="question-header">
+            <div class="question-header" style="display: flex; justify-content: space-between">
               <span class="question-number">题目编号：{{ question.questionId }}</span>
               <span class="question-score">分值&nbsp;{{ question.score }}</span>
             </div>
@@ -76,19 +79,21 @@
       </template>
       <template v-else>
         <div class="essay-question">
-          <div class="question-title">
+          <div class="question-title" style="font-size: 17px;">
             <span v-html="formatText(questions[0]?.questionContent)"></span>
-            <span class="question-score">分值{{ questions[0]?.score }}</span>
           </div>
           <div v-for="(question, index) in questions[0]?.expoundingOptionInfos || []" :key="index">
-            <p>题目编号：{{ questions[0]?.questionId }} - {{ question.itemId }}</p>
-            <p>
-              题目内容：{{ question.itemContent }}
+            <div  class="question-header">
+              <p>第{{ question.itemId }}小题</p>
               <span class="question-score">分值&nbsp;{{ question.itemScore }}</span>
+            </div>
+
+            <p>
+              <span v-html="formatText(question.itemContent)"></span>
             </p>
             <textarea v-model="essayAnswers[index]" rows="10" cols="80"></textarea>
           </div>
-          <el-button type="primary" @click="submitEssayExam">提交申论答案</el-button>
+          <el-button type="primary" @click="submitRealExam">提交答案</el-button>
         </div>
       </template>
     </div>
@@ -136,41 +141,15 @@ const essayAnswers = ref<string[]>([])
 const totalScore = ref<number>(0)
 const showCorrectAnswers = ref<boolean>(false)
 const timeLeft = ref(7200)
-
-// const fetchQuestions = async () => {
-//   try {
-//     const requestData = {
-//       subject: subject.value,
-//       count: count.value
-//     }
-//     const response = await getCSPractice(requestData)
-//     // 安全地处理响应数据
-//     const responseData = response?.data ? (response.data as unknown as Question[]) : []
-//     questions.value = responseData
-
-//     if (subject.value === '行测') {
-//       answers.value = new Array(responseData.length).fill('')
-//     } else if (responseData.length > 0 && responseData[0]?.expoundingOptionInfos) {
-//       essayAnswers.value = new Array(responseData[0].expoundingOptionInfos.length).fill('')
-//     }
-//   } catch (error) {
-//     console.error('获取题目失败：', error)
-//   }
-// }
-
 const fetchQuestions = async () => {
   try {
-    const isRealExam = route.query.isRealExam === 'true'
-
+    const isRealExam = route.query.type === 'exam'
     if (isRealExam) {
       // 调用真题接口
       const response = await getCSExam({
-        examName:
-          route.query.examType === 'xingce'
-            ? '2020年国家公务员考试行测真题'
-            : '2020年国家公务员考试申论真题'
+        examName: route.query.examName as string
       })
-      questions.value = (response.data?.questions || []) as unknown as Question[];
+      questions.value = response?.data ? (response.data as unknown as Question[]) : []
     } else {
       const requestData = {
         subject: subject.value,
@@ -178,12 +157,6 @@ const fetchQuestions = async () => {
       }
       const response = await getCSPractice(requestData)
       questions.value = response?.data ? (response.data as unknown as Question[]) : []
-    }
-
-    if (subject.value === '行测' || isRealExam) {
-      answers.value = new Array(questions.value.length).fill('')
-    } else if (questions.value[0]?.expoundingOptionInfos) {
-      essayAnswers.value = new Array(questions.value[0].expoundingOptionInfos.length).fill('')
     }
   } catch (error) {
     console.error('获取题目失败：', error)
@@ -304,14 +277,14 @@ const answerStatus = computed(() => {
   })
 })
 
-const submitEssayExam = () => {
+const submitRealExam = () => {
   // 申论提交逻辑
-  console.log('提交的申论答案：', essayAnswers.value)
+  console.log('提交的答案：', essayAnswers.value)
 }
 
 onMounted(() => {
   fetchQuestions()
-  if (route.query.isRealExam === 'true') {
+  if (route.query.type === 'exam') {
     const timer = setInterval(() => {
       if (timeLeft.value > 0) {
         timeLeft.value--
@@ -377,6 +350,8 @@ onMounted(() => {
   padding: 4px 0;
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  font-size: 22px;
 }
 
 .question-number {
@@ -390,12 +365,11 @@ onMounted(() => {
   background-color: rgb(233, 166, 177);
   color: white;
   border-radius: 10px;
-  padding: 3px 6px;
-  width: 60px;
-  text-align: center;
-  margin-left: 20px;
-  font-size: 14px;
+  padding: 5px 8px;
+  font-size: 16px;
+  white-space: nowrap; /* 防止文本换行 */
 }
+
 
 .question-content {
   font-size: 16px;
@@ -575,5 +549,6 @@ onMounted(() => {
   border: 2px solid #c0392b;
   border-radius: 8px;
   background: #fff0f0;
+  margin-top: 60px;
 }
 </style>

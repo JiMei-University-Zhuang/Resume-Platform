@@ -4,12 +4,12 @@
     <div class="fullscreen-control" @click="toggleFullScreen">
       <i :class="isFullscreen ? 'el-icon-close' : 'el-icon-full-screen'"></i>
     </div>
-    
+
     <!-- 头部 -->
     <Decoration10 class="header-decoration" />
     <header class="header">
       <div class="header-left">
-        <Decoration5 style="width:200px;height:60px;" />
+        <Decoration5 style="width: 200px; height: 60px" />
       </div>
       <div class="header-center">
         <BorderBox12>
@@ -17,7 +17,7 @@
         </BorderBox12>
       </div>
       <div class="header-right">
-        <Decoration5 style="width:200px;height:60px;" :reverse="true" />
+        <Decoration5 style="width: 200px; height: 60px" :reverse="true" />
       </div>
     </header>
 
@@ -33,7 +33,7 @@
             <ActiveRingChart :config="activeRingConfig" />
           </div>
         </BorderBox8>
-        
+
         <BorderBox8 class="panel-item">
           <div class="panel-header">
             <h3>用户年龄分布</h3>
@@ -57,13 +57,13 @@
             </div>
           </div>
         </BorderBox7>
-        
+
         <BorderBox7 class="panel-item center-bottom">
           <div class="panel-header center">
             <h3>每日答题量</h3>
           </div>
           <div class="chart-container" v-if="mounted">
-            <div ref="lineChartRef" style="width: 100%; height: 100%;"></div>
+            <div ref="lineChartRef" style="width: 100%; height: 100%"></div>
           </div>
         </BorderBox7>
       </section>
@@ -78,7 +78,7 @@
             <ScrollBoard :config="regionConfig" />
           </div>
         </BorderBox8>
-        
+
         <BorderBox8 class="panel-item">
           <div class="panel-header">
             <h3>简历制作量</h3>
@@ -108,7 +108,7 @@ import {
   CapsuleChart,
   DigitalFlop,
   ScrollBoard,
-  WaterLevelPond,
+  WaterLevelPond
 } from '@kjgl77/datav-vue3'
 
 // 引入 echarts
@@ -118,7 +118,7 @@ import {
   TitleComponent,
   TooltipComponent,
   GridComponent,
-  LegendComponent,
+  LegendComponent
 } from 'echarts/components'
 import { CanvasRenderer } from 'echarts/renderers'
 
@@ -158,9 +158,9 @@ let dataRefreshTimer: number | null = null
 
 // 核心指标数据
 const overviewData = ref([
-  { 
-    label: '总用户数', 
-    value: 15862, 
+  {
+    label: '总用户数',
+    value: 15862,
     unit: '人',
     config: {
       number: [15862],
@@ -171,9 +171,9 @@ const overviewData = ref([
       }
     }
   },
-  { 
-    label: '日活跃用户', 
-    value: 8546, 
+  {
+    label: '日活跃用户',
+    value: 8546,
     unit: '人',
     config: {
       number: [8546],
@@ -184,9 +184,9 @@ const overviewData = ref([
       }
     }
   },
-  { 
-    label: '今日答题量', 
-    value: 3375, 
+  {
+    label: '今日答题量',
+    value: 3375,
     unit: '次',
     config: {
       number: [3375],
@@ -197,9 +197,9 @@ const overviewData = ref([
       }
     }
   },
-  { 
-    label: '职业规划完成率', 
-    value: 78, 
+  {
+    label: '职业规划完成率',
+    value: 78,
     unit: '%',
     config: {
       number: [78],
@@ -210,9 +210,9 @@ const overviewData = ref([
       }
     }
   },
-  { 
-    label: '简历生成量', 
-    value: 2156, 
+  {
+    label: '简历生成量',
+    value: 2156,
     unit: '份',
     config: {
       number: [2156],
@@ -323,7 +323,18 @@ const examLineConfig = reactive({
   },
   xAxis: {
     type: 'category',
-    data: ['00:00', '02:00', '04:00', '06:00', '08:00', '10:00', '12:00', '14:00', '16:00', '18:00'],
+    data: [
+      '00:00',
+      '02:00',
+      '04:00',
+      '06:00',
+      '08:00',
+      '10:00',
+      '12:00',
+      '14:00',
+      '16:00',
+      '18:00'
+    ],
     axisLine: {
       lineStyle: {
         color: '#1D385A'
@@ -456,20 +467,24 @@ const updateLineChart = () => {
 }
 
 // 监听配置变化
-watch(() => [examLineConfig.series[0].data, examLineConfig.series[1].data], () => {
-  updateLineChart()
-}, { deep: true })
+watch(
+  () => [examLineConfig.series[0].data, examLineConfig.series[1].data],
+  () => {
+    updateLineChart()
+  },
+  { deep: true }
+)
 
 // 模拟数据刷新函数
 const refreshData = () => {
   // 更新总用户数
   overviewData.value[0].value = Math.floor(15000 + Math.random() * 2000)
   overviewData.value[0].config.number = [overviewData.value[0].value]
-  
+
   // 更新日活跃用户
   overviewData.value[1].value = Math.floor(8000 + Math.random() * 1000)
   overviewData.value[1].config.number = [overviewData.value[1].value]
-  
+
   // 更新今日答题量
   overviewData.value[2].value = Math.floor(3000 + Math.random() * 800)
   overviewData.value[2].config.number = [overviewData.value[2].value]
@@ -481,7 +496,7 @@ const refreshData = () => {
   // 更新简历生成量
   overviewData.value[4].value = Math.floor(2000 + Math.random() * 500)
   overviewData.value[4].config.number = [overviewData.value[4].value]
-  
+
   // 更新日活跃用户环图数据
   const newUserPercent = Math.floor(30 + Math.random() * 10)
   activeRingConfig.data = [
@@ -494,11 +509,15 @@ const refreshData = () => {
       value: 100 - newUserPercent
     }
   ]
-  
+
   // 更新每日答题量折线图数据
-  const newExamData = Array(10).fill(0).map(() => Math.floor(40 + Math.random() * 80))
-  const newResumeData = Array(10).fill(0).map(() => Math.floor(30 + Math.random() * 60))
-  
+  const newExamData = Array(10)
+    .fill(0)
+    .map(() => Math.floor(40 + Math.random() * 80))
+  const newResumeData = Array(10)
+    .fill(0)
+    .map(() => Math.floor(30 + Math.random() * 60))
+
   examLineConfig.series[0].data = newExamData
   examLineConfig.series[1].data = newResumeData
 
@@ -510,7 +529,7 @@ const refreshData = () => {
     { name: '35-39岁', value: Math.floor(35 + Math.random() * 25) },
     { name: '40岁以上', value: Math.floor(15 + Math.random() * 20) }
   ]
-  
+
   // 更新简历制作量水位图数据
   resumeConfig.data = [Math.floor(50 + Math.random() * 40)]
 }
@@ -537,34 +556,34 @@ const initEnterAnimation = () => {
 onMounted(async () => {
   // 确保所有DOM元素已加载完成
   await nextTick()
-  
+
   // 立即初始化
   mounted.value = true
-  
+
   // 等待图表组件挂载后开始动画
   await nextTick()
-  
+
   // 延迟执行动画效果
   setTimeout(async () => {
     try {
       // 初始化折线图
       initLineChart()
-      
+
       // 执行进入动画
       initEnterAnimation()
-      
+
       // 初始刷新一次数据
       refreshData()
     } catch (error) {
       console.error('初始化图表错误:', error)
     }
   }, 500) // 增加延迟时间以确保DOM完全渲染
-  
+
   // 设置定时刷新数据
   dataRefreshTimer = window.setInterval(() => {
     refreshData()
   }, 30000) // 每30秒刷新一次数据
-  
+
   // 监听窗口调整大小事件
   useEventListener(window, 'resize', () => {
     // 重新调整图表大小
@@ -578,7 +597,7 @@ onUnmounted(() => {
     clearInterval(dataRefreshTimer)
     dataRefreshTimer = null
   }
-  
+
   // 销毁图表实例
   if (lineChart) {
     lineChart.dispose()
@@ -802,7 +821,7 @@ onUnmounted(() => {
   :deep(.dv-capsule-chart),
   :deep(.dv-water-level-pond),
   :deep(.dv-scroll-board) {
-    width: 100% !important; 
+    width: 100% !important;
     height: 100% !important;
     position: absolute !important;
     top: 0 !important;

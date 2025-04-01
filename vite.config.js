@@ -34,6 +34,18 @@ export default defineConfig({
                 rewrite: function (path) { return path.replace(/^\/api/, ''); },
                 secure: false,
             },
+            '/api/practice': {
+                target: apiBaseUrl,
+                changeOrigin: true,
+                rewrite: function (path) { return path.replace(/^\/api/, ''); },
+                secure: false,
+            },
+              '/api/exam': {
+                target: apiBaseUrl,
+                changeOrigin: true,
+                rewrite: function (path) { return path.replace(/^\/api/, ''); },
+                secure: false,
+            },
             '^/api/(?!auth|chat)': {
                 target: apiBaseUrl,
                 changeOrigin: true,

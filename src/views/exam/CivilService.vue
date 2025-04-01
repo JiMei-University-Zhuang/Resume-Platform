@@ -159,8 +159,7 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { onBeforeRouteLeave } from 'vue-router'
-import { ElNotification } from 'element-plus'
-import { getCSExam } from '@/api/exam'
+
 
 const router = useRouter()
 const dialogVisible = ref(false)
@@ -196,30 +195,14 @@ const showExamDialog = () => {
 }
 
 const startRealExam = async () => {
-  try {
-    loadingExam.value = true
-    const { data } = await getCSExam({
-      examName: selectedExam.value
-    })
-
-    router.push({
-      name: 'ExamPage',
-      query: {
-        examId: data.questions[0].id,
-        examType: selectedExam.value.includes('行测') ? 'xingce' : 'shenlun',
-        isRealExam: 'true', // 添加真题标识
-        examName: selectedExam.value
-      }
-    })
-  } catch (error) {
-    ElNotification.error({
-      title: '错误',
-      message: '试卷获取失败，请重试'
-    })
-  } finally {
-    loadingExam.value = false
-    examDialogVisible.value = false
-  }
+  examDialogVisible.value = false
+  router.push({
+    name: 'ExamPage',
+    query: {
+      examName: selectedExam.value,
+      type: 'exam'
+    }
+  })
 }
 const days = computed(() => Math.floor(timeDifference.value / (1000 * 60 * 60 * 24)))
 let timerId: any = null
@@ -250,7 +233,7 @@ const startExam = () => {
       subject: selectedSubject.value,
       count: parseInt(selectedCount.value, 10)
     }
-    router.push({ name: 'ExamPage', query: requestData })
+    router.push({ name: 'ExamPage', query: { ...requestData, type: 'practice' } })
   })
 }
 
