@@ -170,7 +170,7 @@ const fetchQuestions = async () => {
             ? '2020年国家公务员考试行测真题'
             : '2020年国家公务员考试申论真题'
       })
-      questions.value = (response.data?.questions || []) as unknown as Question[];
+      questions.value = (response.data?.questions || []) as unknown as Question[]
     } else {
       const requestData = {
         subject: subject.value,

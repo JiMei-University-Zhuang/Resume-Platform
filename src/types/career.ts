@@ -77,6 +77,7 @@ export interface CareerRecommendationForm {
   preferredWorkStyle?: string
   preferredIndustry?: string
   preferredLocation?: string
+  currentPosition?: string
 }
 
 // 职业推荐
@@ -88,6 +89,28 @@ export interface CareerRecommendation {
   averageSalary: string
   growthProspect: string
   workLifeBalance: string
+  jobLinks?: JobLink[]
+}
+
+// 新增：招聘网站链接
+export interface JobLink {
+  platform: string
+  url: string
+  logo: string
+}
+
+// 新增：热门职位
+export interface HotJob {
+  id: number
+  title: string
+  company: string
+  salary: string
+  location: string
+  education: string
+  experience: string
+  companyLogo: string
+  tags: string[]
+  jobLinks: JobLink[]
 }
 
 // 行业趋势
@@ -102,4 +125,5 @@ export interface CareerRecommendationResult {
   topRecommendations: CareerRecommendation[]
   industryTrends: IndustryTrend[]
   careerAdvice: string
+  hotJobs?: HotJob[]
 }

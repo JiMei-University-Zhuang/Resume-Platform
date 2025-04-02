@@ -100,15 +100,18 @@ import MarkdownIt from 'markdown-it'
 import type { Options as MarkdownItOptions } from 'markdown-it'
 import Prism from 'prismjs'
 import type { ChatMessage, MockData } from '@/types/chat'
+import { connectAIChatSSE } from '@/api/chat'
 
 import 'prismjs/themes/prism-tomorrow.css'
 import 'prismjs/components/prism-javascript'
 import 'prismjs/components/prism-typescript'
 import 'prismjs/components/prism-python'
-import 'prismjs/components/prism-bash'
-import 'prismjs/components/prism-markdown'
 import 'prismjs/components/prism-json'
+import 'prismjs/components/prism-java'
+import 'prismjs/components/prism-sql'
+import 'prismjs/components/prism-bash'
 import 'prismjs/components/prism-css'
+import 'prismjs/components/prism-jsx'
 import 'prismjs/plugins/toolbar/prism-toolbar.css'
 import 'prismjs/plugins/toolbar/prism-toolbar'
 import 'prismjs/plugins/copy-to-clipboard/prism-copy-to-clipboard'
@@ -289,80 +292,42 @@ const handleSendMessage = async () => {
 
       // 使用Promise来处理EventSource事件
       await new Promise((resolve, reject) => {
-        // 创建 EventSource 实例
-        const eventSource = new EventSource(
-          `http://8.130.75.193:8081/ai/chat?message=${encodeURIComponent(userMessage)}`
-        )
+        let hasReceivedData = false
 
-        // 状态标记
-        let connectionClosed = false
-        let streamCompleted = false
-
-        // 监听消息
-        eventSource.onmessage = async event => {
-          if (messages.value[currentIndex]) {
-            messages.value[currentIndex].text += event.data
-            await nextTick()
-            scrollToBottom()
-            Prism.highlightAll()
-          }
-        }
-
-        // 设置超时ID
-        let timeoutId: number | null = null
-
-        // 关闭连接并清理的函数
-        const closeConnection = (isCompleted: boolean) => {
-          // 只在连接尚未关闭时执行
-          if (!connectionClosed) {
-            connectionClosed = true
-
-            // 清除超时计时器
-            if (timeoutId !== null) {
-              window.clearTimeout(timeoutId)
-              timeoutId = null
+        const connection = connectAIChatSSE(userMessage, {
+          onMessage: async data => {
+            hasReceivedData = true
+            if (messages.value[currentIndex]) {
+              messages.value[currentIndex].text += data
+              await nextTick()
+              scrollToBottom()
+              Prism.highlightAll()
             }
-
-            // 关闭EventSource连接
-            eventSource.close()
+          },
+          onDone: () => {
+            isTyping.value = false
+            resolve(true)
+          },
+          onError: error => {
+            console.error('SSE Error:', error)
             isTyping.value = false
 
-            // 根据完成状态决定是否解决Promise
-            if (isCompleted) {
-              resolve(true)
+            // 如果在错误发生前已经接收到一些数据，则附加错误信息
+            if (hasReceivedData && messages.value[currentIndex]) {
+              messages.value[currentIndex].text += '\n\n> ⚠️ 连接中断，部分回复可能丢失。'
+              resolve(true) // 仍然解析为成功，因为已经接收到部分数据
+            } else {
+              // 如果完全没有接收到数据，则标记为错误
+              reject(new Error('Connection failed'))
             }
-          }
-        }
-
-        // 监听"完成"事件
-        eventSource.addEventListener('done', () => {
-          streamCompleted = true
-          closeConnection(true)
+          },
+          timeout: 30000 // 30秒超时
         })
 
-        // 监听错误
-        eventSource.onerror = error => {
-          // 如果已经收到'done'事件或连接已关闭，忽略错误
-          if (streamCompleted || connectionClosed) {
-            return
-          }
-
-          console.error('SSE Error:', error)
-          closeConnection(false)
-
-          // 静默处理错误，不显示消息提示
-          reject(new Error('Connection interrupted'))
-        }
-
-        // 设置超时
-        timeoutId = window.setTimeout(() => {
-          // 只有在连接仍然开着且流未完成的情况下才认为超时
-          if (!connectionClosed && !streamCompleted) {
-            closeConnection(false)
-            // 静默处理超时，不显示消息提示
-            reject(new Error('Request timeout'))
-          }
-        }, 30000) // 30秒超时
+        // 添加一个清理函数到Promise的catch中
+        Promise.allSettled([]).catch(() => {
+          connection.close()
+        })
       }).catch(err => {
         console.error('处理流出错:', err)
         // 错误已经在前面处理，这里不需要显示任何提示
@@ -376,13 +341,13 @@ const handleSendMessage = async () => {
     if (messages.value[messages.value.length - 1]?.role !== 'ai') {
       messages.value.push({
         role: 'ai',
-        text: '❌ 连接中断，请重试'
+        text: `❌ 连接失败：${err.message || '服务暂时不可用'}\n\n请稍后再试或者尝试刷新页面。`
       })
     } else {
-      // 如果已经有AI消息，在消息中添加错误提示而不是使用ElMessage
+      // 如果已经有AI消息，在消息中添加错误提示
       const lastMessage = messages.value[messages.value.length - 1]
       if (lastMessage.text.trim() === '') {
-        lastMessage.text = '❌ 连接中断，请重试'
+        lastMessage.text = `❌ 连接失败：${err.message || '服务暂时不可用'}\n\n请稍后再试或者尝试刷新页面。`
       }
     }
 

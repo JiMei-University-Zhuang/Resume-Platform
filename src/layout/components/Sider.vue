@@ -52,7 +52,8 @@
             <span class="category-label">AI助手</span>
           </router-link>
 
-          <router-link
+          <!-- 暂时废弃 -->
+          <!-- <router-link
             to="/personality"
             class="category-item"
             :class="{ active: route.path === '/personality' }"
@@ -61,7 +62,7 @@
               <el-icon><UserFilled /></el-icon>
             </div>
             <span class="category-label">AI性格测试</span>
-          </router-link>
+          </router-link> -->
 
           <router-link
             to="/id-photo"
@@ -75,7 +76,7 @@
           </router-link>
 
           <div class="category-section">
-            <h3 class="section-title">简历与职业</h3>
+            <h3 class="section-title">简历模块</h3>
           </div>
 
           <router-link
@@ -114,7 +115,8 @@
             <span class="category-label">简历分析</span>
           </router-link>
 
-          <router-link
+          <!-- 暂时废弃 -->
+          <!-- <router-link
             to="/resume/insights"
             class="category-item"
             :class="{ active: route.path === '/resume/insights' }"
@@ -124,7 +126,7 @@
               <el-icon><TrendCharts /></el-icon>
             </div>
             <span class="category-label">行业洞察</span>
-          </router-link>
+          </router-link> -->
 
           <div class="category-section">
             <h3 class="section-title">职业规划</h3>
@@ -275,7 +277,6 @@ import {
   Document,
   CopyDocument,
   DataAnalysis,
-  TrendCharts,
   Aim,
   Compass,
   StarFilled,

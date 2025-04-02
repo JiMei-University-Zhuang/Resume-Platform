@@ -6,6 +6,8 @@
     <!-- 顶部欢迎区域 -->
     <div class="hero-section">
       <div class="robot-container">
+        <div class="particles-background"></div>
+        <div class="robot-glow"></div>
         <img src="@/assets/images/robot.png" alt="AI Robot" class="robot-image" />
       </div>
       <div class="welcome-content">
@@ -426,7 +428,47 @@ onMounted(async () => {
   onUnmounted(() => {
     clearInterval(tipsInterval)
   })
+
+  initRobotParticles()
 })
+
+// 初始化机器人区域的粒子动画
+function initRobotParticles() {
+  const container = document.querySelector('.particles-background') as HTMLElement
+  if (!container) return
+
+  // 创建粒子
+  const particleCount = 50
+  for (let i = 0; i < particleCount; i++) {
+    const particle = document.createElement('div')
+    particle.className = 'robot-particle'
+
+    // 随机位置
+    const posX = Math.random() * 100
+    const posY = Math.random() * 100
+
+    // 随机大小 (1-4px)
+    const size = Math.random() * 3 + 1
+
+    // 随机动画延迟
+    const delay = Math.random() * 5
+
+    // 随机动画持续时间 (5-15s)
+    const duration = 5 + Math.random() * 10
+
+    // 设置样式
+    particle.style.cssText = `
+      left: ${posX}%;
+      top: ${posY}%;
+      width: ${size}px;
+      height: ${size}px;
+      animation-delay: ${delay}s;
+      animation-duration: ${duration}s;
+    `
+
+    container.appendChild(particle)
+  }
+}
 </script>
 
 <style scoped>
@@ -457,12 +499,100 @@ onMounted(async () => {
   align-items: center;
   justify-content: center;
   z-index: 2;
+  perspective: 1000px;
+  transform-style: preserve-3d;
+  transition: transform 0.5s ease;
+  cursor: pointer;
+}
+
+.robot-container:hover {
+  transform: scale(1.05) rotate(2deg);
+}
+
+.robot-container:hover .robot-glow {
+  opacity: 0.8;
+  transform: scale(1.1);
+}
+
+.robot-container:hover .robot-image {
+  filter: brightness(1.1) saturate(1.2);
+  transform: translateY(-10px) rotate(-3deg);
+}
+
+.particles-background {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  z-index: -1;
+  overflow: hidden;
+}
+
+.robot-particle {
+  position: absolute;
+  background: radial-gradient(circle, rgba(64, 158, 255, 0.8) 0%, rgba(94, 200, 156, 0) 70%);
+  border-radius: 50%;
+  opacity: 0.6;
+  animation: floatParticle 10s infinite ease-in-out;
+}
+
+@keyframes floatParticle {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.6;
+  }
+  25% {
+    transform: translate(20px, -15px) scale(1.2);
+    opacity: 0.8;
+  }
+  50% {
+    transform: translate(-10px, 20px) scale(0.8);
+    opacity: 0.4;
+  }
+  75% {
+    transform: translate(-20px, -10px) scale(1.1);
+    opacity: 0.7;
+  }
+}
+
+.robot-glow {
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(
+    circle,
+    rgba(94, 200, 156, 0.3) 0%,
+    rgba(64, 158, 255, 0.1) 50%,
+    rgba(0, 0, 0, 0) 70%
+  );
+  border-radius: 50%;
+  z-index: -1;
+  opacity: 0.5;
+  filter: blur(20px);
+  transition: all 0.5s ease;
+  animation: pulse 4s infinite ease-in-out;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.7;
+  }
 }
 
 .robot-image {
   max-width: 280px;
   height: auto;
   animation: float 6s ease-in-out infinite;
+  transition: all 0.5s ease;
+  filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.2));
 }
 
 @keyframes float {
