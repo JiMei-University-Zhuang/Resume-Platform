@@ -1,8 +1,8 @@
+// src/router/index.ts
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
 import { BasicLayout } from '../layout'
-import CivilService from '@/views/exam/CivilService.vue'
-import ExamPage from '@/views/exam/ExamPage.vue'
 import { ElMessageBox } from 'element-plus'
+import { useExamStore } from '@/stores/examStore'
 
 const routes: RouteRecordRaw[] = [
   {
@@ -212,11 +212,25 @@ router.replace = function replace(location) {
   })
 }
 
-router.beforeEach((to, _from, next) => {
+router.beforeEach((to, from, next) => {
   const isAuthenticated = localStorage.getItem('token')
+  const examStore = useExamStore()
 
   if (to.path !== '/login' && !isAuthenticated) {
     next('/login')
+  } else if (examStore.isInExam && to.path !== from.path) {
+    ElMessageBox.confirm('确定要退出吗？', '提示', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
+    })
+      .then(() => {
+        examStore.setExamStatus(false)
+        next()
+      })
+      .catch(() => {
+        next(false)
+      })
   } else {
     next()
   }

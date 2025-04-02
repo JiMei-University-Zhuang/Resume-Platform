@@ -79,7 +79,6 @@
       </template>
       <template v-else>
         <div class="essay-question">
-
           <div v-for="(question, questionIndex) in questions" :key="questionIndex">
             <div class="question-title" style="font-size: 17px">
               <span v-html="formatText(question.questionContent)"></span>
@@ -117,7 +116,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { getCSPractice, getCSExam } from '@/api/exam'
 import { ElMessageBox } from 'element-plus'
@@ -125,7 +124,7 @@ import passimg1 from '@/assets/images/exam_imgs/pass1.jpg'
 import passimg2 from '@/assets/images/exam_imgs/pass2.png'
 import failimg1 from '@/assets/images/exam_imgs/failpass1.png'
 import failimg2 from '@/assets/images/exam_imgs/failpass2.png'
-
+import { useExamStore } from '@/stores/examStore'
 
 // 定义题目接口
 interface Question {
@@ -147,6 +146,7 @@ interface Question {
 }
 
 const route = useRoute()
+const examStore = useExamStore()
 const subject = ref(route.query.subject as string)
 const count = ref(parseInt(route.query.count as string, 10))
 const questions = ref<Question[]>([])
@@ -155,7 +155,7 @@ const essayAnswers = ref<string[]>([])
 const totalScore = ref<number>(0)
 const showCorrectAnswers = ref<boolean>(false)
 const timeLeft = ref(7200)
-const isExamInProgress = ref<boolean>(false) 
+const isExamInProgress = ref<boolean>(false)
 const fetchQuestions = async () => {
   try {
     const isRealExam = route.query.type === 'exam'
@@ -310,6 +310,10 @@ onMounted(() => {
       }
     }, 1000)
   }
+  examStore.setExamStatus(true)
+})
+onUnmounted(() => {
+  examStore.setExamStatus(false)
 })
 </script>
 
