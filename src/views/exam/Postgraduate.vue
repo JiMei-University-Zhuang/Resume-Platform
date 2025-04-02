@@ -18,15 +18,15 @@
     <!-- 主要内容区域 -->
     <div class="content-tabs">
       <div class="tab-header">
-        <div 
-          class="tab-item" 
+        <div
+          class="tab-item"
           :class="{ active: activeTab === 'specialized-practice' }"
           @click="activeTab = 'specialized-practice'"
         >
           专项练习
         </div>
-        <div 
-          class="tab-item" 
+        <div
+          class="tab-item"
           :class="{ active: activeTab === 'past-exams' }"
           @click="activeTab = 'past-exams'"
         >
@@ -38,7 +38,7 @@
       <div class="tab-content" v-if="activeTab === 'specialized-practice'">
         <div class="practice-card">
           <h3 class="card-title">自定义练习</h3>
-          
+
           <div class="form-group">
             <div class="form-label">科目选择</div>
             <div class="radio-group">
@@ -46,65 +46,98 @@
                 <input type="radio" v-model="selectedSubject" value="英语" />
                 <span class="radio-text">英语</span>
               </label>
-              <label class="custom-radio" :class="{ 'radio-checked': selectedSubject === '思想政治' }">
+              <label
+                class="custom-radio"
+                :class="{ 'radio-checked': selectedSubject === '思想政治' }"
+              >
                 <input type="radio" v-model="selectedSubject" value="思想政治" />
                 <span class="radio-text">思想政治</span>
               </label>
-              <label class="custom-radio" :class="{ 'radio-checked': selectedSubject === '专业课' }">
+              <label
+                class="custom-radio"
+                :class="{ 'radio-checked': selectedSubject === '专业课' }"
+              >
                 <input type="radio" v-model="selectedSubject" value="专业课" />
                 <span class="radio-text">计算机学科专业课</span>
               </label>
             </div>
           </div>
-          
+
           <div class="form-group">
             <div class="form-label">题型选择</div>
             <div class="radio-group" v-if="selectedSubject === '英语'">
-              <label class="custom-radio" :class="{ 'radio-checked': selectedquestionType === '完型填空' }">
+              <label
+                class="custom-radio"
+                :class="{ 'radio-checked': selectedquestionType === '完型填空' }"
+              >
                 <input type="radio" v-model="selectedquestionType" value="完型填空" />
                 <span class="radio-text">完型填空</span>
               </label>
-              <label class="custom-radio" :class="{ 'radio-checked': selectedquestionType === '阅读理解' }">
+              <label
+                class="custom-radio"
+                :class="{ 'radio-checked': selectedquestionType === '阅读理解' }"
+              >
                 <input type="radio" v-model="selectedquestionType" value="阅读理解" />
                 <span class="radio-text">阅读理解</span>
               </label>
-              <label class="custom-radio" :class="{ 'radio-checked': selectedquestionType === '序号匹配' }">
+              <label
+                class="custom-radio"
+                :class="{ 'radio-checked': selectedquestionType === '序号匹配' }"
+              >
                 <input type="radio" v-model="selectedquestionType" value="序号匹配" />
                 <span class="radio-text">序号匹配</span>
               </label>
-              <label class="custom-radio" :class="{ 'radio-checked': selectedquestionType === '翻译' }">
+              <label
+                class="custom-radio"
+                :class="{ 'radio-checked': selectedquestionType === '翻译' }"
+              >
                 <input type="radio" v-model="selectedquestionType" value="翻译" />
                 <span class="radio-text">翻译</span>
               </label>
-              <label class="custom-radio" :class="{ 'radio-checked': selectedquestionType === '小作文' }">
+              <label
+                class="custom-radio"
+                :class="{ 'radio-checked': selectedquestionType === '小作文' }"
+              >
                 <input type="radio" v-model="selectedquestionType" value="小作文" />
                 <span class="radio-text">小作文</span>
               </label>
-              <label class="custom-radio" :class="{ 'radio-checked': selectedquestionType === '大作文' }">
+              <label
+                class="custom-radio"
+                :class="{ 'radio-checked': selectedquestionType === '大作文' }"
+              >
                 <input type="radio" v-model="selectedquestionType" value="大作文" />
                 <span class="radio-text">大作文</span>
               </label>
             </div>
-            
+
             <div class="radio-group" v-if="selectedSubject === '思想政治'">
-              <label class="custom-radio" :class="{ 'radio-checked': selectedquestionType === '1' }">
+              <label
+                class="custom-radio"
+                :class="{ 'radio-checked': selectedquestionType === '1' }"
+              >
                 <input type="radio" v-model="selectedquestionType" value="1" />
                 <span class="radio-text">1道题</span>
               </label>
             </div>
-            
+
             <div class="radio-group" v-if="selectedSubject === '专业课'">
-              <label class="custom-radio" :class="{ 'radio-checked': selectedquestionType === '单选题' }">
+              <label
+                class="custom-radio"
+                :class="{ 'radio-checked': selectedquestionType === '单选题' }"
+              >
                 <input type="radio" v-model="selectedquestionType" value="单选题" />
                 <span class="radio-text">单选题</span>
               </label>
-              <label class="custom-radio" :class="{ 'radio-checked': selectedquestionType === '多选题' }">
+              <label
+                class="custom-radio"
+                :class="{ 'radio-checked': selectedquestionType === '多选题' }"
+              >
                 <input type="radio" v-model="selectedquestionType" value="多选题" />
                 <span class="radio-text">多选题</span>
               </label>
             </div>
           </div>
-          
+
           <div class="form-group">
             <div class="form-label">题目数量</div>
             <div class="radio-group">
@@ -122,10 +155,8 @@
               </label>
             </div>
           </div>
-          
-          <button class="primary-button start-practice-btn" @click="startPractice">
-            开始练习
-          </button>
+
+          <button class="primary-button start-practice-btn" @click="startPractice">开始练习</button>
         </div>
       </div>
 
@@ -134,36 +165,36 @@
         <div class="filter-header">
           <div class="filter-title">分类筛选：</div>
           <div class="filter-options">
-            <div 
-              class="filter-option" 
+            <div
+              class="filter-option"
               :class="{ active: currentCategory === 'all' }"
               @click="filterCards('all')"
             >
               全部
             </div>
-            <div 
-              class="filter-option" 
+            <div
+              class="filter-option"
               :class="{ active: currentCategory === 'math' }"
               @click="filterCards('math')"
             >
               数学
             </div>
-            <div 
-              class="filter-option" 
+            <div
+              class="filter-option"
               :class="{ active: currentCategory === 'english' }"
               @click="filterCards('english')"
             >
               英语
             </div>
-            <div 
-              class="filter-option" 
+            <div
+              class="filter-option"
               :class="{ active: currentCategory === 'politics' }"
               @click="filterCards('politics')"
             >
               政治
             </div>
-            <div 
-              class="filter-option" 
+            <div
+              class="filter-option"
               :class="{ active: currentCategory === 'professional' }"
               @click="filterCards('professional')"
             >
@@ -171,7 +202,7 @@
             </div>
           </div>
         </div>
-        
+
         <div class="paper-grid">
           <div v-for="(paper, index) in filteredPapers" :key="index" class="paper-card">
             <div class="paper-image">
@@ -181,12 +212,8 @@
               <h3 class="paper-title">{{ paper.title }}</h3>
               <p class="paper-description">{{ paper.description }}</p>
               <div class="paper-actions">
-                <button class="primary-button" @click="openExamDialog(paper)">
-                  使用试卷
-                </button>
-                <button class="outline-button" @click="previewPaper(paper.id)">
-                  预览
-                </button>
+                <button class="primary-button" @click="openExamDialog(paper)">使用试卷</button>
+                <button class="outline-button" @click="previewPaper(paper.id)">预览</button>
               </div>
             </div>
           </div>
@@ -206,12 +233,8 @@
           <p class="modal-description">{{ currentExamPaper.description }}</p>
         </div>
         <div class="modal-footer">
-          <button class="outline-button" @click="isExamDialogVisible = false">
-            取消
-          </button>
-          <button class="primary-button" @click="startExam(currentExamPaper.id)">
-            开始考试
-          </button>
+          <button class="outline-button" @click="isExamDialogVisible = false">取消</button>
+          <button class="primary-button" @click="startExam(currentExamPaper.id)">开始考试</button>
         </div>
       </div>
     </div>
@@ -235,49 +258,56 @@ const papers = ref([
     title: '2024年考研数学一模拟试卷',
     description: '适合数学与应用数学、计算数学等学科专业的考生备考',
     category: 'math',
-    imageUrl: 'https://img1.baidu.com/it/u=1179842283,3228312369&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=333'
+    imageUrl:
+      'https://img1.baidu.com/it/u=1179842283,3228312369&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=333'
   },
   {
     id: 2,
     title: '计算机学科 数据结构专题',
     description: '涵盖树、图、排序算法等重点考察内容',
     category: 'professional',
-    imageUrl: 'https://img1.baidu.com/it/u=2268689860,2470329386&fm=253&fmt=auto&app=138&f=JPEG?w=889&h=500'
+    imageUrl:
+      'https://img1.baidu.com/it/u=2268689860,2470329386&fm=253&fmt=auto&app=138&f=JPEG?w=889&h=500'
   },
   {
     id: 3,
     title: '2023年专业课真题解析',
     description: '包含详细解答及考点分析',
     category: 'professional',
-    imageUrl: 'https://img2.baidu.com/it/u=3395592570,3040142441&fm=253&fmt=auto&app=138&f=JPEG?w=800&h=500'
+    imageUrl:
+      'https://img2.baidu.com/it/u=3395592570,3040142441&fm=253&fmt=auto&app=138&f=JPEG?w=800&h=500'
   },
   {
     id: 4,
     title: '思想政治理论考研热点',
     description: '重点难点专项练习',
     category: 'politics',
-    imageUrl: 'https://img0.baidu.com/it/u=3645644055,1992011811&fm=253&fmt=auto&app=138&f=JPEG?w=794&h=500'
+    imageUrl:
+      'https://img0.baidu.com/it/u=3645644055,1992011811&fm=253&fmt=auto&app=138&f=JPEG?w=794&h=500'
   },
   {
     id: 5,
     title: '英语二全真模拟',
     description: '考研英语阅读理解专项训练',
     category: 'english',
-    imageUrl: 'https://img2.baidu.com/it/u=1664294230,2438572169&fm=253&fmt=auto&app=138&f=JPEG?w=800&h=500'
+    imageUrl:
+      'https://img2.baidu.com/it/u=1664294230,2438572169&fm=253&fmt=auto&app=138&f=JPEG?w=800&h=500'
   },
   {
     id: 6,
     title: '近五年政治真题汇编',
     description: '历年真题解析及答题技巧',
     category: 'politics',
-    imageUrl: 'https://img0.baidu.com/it/u=2768645936,2195354502&fm=253&fmt=auto&app=138&f=JPEG?w=888&h=500'
+    imageUrl:
+      'https://img0.baidu.com/it/u=2768645936,2195354502&fm=253&fmt=auto&app=138&f=JPEG?w=888&h=500'
   },
   {
     id: 7,
     title: '计算机网络与操作系统',
     description: '计算机专业核心知识点练习',
     category: 'professional',
-    imageUrl: 'https://img1.baidu.com/it/u=997886866,3785565363&fm=253&fmt=auto&app=138&f=JPEG?w=800&h=500'
+    imageUrl:
+      'https://img1.baidu.com/it/u=997886866,3785565363&fm=253&fmt=auto&app=138&f=JPEG?w=800&h=500'
   }
 ])
 
@@ -317,15 +347,15 @@ const startPractice = () => {
     questionType: selectedquestionType.value,
     count: selectedCount.value
   })
-  
-  router.push({ 
-    path: '/exam/exam', 
-    query: { 
+
+  router.push({
+    path: '/exam/exam',
+    query: {
       subject: selectedSubject.value,
       questionType: selectedquestionType.value,
       count: selectedCount.value,
       type: 'practice'
-    } 
+    }
   })
 }
 
@@ -342,7 +372,8 @@ const previewPaper = (paperId: number) => {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 }
 
 /* 页面布局 */
@@ -775,16 +806,17 @@ const previewPaper = (paperId: number) => {
     flex-direction: column;
     align-items: stretch;
   }
-  
+
   .countdown-wrapper {
     margin-top: 16px;
     width: 100%;
   }
-  
-  .form-group, .radio-group {
+
+  .form-group,
+  .radio-group {
     flex-direction: column;
   }
-  
+
   .paper-grid {
     grid-template-columns: 1fr;
   }

@@ -6,9 +6,7 @@
         <el-icon><DataAnalysis /></el-icon>
         AI行业趋势洞察
       </h1>
-      <p class="page-description">
-        探索AI领域最新趋势和研究动态，了解行业发展方向与机遇。
-      </p>
+      <p class="page-description">探索AI领域最新趋势和研究动态，了解行业发展方向与机遇。</p>
     </div>
 
     <!-- 文章类型选择区域 -->
@@ -20,11 +18,11 @@
         <el-radio-button label="career">职业发展</el-radio-button>
         <el-radio-button label="case">案例研究</el-radio-button>
       </el-radio-group>
-      
+
       <div class="article-search">
-        <el-input 
-          v-model="searchKeyword" 
-          placeholder="搜索文章..." 
+        <el-input
+          v-model="searchKeyword"
+          placeholder="搜索文章..."
           clearable
           :prefix-icon="Search"
           @clear="handleSearchClear"
@@ -33,12 +31,12 @@
         </el-input>
       </div>
     </div>
-    
+
     <!-- 标签筛选区域 -->
     <div class="article-tags">
       <span class="tag-label">热门标签：</span>
-      <el-tag 
-        v-for="tag in articleTags" 
+      <el-tag
+        v-for="tag in articleTags"
         :key="tag.value"
         class="article-tag"
         :class="{ active: selectedTags.includes(tag.value) }"
@@ -58,19 +56,19 @@
             {{ getArticleTypeLabel(selectedArticleType) }}
             <span class="article-count">({{ filteredArticles.length }})</span>
           </h2>
-          
+
           <div v-if="isLoading" class="loading-container">
             <el-skeleton :rows="5" animated />
           </div>
-          
-          <el-empty 
-            v-else-if="filteredArticles.length === 0" 
+
+          <el-empty
+            v-else-if="filteredArticles.length === 0"
             description="没有找到符合条件的文章"
           />
-          
+
           <div v-else class="article-list">
-            <div 
-              v-for="article in filteredArticles" 
+            <div
+              v-for="article in filteredArticles"
               :key="article.id"
               class="article-item"
               :class="{ active: selectedArticleId === article.id }"
@@ -83,12 +81,7 @@
               <h3 class="article-title">{{ article.title }}</h3>
               <p class="article-summary">{{ article.summary }}</p>
               <div class="article-tags">
-                <el-tag 
-                  v-for="tag in article.tags" 
-                  :key="tag" 
-                  size="small"
-                  class="tag-item"
-                >
+                <el-tag v-for="tag in article.tags" :key="tag" size="small" class="tag-item">
                   {{ tag }}
                 </el-tag>
               </div>
@@ -96,22 +89,20 @@
           </div>
         </div>
       </el-col>
-      
+
       <!-- 右侧：文章详情 -->
       <el-col :xs="24" :md="16">
         <transition name="fade">
           <div v-if="!selectedArticleId && !isLoading" class="empty-article">
             <el-empty description="请从左侧选择一篇文章阅读">
-              <el-button type="primary" @click="selectRandomArticle">
-                推荐阅读
-              </el-button>
+              <el-button type="primary" @click="selectRandomArticle"> 推荐阅读 </el-button>
             </el-empty>
           </div>
-          
+
           <div v-else-if="isLoading" class="loading-container">
             <el-skeleton :rows="10" animated />
           </div>
-          
+
           <div v-else-if="currentArticle" class="article-detail">
             <div class="article-header">
               <h1 class="detail-title">{{ currentArticle.title }}</h1>
@@ -130,20 +121,16 @@
                 </div>
               </div>
               <div class="detail-tags">
-                <el-tag 
-                  v-for="tag in currentArticle.tags" 
-                  :key="tag"
-                  class="detail-tag"
-                >
+                <el-tag v-for="tag in currentArticle.tags" :key="tag" class="detail-tag">
                   {{ tag }}
                 </el-tag>
               </div>
             </div>
-            
+
             <el-divider />
-            
+
             <div class="article-content" v-html="currentArticle.content"></div>
-            
+
             <div class="article-footer">
               <div class="article-author">
                 <el-avatar :size="50" :src="currentArticle.authorAvatar"></el-avatar>
@@ -152,7 +139,7 @@
                   <div class="author-bio">{{ currentArticle.authorBio }}</div>
                 </div>
               </div>
-              
+
               <div class="article-actions">
                 <el-button type="primary" @click="shareArticle">
                   <el-icon><Share /></el-icon>
@@ -175,14 +162,14 @@
                 </el-button>
               </div>
             </div>
-            
+
             <el-divider />
-            
+
             <div class="related-articles">
               <h3 class="related-title">相关文章</h3>
               <div class="related-list">
-                <div 
-                  v-for="article in relatedArticles" 
+                <div
+                  v-for="article in relatedArticles"
                   :key="article.id"
                   class="related-item"
                   @click="selectArticle(article.id)"
@@ -208,7 +195,7 @@
 
 .page-header {
   margin-bottom: 32px;
-  background: linear-gradient(135deg, #409EFF 0%, #007bff 100%);
+  background: linear-gradient(135deg, #409eff 0%, #007bff 100%);
   padding: 28px;
   border-radius: 12px;
   color: white;
@@ -281,8 +268,8 @@
 
 .trend-category-item.active {
   background-color: #ecf5ff;
-  border-color: #409EFF;
-  color: #409EFF;
+  border-color: #409eff;
+  color: #409eff;
   font-weight: 500;
 }
 
@@ -316,7 +303,7 @@
   background-color: #f9f9f9;
   margin-bottom: 20px;
   transition: all 0.3s;
-  border-left: 4px solid #409EFF;
+  border-left: 4px solid #409eff;
 }
 
 .news-item:hover {
@@ -367,7 +354,7 @@
 
 .form-section-title .el-icon {
   margin-right: 12px;
-  color: #409EFF;
+  color: #409eff;
 }
 
 .skill-tags {
@@ -401,7 +388,7 @@
   font-size: 22px;
   font-weight: 600;
   margin-bottom: 20px;
-  color: #409EFF;
+  color: #409eff;
   display: flex;
   align-items: center;
 }
@@ -455,7 +442,8 @@
   margin-bottom: 32px;
 }
 
-.strength-item, .weakness-item {
+.strength-item,
+.weakness-item {
   display: flex;
   align-items: center;
   margin-bottom: 12px;
@@ -464,17 +452,18 @@
   border-radius: 8px;
 }
 
-.strength-item .el-icon, .weakness-item .el-icon {
+.strength-item .el-icon,
+.weakness-item .el-icon {
   margin-right: 12px;
   font-size: 18px;
 }
 
 .strength-item .el-icon {
-  color: #67C23A;
+  color: #67c23a;
 }
 
 .weakness-item .el-icon {
-  color: #E6A23C;
+  color: #e6a23c;
 }
 
 .learning-paths {
@@ -486,7 +475,7 @@
   background-color: #f5f7fa;
   border-radius: 12px;
   margin-bottom: 20px;
-  border-left: 4px solid #67C23A;
+  border-left: 4px solid #67c23a;
 }
 
 .learning-path-title {
@@ -504,7 +493,7 @@
 
 .recommended-skill {
   background-color: #ecf5ff;
-  color: #409EFF;
+  color: #409eff;
   padding: 6px 12px;
   border-radius: 6px;
   font-size: 14px;
@@ -529,7 +518,7 @@
   overflow: hidden;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
   transition: all 0.3s;
-  border-top: 4px solid #409EFF;
+  border-top: 4px solid #409eff;
 }
 
 .career-path-card:hover {
@@ -550,7 +539,7 @@
 
 .career-path-match {
   background-color: #f0f9eb;
-  color: #67C23A;
+  color: #67c23a;
   padding: 6px 10px;
   border-radius: 6px;
   font-size: 14px;
@@ -577,7 +566,7 @@
   border-radius: 12px;
   padding: 20px;
   margin-bottom: 20px;
-  border-left: 4px solid #E6A23C;
+  border-left: 4px solid #e6a23c;
 }
 
 .insight-title {
@@ -590,7 +579,7 @@
 
 .insight-title .el-icon {
   margin-right: 12px;
-  color: #E6A23C;
+  color: #e6a23c;
 }
 
 .insight-content {
@@ -614,7 +603,7 @@
   font-size: 20px;
   font-weight: 600;
   margin-bottom: 16px;
-  color: #409EFF;
+  color: #409eff;
 }
 
 .action-plan-description {
@@ -646,7 +635,7 @@
 }
 
 .resource-link {
-  color: #409EFF;
+  color: #409eff;
   text-decoration: none;
   font-size: 14px;
   display: flex;
@@ -676,7 +665,7 @@
 .empty-state-icon {
   font-size: 72px;
   margin-bottom: 20px;
-  color: #DCDFE6;
+  color: #dcdfe6;
 }
 
 .empty-state-text {
@@ -728,32 +717,33 @@
   .insights-container {
     flex-direction: column;
   }
-  
+
   .career-paths {
     flex-direction: column;
   }
-  
+
   .match-scores-container {
     flex-direction: column;
   }
-  
+
   .page-header {
     padding: 20px;
   }
-  
+
   .page-title {
     font-size: 24px;
   }
-  
-  .interaction-container, .analysis-result-container {
+
+  .interaction-container,
+  .analysis-result-container {
     margin-bottom: 24px;
     padding: 20px;
   }
-  
+
   .trend-categories {
     gap: 10px;
   }
-  
+
   .trend-category-item {
     padding: 8px 12px;
     font-size: 14px;
@@ -778,19 +768,19 @@ import {
 
 // 文章类型和标签数据
 interface Article {
-  id: string;
-  type: 'trend' | 'technology' | 'career' | 'case';
-  title: string;
-  summary: string;
-  content: string;
-  date: string;
-  readTime: string;
-  views: number;
-  tags: string[];
-  author: string;
-  authorBio: string;
-  authorAvatar: string;
-  isFavorite: boolean;
+  id: string
+  type: 'trend' | 'technology' | 'career' | 'case'
+  title: string
+  summary: string
+  content: string
+  date: string
+  readTime: string
+  views: number
+  tags: string[]
+  author: string
+  authorBio: string
+  authorAvatar: string
+  isFavorite: boolean
 }
 
 // 状态变量
@@ -830,35 +820,35 @@ const filteredArticles = computed(() => {
     if (selectedArticleType.value && article.type !== selectedArticleType.value) {
       return false
     }
-    
+
     // 根据搜索关键词筛选
     if (searchKeyword.value) {
       const keyword = searchKeyword.value.toLowerCase()
       const matchesTitle = article.title.toLowerCase().includes(keyword)
       const matchesSummary = article.summary.toLowerCase().includes(keyword)
       const matchesContent = article.content.toLowerCase().includes(keyword)
-      
+
       if (!matchesTitle && !matchesSummary && !matchesContent) {
         return false
       }
     }
-    
+
     // 根据选定标签筛选
     if (selectedTags.value.length > 0) {
-      const hasMatchingTag = article.tags.some(tag => 
-        selectedTags.value.some(selectedTag => 
+      const hasMatchingTag = article.tags.some(tag =>
+        selectedTags.value.some(selectedTag =>
           tag.toLowerCase().includes(selectedTag.toLowerCase())
         )
       )
-      
+
       if (!hasMatchingTag) {
         return false
       }
     }
-    
+
     return true
   })
-  
+
   // 按日期排序（最新的排在前面）
   return result.sort((a, b) => {
     return new Date(b.date).getTime() - new Date(a.date).getTime()
@@ -874,14 +864,15 @@ const currentArticle = computed(() => {
 // 相关文章推荐（同类型和相同标签的其他文章）
 const relatedArticles = computed(() => {
   if (!currentArticle.value) return []
-  
-  return articles.value.filter(article => 
-    article.id !== currentArticle.value?.id && 
-    (
-      article.type === currentArticle.value?.type ||
-      article.tags.some(tag => currentArticle.value?.tags.includes(tag))
+
+  return articles.value
+    .filter(
+      article =>
+        article.id !== currentArticle.value?.id &&
+        (article.type === currentArticle.value?.type ||
+          article.tags.some(tag => currentArticle.value?.tags.includes(tag)))
     )
-  ).slice(0, 3) // 最多显示3篇相关文章
+    .slice(0, 3) // 最多显示3篇相关文章
 })
 
 // 处理函数
@@ -1032,7 +1023,8 @@ const generateMockArticles = (): Article[] => {
       id: 'technology-001',
       type: 'technology',
       title: '大语言模型微调技术详解：从LoRA到QLoRA',
-      summary: '本文深入解析了大语言模型微调的关键技术，特别是低秩适应（LoRA）及其量化版本QLoRA的原理与实践。',
+      summary:
+        '本文深入解析了大语言模型微调的关键技术，特别是低秩适应（LoRA）及其量化版本QLoRA的原理与实践。',
       content: `<p>随着大语言模型（LLMs）参数规模的不断增长，全参数微调变得越来越不切实际。为了解决这一挑战，研究人员开发了一系列参数高效的微调方法，其中低秩适应（LoRA）及其改进版本QLoRA备受关注。</p>
       
       <h3>LoRA的核心原理</h3>
@@ -1096,7 +1088,8 @@ const generateMockArticles = (): Article[] => {
       id: 'technology-002',
       type: 'technology',
       title: 'Transformer架构详解：注意力机制的工作原理与实现',
-      summary: '本文深入剖析了支撑当代大语言模型的核心架构—Transformer，详细解释了自注意力机制的数学原理和代码实现。',
+      summary:
+        '本文深入剖析了支撑当代大语言模型的核心架构—Transformer，详细解释了自注意力机制的数学原理和代码实现。',
       content: `<p>Transformer架构自2017年被提出以来，已经彻底改变了自然语言处理领域，并逐渐扩展到计算机视觉、音频处理等多个领域。本文将深入解析Transformer的核心组件和工作原理。</p>
       
       <h3>自注意力机制：Transformer的核心</h3>
@@ -1281,7 +1274,8 @@ class SelfAttention(nn.Module):
       id: 'case-001',
       type: 'case',
       title: '医疗影像诊断中的AI应用：从研发到临床落地',
-      summary: '本案例分析了一款医疗影像AI诊断系统的研发过程、技术挑战及临床应用效果，为医疗AI领域提供了宝贵经验。',
+      summary:
+        '本案例分析了一款医疗影像AI诊断系统的研发过程、技术挑战及临床应用效果，为医疗AI领域提供了宝贵经验。',
       content: `<p>医疗影像是AI在医疗领域应用最广泛、最成熟的方向之一。本案例讲述了一个从实验室研究到临床应用的完整故事，揭示了医疗AI落地的真实挑战与解决方案。</p>
       
       <h3>项目背景</h3>

@@ -140,7 +140,6 @@ export const connectAIChatSSE = (message: string, options: EventSourceOptions) =
   const createConnection = () => {
     // 如果已经尝试过所有重试，使用回退模式
     if (retryCount > MAX_RETRIES) {
-
       console.log('使用本地回退模式')
       const fallbackResponse = generateFallbackResponse(message)
 
