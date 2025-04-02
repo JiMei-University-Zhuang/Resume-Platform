@@ -59,12 +59,6 @@ service.interceptors.response.use(
       case 403:
         message = '没有权限访问'
         break
-      case 404:
-        message = '请求的资源不存在'
-        break
-      case 500:
-        message = '服务器内部错误'
-        break
     }
 
     ElMessage.error(message)

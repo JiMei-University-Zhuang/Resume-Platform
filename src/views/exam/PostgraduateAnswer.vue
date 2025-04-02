@@ -6,7 +6,9 @@
         <span v-if="route.query.type === 'exam'">
           当前试卷：{{ route.query.examName || '未知试卷' }}
         </span>
-        <span v-else> 本次练习科目：{{ subject }}，题型：{{ questionType }}，题目数量：{{ count }} </span>
+        <span v-else>
+          本次练习科目：{{ subject }}，题型：{{ questionType }}，题目数量：{{ count }}
+        </span>
       </p>
     </div>
     <div v-if="route.query.type === 'exam'" class="real-exam-badge">
@@ -23,9 +25,9 @@
             <span class="question-number">题目编号：{{ question.questionId }}</span>
             <span class="question-score">分值&nbsp;{{ question.score }}</span>
           </div>
-          
+
           <div class="question-content" v-html="formatText(question.questionContent)"></div>
-          
+
           <div class="answer-section">
             <h3>我的解答</h3>
             <el-input
@@ -42,9 +44,11 @@
             <div v-html="formatText(question.referenceAnswer)"></div>
           </div>
         </div>
-        
+
         <div class="button-group">
-          <el-button type="primary" @click="submitAnswers" v-if="!showReference">提交答案</el-button>
+          <el-button type="primary" @click="submitAnswers" v-if="!showReference"
+            >提交答案</el-button
+          >
           <el-button type="success" @click="returnToHome" v-else>返回主页</el-button>
         </div>
       </div>
@@ -113,7 +117,7 @@ const fetchQuestions = async () => {
         questionType: questionType.value,
         count: count.value
       }
-      
+
       // 使用模拟计时器模拟加载进度
       let progress = 0
       const loadingTimer = setInterval(() => {
@@ -121,10 +125,10 @@ const fetchQuestions = async () => {
         loadingPercentage.value = Math.min(progress, 90)
         if (progress >= 90) clearInterval(loadingTimer)
       }, 200)
-      
+
       const response = await getGSPractice(requestData)
       loadingPercentage.value = 100
-      
+
       // 清除加载计时器
       setTimeout(() => {
         clearInterval(loadingTimer)
@@ -145,7 +149,7 @@ const fetchQuestions = async () => {
 const submitAnswers = async () => {
   // 检查是否有未回答的题目
   const unansweredCount = userAnswers.value.filter(answer => !answer.trim()).length
-  
+
   if (unansweredCount > 0) {
     try {
       await ElMessageBox.confirm(
@@ -161,7 +165,7 @@ const submitAnswers = async () => {
       return // 用户选择继续作答
     }
   }
-  
+
   ElMessage.success('答案已提交！')
   showReference.value = true // 显示参考答案
 }
@@ -294,7 +298,8 @@ onBeforeUnmount(() => {
   margin-bottom: 20px;
 }
 
-.answer-section h3, .reference-answer h3 {
+.answer-section h3,
+.reference-answer h3 {
   font-size: 18px;
   color: #262626;
   margin-bottom: 12px;
@@ -331,4 +336,4 @@ onBeforeUnmount(() => {
   font-size: 16px;
   padding: 12px;
 }
-</style> 
+</style>
