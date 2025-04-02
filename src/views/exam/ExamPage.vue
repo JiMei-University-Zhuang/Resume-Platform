@@ -79,9 +79,7 @@
       </template>
       <template v-else>
         <div class="essay-question">
-          <div class="question-title" style="font-size: 17px">
-            <span v-html="formatText(questions[0].questionContent)"></span>
-          </div>
+
           <div v-for="(question, questionIndex) in questions" :key="questionIndex">
             <div class="question-title" style="font-size: 17px">
               <span v-html="formatText(question.questionContent)"></span>
@@ -128,6 +126,7 @@ import passimg2 from '@/assets/images/exam_imgs/pass2.png'
 import failimg1 from '@/assets/images/exam_imgs/failpass1.png'
 import failimg2 from '@/assets/images/exam_imgs/failpass2.png'
 
+
 // 定义题目接口
 interface Question {
   questionId: string
@@ -156,6 +155,7 @@ const essayAnswers = ref<string[]>([])
 const totalScore = ref<number>(0)
 const showCorrectAnswers = ref<boolean>(false)
 const timeLeft = ref(7200)
+const isExamInProgress = ref<boolean>(false) 
 const fetchQuestions = async () => {
   try {
     const isRealExam = route.query.type === 'exam'
@@ -284,6 +284,7 @@ const submitExam = () => {
     }
   })
   showCorrectAnswers.value = true
+  isExamInProgress.value = false
 }
 
 const answerStatus = computed(() => {
@@ -311,7 +312,6 @@ onMounted(() => {
   }
 })
 </script>
-
 
 <style scoped>
 .exam-page {
@@ -362,7 +362,7 @@ onMounted(() => {
 }
 
 .question-header {
-  margin-bottom: 20px;
+  margin: 20px 0;
   padding: 4px 0;
   display: flex;
   align-items: center;
@@ -428,6 +428,18 @@ onMounted(() => {
 .user-answer > div {
   text-align: center;
 }
+
+/* 添加弹窗样式 */
+.result-dialog {
+  text-align: center;
+}
+.result-dialog .el-message-box__status {
+  font-size: 40px !important;
+}
+.result-dialog .el-message-box__message {
+  font-size: 16px;
+}
+
 .option-group {
   width: 100%;
   margin-top: 10px;

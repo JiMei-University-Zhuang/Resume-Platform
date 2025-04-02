@@ -171,7 +171,6 @@ const examDialogVisible = ref(false)
 const selectedExam = ref('')
 const loadingExam = ref(false)
 
-
 const showDialog = () => {
   dialogVisible.value = true
 }
@@ -181,17 +180,16 @@ const examList = [
   {
     value: '2020年国家公务员考试行测真题',
     label: '2020国考·行政职业能力测验真题',
-    subject :'行测'
+    subject: '行测'
   },
   {
     value: '2020年国家公务员考试申论真题',
     label: '2020国考·申论真题',
-    subject :'申论'
+    subject: '申论'
   }
 ]
 // 显示选择弹窗
 const showExamDialog = () => {
-
   examDialogVisible.value = true
   if (examList.length > 0) {
     selectedExam.value = examList[0].value
@@ -199,17 +197,17 @@ const showExamDialog = () => {
 }
 
 const startRealExam = async () => {
-     if (!selectedExam.value) {
-    ElMessage.error('请选择试卷后再开始考试！');
-    return;
+  if (!selectedExam.value) {
+    ElMessage.error('请选择试卷后再开始考试！')
+    return
   }
 
   // 确保 selectedExamItem 不为 undefined
-  const selectedExamItem = examList.find(item => item.value === selectedExam.value);
+  const selectedExamItem = examList.find(item => item.value === selectedExam.value)
 
   if (!selectedExamItem) {
-    ElMessage.error('未找到对应的试卷信息，请重试！');
-    return;
+    ElMessage.error('未找到对应的试卷信息，请重试！')
+    return
   }
   examDialogVisible.value = false
   router.push({
@@ -218,8 +216,6 @@ const startRealExam = async () => {
       examName: selectedExam.value,
       type: 'exam',
       subject: selectedExamItem.subject || '未知科目'
-    
-    
     }
   })
 }
@@ -261,8 +257,8 @@ onBeforeRouteLeave(() => {
   dialogVisible.value = false
 })
 onMounted(() => {
-   if (examList.length > 0) {
-    selectedExam.value = examList[0].value; 
+  if (examList.length > 0) {
+    selectedExam.value = examList[0].value
   }
   startCountdown()
 })

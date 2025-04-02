@@ -1,5 +1,8 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
 import { BasicLayout } from '../layout'
+import CivilService from '@/views/exam/CivilService.vue'
+import ExamPage from '@/views/exam/ExamPage.vue'
+import { ElMessageBox } from 'element-plus'
 
 const routes: RouteRecordRaw[] = [
   {
