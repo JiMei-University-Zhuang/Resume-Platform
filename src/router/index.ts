@@ -1,6 +1,7 @@
 // src/router/index.ts
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
 import { BasicLayout } from '../layout'
+import PostgraduateAnswer from '@/views/exam/PostgraduateAnswer.vue'
 import { ElMessageBox } from 'element-plus'
 import { useExamStore } from '@/stores/examStore'
 
@@ -169,6 +170,12 @@ const routes: RouteRecordRaw[] = [
             name: 'ExamPage',
             component: () => import('@/views/exam/ExamPage.vue'),
             meta: { title: '考试页面' }
+          },
+          {
+            path: 'postgraduate-answer',
+            name: 'PostgraduateAnswer',
+            component: PostgraduateAnswer,
+            meta: { title: '考研答题' }
           }
         ]
       }

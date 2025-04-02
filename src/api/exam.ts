@@ -4,6 +4,13 @@ export interface CSPractice {
   subject: string
   count: number
 }
+
+export interface GSPractice {
+  subject: string
+  questionType: string
+  count: number
+}
+
 export interface CSExam {
   examName: string
 }
@@ -32,6 +39,15 @@ export function getCSPractice(data: CSPractice) {
 export function getCSExam(data: CSExam) {
   return request<ExamData>({
     url: '/exam/getCSExam',
+    method: 'post',
+    data
+  })
+}
+
+//获取研究生考试练习
+export function getGSPractice(data: GSPractice) {
+  return request({
+    url: '/practice/getGSPractice',
     method: 'post',
     data
   })

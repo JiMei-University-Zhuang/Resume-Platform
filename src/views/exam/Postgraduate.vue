@@ -349,10 +349,10 @@ const startPractice = () => {
   })
 
   router.push({
-    path: '/exam/exam',
+    path: '/exam/postgraduate-answer',
     query: {
       subject: selectedSubject.value,
-      questionType: selectedquestionType.value,
+      questionType: selectedquestionType.value === '1' ? '材料分析题' : selectedquestionType.value,
       count: selectedCount.value,
       type: 'practice'
     }

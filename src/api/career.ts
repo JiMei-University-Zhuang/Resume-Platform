@@ -273,7 +273,6 @@ export const getCommonPositions = async (): Promise<string[]> => {
 
 // AI职业分析API
 export const aiProfessionAnalysis = async (
-  data: CareerAnalysisForm
 ): Promise<CareerAnalysisResult> => {
   // 实际项目中应该调用后端AI API
   return new Promise(resolve => {
@@ -295,7 +294,6 @@ export const aiProfessionAnalysis = async (
 
 // AI职业发展规划API
 export const aiProfessionRoadmap = async (
-  data: CareerRoadmapForm
 ): Promise<CareerRoadmapResult> => {
   // 实际项目中应该调用后端AI API
   return new Promise(resolve => {
@@ -342,7 +340,6 @@ export const aiProfessionRoadmap = async (
 
 // AI职业推荐API
 export const aiProfessionRecommendation = async (
-  data: CareerRecommendationForm
 ): Promise<CareerRecommendationResult> => {
   // 实际项目中应该调用后端AI API
   return new Promise(resolve => {
