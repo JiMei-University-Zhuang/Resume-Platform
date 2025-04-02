@@ -581,7 +581,8 @@ import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import * as echarts from 'echarts'
 import type { CareerAnalysisForm, CareerAnalysisResult, CareerSkill } from '@/types/career'
-import { submitCareerAnalysis, getCareerSkills } from '@/api/career'
+import { getCareerSkills } from '@/api/career'
+import { getProfessionAnalysis } from '@/api/ai'
 import {
   Aim,
   InfoFilled,
@@ -926,7 +927,8 @@ const submitAnalysis = async () => {
 
   analyzing.value = true
   try {
-    analysisResult.value = await submitCareerAnalysis(analysisForm)
+    const response = await getProfessionAnalysis(analysisForm)
+    analysisResult.value = response.data
     ElMessage.success('分析完成')
 
     // 初始化雷达图

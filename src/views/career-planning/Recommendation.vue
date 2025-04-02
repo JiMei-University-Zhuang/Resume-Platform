@@ -295,7 +295,8 @@ import type {
   CareerRecommendation,
   HotJob
 } from '@/types/career'
-import { getCareerRecommendations, getCommonPositions } from '@/api/career'
+import { getCommonPositions } from '@/api/career'
+import { getProfessionRecommendation } from '@/api/ai'
 
 const loading = ref(false)
 const activeTab = ref('all')
@@ -352,7 +353,8 @@ const searchJobs = async () => {
       preferredIndustry: searchForm.salary ? 'salary:' + searchForm.salary : undefined
     }
 
-    recommendationResult.value = await getCareerRecommendations(form)
+    const response = await getProfessionRecommendation(form)
+    recommendationResult.value = response.data
     ElMessage.success('推荐获取成功')
   } catch (error) {
     ElMessage.error('获取推荐失败，请重试')

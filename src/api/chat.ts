@@ -88,31 +88,6 @@ export const sendChatMessage = async (message: string, system_message?: string) 
   return { content }
 }
 
-// 定义一个简单的错误重试函数
-const retry = async <T>(
-  fn: () => Promise<T>,
-  retries = 2,
-  delay = 500,
-  onRetry?: (attempt: number, error: Error) => void
-): Promise<T> => {
-  let lastError: Error | null = null
-
-  for (let attempt = 0; attempt <= retries; attempt++) {
-    try {
-      return await fn()
-    } catch (error) {
-      lastError = error as Error
-
-      if (attempt < retries) {
-        if (onRetry) onRetry(attempt + 1, lastError)
-        await new Promise(resolve => setTimeout(resolve, delay))
-      }
-    }
-  }
-
-  throw lastError
-}
-
 // 添加简单的回退消息生成函数
 const generateFallbackResponse = (message: string): string => {
   // 简单的关键词匹配
@@ -161,13 +136,10 @@ const simulateStreamResponse = async (
 export const connectAIChatSSE = (message: string, options: EventSourceOptions) => {
   let retryCount = 0
   const MAX_RETRIES = 1 // 最多重试1次
-  let isFallbackMode = false
-
   // 尝试创建连接
   const createConnection = () => {
     // 如果已经尝试过所有重试，使用回退模式
     if (retryCount > MAX_RETRIES) {
-      isFallbackMode = true
 
       console.log('使用本地回退模式')
       const fallbackResponse = generateFallbackResponse(message)

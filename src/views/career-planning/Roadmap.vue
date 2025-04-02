@@ -633,7 +633,8 @@ import type {
   CareerSkill,
   CareerMilestone
 } from '@/types/career'
-import { submitCareerRoadmap, getCareerSkills } from '@/api/career'
+import { getCareerSkills } from '@/api/career'
+import { getProfessionRoadmap } from '@/api/ai'
 import {
   Connection,
   QuestionFilled,
@@ -755,7 +756,8 @@ const generateRoadmap = async () => {
 
   generating.value = true
   try {
-    roadmapResult.value = await submitCareerRoadmap(roadmapForm)
+    const response = await getProfessionRoadmap(roadmapForm)
+    roadmapResult.value = response.data
 
     // 重置视图状态
     viewMode.value = 'timeline'
