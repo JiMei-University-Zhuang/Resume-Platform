@@ -3,20 +3,49 @@
     <!-- 页面头部 -->
     <div class="page-header">
       <div class="header-content">
-        <h1 class="page-title">考研备考中心</h1>
-        <p class="page-description">提供专业、系统的考研备考资源，助力你的学术梦想</p>
+        <div class="title-container">
+          <h1 class="page-title">考研备考中心</h1>
+          <div class="title-decoration">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+          <p class="page-description">提供专业、系统的考研备考资源，助力你的学术梦想</p>
+          <div class="title-action">
+            <button class="get-started-btn" @click="scrollToContent">
+              <span>开始备考</span>
+            </button>
+          </div>
+        </div>
       </div>
       <div class="countdown-wrapper">
         <div class="countdown-card">
           <div class="countdown-title">2025年考研倒计时</div>
-          <div class="countdown-value">245<span class="countdown-unit">天</span></div>
+          <div class="countdown-digits">
+            <div class="countdown-digit-group">
+              <div class="countdown-value">{{ daysLeft.toString().padStart(3, '0') }}</div>
+              <div class="countdown-label">天</div>
+            </div>
+            <div class="countdown-digit-group">
+              <div class="countdown-value">{{ hoursLeft.toString().padStart(2, '0') }}</div>
+              <div class="countdown-label">时</div>
+            </div>
+            <div class="countdown-digit-group">
+              <div class="countdown-value">{{ minutesLeft.toString().padStart(2, '0') }}</div>
+              <div class="countdown-label">分</div>
+            </div>
+            <div class="countdown-digit-group">
+              <div class="countdown-value">{{ secondsLeft.toString().padStart(2, '0') }}</div>
+              <div class="countdown-label">秒</div>
+            </div>
+          </div>
           <div class="countdown-date">2025年12月21日 星期六</div>
         </div>
       </div>
     </div>
 
     <!-- 主要内容区域 -->
-    <div class="content-tabs">
+    <div class="content-tabs" :class="{ 'content-loaded': !isLoading }">
       <div class="tab-header">
         <div
           class="tab-item"
@@ -35,221 +64,322 @@
       </div>
 
       <!-- 专项练习内容 -->
-      <div class="tab-content" v-if="activeTab === 'specialized-practice'">
-        <div class="practice-card">
-          <h3 class="card-title">自定义练习</h3>
+      <transition name="fade">
+        <div class="tab-content" v-if="activeTab === 'specialized-practice' && animationReady">
+          <div class="practice-card">
+            <h3 class="card-title">自定义练习</h3>
 
-          <div class="form-group">
-            <div class="form-label">科目选择</div>
-            <div class="radio-group">
-              <label class="custom-radio" :class="{ 'radio-checked': selectedSubject === '英语' }">
-                <input type="radio" v-model="selectedSubject" value="英语" />
-                <span class="radio-text">英语</span>
-              </label>
-              <label
-                class="custom-radio"
-                :class="{ 'radio-checked': selectedSubject === '思想政治' }"
-              >
-                <input type="radio" v-model="selectedSubject" value="思想政治" />
-                <span class="radio-text">思想政治</span>
-              </label>
-              <label
-                class="custom-radio"
-                :class="{ 'radio-checked': selectedSubject === '专业课' }"
-              >
-                <input type="radio" v-model="selectedSubject" value="专业课" />
-                <span class="radio-text">计算机学科专业课</span>
-              </label>
+            <div class="form-group">
+              <div class="form-label">科目选择</div>
+              <div class="radio-group">
+                <label class="custom-radio" :class="{ 'radio-checked': selectedSubject === '英语一' }">
+                  <input type="radio" v-model="selectedSubject" value="英语一" />
+                  <span class="radio-text">英语</span>
+                </label>
+                <label
+                  class="custom-radio"
+                  :class="{ 'radio-checked': selectedSubject === '思想政治' }"
+                >
+                  <input type="radio" v-model="selectedSubject" value="思想政治" />
+                  <span class="radio-text">思想政治</span>
+                </label>
+                <label
+                  class="custom-radio"
+                  :class="{ 'radio-checked': selectedSubject === '计算机学科专业课' }"
+                >
+                  <input type="radio" v-model="selectedSubject" value="计算机学科专业课" />
+                  <span class="radio-text">计算机学科专业课</span>
+                </label>
+              </div>
             </div>
+
+            <div class="form-group">
+              <div class="form-label">题型选择</div>
+              <transition name="scale" mode="out-in">
+                <div class="radio-group" v-if="selectedSubject === '英语一'" key="english">
+                  <label
+                    class="custom-radio"
+                    :class="{ 'radio-checked': selectedquestionType === '完形填空' }"
+                  >
+                    <input type="radio" v-model="selectedquestionType" value="完形填空" />
+                    <span class="radio-text">完型填空</span>
+                  </label>
+                  <label
+                    class="custom-radio"
+                    :class="{ 'radio-checked': selectedquestionType === '阅读理解' }"
+                  >
+                    <input type="radio" v-model="selectedquestionType" value="阅读理解" />
+                    <span class="radio-text">阅读理解</span>
+                  </label>
+                  <label
+                    class="custom-radio"
+                    :class="{ 'radio-checked': selectedquestionType === '序号匹配' }"
+                  >
+                    <input type="radio" v-model="selectedquestionType" value="序号匹配" />
+                    <span class="radio-text">序号匹配</span>
+                  </label>
+                  <label
+                    class="custom-radio"
+                    :class="{ 'radio-checked': selectedquestionType === '翻译' }"
+                  >
+                    <input type="radio" v-model="selectedquestionType" value="翻译" />
+                    <span class="radio-text">翻译</span>
+                  </label>
+                  <label
+                    class="custom-radio"
+                    :class="{ 'radio-checked': selectedquestionType === '作文' }"
+                  >
+                    <input type="radio" v-model="selectedquestionType" value="作文" />
+                    <span class="radio-text">作文</span>
+                  </label>
+                </div>
+
+                <div class="radio-group" v-else-if="selectedSubject === '思想政治'" key="politics">
+                  <label
+                    class="custom-radio"
+                    :class="{ 'radio-checked': selectedquestionType === '单选题' }"
+                  >
+                    <input type="radio" v-model="selectedquestionType" value="单选题" />
+                    <span class="radio-text">单选题</span>
+                  </label>
+                  <label
+                    class="custom-radio"
+                    :class="{ 'radio-checked': selectedquestionType === '多选题' }"
+                  >
+                    <input type="radio" v-model="selectedquestionType" value="多选题" />
+                    <span class="radio-text">多选题</span>
+                  </label>
+                  <label
+                    class="custom-radio"
+                    :class="{ 'radio-checked': selectedquestionType === '材料分析题' }"
+                  >
+                    <input type="radio" v-model="selectedquestionType" value="材料分析题" />
+                    <span class="radio-text">材料分析题</span>
+                  </label>
+                </div>
+
+                <div class="radio-group" v-else-if="selectedSubject === '计算机学科专业课'" key="cs">
+                  <label
+                    class="custom-radio"
+                    :class="{ 'radio-checked': selectedquestionType === '单选题' }"
+                  >
+                    <input type="radio" v-model="selectedquestionType" value="单选题" />
+                    <span class="radio-text">单选题</span>
+                  </label>
+                  <label
+                    class="custom-radio"
+                    :class="{ 'radio-checked': selectedquestionType === '解答题' }"
+                  >
+                    <input type="radio" v-model="selectedquestionType" value="解答题" />
+                    <span class="radio-text">解答题</span>
+                  </label>
+                </div>
+              </transition>
+            </div>
+
+            <div class="form-group">
+              <div class="form-label">题目数量</div>
+              <div class="radio-group">
+                <label class="custom-radio" :class="{ 'radio-checked': selectedCount === '1' }">
+                  <input type="radio" v-model="selectedCount" value="1" />
+                  <span class="radio-text">1道题</span>
+                </label>
+                <label class="custom-radio" :class="{ 'radio-checked': selectedCount === '5' }">
+                  <input type="radio" v-model="selectedCount" value="5" />
+                  <span class="radio-text">5道题</span>
+                </label>
+                <label class="custom-radio" :class="{ 'radio-checked': selectedCount === '10' }">
+                  <input type="radio" v-model="selectedCount" value="10" />
+                  <span class="radio-text">10道题</span>
+                </label>
+              </div>
+            </div>
+
+            <button class="primary-button start-practice-btn" @click="startPractice">
+              <span>开始练习</span>
+            </button>
           </div>
-
-          <div class="form-group">
-            <div class="form-label">题型选择</div>
-            <div class="radio-group" v-if="selectedSubject === '英语'">
-              <label
-                class="custom-radio"
-                :class="{ 'radio-checked': selectedquestionType === '完型填空' }"
-              >
-                <input type="radio" v-model="selectedquestionType" value="完型填空" />
-                <span class="radio-text">完型填空</span>
-              </label>
-              <label
-                class="custom-radio"
-                :class="{ 'radio-checked': selectedquestionType === '阅读理解' }"
-              >
-                <input type="radio" v-model="selectedquestionType" value="阅读理解" />
-                <span class="radio-text">阅读理解</span>
-              </label>
-              <label
-                class="custom-radio"
-                :class="{ 'radio-checked': selectedquestionType === '序号匹配' }"
-              >
-                <input type="radio" v-model="selectedquestionType" value="序号匹配" />
-                <span class="radio-text">序号匹配</span>
-              </label>
-              <label
-                class="custom-radio"
-                :class="{ 'radio-checked': selectedquestionType === '翻译' }"
-              >
-                <input type="radio" v-model="selectedquestionType" value="翻译" />
-                <span class="radio-text">翻译</span>
-              </label>
-              <label
-                class="custom-radio"
-                :class="{ 'radio-checked': selectedquestionType === '小作文' }"
-              >
-                <input type="radio" v-model="selectedquestionType" value="小作文" />
-                <span class="radio-text">小作文</span>
-              </label>
-              <label
-                class="custom-radio"
-                :class="{ 'radio-checked': selectedquestionType === '大作文' }"
-              >
-                <input type="radio" v-model="selectedquestionType" value="大作文" />
-                <span class="radio-text">大作文</span>
-              </label>
-            </div>
-
-            <div class="radio-group" v-if="selectedSubject === '思想政治'">
-              <label
-                class="custom-radio"
-                :class="{ 'radio-checked': selectedquestionType === '1' }"
-              >
-                <input type="radio" v-model="selectedquestionType" value="1" />
-                <span class="radio-text">1道题</span>
-              </label>
-            </div>
-
-            <div class="radio-group" v-if="selectedSubject === '专业课'">
-              <label
-                class="custom-radio"
-                :class="{ 'radio-checked': selectedquestionType === '单选题' }"
-              >
-                <input type="radio" v-model="selectedquestionType" value="单选题" />
-                <span class="radio-text">单选题</span>
-              </label>
-              <label
-                class="custom-radio"
-                :class="{ 'radio-checked': selectedquestionType === '多选题' }"
-              >
-                <input type="radio" v-model="selectedquestionType" value="多选题" />
-                <span class="radio-text">多选题</span>
-              </label>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <div class="form-label">题目数量</div>
-            <div class="radio-group">
-              <label class="custom-radio" :class="{ 'radio-checked': selectedCount === '1' }">
-                <input type="radio" v-model="selectedCount" value="1" />
-                <span class="radio-text">1道题</span>
-              </label>
-              <label class="custom-radio" :class="{ 'radio-checked': selectedCount === '5' }">
-                <input type="radio" v-model="selectedCount" value="5" />
-                <span class="radio-text">5道题</span>
-              </label>
-              <label class="custom-radio" :class="{ 'radio-checked': selectedCount === '10' }">
-                <input type="radio" v-model="selectedCount" value="10" />
-                <span class="radio-text">10道题</span>
-              </label>
-            </div>
-          </div>
-
-          <button class="primary-button start-practice-btn" @click="startPractice">开始练习</button>
         </div>
-      </div>
+      </transition>
 
       <!-- 历年真题内容 -->
-      <div class="tab-content" v-if="activeTab === 'past-exams'">
-        <div class="filter-header">
-          <div class="filter-title">分类筛选：</div>
-          <div class="filter-options">
-            <div
-              class="filter-option"
-              :class="{ active: currentCategory === 'all' }"
-              @click="filterCards('all')"
-            >
-              全部
-            </div>
-            <div
-              class="filter-option"
-              :class="{ active: currentCategory === 'math' }"
-              @click="filterCards('math')"
-            >
-              数学
-            </div>
-            <div
-              class="filter-option"
-              :class="{ active: currentCategory === 'english' }"
-              @click="filterCards('english')"
-            >
-              英语
-            </div>
-            <div
-              class="filter-option"
-              :class="{ active: currentCategory === 'politics' }"
-              @click="filterCards('politics')"
-            >
-              政治
-            </div>
-            <div
-              class="filter-option"
-              :class="{ active: currentCategory === 'professional' }"
-              @click="filterCards('professional')"
-            >
-              专业课
-            </div>
-          </div>
-        </div>
-
-        <div class="paper-grid">
-          <div v-for="(paper, index) in filteredPapers" :key="index" class="paper-card">
-            <div class="paper-image">
-              <img :src="paper.imageUrl" alt="试卷封面" />
-            </div>
-            <div class="paper-info">
-              <h3 class="paper-title">{{ paper.title }}</h3>
-              <p class="paper-description">{{ paper.description }}</p>
-              <div class="paper-actions">
-                <button class="primary-button" @click="openExamDialog(paper)">使用试卷</button>
-                <button class="outline-button" @click="previewPaper(paper.id)">预览</button>
+      <transition name="fade">
+        <div class="tab-content" v-if="activeTab === 'past-exams' && animationReady">
+          <div class="filter-header">
+            <div class="filter-title">分类筛选：</div>
+            <div class="filter-options">
+              <div
+                class="filter-option"
+                :class="{ active: currentCategory === 'all' }"
+                @click="filterCards('all')"
+              >
+                全部
+              </div>
+              <div
+                class="filter-option"
+                :class="{ active: currentCategory === 'math' }"
+                @click="filterCards('math')"
+              >
+                数学
+              </div>
+              <div
+                class="filter-option"
+                :class="{ active: currentCategory === 'english' }"
+                @click="filterCards('english')"
+              >
+                英语
+              </div>
+              <div
+                class="filter-option"
+                :class="{ active: currentCategory === 'politics' }"
+                @click="filterCards('politics')"
+              >
+                政治
+              </div>
+              <div
+                class="filter-option"
+                :class="{ active: currentCategory === 'professional' }"
+                @click="filterCards('professional')"
+              >
+                专业课
               </div>
             </div>
           </div>
+
+          <transition-group name="paper-list" tag="div" class="paper-grid">
+            <div v-for="paper in filteredPapers" :key="paper.id" class="paper-card">
+              <div class="paper-image">
+                <img :src="paper.imageUrl" alt="试卷封面" />
+              </div>
+              <div class="paper-info">
+                <h3 class="paper-title">{{ paper.title }}</h3>
+                <p class="paper-description">{{ paper.description }}</p>
+                <div class="paper-actions">
+                  <button class="primary-button" @click="openExamDialog(paper)">
+                    <span>使用试卷</span>
+                  </button>
+                  <button class="outline-button" @click="previewPaper(paper.id)">
+                    <span>预览</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </transition-group>
         </div>
-      </div>
+      </transition>
     </div>
 
     <!-- 考试对话框 -->
-    <div class="modal-overlay" v-if="isExamDialogVisible" @click="isExamDialogVisible = false">
-      <div class="modal-container" @click.stop>
-        <div class="modal-header">
-          <h3 class="modal-title">开始考试</h3>
-          <button class="modal-close" @click="isExamDialogVisible = false">×</button>
-        </div>
-        <div class="modal-body">
-          <img :src="currentExamPaper.imageUrl" alt="试卷封面" class="modal-image" />
-          <p class="modal-description">{{ currentExamPaper.description }}</p>
-        </div>
-        <div class="modal-footer">
-          <button class="outline-button" @click="isExamDialogVisible = false">取消</button>
-          <button class="primary-button" @click="startExam(currentExamPaper.id)">开始考试</button>
+    <transition name="modal">
+      <div class="modal-overlay" v-if="isExamDialogVisible" @click="isExamDialogVisible = false">
+        <div class="modal-container" @click.stop>
+          <div class="modal-header">
+            <h3 class="modal-title">开始考试</h3>
+            <button class="modal-close" @click="isExamDialogVisible = false">×</button>
+          </div>
+          <div class="modal-body">
+            <img :src="currentExamPaper.imageUrl" alt="试卷封面" class="modal-image" />
+            <p class="modal-description">{{ currentExamPaper.description }}</p>
+          </div>
+          <div class="modal-footer">
+            <button class="outline-button" @click="isExamDialogVisible = false">
+              <span>取消</span>
+            </button>
+            <button class="primary-button" @click="startExam(currentExamPaper.id)">
+              <span>开始考试</span>
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+    </transition>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch, onMounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
 const activeTab = ref('specialized-practice')
-const selectedSubject = ref('英语')
+const selectedSubject = ref('英语一')
 const selectedquestionType = ref('完型填空')
 const selectedCount = ref('1')
+const isLoading = ref(true)
+const animationReady = ref(false)
+
+// 科目变更时自动选择默认题型
+watch(selectedSubject, (newSubject) => {
+  if (newSubject === '英语一') {
+    selectedquestionType.value = '完型填空'
+  } else if (newSubject === '思想政治') {
+    selectedquestionType.value = '单选题'
+  } else if (newSubject === '计算机学科专业课') {
+    selectedquestionType.value = '单选题'
+  }
+})
+
+// 选项卡切换效果
+watch(activeTab, () => {
+  animationReady.value = false
+  nextTick(() => {
+    animationReady.value = true
+  })
+})
+
+// 滚动到内容区域
+const scrollToContent = () => {
+  const contentElement = document.querySelector('.content-tabs')
+  if (contentElement) {
+    contentElement.scrollIntoView({ behavior: 'smooth' })
+  }
+}
+
+// 考研倒计时相关
+const daysLeft = ref(245)
+const hoursLeft = ref(0)
+const minutesLeft = ref(0)
+const secondsLeft = ref(0)
+
+// 计算精确的倒计时
+const calculateCountdown = () => {
+  const examDate = new Date('2025/12/21 00:00:00')
+  const now = new Date()
+  
+  const diff = examDate.getTime() - now.getTime()
+  
+  if (diff <= 0) {
+    // 考试已经开始
+    daysLeft.value = 0
+    hoursLeft.value = 0
+    minutesLeft.value = 0
+    secondsLeft.value = 0
+    return
+  }
+  
+  // 计算天、时、分、秒
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24))
+  const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
+  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
+  const seconds = Math.floor((diff % (1000 * 60)) / 1000)
+  
+  daysLeft.value = days
+  hoursLeft.value = hours
+  minutesLeft.value = minutes
+  secondsLeft.value = seconds
+}
+
+// 启动倒计时
+onMounted(() => {
+  calculateCountdown()
+  setInterval(calculateCountdown, 1000)
+  
+  // 添加页面初始化动画
+  isLoading.value = true
+  setTimeout(() => {
+    isLoading.value = false
+    animationReady.value = true
+  }, 300)
+})
 
 // 模拟试卷数据
 const papers = ref([
@@ -352,7 +482,7 @@ const startPractice = () => {
     path: '/exam/postgraduate-answer',
     query: {
       subject: selectedSubject.value,
-      questionType: selectedquestionType.value === '1' ? '材料分析题' : selectedquestionType.value,
+      questionType: selectedquestionType.value,
       count: selectedCount.value,
       type: 'practice'
     }
@@ -390,31 +520,150 @@ const previewPaper = (paperId: number) => {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 32px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid #f0f0f0;
+  margin-bottom: 48px;
+  padding: 48px 0 24px;
+  border-bottom: 1px solid rgba(22, 119, 255, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.page-header::before {
+  content: '';
+  position: absolute;
+  top: -120px;
+  left: -120px;
+  width: 240px;
+  height: 240px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(22, 119, 255, 0.1) 0%, rgba(22, 119, 255, 0) 70%);
+  z-index: 0;
+  animation: float 10s infinite ease-in-out;
+}
+
+.page-header::after {
+  content: '';
+  position: absolute;
+  bottom: -80px;
+  right: -80px;
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(250, 84, 28, 0.08) 0%, rgba(250, 84, 28, 0) 70%);
+  z-index: 0;
+  animation: float 12s infinite ease-in-out reverse;
+}
+
+@keyframes float {
+  0% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(15px, 15px);
+  }
+  100% {
+    transform: translate(0, 0);
+  }
 }
 
 .header-content {
   flex: 1;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.title-container {
+  text-align: center;
+  max-width: 600px;
 }
 
 .page-title {
-  font-size: 28px;
-  color: #262626;
-  margin-bottom: 8px;
-  font-weight: 500;
+  font-size: 36px;
+  font-weight: 600;
+  background: linear-gradient(120deg, #1677ff, #0958d9);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 16px;
+  letter-spacing: 1px;
+  position: relative;
+  display: inline-block;
+}
+
+.title-decoration {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.title-decoration span {
+  height: 4px;
+  border-radius: 2px;
+}
+
+.title-decoration span:nth-child(1) {
+  width: 24px;
+  background-color: rgba(22, 119, 255, 0.6);
+}
+
+.title-decoration span:nth-child(2) {
+  width: 48px;
+  background-color: rgba(22, 119, 255, 0.8);
+}
+
+.title-decoration span:nth-child(3) {
+  width: 24px;
+  background-color: rgba(22, 119, 255, 0.6);
 }
 
 .page-description {
-  font-size: 14px;
-  color: #8c8c8c;
-  max-width: 600px;
+  font-size: 16px;
+  color: #595959;
+  margin-bottom: 24px;
+  line-height: 1.6;
+  animation: fadeIn 1s ease-in-out;
+}
+
+.title-action {
+  margin-top: 20px;
+}
+
+.get-started-btn {
+  background: linear-gradient(120deg, #1677ff, #0958d9);
+  color: white;
+  border: none;
+  padding: 12px 28px;
+  border-radius: 24px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 6px 16px rgba(22, 119, 255, 0.3);
+}
+
+.get-started-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(22, 119, 255, 0.4);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* 倒计时卡片 */
 .countdown-wrapper {
-  min-width: 200px;
+  min-width: 280px;
+  position: relative;
+  z-index: 1;
 }
 
 .countdown-card {
@@ -422,32 +671,122 @@ const previewPaper = (paperId: number) => {
   border-radius: 8px;
   padding: 16px;
   color: white;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 24px rgba(22, 119, 255, 0.3);
   text-align: center;
+  animation: pulse 2s infinite alternate;
+  transition: all 0.3s ease;
+}
+
+.countdown-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 28px rgba(22, 119, 255, 0.4);
 }
 
 .countdown-title {
   font-size: 14px;
-  margin-bottom: 8px;
+  margin-bottom: 12px;
   opacity: 0.9;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 500;
+}
+
+.countdown-digits {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.countdown-digit-group {
+  position: relative;
 }
 
 .countdown-value {
-  font-size: 32px;
+  font-size: 24px;
   font-weight: 600;
-  margin: 4px 0 8px;
+  background-color: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+  padding: 4px 6px;
+  min-width: 32px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(4px);
 }
 
-.countdown-unit {
-  font-size: 16px;
-  font-weight: normal;
-  margin-left: 4px;
-  opacity: 0.9;
+.countdown-value::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.countdown-label {
+  font-size: 12px;
+  opacity: 0.8;
+  margin-top: 4px;
 }
 
 .countdown-date {
   font-size: 12px;
   opacity: 0.7;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  padding-top: 8px;
+  margin-top: 8px;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 8px 24px rgba(22, 119, 255, 0.3);
+  }
+  100% {
+    box-shadow: 0 8px 28px rgba(22, 119, 255, 0.5);
+  }
+}
+
+/* 响应式样式 */
+@media (max-width: 768px) {
+  .page-header {
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 0;
+  }
+
+  .header-content {
+    margin-bottom: 24px;
+  }
+
+  .page-title {
+    font-size: 28px;
+  }
+
+  .countdown-wrapper {
+    margin-top: 16px;
+    width: 100%;
+  }
+
+  .countdown-digits {
+    flex-wrap: wrap;
+  }
+  
+  .countdown-digit-group {
+    flex: 1;
+    min-width: 40%;
+  }
+
+  .form-group,
+  .radio-group {
+    flex-direction: column;
+  }
+
+  .paper-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* 内容标签页 */
@@ -456,6 +795,14 @@ const previewPaper = (paperId: number) => {
   border-radius: 8px;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
   overflow: hidden;
+  transition: all 0.5s ease;
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.content-tabs.content-loaded {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .tab-header {
@@ -470,10 +817,12 @@ const previewPaper = (paperId: number) => {
   cursor: pointer;
   transition: all 0.3s;
   position: relative;
+  overflow: hidden;
 }
 
 .tab-item:hover {
   color: #1677ff;
+  background-color: rgba(22, 119, 255, 0.05);
 }
 
 .tab-item.active {
@@ -489,6 +838,18 @@ const previewPaper = (paperId: number) => {
   right: 24px;
   height: 2px;
   background-color: #1677ff;
+  animation: slideIn 0.3s ease-out forwards;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }
 
 .tab-content {
@@ -531,6 +892,7 @@ const previewPaper = (paperId: number) => {
   align-items: center;
   cursor: pointer;
   position: relative;
+  transition: transform 0.2s;
 }
 
 .custom-radio input {
@@ -548,15 +910,33 @@ const previewPaper = (paperId: number) => {
   transition: all 0.3s;
 }
 
+.custom-radio:hover {
+  transform: translateY(-2px);
+}
+
 .custom-radio:hover .radio-text {
   border-color: #1677ff;
   color: #1677ff;
+  box-shadow: 0 3px 10px rgba(22, 119, 255, 0.15);
 }
 
 .radio-checked .radio-text {
   background-color: #e6f4ff;
   border-color: #1677ff;
   color: #1677ff;
+  animation: pulse 0.3s ease-in-out;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
 /* 按钮样式 */
@@ -570,11 +950,37 @@ const previewPaper = (paperId: number) => {
   cursor: pointer;
   transition: all 0.3s;
   font-weight: 500;
+  position: relative;
+  overflow: hidden;
 }
 
 .primary-button:hover {
   background-color: #0958d9;
   box-shadow: 0 4px 12px rgba(22, 119, 255, 0.2);
+}
+
+.primary-button::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background-color: rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.5s, height 0.5s;
+  z-index: 0;
+}
+
+.primary-button:hover::after {
+  width: 300px;
+  height: 300px;
+}
+
+.primary-button span {
+  position: relative;
+  z-index: 1;
 }
 
 .outline-button {
@@ -593,10 +999,48 @@ const previewPaper = (paperId: number) => {
   border-color: #1677ff;
 }
 
+.outline-button::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background-color: rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.5s, height 0.5s;
+  z-index: 0;
+}
+
+.outline-button:hover::after {
+  width: 300px;
+  height: 300px;
+}
+
+.outline-button span {
+  position: relative;
+  z-index: 1;
+}
+
 .start-practice-btn {
   display: block;
   width: 200px;
   margin: 0 auto;
+  position: relative;
+  overflow: hidden;
+  animation: buttonFloat 3s infinite alternate ease-in-out;
+}
+
+@keyframes buttonFloat {
+  0% {
+    transform: translateY(0);
+    box-shadow: 0 4px 10px rgba(22, 119, 255, 0.2);
+  }
+  100% {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(22, 119, 255, 0.3);
+  }
 }
 
 /* 历年真题筛选 */
@@ -653,11 +1097,12 @@ const previewPaper = (paperId: number) => {
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
   transition: all 0.3s;
   border: 1px solid #f0f0f0;
+  transform-origin: center bottom;
 }
 
 .paper-card:hover {
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-  transform: translateY(-2px);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+  transform: translateY(-8px) scale(1.02);
 }
 
 .paper-image {
@@ -800,25 +1245,95 @@ const previewPaper = (paperId: number) => {
   border-top: 1px solid #f0f0f0;
 }
 
-/* 响应式样式 */
-@media (max-width: 768px) {
-  .page-header {
-    flex-direction: column;
-    align-items: stretch;
-  }
+/* 添加动画 */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
 
-  .countdown-wrapper {
-    margin-top: 16px;
-    width: 100%;
-  }
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+  transform: translateY(20px);
+}
 
-  .form-group,
-  .radio-group {
-    flex-direction: column;
-  }
+.scale-enter-active,
+.scale-leave-active {
+  transition: all 0.5s ease;
+}
 
-  .paper-grid {
-    grid-template-columns: 1fr;
-  }
+.scale-enter-from,
+.scale-leave-to {
+  opacity: 0;
+  transform: scale(0.9);
+}
+
+.slide-fade-enter-active,
+.slide-fade-leave-active {
+  transition: all 0.3s ease;
+}
+
+.slide-fade-enter-from {
+  opacity: 0;
+  transform: translateX(-30px);
+}
+
+.slide-fade-leave-to {
+  opacity: 0;
+  transform: translateX(30px);
+}
+
+/* 添加内容加载动画 */
+.content-tabs {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+  overflow: hidden;
+  transition: all 0.5s ease;
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.content-tabs.content-loaded {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* 模态对话框动画 */
+.modal-enter-active,
+.modal-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.modal-enter-active .modal-container,
+.modal-leave-active .modal-container {
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.modal-enter-from,
+.modal-leave-to {
+  opacity: 0;
+}
+
+.modal-enter-from .modal-container,
+.modal-leave-to .modal-container {
+  transform: scale(0.9);
+  opacity: 0;
+}
+
+/* 纸卡片列表动画 */
+.paper-list-enter-active,
+.paper-list-leave-active {
+  transition: all 0.5s ease;
+}
+
+.paper-list-enter-from,
+.paper-list-leave-to {
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+.paper-list-move {
+  transition: transform 0.5s ease;
 }
 </style>

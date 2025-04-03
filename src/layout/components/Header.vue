@@ -19,12 +19,16 @@
           <Aim v-else />
         </el-icon>
       </div>
-      
+
       <!-- 语言切换 -->
-      <div class="header-item" @click="toggleLanguage" :title="isEnglish ? '切换为中文' : 'Switch to English'">
+      <div
+        class="header-item"
+        @click="toggleLanguage"
+        :title="isEnglish ? '切换为中文' : 'Switch to English'"
+      >
         <span class="language-text">{{ isEnglish ? 'EN' : '中' }}</span>
       </div>
-      
+
       <!-- 消息通知 -->
       <div class="header-item" @click="showNotifications = true" title="消息通知">
         <el-badge :value="unreadCount" :hidden="unreadCount === 0" class="notification-badge">
@@ -33,14 +37,14 @@
           </el-icon>
         </el-badge>
       </div>
-      
+
       <!-- 文档中心 -->
       <div class="header-item" @click="openDocumentation" title="帮助文档">
         <el-icon :size="18">
           <Document />
         </el-icon>
       </div>
-      
+
       <!-- 用户下拉菜单 -->
       <el-dropdown>
         <span class="user-info">
@@ -56,30 +60,23 @@
         </template>
       </el-dropdown>
     </div>
-    
+
     <!-- 消息通知抽屉 -->
-    <el-drawer
-      v-model="showNotifications"
-      title="消息通知"
-      direction="rtl"
-      size="350px"
-    >
+    <el-drawer v-model="showNotifications" title="消息通知" direction="rtl" size="350px">
       <div class="notification-header">
         <span>{{ unreadCount }}条未读消息</span>
         <el-button type="primary" link @click="markAllAsRead">全部标为已读</el-button>
       </div>
-      
+
       <el-tabs v-model="activeTab" class="notification-tabs">
         <el-tab-pane label="全部消息" name="all">
-          <div v-if="notifications.length === 0" class="empty-notifications">
-            暂无消息通知
-          </div>
+          <div v-if="notifications.length === 0" class="empty-notifications">暂无消息通知</div>
           <el-scrollbar height="calc(100vh - 200px)">
-            <div 
-              v-for="(item, index) in notifications" 
-              :key="index" 
+            <div
+              v-for="(item, index) in notifications"
+              :key="index"
               class="notification-item"
-              :class="{ 'unread': !item.read }"
+              :class="{ unread: !item.read }"
               @click="readNotification(item)"
             >
               <div class="notification-icon" :class="item.type">
@@ -91,12 +88,7 @@
                 <div class="notification-time">{{ formatTime(item.time) }}</div>
               </div>
               <div class="notification-actions">
-                <el-button 
-                  type="danger" 
-                  link 
-                  size="small"
-                  @click.stop="deleteNotification(index)"
-                >
+                <el-button type="danger" link size="small" @click.stop="deleteNotification(index)">
                   删除
                 </el-button>
               </div>
@@ -105,11 +97,11 @@
         </el-tab-pane>
         <el-tab-pane label="系统消息" name="system">
           <el-scrollbar height="calc(100vh - 200px)">
-            <div 
-              v-for="(item, index) in systemNotifications" 
-              :key="index" 
+            <div
+              v-for="(item, index) in systemNotifications"
+              :key="index"
               class="notification-item"
-              :class="{ 'unread': !item.read }"
+              :class="{ unread: !item.read }"
               @click="readNotification(item)"
             >
               <div class="notification-icon" :class="item.type">
@@ -125,11 +117,11 @@
         </el-tab-pane>
         <el-tab-pane label="任务消息" name="task">
           <el-scrollbar height="calc(100vh - 200px)">
-            <div 
-              v-for="(item, index) in taskNotifications" 
-              :key="index" 
+            <div
+              v-for="(item, index) in taskNotifications"
+              :key="index"
               class="notification-item"
-              :class="{ 'unread': !item.read }"
+              :class="{ unread: !item.read }"
               @click="readNotification(item)"
             >
               <div class="notification-icon" :class="item.type">
@@ -150,8 +142,19 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, computed } from 'vue'
-import { Expand, Fold, FullScreen, Aim, Bell, Document, SwitchButton, 
-  InfoFilled, WarningFilled, SuccessFilled, CircleCheckFilled, Calendar } from '@element-plus/icons-vue'
+import {
+  Expand,
+  Fold,
+  FullScreen,
+  Aim,
+  Bell,
+  Document,
+  SwitchButton,
+  InfoFilled,
+  WarningFilled,
+  SuccessFilled,
+  Calendar
+} from '@element-plus/icons-vue'
 import { useRouter } from 'vue-router'
 import { useAppStore } from '@/stores'
 import Breadcrumb from '@/components/Breadcrumb.vue'
@@ -179,18 +182,24 @@ const toggleLanguage = () => {
 // 全屏切换功能
 const toggleFullScreen = () => {
   if (!document.fullscreenElement) {
-    document.documentElement.requestFullscreen().then(() => {
-      isFullScreen.value = true
-    }).catch(err => {
-      console.error(`全屏切换失败: ${err.message}`)
-    })
+    document.documentElement
+      .requestFullscreen()
+      .then(() => {
+        isFullScreen.value = true
+      })
+      .catch(err => {
+        console.error(`全屏切换失败: ${err.message}`)
+      })
   } else {
     if (document.exitFullscreen) {
-      document.exitFullscreen().then(() => {
-        isFullScreen.value = false
-      }).catch(err => {
-        console.error(`退出全屏失败: ${err.message}`)
-      })
+      document
+        .exitFullscreen()
+        .then(() => {
+          isFullScreen.value = false
+        })
+        .catch(err => {
+          console.error(`退出全屏失败: ${err.message}`)
+        })
     }
   }
 }
@@ -220,12 +229,12 @@ const handleLogout = async () => {
 
 // 消息通知相关功能
 interface Notification {
-  id: number;
-  title: string;
-  content: string;
-  time: Date;
-  read: boolean;
-  type: 'info' | 'warning' | 'success' | 'task';
+  id: number
+  title: string
+  content: string
+  time: Date
+  read: boolean
+  type: 'info' | 'warning' | 'success' | 'task'
 }
 
 const showNotifications = ref(false)
