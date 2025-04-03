@@ -72,7 +72,10 @@
             <div class="form-group">
               <div class="form-label">科目选择</div>
               <div class="radio-group">
-                <label class="custom-radio" :class="{ 'radio-checked': selectedSubject === '英语一' }">
+                <label
+                  class="custom-radio"
+                  :class="{ 'radio-checked': selectedSubject === '英语一' }"
+                >
                   <input type="radio" v-model="selectedSubject" value="英语一" />
                   <span class="radio-text">英语</span>
                 </label>
@@ -158,7 +161,11 @@
                   </label>
                 </div>
 
-                <div class="radio-group" v-else-if="selectedSubject === '计算机学科专业课'" key="cs">
+                <div
+                  class="radio-group"
+                  v-else-if="selectedSubject === '计算机学科专业课'"
+                  key="cs"
+                >
                   <label
                     class="custom-radio"
                     :class="{ 'radio-checked': selectedquestionType === '单选题' }"
@@ -308,7 +315,7 @@ const isLoading = ref(true)
 const animationReady = ref(false)
 
 // 科目变更时自动选择默认题型
-watch(selectedSubject, (newSubject) => {
+watch(selectedSubject, newSubject => {
   if (newSubject === '英语一') {
     selectedquestionType.value = '完型填空'
   } else if (newSubject === '思想政治') {
@@ -344,9 +351,9 @@ const secondsLeft = ref(0)
 const calculateCountdown = () => {
   const examDate = new Date('2025/12/21 00:00:00')
   const now = new Date()
-  
+
   const diff = examDate.getTime() - now.getTime()
-  
+
   if (diff <= 0) {
     // 考试已经开始
     daysLeft.value = 0
@@ -355,13 +362,13 @@ const calculateCountdown = () => {
     secondsLeft.value = 0
     return
   }
-  
+
   // 计算天、时、分、秒
   const days = Math.floor(diff / (1000 * 60 * 60 * 24))
   const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
   const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
   const seconds = Math.floor((diff % (1000 * 60)) / 1000)
-  
+
   daysLeft.value = days
   hoursLeft.value = hours
   minutesLeft.value = minutes
@@ -372,7 +379,7 @@ const calculateCountdown = () => {
 onMounted(() => {
   calculateCountdown()
   setInterval(calculateCountdown, 1000)
-  
+
   // 添加页面初始化动画
   isLoading.value = true
   setTimeout(() => {
@@ -773,7 +780,7 @@ const previewPaper = (paperId: number) => {
   .countdown-digits {
     flex-wrap: wrap;
   }
-  
+
   .countdown-digit-group {
     flex: 1;
     min-width: 40%;
@@ -969,7 +976,9 @@ const previewPaper = (paperId: number) => {
   background-color: rgba(255, 255, 255, 0.3);
   border-radius: 50%;
   transform: translate(-50%, -50%);
-  transition: width 0.5s, height 0.5s;
+  transition:
+    width 0.5s,
+    height 0.5s;
   z-index: 0;
 }
 
@@ -1009,7 +1018,9 @@ const previewPaper = (paperId: number) => {
   background-color: rgba(255, 255, 255, 0.3);
   border-radius: 50%;
   transform: translate(-50%, -50%);
-  transition: width 0.5s, height 0.5s;
+  transition:
+    width 0.5s,
+    height 0.5s;
   z-index: 0;
 }
 
@@ -1248,7 +1259,9 @@ const previewPaper = (paperId: number) => {
 /* 添加动画 */
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 0.5s ease, transform 0.5s ease;
+  transition:
+    opacity 0.5s ease,
+    transform 0.5s ease;
 }
 
 .fade-enter-from,
@@ -1307,7 +1320,9 @@ const previewPaper = (paperId: number) => {
 
 .modal-enter-active .modal-container,
 .modal-leave-active .modal-container {
-  transition: transform 0.3s ease, opacity 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    opacity 0.3s ease;
 }
 
 .modal-enter-from,

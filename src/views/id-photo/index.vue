@@ -4,7 +4,7 @@
       <h1 class="page-title">AI 证件照制作</h1>
       <p class="page-desc">上传照片，一键生成标准证件照，快速方便</p>
     </div>
-    
+
     <div class="id-photo-content">
       <div class="upload-section">
         <div class="upload-area">
@@ -19,19 +19,21 @@
           >
             <div class="upload-inner">
               <el-icon class="upload-icon"><upload-filled /></el-icon>
-              <div class="upload-text">拖拽图片到此处或 <span class="text-primary">点击上传</span></div>
+              <div class="upload-text">
+                拖拽图片到此处或 <span class="text-primary">点击上传</span>
+              </div>
               <div class="upload-hint">建议使用正面免冠照片，文件不超过5MB</div>
             </div>
           </el-upload>
-          
+
           <div v-else class="preview-container">
             <div class="preview-image-container">
               <img :src="previewUrl" class="preview-image" />
-              
+
               <div class="preview-filter" v-if="photoSettings.filter !== 'none'">
                 <img :src="previewUrl" class="filtered-image" :style="filterStyle" />
               </div>
-              
+
               <div class="preview-actions">
                 <el-button class="action-btn" @click="resetImage">
                   <el-icon><Delete /></el-icon>重新上传
@@ -40,7 +42,7 @@
             </div>
           </div>
         </div>
-        
+
         <el-drawer
           v-model="drawerVisible"
           title="证件照拍摄指南"
@@ -58,7 +60,7 @@
               <li>不佩戴眼镜、帽子等饰品</li>
               <li>光线充足均匀，避免阴影</li>
             </ul>
-            
+
             <h3>拍摄建议</h3>
             <ul class="guide-list">
               <li>建议穿着深色系正装，选择素色上衣</li>
@@ -66,7 +68,7 @@
               <li>拍摄距离以头肩部自然呈现为宜</li>
               <li>使用三脚架可提高稳定性</li>
             </ul>
-            
+
             <div class="guide-samples">
               <div class="sample-item">
                 <div class="sample-image good"></div>
@@ -80,12 +82,12 @@
           </div>
         </el-drawer>
       </div>
-      
+
       <div class="settings-section">
         <el-tabs v-model="activeSettingsTab">
           <el-tab-pane label="规格设置" name="specs">
             <div class="section-title">照片规格</div>
-            
+
             <div class="settings-form">
               <div class="form-item">
                 <label class="form-label">照片规格</label>
@@ -114,7 +116,7 @@
                   </el-select>
                 </div>
               </div>
-              
+
               <div class="form-item">
                 <label class="form-label">背景颜色</label>
                 <div class="form-control">
@@ -128,19 +130,21 @@
                         :style="{ backgroundColor: color.value }"
                         @click="photoSettings.backgroundColor = color.value"
                       >
-                        <el-icon v-if="photoSettings.backgroundColor === color.value"><Check /></el-icon>
+                        <el-icon v-if="photoSettings.backgroundColor === color.value"
+                          ><Check
+                        /></el-icon>
                       </div>
                     </div>
-                    <el-color-picker 
-                      v-model="photoSettings.backgroundColor" 
-                      class="custom-color-picker" 
+                    <el-color-picker
+                      v-model="photoSettings.backgroundColor"
+                      class="custom-color-picker"
                       size="small"
                       show-alpha
                     />
                   </div>
                 </div>
               </div>
-              
+
               <div class="form-item">
                 <label class="form-label">拍摄指南</label>
                 <div class="form-control">
@@ -151,10 +155,10 @@
               </div>
             </div>
           </el-tab-pane>
-          
+
           <el-tab-pane label="效果调整" name="effects">
             <div class="section-title">照片效果</div>
-            
+
             <div class="settings-form">
               <div class="form-item">
                 <label class="form-label">滤镜效果</label>
@@ -169,38 +173,38 @@
                   </el-select>
                 </div>
               </div>
-              
+
               <template v-if="previewUrl">
                 <div class="form-item">
                   <label class="form-label">亮度</label>
                   <div class="form-control">
-                    <el-slider 
-                      v-model="photoSettings.brightness" 
-                      :min="-100" 
+                    <el-slider
+                      v-model="photoSettings.brightness"
+                      :min="-100"
                       :max="100"
                       :format-tooltip="val => `${val}%`"
                     />
                   </div>
                 </div>
-                
+
                 <div class="form-item">
                   <label class="form-label">对比度</label>
                   <div class="form-control">
-                    <el-slider 
-                      v-model="photoSettings.contrast" 
-                      :min="-100" 
+                    <el-slider
+                      v-model="photoSettings.contrast"
+                      :min="-100"
                       :max="100"
                       :format-tooltip="val => `${val}%`"
                     />
                   </div>
                 </div>
-                
+
                 <div class="form-item">
                   <label class="form-label">饱和度</label>
                   <div class="form-control">
-                    <el-slider 
-                      v-model="photoSettings.saturation" 
-                      :min="-100" 
+                    <el-slider
+                      v-model="photoSettings.saturation"
+                      :min="-100"
                       :max="100"
                       :format-tooltip="val => `${val}%`"
                     />
@@ -210,13 +214,24 @@
             </div>
           </el-tab-pane>
         </el-tabs>
-        
+
         <div class="action-buttons">
-          <el-button type="primary" class="generate-btn" @click="generatePhoto" :loading="generating" :disabled="!previewUrl">
+          <el-button
+            type="primary"
+            class="generate-btn"
+            @click="generatePhoto"
+            :loading="generating"
+            :disabled="!previewUrl"
+          >
             <el-icon><Picture /></el-icon>生成证件照
           </el-button>
-          
-          <el-button v-if="generatedPhotoUrl" class="download-btn" type="success" @click="downloadPhoto">
+
+          <el-button
+            v-if="generatedPhotoUrl"
+            class="download-btn"
+            type="success"
+            @click="downloadPhoto"
+          >
             <el-icon><Download /></el-icon>下载证件照
           </el-button>
         </div>
@@ -273,19 +288,19 @@ const photoSettings = reactive<PhotoSettings>({
 
 const filterStyle = computed(() => {
   const filters = []
-  
+
   if (photoSettings.brightness !== 0) {
     filters.push(`brightness(${100 + photoSettings.brightness}%)`)
   }
-  
+
   if (photoSettings.contrast !== 0) {
     filters.push(`contrast(${100 + photoSettings.contrast}%)`)
   }
-  
+
   if (photoSettings.saturation !== 0) {
     filters.push(`saturate(${100 + photoSettings.saturation}%)`)
   }
-  
+
   switch (photoSettings.filter) {
     case 'warm':
       filters.push('sepia(30%)')
@@ -306,7 +321,7 @@ const filterStyle = computed(() => {
       filters.push('brightness(110%)')
       break
   }
-  
+
   return {
     filter: filters.join(' ')
   }
@@ -368,7 +383,7 @@ const generatePhoto = async () => {
 
     // 使用原始上传的文件
     const imageFile = selectedFile.value as File
-    
+
     const response = await uploadIdPhoto(imageFile, photoSettings.backgroundColor, options)
 
     if (response.data && response.data.image) {
@@ -667,7 +682,8 @@ const downloadPhoto = () => {
   width: 100%;
 }
 
-.size-select, .filter-select {
+.size-select,
+.filter-select {
   width: 100%;
 }
 
@@ -717,7 +733,8 @@ const downloadPhoto = () => {
   margin-top: 32px;
 }
 
-.generate-btn, .download-btn {
+.generate-btn,
+.download-btn {
   padding: 0 32px;
   height: 40px;
   display: flex;

@@ -48,8 +48,8 @@
       <!-- 用户下拉菜单 -->
       <el-dropdown>
         <span class="user-info">
-          <el-avatar size="small" src="https://avatars.githubusercontent.com/u/1?v=4" />
-          <span class="username">Admin</span>
+          <el-avatar size="small" :src="userAvatar" />
+          <span class="username">{{ userName }}</span>
         </span>
         <template #dropdown>
           <el-dropdown-menu>
@@ -158,7 +158,7 @@ import {
 import { useRouter } from 'vue-router'
 import { useAppStore } from '@/stores'
 import Breadcrumb from '@/components/Breadcrumb.vue'
-import { logout } from '@/api/user'
+import { logout, getUser, type GetUserResult } from '@/api/user'
 import { ElMessage } from 'element-plus'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
@@ -171,6 +171,13 @@ const appStore = useAppStore()
 
 // 全屏状态管理
 const isFullScreen = ref(false)
+
+// 用户信息相关
+const userInfo = ref<GetUserResult | null>(null)
+const userAvatar = computed(
+  () => userInfo.value?.avatar || 'https://avatars.githubusercontent.com/u/1?v=4'
+)
+const userName = computed(() => userInfo.value?.name || 'Admin')
 
 // 语言切换
 const isEnglish = ref(false)
@@ -224,6 +231,17 @@ const handleLogout = async () => {
   } catch (error) {
     console.error('登出失败:', error)
     ElMessage.error('登出失败，请稍后重试')
+  }
+}
+
+const fetchUserInfo = async () => {
+  try {
+    const response = await getUser()
+    if (response.data) {
+      userInfo.value = response.data
+    }
+  } catch (error) {
+    console.error('获取用户信息失败:', error)
   }
 }
 
@@ -335,6 +353,9 @@ const formatTime = (time: Date) => {
 // 添加和移除全屏变化事件监听
 onMounted(() => {
   document.addEventListener('fullscreenchange', handleFullscreenChange)
+
+  // 获取用户信息
+  fetchUserInfo()
 })
 
 onUnmounted(() => {
