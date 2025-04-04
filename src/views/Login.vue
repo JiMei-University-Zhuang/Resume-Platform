@@ -31,9 +31,9 @@
                   placeholder="请输入用户名"
                   class="custom-input"
                 >
-                 <template #prefix>
-                <el-icon><UserFilled /></el-icon>
-              </template>
+                  <template #prefix>
+                    <el-icon><UserFilled /></el-icon>
+                  </template>
                 </el-input>
               </el-form-item>
               <el-form-item prop="password">
@@ -44,9 +44,9 @@
                   show-password
                   class="custom-input"
                 >
-                 <template #prefix>
-                <el-icon><Lock /></el-icon>
-              </template>
+                  <template #prefix>
+                    <el-icon><Lock /></el-icon>
+                  </template>
                 </el-input>
               </el-form-item>
 
@@ -424,10 +424,10 @@ const handleEmailLogin = async (formEl: any) => {
     if (valid) {
       loading.value = true
       try {
-        const response = await emailLogin({
+        const response = (await emailLogin({
           email: loginFormEmail.email,
           captchaValue: loginFormEmail.captchaValue
-        })as any as LoginEmailResponse
+        })) as any as LoginEmailResponse
         if (response.data.code === 200 && response.data.data) {
           ElMessage.success('登录成功')
           router.push('/dashboard')

@@ -92,7 +92,6 @@ export function sendRegisterEmailCaptchaValue(data: { email: string }) {
   })
 }
 
-
 //邮箱注册
 export function register(data: RegisterParams) {
   return request({
@@ -101,4 +100,3 @@ export function register(data: RegisterParams) {
     data
   })
 }
-
