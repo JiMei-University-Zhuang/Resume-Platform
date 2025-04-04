@@ -100,3 +100,34 @@ export function register(data: RegisterParams) {
     data
   })
 }
+//获取用户信息
+export function getUserInfo() {
+    return request({
+      url: '/auth/userInfo',
+      method: 'get'
+    })
+  }
+    
+// 定义getUser接口的响应数据类型
+export interface GetUserResult {
+  id: string
+  username: string
+  password: string
+  name: string
+  sex: number
+  avatar: string
+  email: string
+  telephone: string
+  enabled: number
+  role: string
+  createTime: string
+  token: string
+}
+
+// 添加新的getUser接口
+export function getUser() {
+  return request({
+    url: '/auth/getUser',
+    method: 'get'
+  })
+}

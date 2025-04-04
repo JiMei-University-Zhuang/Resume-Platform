@@ -80,8 +80,4 @@ onUnmounted(() => {
   position: relative;
   z-index: 1;
 }
-
-html.dark .main {
-  background: #f0f2f5;
-}
 </style>
