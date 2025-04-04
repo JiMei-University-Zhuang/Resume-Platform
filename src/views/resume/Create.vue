@@ -4,35 +4,19 @@
     <div class="page-header">
       <h1 class="page-title">简历创建</h1>
       <div class="header-actions">
-        <el-button 
-          type="primary" 
-          size="large" 
-          @click="changeTemplate"
-        >
+        <el-button type="primary" size="large" @click="changeTemplate">
           <el-icon><Document /></el-icon>
           切换模板
         </el-button>
-        <el-button 
-          type="success" 
-          size="large" 
-          @click="exportPDF"
-        >
+        <el-button type="success" size="large" @click="exportPDF">
           <el-icon><Download /></el-icon>
           导出PDF
         </el-button>
-        <el-button 
-          type="warning"
-          size="large" 
-          @click="previewResume"
-        >
+        <el-button type="warning" size="large" @click="previewResume">
           <el-icon><View /></el-icon>
           预览
         </el-button>
-        <el-button 
-          type="danger" 
-          size="large" 
-          @click="confirmClearResumeForm"
-        >
+        <el-button type="danger" size="large" @click="confirmClearResumeForm">
           <el-icon><Delete /></el-icon>
           清空
         </el-button>
@@ -46,7 +30,12 @@
             <div class="card-header">
               <span class="card-title">简历信息</span>
               <div class="header-actions">
-                <el-button type="primary" @click="analyzeResume" size="small" style="background-color: #3182ce; color: white; border-color: #3182ce;">
+                <el-button
+                  type="primary"
+                  @click="analyzeResume"
+                  size="small"
+                  style="background-color: #3182ce; color: white; border-color: #3182ce"
+                >
                   <el-icon><OfficeBuilding /></el-icon> AI 分析优化
                 </el-button>
               </div>
@@ -55,7 +44,11 @@
 
           <div class="resume-type-selector">
             <span class="resume-type-label">简历类型:</span>
-            <el-radio-group v-model="currentResumeType" size="small" @change="(val) => changeResumeType(val as string)">
+            <el-radio-group
+              v-model="currentResumeType"
+              size="small"
+              @change="val => changeResumeType(val as string)"
+            >
               <el-radio-button v-for="type in resumeTypes" :key="type.value" :label="type.value">
                 {{ type.label }}
               </el-radio-button>
@@ -165,12 +158,13 @@
             </div>
             <div class="action-buttons">
               <el-button type="primary" @click="addEducation">添加教育经历</el-button>
-              <template v-for="(edu, eduIndex) in resumeForm.education" :key="'del-edu-'+eduIndex">
-                <el-button 
-                  type="danger" 
-                  @click="removeEducation(eduIndex)" 
-                  v-if="eduIndex > 0"
-                >删除 {{ edu.school || '教育经历' + (eduIndex+1) }}</el-button>
+              <template
+                v-for="(edu, eduIndex) in resumeForm.education"
+                :key="'del-edu-' + eduIndex"
+              >
+                <el-button type="danger" @click="removeEducation(eduIndex)" v-if="eduIndex > 0"
+                  >删除 {{ edu.school || '教育经历' + (eduIndex + 1) }}</el-button
+                >
               </template>
             </div>
 
@@ -209,12 +203,13 @@
             </div>
             <div class="action-buttons">
               <el-button type="primary" @click="addExperience">添加工作经验</el-button>
-              <template v-for="(exp, expIndex) in resumeForm.experience" :key="'del-exp-'+expIndex">
-                <el-button 
-                  type="danger" 
-                  @click="removeExperience(expIndex)" 
-                  v-if="expIndex > 0"
-                >删除 {{ exp.company || '工作经验' + (expIndex+1) }}</el-button>
+              <template
+                v-for="(exp, expIndex) in resumeForm.experience"
+                :key="'del-exp-' + expIndex"
+              >
+                <el-button type="danger" @click="removeExperience(expIndex)" v-if="expIndex > 0"
+                  >删除 {{ exp.company || '工作经验' + (expIndex + 1) }}</el-button
+                >
               </template>
             </div>
 
@@ -534,13 +529,16 @@ const resumeTemplates = {
       {
         company: '广州智能科技有限公司',
         position: '前端开发实习生',
-        description: '参与公司产品前端页面的开发和维护，使用Vue.js框架进行开发，配合后端完成数据交互功能。',
+        description:
+          '参与公司产品前端页面的开发和维护，使用Vue.js框架进行开发，配合后端完成数据交互功能。',
         time: [new Date('2022-07-01'), new Date('2022-08-31')]
       }
     ],
-    campusExperience: '担任班级学习委员，负责组织学习交流活动\n参与校园科技创新大赛，获得三等奖\n参加志愿者活动，累计服务时长超过50小时',
+    campusExperience:
+      '担任班级学习委员，负责组织学习交流活动\n参与校园科技创新大赛，获得三等奖\n参加志愿者活动，累计服务时长超过50小时',
     skills: ['HTML/CSS', 'JavaScript', 'Vue.js', 'Python'],
-    selfAssessment: '作为一名即将毕业的学生，我具有扎实的专业知识基础和良好的学习能力，对新技术有浓厚的兴趣。在校期间积极参与各类实践活动，培养了团队协作和沟通能力。工作认真负责，有较强的适应能力和抗压能力。'
+    selfAssessment:
+      '作为一名即将毕业的学生，我具有扎实的专业知识基础和良好的学习能力，对新技术有浓厚的兴趣。在校期间积极参与各类实践活动，培养了团队协作和沟通能力。工作认真负责，有较强的适应能力和抗压能力。'
   },
   tech: {
     name: '张三',
@@ -566,19 +564,22 @@ const resumeTemplates = {
       {
         company: '腾讯科技',
         position: '前端开发工程师',
-        description: '【情境】面对日益增长的用户需求及市场竞争压力，【任务】我被委任为腾讯科技核心产品的主要前端开发者之一，负责提升用户体验并优化性能。【行动】利用Vue.js框架重构了多个关键页面，引入了TypeScript提高代码质量，并实施了一系列性能优化措施。【成果】最终实现了加载速度提升30%，用户满意度提高了15%。',
+        description:
+          '【情境】面对日益增长的用户需求及市场竞争压力，【任务】我被委任为腾讯科技核心产品的主要前端开发者之一，负责提升用户体验并优化性能。【行动】利用Vue.js框架重构了多个关键页面，引入了TypeScript提高代码质量，并实施了一系列性能优化措施。【成果】最终实现了加载速度提升30%，用户满意度提高了15%。',
         time: [new Date('2018-07-01'), new Date('2021-12-31')]
       },
       {
         company: '阿里巴巴',
         position: '高级前端开发工程师',
-        description: '【情境】电商平台面临用户体验不一致和性能瓶颈问题，【任务】作为前端架构师，负责制定前端技术标准并带领团队进行系统重构。【行动】设计并实施了组件化开发流程，建立了严格的代码审查机制，优化了前端构建流程。【成果】重构后的系统性能提升40%，开发效率提高25%，用户转化率提升10%。',
+        description:
+          '【情境】电商平台面临用户体验不一致和性能瓶颈问题，【任务】作为前端架构师，负责制定前端技术标准并带领团队进行系统重构。【行动】设计并实施了组件化开发流程，建立了严格的代码审查机制，优化了前端构建流程。【成果】重构后的系统性能提升40%，开发效率提高25%，用户转化率提升10%。',
         time: [new Date('2022-01-01'), new Date()]
       }
     ],
     campusExperience: '在校期间担任学生会技术部部长，组织多次技术分享会',
     skills: ['Vue.js', 'React', 'TypeScript', 'Node.js', 'Webpack', 'Docker'],
-    selfAssessment: '5年前端开发经验，熟练掌握主流前端技术栈，具有良好的团队协作能力和沟通能力。对新技术有浓厚兴趣，能快速学习并应用到实际项目中。注重代码质量和用户体验，善于解决复杂技术问题。有带领团队经验，能够进行技术架构设计和技术选型。'
+    selfAssessment:
+      '5年前端开发经验，熟练掌握主流前端技术栈，具有良好的团队协作能力和沟通能力。对新技术有浓厚兴趣，能快速学习并应用到实际项目中。注重代码质量和用户体验，善于解决复杂技术问题。有带领团队经验，能够进行技术架构设计和技术选型。'
   },
   management: {
     name: '王丽',
@@ -610,19 +611,22 @@ const resumeTemplates = {
       {
         company: '华为技术有限公司',
         position: '高级项目经理',
-        description: '【情境】公司大型跨国项目面临进度延迟和团队协作问题，【任务】被任命为项目经理负责扭转局面，【行动】重组团队结构，优化工作流程，建立清晰的沟通机制和里程碑追踪系统，【成果】项目提前一个月完成，客户满意度达95%，为公司带来3000万收入。',
+        description:
+          '【情境】公司大型跨国项目面临进度延迟和团队协作问题，【任务】被任命为项目经理负责扭转局面，【行动】重组团队结构，优化工作流程，建立清晰的沟通机制和里程碑追踪系统，【成果】项目提前一个月完成，客户满意度达95%，为公司带来3000万收入。',
         time: [new Date('2018-03-01'), new Date()]
       },
       {
         company: '中兴通讯',
         position: '项目主管',
-        description: '【情境】多个研发项目并行推进，资源冲突严重，【任务】作为项目主管统筹资源并确保项目按时交付，【行动】实施敏捷项目管理方法，建立资源共享机制，优化团队协作模式，【成果】团队生产力提升35%，所有项目按期交付，节省成本20%。',
+        description:
+          '【情境】多个研发项目并行推进，资源冲突严重，【任务】作为项目主管统筹资源并确保项目按时交付，【行动】实施敏捷项目管理方法，建立资源共享机制，优化团队协作模式，【成果】团队生产力提升35%，所有项目按期交付，节省成本20%。',
         time: [new Date('2015-07-01'), new Date('2018-02-28')]
       }
     ],
     campusExperience: '研究生期间担任MBA协会主席，组织多次企业参访和管理论坛',
     skills: ['项目管理', '团队领导', '敏捷开发', '风险管理', '预算控制', '商务谈判'],
-    selfAssessment: '拥有8年项目管理经验，擅长带领跨职能团队完成复杂项目。具有出色的领导力、沟通能力和问题解决能力。精通敏捷和传统项目管理方法，能够根据项目特点灵活选择合适的管理方式。注重团队成长和业务价值的实现，有成功管理千万级项目的经验。'
+    selfAssessment:
+      '拥有8年项目管理经验，擅长带领跨职能团队完成复杂项目。具有出色的领导力、沟通能力和问题解决能力。精通敏捷和传统项目管理方法，能够根据项目特点灵活选择合适的管理方式。注重团队成长和业务价值的实现，有成功管理千万级项目的经验。'
   },
   marketing: {
     name: '赵芳',
@@ -648,19 +652,22 @@ const resumeTemplates = {
       {
         company: '字节跳动',
         position: '市场营销经理',
-        description: '【情境】新产品上线初期用户增长缓慢，【任务】负责制定并执行市场推广策略，【行动】设计了多渠道整合营销方案，包括社交媒体营销、KOL合作和线下活动，【成果】三个月内用户增长200%，品牌知名度提升50%，产品跻身行业前三。',
+        description:
+          '【情境】新产品上线初期用户增长缓慢，【任务】负责制定并执行市场推广策略，【行动】设计了多渠道整合营销方案，包括社交媒体营销、KOL合作和线下活动，【成果】三个月内用户增长200%，品牌知名度提升50%，产品跻身行业前三。',
         time: [new Date('2019-04-01'), new Date()]
       },
       {
         company: '京东集团',
         position: '营销专员',
-        description: '【情境】618购物节需要创新营销方案，【任务】作为团队核心成员负责创意策划和执行，【行动】提出并实施了"品类日"概念，结合直播和社交裂变，【成果】带动品类销售额同比增长150%，获得公司年度创新奖。',
+        description:
+          '【情境】618购物节需要创新营销方案，【任务】作为团队核心成员负责创意策划和执行，【行动】提出并实施了"品类日"概念，结合直播和社交裂变，【成果】带动品类销售额同比增长150%，获得公司年度创新奖。',
         time: [new Date('2015-07-01'), new Date('2019-03-31')]
       }
     ],
     campusExperience: '大学期间创办校园营销协会，举办多场营销大赛和企业分享会',
     skills: ['数字营销', '品牌策划', '社交媒体运营', '内容营销', '用户增长', '数据分析'],
-    selfAssessment: '具有7年互联网行业市场营销经验，对数字营销和品牌建设有深入理解。擅长整合各类营销渠道，制定有效的营销策略。具有出色的创意思维和执行力，能够将创意转化为有效的市场行动。熟悉用户心理，善于数据分析，能够不断优化营销效果。有团队管理经验，能够带领团队实现营销目标。'
+    selfAssessment:
+      '具有7年互联网行业市场营销经验，对数字营销和品牌建设有深入理解。擅长整合各类营销渠道，制定有效的营销策略。具有出色的创意思维和执行力，能够将创意转化为有效的市场行动。熟悉用户心理，善于数据分析，能够不断优化营销效果。有团队管理经验，能够带领团队实现营销目标。'
   },
   finance: {
     name: '陈明',
@@ -692,31 +699,36 @@ const resumeTemplates = {
       {
         company: '普华永道会计师事务所',
         position: '高级财务分析师',
-        description: '【情境】某大型跨国公司并购项目需要财务尽职调查，【任务】作为项目负责人进行财务分析和风险评估，【行动】组织团队深入分析目标公司财务状况，识别潜在风险并提出解决方案，【成果】顺利完成尽职调查，为客户节省约2000万并购成本，获得客户高度评价。',
+        description:
+          '【情境】某大型跨国公司并购项目需要财务尽职调查，【任务】作为项目负责人进行财务分析和风险评估，【行动】组织团队深入分析目标公司财务状况，识别潜在风险并提出解决方案，【成果】顺利完成尽职调查，为客户节省约2000万并购成本，获得客户高度评价。',
         time: [new Date('2020-02-01'), new Date()]
       },
       {
         company: '安永华明会计师事务所',
         position: '审计师',
-        description: '【情境】多家上市公司年度审计工作任务繁重，【任务】负责财务报表审计和内控评估，【行动】优化审计流程，应用数据分析工具提高审计效率，【成果】比预期提前完成多个项目，审计质量获得客户认可，被评为年度优秀员工。',
+        description:
+          '【情境】多家上市公司年度审计工作任务繁重，【任务】负责财务报表审计和内控评估，【行动】优化审计流程，应用数据分析工具提高审计效率，【成果】比预期提前完成多个项目，审计质量获得客户认可，被评为年度优秀员工。',
         time: [new Date('2017-07-01'), new Date('2020-01-31')]
       }
     ],
     campusExperience: '研究生期间担任金融俱乐部副主席，组织企业参访和行业讲座',
     skills: ['财务分析', '财务建模', '风险评估', '审计', 'Excel高级应用', 'SQL', 'Python数据分析'],
-    selfAssessment: '拥有6年财务分析和审计经验，对财务报表分析和企业估值有深入研究。具备扎实的会计和金融知识，精通财务建模和风险管理。工作严谨细致，善于发现财务数据中的问题并提出建设性意见。良好的沟通能力和团队协作精神，能够向非财务人员清晰解释复杂的财务概念。持续学习新知识，保持专业敏感度。'
+    selfAssessment:
+      '拥有6年财务分析和审计经验，对财务报表分析和企业估值有深入研究。具备扎实的会计和金融知识，精通财务建模和风险管理。工作严谨细致，善于发现财务数据中的问题并提出建设性意见。良好的沟通能力和团队协作精神，能够向非财务人员清晰解释复杂的财务概念。持续学习新知识，保持专业敏感度。'
   }
 }
 
 // 将resumeForm改为一个函数，根据当前选择的类型返回对应的模板
-const resumeForm = ref(JSON.parse(JSON.stringify(resumeTemplates.tech)));
+const resumeForm = ref(JSON.parse(JSON.stringify(resumeTemplates.tech)))
 
 // 添加切换简历类型的函数
 const changeResumeType = (type: string) => {
-  currentResumeType.value = type;
+  currentResumeType.value = type
   // 深拷贝模板数据，避免相互影响
-  resumeForm.value = JSON.parse(JSON.stringify(resumeTemplates[type as keyof typeof resumeTemplates]));
-  ElMessage.success(`已切换到${resumeTypes.find(item => item.value === type)?.label}`);
+  resumeForm.value = JSON.parse(
+    JSON.stringify(resumeTemplates[type as keyof typeof resumeTemplates])
+  )
+  ElMessage.success(`已切换到${resumeTypes.find(item => item.value === type)?.label}`)
 }
 
 const analyzing = ref(false)
@@ -729,7 +741,7 @@ const resumePreview = ref(null)
 const selectTemplate = async (template: string) => {
   await loadTemplate(template)
   templateDialogVisible.value = false
-  
+
   // 应用模板增强
   await nextTick()
   if (resumePreview.value) {
@@ -746,7 +758,7 @@ const loadTemplate = async (templateName?: string) => {
     if (templateKey in templateComponents) {
       const module = await templateComponents[templateKey]()
       currentTemplate.value = module.default
-      
+
       // 应用模板增强
       await nextTick()
       if (resumePreview.value) {
@@ -756,7 +768,7 @@ const loadTemplate = async (templateName?: string) => {
       // 回退到默认模板
       const fallback = await templateComponents['muban1']()
       currentTemplate.value = fallback.default
-      
+
       // 应用默认模板增强
       await nextTick()
       if (resumePreview.value) {

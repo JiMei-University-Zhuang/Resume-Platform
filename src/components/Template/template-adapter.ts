@@ -33,13 +33,13 @@ export const enhanceTemplate = async (templateKey: string, element: HTMLElement)
   if (!element) return
 
   const templateName = templateKey.toLowerCase()
-  
+
   // 添加通用类
   element.classList.add('resume-enhanced')
-  
+
   // 等待DOM渲染完成
   await nextTick()
-  
+
   // 针对特定模板进行样式适配
   switch (templateName) {
     case 'muban1':
@@ -58,7 +58,7 @@ export const enhanceTemplate = async (templateKey: string, element: HTMLElement)
       // 通用增强
       enhanceCommon(element, templateName)
   }
-  
+
   // 确保联系信息在一行显示
   ensureContactInfoInline(element)
 }
@@ -98,7 +98,7 @@ const enhanceMuban3 = (element: HTMLElement): void => {
   if (header) {
     header.classList.add('business-style')
   }
-  
+
   // 将联系信息转换为一行显示
   const contactInfo = element.querySelector('.contact-info')
   if (contactInfo) {
@@ -119,7 +119,7 @@ const enhanceMuban4 = (element: HTMLElement): void => {
   if (header) {
     header.classList.add('creative-header')
   }
-  
+
   // 为所有区块添加创意风格类
   const sections = element.querySelectorAll('.section')
   sections.forEach(section => {
@@ -137,7 +137,7 @@ const enhanceCommon = (element: HTMLElement, templateName: string): void => {
     const targetElement = element.querySelector(className) || element
     targetElement.classList.add(templateName)
   }
-  
+
   // 美化所有区块标题
   const sectionTitles = element.querySelectorAll('.section-title, h2')
   sectionTitles.forEach(title => {
@@ -157,21 +157,23 @@ const ensureContactInfoInline = (element: HTMLElement): void => {
     '.resume-header div',
     '.personal-section div'
   ]
-  
+
   containers.forEach(selector => {
     const container = element.querySelector(selector)
     if (!container) return
-    
+
     // 查找可能的联系信息项
     const infoItems = container.querySelectorAll('p, div:not(.row):not(.col)')
     if (infoItems.length >= 2) {
       container.classList.add('info-row')
       infoItems.forEach(item => {
-        if (item.textContent?.includes('：') || 
-            item.textContent?.includes(':') || 
-            item.textContent?.includes('邮箱') || 
-            item.textContent?.includes('电话') ||
-            item.textContent?.includes('联系')) {
+        if (
+          item.textContent?.includes('：') ||
+          item.textContent?.includes(':') ||
+          item.textContent?.includes('邮箱') ||
+          item.textContent?.includes('电话') ||
+          item.textContent?.includes('联系')
+        ) {
           item.classList.add('info-item')
         }
       })
@@ -181,4 +183,4 @@ const ensureContactInfoInline = (element: HTMLElement): void => {
 
 export default {
   enhanceTemplate
-} 
+}
