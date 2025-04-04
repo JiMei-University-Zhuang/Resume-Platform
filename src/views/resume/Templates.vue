@@ -685,16 +685,16 @@ defineExpose({
     align-items: flex-start;
     gap: 16px;
   }
-  
+
   .filters {
     width: 100%;
     overflow-x: auto;
   }
-  
+
   .template-preview {
     flex-direction: column;
   }
-  
+
   .preview-image {
     width: 100%;
   }
