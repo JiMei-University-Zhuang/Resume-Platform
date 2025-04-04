@@ -102,12 +102,12 @@ export function register(data: RegisterParams) {
 }
 //获取用户信息
 export function getUserInfo() {
-    return request({
-      url: '/auth/userInfo',
-      method: 'get'
-    })
-  }
-    
+  return request({
+    url: '/auth/userInfo',
+    method: 'get'
+  })
+}
+
 // 定义getUser接口的响应数据类型
 export interface GetUserResult {
   id: string
