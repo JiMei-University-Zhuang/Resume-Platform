@@ -31,9 +31,9 @@
                   placeholder="请输入用户名"
                   class="custom-input"
                 >
-                  <template #prefix>
-                    <i class="el-icon-user"></i>
-                  </template>
+                 <template #prefix>
+                <el-icon><UserFilled /></el-icon>
+              </template>
                 </el-input>
               </el-form-item>
               <el-form-item prop="password">
@@ -44,9 +44,9 @@
                   show-password
                   class="custom-input"
                 >
-                  <template #prefix>
-                    <i class="el-icon-lock"></i>
-                  </template>
+                 <template #prefix>
+                <el-icon><Lock /></el-icon>
+              </template>
                 </el-input>
               </el-form-item>
 
@@ -76,6 +76,55 @@
               </el-form-item>
             </el-form>
           </el-tab-pane>
+          <el-tab-pane label="邮箱登录" name="email">
+            <el-form
+              ref="loginFormEmailRef"
+              :model="loginFormEmail"
+              :rules="loginrulesEmail"
+              class="login-form"
+            >
+              <el-form-item prop="email">
+                <el-input
+                  v-model="loginFormEmail.email"
+                  placeholder="请输入邮箱地址"
+                  class="custom-input"
+                >
+                  <template #prefix>
+                    <el-icon><Message /></el-icon>
+                  </template>
+                </el-input>
+              </el-form-item>
+              <el-form-item
+                prop="captchaValue"
+                class="captcha-container custom-input"
+                style="display: flex; align-items: center; justify-content: space-between"
+              >
+                <el-input
+                  v-model="loginFormEmail.captchaValue"
+                  placeholder="请输入验证码"
+                  style="width: auto; flex: 1; margin-right: 10px"
+                >
+                  <template #prefix>
+                    <el-icon><ChatSquare /></el-icon>
+                  </template>
+                </el-input>
+                <el-button type="primary" :loading="sendingCaptcha" @click="sendEmailCaptcha">
+                  获取验证码
+                </el-button>
+              </el-form-item>
+              <el-form-item>
+                <el-button
+                  type="primary"
+                  :loading="loading"
+                  class="login-button"
+                  @click="handleEmailLogin(loginFormEmailRef)"
+                >
+                  立即登录
+                </el-button>
+                <el-button class="register-button" @click="gotoRegister"> 注册账号 </el-button>
+              </el-form-item>
+            </el-form>
+          </el-tab-pane>
           <el-tab-pane label="人脸登录" name="face">
             <div class="face-login-container">
               <div class="video-container">
@@ -97,31 +146,7 @@
       </div>
 
       <div class="register-box" v-else>
-        <h2 class="login-title">注册新用户</h2>
-        <el-tabs v-model="registerActiveTab" class="register-tabs">
-          <el-tab-pane label="手机号注册" name="phone">
-            <el-form-item prop="telephone">
-              <el-input
-                v-model="registerForm.telephone"
-                placeholder="请输入手机号"
-                class="custom-input"
-              >
-                <template #prefix>
-                  <i class="el-icon-phone"></i>
-                </template>
-              </el-input>
-            </el-form-item>
-          </el-tab-pane>
-          <el-tab-pane label="邮箱注册" name="email">
-            <el-form-item prop="email">
-              <el-input v-model="registerForm.email" placeholder="请输入邮箱" class="custom-input">
-                <template #prefix>
-                  <i class="el-icon-mail"></i>
-                </template>
-              </el-input>
-            </el-form-item>
-          </el-tab-pane>
-        </el-tabs>
+        <h2 class="login-title">欢迎注册智航CareerAI</h2>
         <el-form
           class="register-form"
           ref="registerFormRef"
@@ -135,7 +160,7 @@
               class="custom-input"
             >
               <template #prefix>
-                <i class="el-icon-user"></i>
+                <el-icon><UserFilled /></el-icon>
               </template>
             </el-input>
           </el-form-item>
@@ -148,29 +173,38 @@
               class="custom-input"
             >
               <template #prefix>
-                <i class="el-icon-lock"></i>
+                <el-icon><Lock /></el-icon>
               </template>
             </el-input>
           </el-form-item>
           <el-form-item prop="name">
-            <el-input v-model="registerForm.name" placeholder="请输入昵称" class="custom-input">
+            <el-input
+              v-model="registerForm.email"
+              placeholder="请输入邮箱地址"
+              class="custom-input"
+            >
               <template #prefix>
-                <i class="el-icon-user"></i>
+                <el-icon><Message /></el-icon>
               </template>
             </el-input>
           </el-form-item>
-          <el-form-item prop="captcha" class="captcha-container custom-input">
+          <el-form-item
+            prop="captcha"
+            class="captcha-container custom-input"
+            style="display: flex; align-items: center; justify-content: space-between"
+          >
             <el-input
-              v-model="registerForm.captcha_value"
+              v-model="registerForm.captchaValue"
               placeholder="请输入验证码"
-              style="width: auto"
-            />
-            <img
-              :src="captchaUrl"
-              alt="验证码"
-              @click="refreshCaptcha"
-              style="cursor: pointer; width: 80px; margin-left: 10px"
-            />
+              style="width: auto; flex: 1; margin-right: 10px"
+            >
+              <template #prefix>
+                <el-icon><ChatSquare /></el-icon>
+              </template>
+            </el-input>
+            <el-button type="primary" :loading="sendingCaptcha" @click="sendRegisterEmailCaptcha"
+              >获取验证码</el-button
+            >
           </el-form-item>
           <el-form-item>
             <el-button class="login-button" type="primary" id="register" @click="handleRegister">
@@ -193,9 +227,16 @@
 import { ref, reactive, onUnmounted, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { getCaptcha, getCaptchaKey, login } from '@/api/user'
+import {
+  getCaptcha,
+  getCaptchaKey,
+  login,
+  sendEmailCaptchaValue,
+  sendRegisterEmailCaptchaValue,
+  register,
+  emailLogin
+} from '@/api/user'
 import { ApiResponse } from '@/api/types'
-import axios from 'axios'
 import * as faceapi from 'face-api.js'
 
 interface AxiosResponse<T = any> {
@@ -209,24 +250,26 @@ interface AxiosResponse<T = any> {
 
 // 登录响应类型
 type LoginResponse = AxiosResponse<ApiResponse<string>>
+type LoginEmailResponse = AxiosResponse<ApiResponse<string>>
 
 const router = useRouter()
 const loginFormRef = ref()
+const loginFormEmailRef = ref()
 const registerFormRef = ref()
 // const registerFormRef = ref<InstanceType<typeof ElForm> | null>(null);
 const loading = ref(false)
-const registerActiveTab = ref('phone')
 const activeTab = ref('account')
 const videoRef = ref<HTMLVideoElement | null>(null)
 const canvasRef = ref<HTMLCanvasElement | null>(null)
 const stream = ref<MediaStream | null>(null)
 const isModelLoaded = ref(false)
 const isProcessing = ref(false)
+const sendingCaptcha = ref(false)
 
 //登录表单
 const loginForm = reactive({
-  username: '账号1',
-  password: 'root',
+  username: '',
+  password: '',
   captcha_key: '',
   captcha_value: ''
 })
@@ -235,28 +278,25 @@ const loginrules = {
   password: [{ required: true, message: '请输入密码', trigger: 'blur' }],
   captcha_value: [{ required: true, message: '请输入验证码', trigger: 'blur' }]
 }
+//登录邮箱表单
+const loginFormEmail = reactive({
+  email: '',
+  captchaValue: ''
+})
+const loginrulesEmail = {
+  email: [{ required: true, message: '请输入邮箱', trigger: 'blur' }],
+  captcha_value: [{ required: true, message: '请输入验证码', trigger: 'blur' }]
+}
 
 const registerForm = reactive({
   username: '',
   password: '',
-  name: '',
-  telephone: '',
   email: '',
-  captcha_key: '',
-  captcha_value: ''
+  captchaValue: ''
 })
 const registerrules = {
   username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
   password: [{ required: true, message: '请输入密码', trigger: 'blur' }],
-  name: [{ required: true, message: '请输入昵称', trigger: 'blur' }],
-  telephone: [
-    { required: true, message: '请输入手机号', trigger: 'blur' },
-    {
-      pattern: /^1[3-9]\d{9}$/,
-      message: '手机号格式不正确',
-      trigger: 'blur'
-    }
-  ],
   email: [
     { required: true, message: '请输入邮箱', trigger: 'blur' },
     {
@@ -265,12 +305,12 @@ const registerrules = {
       trigger: 'blur'
     }
   ],
-  captcha_value: [{ required: true, message: '请输入验证码', trigger: 'blur' }]
+  captchaValue: [{ required: true, message: '请输入验证码', trigger: 'blur' }]
 }
 
 const captchaKey = ref('')
 const captchaUrl = ref('')
-
+//此处为账号密码登录的验证码获取
 const getCaptchaData = async () => {
   try {
     const prepareResponse = (await getCaptchaKey()) as AxiosResponse<ApiResponse<string>>
@@ -285,13 +325,50 @@ const getCaptchaData = async () => {
       })
       captchaUrl.value = window.URL.createObjectURL(blob)
       loginForm.captcha_key = captchaKey.value
-      registerForm.captcha_key = captchaKey.value
     }
   } catch (error) {
     ElMessage.error('获取验证码失败，请刷新重试')
   }
 }
-
+// 邮箱登录发送的验证码
+const sendEmailCaptcha = async () => {
+  if (sendingCaptcha.value) return
+  sendingCaptcha.value = true
+  try {
+    const response = await sendEmailCaptchaValue({
+      email: loginFormEmail.email
+    })
+    if (response.data.code === 200) {
+      ElMessage.success('验证码发送成功')
+    } else if (response.data.code === 500) {
+    }
+  } catch (error) {
+    // ElMessage.error('验证码发送失败，请刷新重试')
+  } finally {
+    sendingCaptcha.value = false
+  }
+}
+// 发送注册邮箱验证码
+const sendRegisterEmailCaptcha = async () => {
+  if (sendingCaptcha.value) return
+  sendingCaptcha.value = true
+  try {
+    const response = await sendRegisterEmailCaptchaValue({
+      email: registerForm.email
+    })
+    if (response.data.code === 200) {
+      ElMessage.success('验证码发送成功')
+    } else {
+      const errorMessage = response.data.message || '验证码发送失败，请刷新重试'
+      ElMessage.error(errorMessage)
+    }
+  } catch (error) {
+    console.log('发送验证码失败:', error)
+    ElMessage.error('验证码发送失败，请刷新重试')
+  } finally {
+    sendingCaptcha.value = false
+  }
+}
 const refreshCaptcha = () => {
   getCaptchaData()
 }
@@ -340,46 +417,71 @@ const handleLogin = async (formEl: any) => {
     }
   })
 }
+const handleEmailLogin = async (formEl: any) => {
+  if (!formEl) return
+
+  await formEl.validate(async (valid: boolean) => {
+    if (valid) {
+      loading.value = true
+      try {
+        const response = await emailLogin({
+          email: loginFormEmail.email,
+          captchaValue: loginFormEmail.captchaValue
+        })as any as LoginEmailResponse
+        if (response.data.code === 200 && response.data.data) {
+          ElMessage.success('登录成功')
+          router.push('/dashboard')
+        }
+      } catch (error: any) {
+        let errorMessage = '登录失败，请检查邮箱和验证码'
+        if (error.response && error.response.data) {
+          if (error.response.data.message.includes('邮箱参数错误')) {
+            errorMessage = '请输入正确的邮箱地址'
+          } else if (error.response.data.message.includes('验证码错误')) {
+            errorMessage = '请输入正确的验证码'
+          } else if (error.response.data.message.includes('账号不存在')) {
+            errorMessage = '账号不存在，请注册'
+          }
+        }
+        ElMessage.error(errorMessage)
+      } finally {
+        loading.value = false
+      }
+    }
+  })
+}
 
 const handleRegister = async () => {
   if (!registerFormRef.value) return
 
   await registerFormRef.value.validate(async (valid: boolean) => {
     if (valid) {
-      const registerUrl =
-        registerActiveTab.value === 'phone'
-          ? 'http://8.130.75.193:8081/auth/telephoneRegister'
-          : 'http://8.130.75.193:8081/auth/emailRegister'
-
-      axios
-        .post(registerUrl, registerForm)
-        .then(() => {
+      loading.value = true
+      try {
+        const response = await register({
+          username: registerForm.username,
+          password: registerForm.password,
+          email: registerForm.email,
+          captchaValue: registerForm.captchaValue
+        })
+        if (response.data.code === 200) {
           ElMessage.success('注册成功')
           gotoLogin()
           refreshCaptcha()
           registerForm.username = ''
           registerForm.password = ''
-          registerForm.name = ''
-          registerForm.telephone = ''
           registerForm.email = ''
-          registerForm.captcha_value = ''
-        })
-        .catch(error => {
-          if (error.response && error.response.status === 500) {
-            const errorMessage = error.response.data.message
-            if (errorMessage) {
-              if (errorMessage.includes('手机号参数错误')) {
-                ElMessage.error('请输入11位的手机号码')
-              } else if (errorMessage.includes('请输入包含英语和数字，在6-18位之间')) {
-                ElMessage.error('密码需包含数字和字母长度，在 6 到 18 位之间哈')
-              } else if (errorMessage.includes('账号已经存在')) {
-                ElMessage.error('此用户名已被占用，重新取一个吧')
-              } else if (errorMessage.includes('邮箱参数错误')) {
-                ElMessage.error('请输入正确的邮箱地址')
-              }
-            }
-          }
-        })
+          registerForm.captchaValue = ''
+        } else {
+          const errorMessage = response.data.message || '注册失败，请重试'
+          ElMessage.error(errorMessage)
+        }
+      } catch (error: any) {
+        const errorMessage = error.response?.data?.message || error.message || '注册失败，请重试'
+        ElMessage.error(errorMessage)
+      } finally {
+        loading.value = false
+      }
     }
   })
 }
