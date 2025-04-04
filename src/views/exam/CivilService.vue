@@ -159,8 +159,7 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { onBeforeRouteLeave } from 'vue-router'
-import { ElNotification } from 'element-plus'
-import { getCSExam } from '@/api/exam'
+import { ElMessage } from 'element-plus'
 
 const router = useRouter()
 const dialogVisible = ref(false)
@@ -180,11 +179,13 @@ const showDialog = () => {
 const examList = [
   {
     value: '2020年国家公务员考试行测真题',
-    label: '2020国考·行政职业能力测验真题'
+    label: '2020国考·行政职业能力测验真题',
+    subject: '行测'
   },
   {
     value: '2020年国家公务员考试申论真题',
-    label: '2020国考·申论真题'
+    label: '2020国考·申论真题',
+    subject: '申论'
   }
 ]
 // 显示选择弹窗
@@ -196,30 +197,27 @@ const showExamDialog = () => {
 }
 
 const startRealExam = async () => {
-  try {
-    loadingExam.value = true
-    const { data } = await getCSExam({
-      examName: selectedExam.value
-    })
-
-    router.push({
-      name: 'ExamPage',
-      query: {
-        examId: data.questions[0].id,
-        examType: selectedExam.value.includes('行测') ? 'xingce' : 'shenlun',
-        isRealExam: 'true', // 添加真题标识
-        examName: selectedExam.value
-      }
-    })
-  } catch (error) {
-    ElNotification.error({
-      title: '错误',
-      message: '试卷获取失败，请重试'
-    })
-  } finally {
-    loadingExam.value = false
-    examDialogVisible.value = false
+  if (!selectedExam.value) {
+    ElMessage.error('请选择试卷后再开始考试！')
+    return
   }
+
+  // 确保 selectedExamItem 不为 undefined
+  const selectedExamItem = examList.find(item => item.value === selectedExam.value)
+
+  if (!selectedExamItem) {
+    ElMessage.error('未找到对应的试卷信息，请重试！')
+    return
+  }
+  examDialogVisible.value = false
+  router.push({
+    name: 'ExamPage',
+    query: {
+      examName: selectedExam.value,
+      type: 'exam',
+      subject: selectedExamItem.subject || '未知科目'
+    }
+  })
 }
 const days = computed(() => Math.floor(timeDifference.value / (1000 * 60 * 60 * 24)))
 let timerId: any = null
@@ -250,7 +248,7 @@ const startExam = () => {
       subject: selectedSubject.value,
       count: parseInt(selectedCount.value, 10)
     }
-    router.push({ name: 'ExamPage', query: requestData })
+    router.push({ name: 'ExamPage', query: { ...requestData, type: 'practice' } })
   })
 }
 
@@ -259,6 +257,9 @@ onBeforeRouteLeave(() => {
   dialogVisible.value = false
 })
 onMounted(() => {
+  if (examList.length > 0) {
+    selectedExam.value = examList[0].value
+  }
   startCountdown()
 })
 </script>

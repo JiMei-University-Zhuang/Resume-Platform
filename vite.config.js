@@ -29,31 +29,29 @@ export default defineConfig({
                 rewrite: function (path) { return path.replace(/^\/api/, ''); }
                 // Vite v6.1.0 不支持 priority 属性
             },
-            // 其他API - 保留/api前缀
-            '^/api/(?!auth|chat)': {
+            '/api/practice': {
                 target: apiBaseUrl,
                 changeOrigin: true,
-                rewrite: function (path) { return path; },
-                secure: false,
-                configure: function (proxy, options) {
-                    proxy.on('proxyReq', function (proxyReq, req, res) {
-                        console.log('其他API请求:', req.method, req.url, '->', options.target + proxyReq.path);
-                    });
-                    proxy.on('proxyRes', function (proxyRes, req, res) {
-                        console.log('其他API响应:', proxyRes.statusCode, req.url);
-                        // 添加CORS头
-                        res.setHeader('Access-Control-Allow-Origin', '*');
-                        res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE');
-                        res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, token');
-                        res.setHeader('Access-Control-Allow-Credentials', 'true');
-                        if (req.method === 'OPTIONS') {
-                            res.statusCode = 200;
-                        }
-                    });
-                    proxy.on('error', function (err, req, res) {
-                        console.error('其他API代理错误:', err);
-                    });
-                }
+                rewrite: function (path) {
+                    return path.replace(/^\/api/, '');
+                },
+                secure: false
+            },
+            '/api/exam': {
+                target: apiBaseUrl,
+                changeOrigin: true,
+                rewrite: function (path) {
+                    return path.replace(/^\/api/, '');
+                },
+                secure: false
+            },
+            '/api': {
+                target: apiBaseUrl,
+                changeOrigin: true,
+                rewrite: function (path) {
+                    return path.replace(/^\/api/, '');
+                },
+                secure: false
             }
         }
     },

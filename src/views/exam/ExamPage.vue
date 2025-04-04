@@ -1,23 +1,26 @@
 <template>
   <div class="exam-page">
     <div class="card-header">
-      <h1 class="exam-title">{{ route.query.isRealExam === 'true' ? '考试开始' : '练习开始' }}</h1>
+      <h1 class="exam-title">{{ route.query.type === 'exam' ? '考试开始' : '练习开始' }}</h1>
       <p class="exam-subtitle">
-        <span v-if="route.query.isRealExam === 'true'">
-          当前试卷：{{ route.query.examType === 'xingce' ? '行政职业能力测验' : '申论' }}
+        <span v-if="route.query.type === 'exam'">
+          当前试卷：{{ route.query.examName || '未知试卷' }}
         </span>
         <span v-else> 本次练习科目：{{ subject }}，题目数量：{{ count }} </span>
       </p>
     </div>
-    <div v-if="route.query.isRealExam" class="real-exam-badge">
-      <el-tag type="danger" effect="dark">真题模式</el-tag>
-      <div class="timer">考试剩余时间：{{ formatTime(timeLeft) }}</div>
+    <div v-if="route.query.type === 'exam'" class="real-exam-badge">
+      <div
+        class="timer"
+        style="text-align: center"
+        v-html="formatTime(timeLeft) + '<br>考试剩余时间'"
+      ></div>
     </div>
     <div v-if="questions?.length > 0">
       <template v-if="subject === '行测'">
         <div class="question-list">
           <div v-for="(question, index) in questions" :key="index" class="question-item">
-            <div class="question-header">
+            <div class="question-header" style="display: flex; justify-content: space-between">
               <span class="question-number">题目编号：{{ question.questionId }}</span>
               <span class="question-score">分值&nbsp;{{ question.score }}</span>
             </div>
@@ -76,19 +79,33 @@
       </template>
       <template v-else>
         <div class="essay-question">
-          <div class="question-title">
-            <span v-html="formatText(questions[0]?.questionContent)"></span>
-            <span class="question-score">分值{{ questions[0]?.score }}</span>
+          <div v-for="(question, questionIndex) in questions" :key="questionIndex">
+            <div class="question-title" style="font-size: 17px">
+              <span v-html="formatText(question.questionContent)"></span>
+            </div>
+            <div
+              v-for="(subQuestion, subIndex) in question.expoundingOptionInfos || []"
+              :key="subIndex"
+            >
+              <div class="question-header">
+                <p>第{{ subQuestion.itemId }}小题</p>
+                <span class="question-score">分值&nbsp;{{ subQuestion.itemScore }}</span>
+              </div>
+              <p>
+                <span v-html="formatText(subQuestion.itemContent)"></span>
+              </p>
+              <textarea
+                v-model="
+                  essayAnswers[
+                    questionIndex * (question.expoundingOptionInfos?.length || 1) + subIndex
+                  ]
+                "
+                rows="10"
+                cols="80"
+              ></textarea>
+            </div>
           </div>
-          <div v-for="(question, index) in questions[0]?.expoundingOptionInfos || []" :key="index">
-            <p>题目编号：{{ questions[0]?.questionId }} - {{ question.itemId }}</p>
-            <p>
-              题目内容：{{ question.itemContent }}
-              <span class="question-score">分值&nbsp;{{ question.itemScore }}</span>
-            </p>
-            <textarea v-model="essayAnswers[index]" rows="10" cols="80"></textarea>
-          </div>
-          <el-button type="primary" @click="submitEssayExam">提交申论答案</el-button>
+          <el-button type="primary" @click="submitRealExam">提交答案</el-button>
         </div>
       </template>
     </div>
@@ -99,7 +116,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { getCSPractice, getCSExam } from '@/api/exam'
 import { ElMessageBox } from 'element-plus'
@@ -107,6 +124,7 @@ import passimg1 from '@/assets/images/exam_imgs/pass1.jpg'
 import passimg2 from '@/assets/images/exam_imgs/pass2.png'
 import failimg1 from '@/assets/images/exam_imgs/failpass1.png'
 import failimg2 from '@/assets/images/exam_imgs/failpass2.png'
+import { useExamStore } from '@/stores/examStore'
 
 // 定义题目接口
 interface Question {
@@ -128,6 +146,7 @@ interface Question {
 }
 
 const route = useRoute()
+const examStore = useExamStore()
 const subject = ref(route.query.subject as string)
 const count = ref(parseInt(route.query.count as string, 10))
 const questions = ref<Question[]>([])
@@ -136,41 +155,16 @@ const essayAnswers = ref<string[]>([])
 const totalScore = ref<number>(0)
 const showCorrectAnswers = ref<boolean>(false)
 const timeLeft = ref(7200)
-
-// const fetchQuestions = async () => {
-//   try {
-//     const requestData = {
-//       subject: subject.value,
-//       count: count.value
-//     }
-//     const response = await getCSPractice(requestData)
-//     // 安全地处理响应数据
-//     const responseData = response?.data ? (response.data as unknown as Question[]) : []
-//     questions.value = responseData
-
-//     if (subject.value === '行测') {
-//       answers.value = new Array(responseData.length).fill('')
-//     } else if (responseData.length > 0 && responseData[0]?.expoundingOptionInfos) {
-//       essayAnswers.value = new Array(responseData[0].expoundingOptionInfos.length).fill('')
-//     }
-//   } catch (error) {
-//     console.error('获取题目失败：', error)
-//   }
-// }
-
+const isExamInProgress = ref<boolean>(false)
 const fetchQuestions = async () => {
   try {
-    const isRealExam = route.query.isRealExam === 'true'
-
+    const isRealExam = route.query.type === 'exam'
     if (isRealExam) {
       // 调用真题接口
       const response = await getCSExam({
-        examName:
-          route.query.examType === 'xingce'
-            ? '2020年国家公务员考试行测真题'
-            : '2020年国家公务员考试申论真题'
+        examName: route.query.examName as string
       })
-      questions.value = (response.data?.questions || []) as unknown as Question[]
+      questions.value = response?.data ? (response.data as unknown as Question[]) : []
     } else {
       const requestData = {
         subject: subject.value,
@@ -178,12 +172,6 @@ const fetchQuestions = async () => {
       }
       const response = await getCSPractice(requestData)
       questions.value = response?.data ? (response.data as unknown as Question[]) : []
-    }
-
-    if (subject.value === '行测' || isRealExam) {
-      answers.value = new Array(questions.value.length).fill('')
-    } else if (questions.value[0]?.expoundingOptionInfos) {
-      essayAnswers.value = new Array(questions.value[0].expoundingOptionInfos.length).fill('')
     }
   } catch (error) {
     console.error('获取题目失败：', error)
@@ -235,57 +223,57 @@ const submitExam = () => {
   const statusText = isPass ? '正确率过六十啦🎉，真棒！' : '继续加油，相信自己一定行'
   ElMessageBox({
     message: `
-        <div style="text-align: center; padding: 25px 32px;">
-            <h3 style="margin: 0 0 20px 0; color: #333; font-size: 20px">${title}</h3>
+          <div style="text-align: center; padding: 25px 32px;">
+              <h3 style="margin: 0 0 20px 0; color: #333; font-size: 20px">${title}</h3>
 
-            <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 40px;padding:20px">
-                ${
-                  isPass
-                    ? `<img src="${passimg1}" style="width: 120px; margin-right: 30px"/>`
-                    : `<img src="${failimg1}" style="width: 120px; margin-right: 30px"/>`
-                }
+              <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 40px;padding:20px">
+                  ${
+                    isPass
+                      ? `<img src="${passimg1}" style="width: 120px; margin-right: 30px"/>`
+                      : `<img src="${failimg1}" style="width: 120px; margin-right: 30px"/>`
+                  }
 
-                <!-- 圆形框容器 -->
-                <div style="position: relative">
-                    <div style="
-                        width: 100px;
-                        height: 100px;
-                        border: 3px solid #FF4757;
-                        border-radius: 50%;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        font-size: 24px;
-                        color: #FF4757;
-                        background: white;
-                        margin: 0 20px;
-                    ">
-                        ${accuracy.toFixed(1)}%
-                    </div>
-                    <p style="
-                        margin: 10px 0 0;
-                        color: #666;
-                        font-size: 18px;
-                        position: absolute;
-                        width: 100%;
-                        font-weight: bold;
-                        text-align: center;
-                    ">正确率</p>
-                </div>
+                  <!-- 圆形框容器 -->
+                  <div style="position: relative">
+                      <div style="
+                          width: 100px;
+                          height: 100px;
+                          border: 3px solid #FF4757;
+                          border-radius: 50%;
+                          display: flex;
+                          align-items: center;
+                          justify-content: center;
+                          font-size: 24px;
+                          color: #FF4757;
+                          background: white;
+                          margin: 0 20px;
+                      ">
+                          ${accuracy.toFixed(1)}%
+                      </div>
+                      <p style="
+                          margin: 10px 0 0;
+                          color: #666;
+                          font-size: 18px;
+                          position: absolute;
+                          width: 100%;
+                          font-weight: bold;
+                          text-align: center;
+                      ">正确率</p>
+                  </div>
 
-                ${
-                  isPass
-                    ? `<img src="${passimg2}" style="width: 120px; margin-left: 30px"/>`
-                    : `<img src="${failimg2}" style="width: 120px; margin-left: 30px"/>`
-                }
-            </div>
+                  ${
+                    isPass
+                      ? `<img src="${passimg2}" style="width: 120px; margin-left: 30px"/>`
+                      : `<img src="${failimg2}" style="width: 120px; margin-left: 30px"/>`
+                  }
+              </div>
 
-            <div style="background: #f8f8f8; padding: 15px; border-radius: 8px; margin-top: 20px">
-                <p style="margin: 5px 0; color: #666;font-size:18px">总分：<strong style="color: #333">${totalScore.value}</strong></p>
-                <p style="margin: 5px 0; color: #FF4757; font-weight: bold">${statusText}</p>
-            </div>
-        </div>
-        `,
+              <div style="background: #f8f8f8; padding: 15px; border-radius: 8px; margin-top: 20px">
+                  <p style="margin: 5px 0; color: #666;font-size:18px">总分：<strong style="color: #333">${totalScore.value}</strong></p>
+                  <p style="margin: 5px 0; color: #FF4757; font-weight: bold">${statusText}</p>
+              </div>
+          </div>
+          `,
     dangerouslyUseHTMLString: true,
     confirmButtonText: '确定',
     customClass: 'result-dialog',
@@ -296,6 +284,7 @@ const submitExam = () => {
     }
   })
   showCorrectAnswers.value = true
+  isExamInProgress.value = false
 }
 
 const answerStatus = computed(() => {
@@ -304,14 +293,14 @@ const answerStatus = computed(() => {
   })
 })
 
-const submitEssayExam = () => {
+const submitRealExam = () => {
   // 申论提交逻辑
-  console.log('提交的申论答案：', essayAnswers.value)
+  console.log('提交的答案：', essayAnswers.value)
 }
 
 onMounted(() => {
   fetchQuestions()
-  if (route.query.isRealExam === 'true') {
+  if (route.query.type === 'exam') {
     const timer = setInterval(() => {
       if (timeLeft.value > 0) {
         timeLeft.value--
@@ -321,6 +310,10 @@ onMounted(() => {
       }
     }, 1000)
   }
+  examStore.setExamStatus(true)
+})
+onUnmounted(() => {
+  examStore.setExamStatus(false)
 })
 </script>
 
@@ -373,10 +366,12 @@ onMounted(() => {
 }
 
 .question-header {
-  margin-bottom: 20px;
+  margin: 20px 0;
   padding: 4px 0;
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  font-size: 22px;
 }
 
 .question-number {
@@ -390,11 +385,9 @@ onMounted(() => {
   background-color: rgb(233, 166, 177);
   color: white;
   border-radius: 10px;
-  padding: 3px 6px;
-  width: 60px;
-  text-align: center;
-  margin-left: 20px;
-  font-size: 14px;
+  padding: 5px 8px;
+  font-size: 16px;
+  white-space: nowrap; /* 防止文本换行 */
 }
 
 .question-content {
@@ -439,6 +432,18 @@ onMounted(() => {
 .user-answer > div {
   text-align: center;
 }
+
+/* 添加弹窗样式 */
+.result-dialog {
+  text-align: center;
+}
+.result-dialog .el-message-box__status {
+  font-size: 40px !important;
+}
+.result-dialog .el-message-box__message {
+  font-size: 16px;
+}
+
 .option-group {
   width: 100%;
   margin-top: 10px;
@@ -575,5 +580,6 @@ onMounted(() => {
   border: 2px solid #c0392b;
   border-radius: 8px;
   background: #fff0f0;
+  margin-top: 60px;
 }
 </style>

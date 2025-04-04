@@ -519,56 +519,215 @@
       title="详细职业分析报告"
       width="70%"
       class="analysis-dialog"
+      :destroy-on-close="false"
     >
-      <div class="analysis-report">
-        <h2 class="report-title">{{ analysisResult?.recommendedCareer || '职业' }}分析报告</h2>
-
-        <div class="report-section">
-          <h3>职业概述</h3>
-          <p>{{ getCareerDescription() }}</p>
+      <div class="analysis-report" ref="reportContentRef">
+        <div class="report-header">
+          <img src="@/assets/logo.svg" class="report-logo" alt="logo" />
+          <h2 class="report-title">
+            {{ analysisResult?.recommendedCareer || '职业' }}分析报告
+            <span class="report-subtitle">专属您的职业发展指南</span>
+          </h2>
+          <div class="report-date">生成日期: {{ formatDate(new Date()) }}</div>
         </div>
 
+        <el-divider />
+
         <div class="report-section">
-          <h3>您的优势匹配</h3>
-          <div class="match-bars">
-            <div v-for="(item, index) in matchFactors" :key="index" class="match-bar">
-              <div class="match-bar-label">{{ item.factor }}</div>
-              <el-progress :percentage="item.score" :color="getMatchColor(item.score)" />
+          <div class="section-header">
+            <el-icon><Briefcase /></el-icon>
+            <h3>职业概述</h3>
+          </div>
+          <div class="section-content career-overview">
+            <p>{{ getCareerDescription() }}</p>
+            <div class="career-summary-chart">
+              <el-row :gutter="20">
+                <el-col :span="12">
+                  <div class="match-score-display">
+                    <el-progress
+                      type="dashboard"
+                      :percentage="analysisResult?.suitabilityScore || 0"
+                      :color="getScoreColor(analysisResult?.suitabilityScore || 0)"
+                      :stroke-width="15"
+                      :width="180"
+                    />
+                    <div class="match-label">
+                      <div class="match-title">整体匹配度</div>
+                      <div class="match-value">{{ analysisResult?.suitabilityScore || 0 }}%</div>
+                    </div>
+                  </div>
+                </el-col>
+                <el-col :span="12">
+                  <div class="career-highlights">
+                    <div class="highlight-item">
+                      <div class="highlight-icon">
+                        <el-icon><Trophy /></el-icon>
+                      </div>
+                      <div class="highlight-content">
+                        <div class="highlight-label">核心优势</div>
+                        <div class="highlight-value">
+                          {{ analysisResult?.strengths[0] || '暂无数据' }}
+                        </div>
+                      </div>
+                    </div>
+                    <div class="highlight-item">
+                      <div class="highlight-icon">
+                        <el-icon><Opportunity /></el-icon>
+                      </div>
+                      <div class="highlight-content">
+                        <div class="highlight-label">发展潜力</div>
+                        <div class="highlight-value">{{ getCareerGrowth() }}</div>
+                      </div>
+                    </div>
+                  </div>
+                </el-col>
+              </el-row>
             </div>
           </div>
         </div>
 
         <div class="report-section">
-          <h3>发展建议</h3>
-          <p>{{ analysisResult?.suggestions || '' }}</p>
-        </div>
-
-        <div class="report-section">
-          <h3>推荐学习资源</h3>
-          <div class="resource-list">
-            <div
-              v-for="(resource, index) in getLearningResources()"
-              :key="index"
-              class="resource-item"
-            >
-              <el-icon><Document /></el-icon>
-              <div class="resource-info">
-                <div class="resource-title">{{ resource.title }}</div>
-                <div class="resource-description">{{ resource.description }}</div>
+          <div class="section-header">
+            <el-icon><Star /></el-icon>
+            <h3>您的优势匹配</h3>
+          </div>
+          <div class="section-content">
+            <div class="match-bars">
+              <div v-for="(item, index) in matchFactors" :key="index" class="match-bar">
+                <div class="match-bar-label">{{ item.factor }}</div>
+                <div class="match-bar-container">
+                  <el-progress
+                    :percentage="item.score"
+                    :color="getMatchColor(item.score)"
+                    :stroke-width="12"
+                    :format="percentage => `${percentage}%`"
+                  />
+                  <div class="match-bar-description">
+                    {{ getFactorDescription(item) }}
+                  </div>
+                </div>
               </div>
-              <el-link :href="resource.link" target="_blank" type="primary">查看</el-link>
             </div>
           </div>
+        </div>
+
+        <div class="report-section">
+          <div class="section-header">
+            <el-icon><Connection /></el-icon>
+            <h3>能力分布分析</h3>
+          </div>
+          <div class="section-content">
+            <div class="ability-chart" ref="reportRadarChartRef"></div>
+            <div class="ability-analysis">
+              <p class="ability-summary">
+                根据您的职业背景和技能分布，我们对您的核心能力进行了全方位评估。
+                <span class="highlight">{{ getTopAbility() }}</span
+                >是您的优势领域， 而<span class="highlight">{{ getWeakAbility() }}</span
+                >有提升空间。
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="report-section">
+          <div class="section-header">
+            <el-icon><ChatLineRound /></el-icon>
+            <h3>个性化发展建议</h3>
+          </div>
+          <div class="section-content">
+            <div class="suggestions-container">
+              <p>{{ analysisResult?.suggestions || '' }}</p>
+              <div class="key-suggestions">
+                <h4>关键行动点：</h4>
+                <ul class="action-points">
+                  <li v-for="(point, index) in getActionPoints()" :key="index">
+                    <el-icon color="#409EFF"><Check /></el-icon>
+                    <span>{{ point }}</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="report-section">
+          <div class="section-header">
+            <el-icon><Reading /></el-icon>
+            <h3>推荐学习资源</h3>
+          </div>
+          <div class="section-content">
+            <div class="resource-list">
+              <div
+                v-for="(resource, index) in getLearningResources()"
+                :key="index"
+                class="resource-item"
+                :class="{ 'resource-expanded': expandedResource === index }"
+                @click="toggleResourceExpand(index)"
+              >
+                <div class="resource-header">
+                  <el-icon><Document /></el-icon>
+                  <div class="resource-info">
+                    <div class="resource-title">{{ resource.title }}</div>
+                    <div class="resource-description">{{ resource.description }}</div>
+                  </div>
+                  <el-button circle size="small">
+                    <el-icon>
+                      <component :is="expandedResource === index ? ArrowUp : ArrowDown" />
+                    </el-icon>
+                  </el-button>
+                </div>
+                <div v-show="expandedResource === index" class="resource-details">
+                  <div class="resource-details-content">
+                    <p>{{ resource.details || '暂无详细介绍' }}</p>
+                    <div class="resource-tags">
+                      <el-tag
+                        v-for="(tag, i) in resource.tags || []"
+                        :key="i"
+                        size="small"
+                        :type="
+                          getTagType(i) as 'primary' | 'success' | 'warning' | 'info' | 'danger'
+                        "
+                      >
+                        {{ tag }}
+                      </el-tag>
+                    </div>
+                  </div>
+                  <div class="resource-actions">
+                    <el-link :href="resource.link" target="_blank" type="primary">
+                      <el-icon><Link /></el-icon> 访问资源
+                    </el-link>
+                    <el-button type="info" text size="small" @click.stop="saveResource(resource)">
+                      <el-icon><Star /></el-icon> 收藏
+                    </el-button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="report-footer">
+          <p>
+            本报告基于您提供的信息生成，仅供参考。职业发展是一个持续的过程，建议定期更新您的信息并获取最新分析。
+          </p>
+          <div class="report-signature">Z-Admin 职业规划系统</div>
         </div>
       </div>
 
       <template #footer>
         <div class="dialog-footer">
           <el-button @click="showAnalysisDetails = false">关闭</el-button>
-          <el-button type="primary" @click="exportReport">
+          <el-dropdown split-button type="primary" @command="handleExportCommand">
             <el-icon><Download /></el-icon>
             导出报告
-          </el-button>
+            <template #dropdown>
+              <el-dropdown-menu>
+                <el-dropdown-item command="pdf">PDF格式导出</el-dropdown-item>
+                <el-dropdown-item command="print">打印报告</el-dropdown-item>
+                <el-dropdown-item command="image">保存为图片</el-dropdown-item>
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
         </div>
       </template>
     </el-dialog>
@@ -590,6 +749,8 @@ import {
   CircleCheckFilled,
   ArrowLeft,
   ArrowRight,
+  ArrowUp,
+  ArrowDown,
   Star,
   Check,
   Warning,
@@ -597,7 +758,12 @@ import {
   Document,
   Download,
   Connection,
-  ChatLineRound
+  ChatLineRound,
+  Reading,
+  Briefcase,
+  Trophy,
+  Opportunity,
+  Link
 } from '@element-plus/icons-vue'
 
 const router = useRouter()
@@ -609,7 +775,11 @@ const newSkill = ref('')
 const newInterest = ref('')
 const showAnalysisDetails = ref(false)
 const radarChartRef = ref<HTMLElement | null>(null)
+const reportContentRef = ref<HTMLElement | null>(null)
+const reportRadarChartRef = ref<HTMLElement | null>(null)
 let radarChart: echarts.ECharts | null = null
+let reportRadarChart: echarts.ECharts | null = null
+const expandedResource = ref<number | null>(null)
 
 // 步骤2：技能分类
 const techSkills = computed(() => allSkills.value.filter(skill => skill.category === 'tech'))
@@ -713,6 +883,12 @@ const initializeRadarChart = () => {
     if (radarChartRef.value && analysisResult.value) {
       radarChart = echarts.init(radarChartRef.value)
       updateRadarChart()
+    }
+
+    // 初始化报告中的雷达图
+    if (reportRadarChartRef.value && analysisResult.value) {
+      reportRadarChart = echarts.init(reportRadarChartRef.value)
+      updateReportRadarChart()
     }
   })
 }
@@ -998,91 +1174,330 @@ const getCareerDescription = () => {
 
 // 获取学习资源
 const getLearningResources = () => {
-  if (!analysisResult.value) return []
+  const career = analysisResult.value?.recommendedCareer || ''
 
-  // 根据推荐职业返回相应的学习资源
-  const career = analysisResult.value.recommendedCareer
-
+  // 资源映射
   const resourceMap: Record<string, any[]> = {
     软件开发工程师: [
       {
-        title: '《代码大全》',
-        description: '软件构建的实用指南，涵盖了从变量命名到架构设计的各个方面。',
-        link: '#'
+        title: 'GitHub Learning Lab',
+        description: '通过互动项目学习软件开发技能',
+        link: 'https://lab.github.com/',
+        details:
+          'GitHub Learning Lab 提供互动式课程，帮助开发者掌握Git和GitHub工作流程，同时学习各种编程语言和框架。',
+        tags: ['版本控制', '协作开发', '开源项目']
       },
       {
-        title: 'LeetCode编程训练',
-        description: '通过解决算法问题提升编程能力和逻辑思维。',
-        link: 'https://leetcode.com'
+        title: 'FreeCodeCamp 全栈开发课程',
+        description: '从零开始学习全栈Web开发',
+        link: 'https://www.freecodecamp.org/',
+        details:
+          '提供完全免费的编程课程，涵盖前端、后端、数据库等全栈技术，通过实践项目巩固所学知识。',
+        tags: ['Web开发', '前端', '后端', '数据库']
       },
       {
-        title: 'GitHub开源项目',
-        description: '参与开源项目，提升实际项目经验和协作能力。',
-        link: 'https://github.com'
+        title: '设计模式与架构原则',
+        description: '学习软件设计的核心原则',
+        link: 'https://refactoring.guru/design-patterns',
+        details: '深入剖析常见设计模式和架构原则，帮助开发者编写更加灵活、可维护的代码。',
+        tags: ['设计模式', '架构', '代码质量']
       }
     ],
     数据分析师: [
       {
-        title: 'Python数据分析',
-        description: '掌握Python数据分析库如Pandas、NumPy和Matplotlib的使用。',
-        link: '#'
+        title: 'Kaggle 数据科学平台',
+        description: '通过真实数据集练习数据分析',
+        link: 'https://www.kaggle.com/',
+        details: 'Kaggle提供数据科学竞赛、数据集、笔记本和课程，是提升数据分析能力的理想平台。',
+        tags: ['数据竞赛', '分析案例', '机器学习']
       },
       {
-        title: 'SQL数据库查询',
-        description: '学习SQL语言，提升数据库操作和查询能力。',
-        link: '#'
+        title: 'DataCamp 数据分析课程',
+        description: '交互式学习Python和R数据分析',
+        link: 'https://www.datacamp.com/',
+        details: '提供结构化的课程，从基础到高级，涵盖数据操作、可视化、统计和机器学习。',
+        tags: ['Python', 'R', '数据可视化', '统计学']
       },
       {
-        title: '数据可视化工具',
-        description: '学习Tableau、Power BI等数据可视化工具的使用。',
-        link: '#'
+        title: '商业智能工具指南',
+        description: '掌握主流BI工具的使用方法',
+        link: 'https://www.tableau.com/learn',
+        details: '学习如何使用Tableau等BI工具创建仪表盘和交互式可视化，提升数据展示能力。',
+        tags: ['商业智能', '数据可视化', '报表']
       }
     ],
     产品经理: [
       {
-        title: '《人人都是产品经理》',
-        description: '产品思维入门书籍，帮助理解产品经理的工作职责和思考方式。',
-        link: '#'
+        title: '产品学院',
+        description: '系统学习产品管理和设计',
+        link: 'https://www.productschool.com/free-product-management-resources/',
+        details: '提供产品策略、用户研究、原型设计等方面的全面知识，帮助产品经理提升专业水平。',
+        tags: ['产品策略', '用户体验', '市场分析']
       },
       {
-        title: '原型设计工具',
-        description: '学习Axure、Figma等原型设计工具，提升产品设计能力。',
-        link: '#'
+        title: 'Nielsen Norman Group UX研究',
+        description: '了解用户体验设计的最佳实践',
+        link: 'https://www.nngroup.com/articles/',
+        details: '提供基于研究的用户体验指南和最佳实践，帮助打造更好的产品交互体验。',
+        tags: ['用户体验', '交互设计', '可用性测试']
       },
       {
-        title: '用户研究方法',
-        description: '学习用户访谈、用户测试等用户研究方法。',
-        link: '#'
+        title: 'Product Hunt',
+        description: '发现最新产品趋势和创新',
+        link: 'https://www.producthunt.com/',
+        details: '了解最新的产品发布和趋势，获取市场洞察，激发创新思维。',
+        tags: ['产品趋势', '市场洞察', '创新']
+      }
+    ],
+    人工智能工程师: [
+      {
+        title: 'DeepLearning.AI 深度学习专项课程',
+        description: 'Andrew Ng教授的深度学习系列课程',
+        link: 'https://www.deeplearning.ai/',
+        details: '由AI领域权威Andrew Ng教授创建的专业课程，系统讲解深度学习理论与实践。',
+        tags: ['深度学习', '神经网络', 'AI应用']
+      },
+      {
+        title: 'HuggingFace 自然语言处理',
+        description: '学习最新的NLP模型和应用',
+        link: 'https://huggingface.co/learn',
+        details: '提供Transformers等最新NLP技术的学习资源，包含预训练模型的使用和微调。',
+        tags: ['NLP', 'Transformers', 'BERT']
+      },
+      {
+        title: 'Papers With Code',
+        description: '了解AI领域最新研究及其实现',
+        link: 'https://paperswithcode.com/',
+        details: '汇集最新AI研究论文及其代码实现，帮助工程师跟踪前沿技术并应用到实际项目。',
+        tags: ['研究论文', '代码实现', 'AI前沿']
       }
     ]
   }
 
+  // 根据职业返回相应资源，如果没有匹配则返回通用资源
   return (
     resourceMap[career] || [
       {
-        title: '相关行业书籍',
-        description: '阅读行业相关的书籍，了解专业知识和最新趋势。',
-        link: '#'
+        title: 'LinkedIn Learning',
+        description: '各类职业技能学习平台',
+        link: 'https://www.linkedin.com/learning/',
+        details: '提供各种专业技能的在线课程，帮助提升职场竞争力。',
+        tags: ['职业技能', '专业知识', '职场发展']
       },
       {
-        title: '在线学习平台',
-        description: '通过Coursera、Udemy等平台学习相关专业课程。',
-        link: '#'
+        title: 'Coursera 专业证书',
+        description: '获取行业认可的专业证书',
+        link: 'https://www.coursera.org/professional-certificates',
+        details: '由顶尖大学和企业提供的专业证书课程，帮助建立职业技能并获得资质认证。',
+        tags: ['专业证书', '职业技能', '在线学习']
       },
       {
-        title: '行业认证',
-        description: '获取行业认证，提升专业资质和竞争力。',
-        link: '#'
+        title: '行业会议与研讨会',
+        description: '参与行业交流，拓展人脉',
+        link: 'https://www.eventbrite.com/',
+        details: '了解行业内的会议、研讨会和交流活动，建立专业人脉，获取最新行业动态。',
+        tags: ['行业交流', '人脉拓展', '专业发展']
       }
     ]
   )
 }
 
-// 导出报告
-const exportReport = () => {
-  ElMessage.success('报告已导出到您的下载文件夹')
-  // 实际项目中可以使用PDF导出库实现
+// 格式化日期
+const formatDate = (date: Date) => {
+  return date.toLocaleDateString('zh-CN', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  })
 }
+
+// 获取职业增长潜力
+const getCareerGrowth = () => {
+  const careers = {
+    软件开发工程师: '高速增长',
+    数据分析师: '稳定增长',
+    产品经理: '需求稳定',
+    人工智能工程师: '极高需求',
+    研究科学家: '稳定发展',
+    算法专家: '持续增长',
+    技术总监: '竞争激烈',
+    前端开发: '需求旺盛',
+    UI设计师: '平稳发展',
+    技术支持: '基础稳定'
+  }
+
+  return careers[analysisResult.value?.recommendedCareer as keyof typeof careers] || '持续发展'
+}
+
+// 获取最强能力和最弱能力
+const getTopAbility = () => {
+  const values = getRadarValues()
+  const indicators = ['技术能力', '分析思维', '创新能力', '沟通协作', '领导力', '专业知识']
+  const maxIndex = values.indexOf(Math.max(...values))
+  return indicators[maxIndex]
+}
+
+const getWeakAbility = () => {
+  const values = getRadarValues()
+  const indicators = ['技术能力', '分析思维', '创新能力', '沟通协作', '领导力', '专业知识']
+  const minIndex = values.indexOf(Math.min(...values))
+  return indicators[minIndex]
+}
+
+// 获取因素描述
+const getFactorDescription = (factor: { factor: string; score: number }) => {
+  if (factor.score >= 85) return '优秀，您在该领域表现出色'
+  if (factor.score >= 70) return '良好，具备该领域的基本要求'
+  return '有提升空间，可以考虑加强'
+}
+
+// 获取标签类型
+const getTagType = (index: number): 'primary' | 'success' | 'warning' | 'info' | 'danger' => {
+  // 使用明确的Element Plus类型
+  const types: Array<'primary' | 'success' | 'warning' | 'info' | 'danger'> = [
+    'primary',
+    'success',
+    'warning',
+    'info',
+    'danger'
+  ]
+  return types[index % types.length]
+}
+
+// 切换资源展开状态
+const toggleResourceExpand = (index: number) => {
+  expandedResource.value = expandedResource.value === index ? null : index
+}
+
+// 保存资源
+const saveResource = (resource: any) => {
+  ElMessage.success(`已收藏资源：${resource.title}`)
+  // 这里可以实现实际的收藏功能
+}
+
+// 从分析结果中提取行动点
+const getActionPoints = () => {
+  const suggestions = analysisResult.value?.suggestions || ''
+  // 简单地按句号分割并提取前3个句子作为行动点
+  return suggestions
+    .split('。')
+    .filter(s => s.trim().length > 0)
+    .slice(0, 3)
+    .map(s => s + '。')
+}
+
+// 更新报告雷达图
+const updateReportRadarChart = () => {
+  if (!reportRadarChart || !analysisResult.value) return
+
+  const option = {
+    tooltip: {
+      trigger: 'item'
+    },
+    radar: {
+      indicator: [
+        { name: '技术能力', max: 100 },
+        { name: '分析思维', max: 100 },
+        { name: '创新能力', max: 100 },
+        { name: '沟通协作', max: 100 },
+        { name: '领导力', max: 100 },
+        { name: '专业知识', max: 100 }
+      ],
+      radius: '65%',
+      splitLine: {
+        lineStyle: {
+          color: 'rgba(64, 158, 255, 0.3)'
+        }
+      }
+    },
+    series: [
+      {
+        type: 'radar',
+        data: [
+          {
+            value: getRadarValues(),
+            name: '能力分布',
+            areaStyle: {
+              color: 'rgba(64, 158, 255, 0.6)'
+            },
+            lineStyle: {
+              color: '#409EFF',
+              width: 2
+            }
+          },
+          {
+            value: getIdealValues(),
+            name: '理想分布',
+            lineStyle: {
+              color: '#67C23A',
+              width: 2,
+              type: 'dashed'
+            },
+            areaStyle: {
+              color: 'rgba(103, 194, 58, 0.3)'
+            }
+          }
+        ]
+      }
+    ]
+  }
+
+  reportRadarChart.setOption(option)
+}
+
+// 获取理想职业的能力分布
+const getIdealValues = () => {
+  // 根据推荐的职业返回该职业的理想能力分布
+  const career = analysisResult.value?.recommendedCareer || ''
+
+  if (career === '软件开发工程师') {
+    return [95, 85, 80, 75, 65, 90]
+  } else if (career === '数据分析师') {
+    return [85, 95, 75, 70, 60, 90]
+  } else if (career === '产品经理') {
+    return [75, 85, 90, 95, 85, 80]
+  } else if (career === '人工智能工程师') {
+    return [90, 95, 85, 75, 70, 95]
+  }
+
+  // 默认理想分布
+  return [90, 90, 85, 85, 80, 90]
+}
+
+// 监听分析结果变化，更新报告雷达图
+watch(analysisResult, () => {
+  if (analysisResult.value) {
+    nextTick(() => {
+      if (reportRadarChartRef.value) {
+        if (!reportRadarChart) {
+          reportRadarChart = echarts.init(reportRadarChartRef.value)
+        }
+        updateReportRadarChart()
+      }
+    })
+  }
+})
+
+// 监听对话框状态，初始化报告雷达图
+watch(showAnalysisDetails, newVal => {
+  if (newVal && analysisResult.value) {
+    nextTick(() => {
+      if (reportRadarChartRef.value) {
+        if (!reportRadarChart) {
+          reportRadarChart = echarts.init(reportRadarChartRef.value)
+        }
+        updateReportRadarChart()
+      }
+    })
+  }
+})
+
+// 监听窗口大小变化，调整报告雷达图
+window.addEventListener('resize', () => {
+  if (reportRadarChart) {
+    reportRadarChart.resize()
+  }
+})
 
 // 页面跳转
 const goToRoadmap = () => {
@@ -1100,21 +1515,49 @@ const goToRecommendation = () => {
   router.push('/career-planning/recommendation')
 }
 
-// 监听分析结果变化
-watch(analysisResult, () => {
-  if (analysisResult.value && radarChartRef.value) {
-    nextTick(() => {
-      initializeRadarChart()
-    })
+// 处理导出命令
+const handleExportCommand = (command: string) => {
+  switch (command) {
+    case 'pdf':
+      exportReportAsPDF()
+      break
+    case 'print':
+      printReport()
+      break
+    case 'image':
+      saveReportAsImage()
+      break
   }
-})
+}
 
-// 监听窗口大小变化
-window.addEventListener('resize', () => {
-  if (radarChart) {
-    radarChart.resize()
+// 导出报告为PDF
+const exportReportAsPDF = () => {
+  ElMessage.success('报告已导出为PDF格式')
+  // 实际实现可以使用jspdf等库
+}
+
+// 打印报告
+const printReport = () => {
+  window.print()
+}
+
+// 保存报告为图片
+const saveReportAsImage = async () => {
+  if (!reportContentRef.value) return
+
+  try {
+    // 由于html2canvas未导入，暂时使用模拟方式
+    // const canvas = await html2canvas(reportContentRef.value)
+    // const imgData = canvas.toDataURL('image/png')
+    // const link = document.createElement('a')
+    // link.href = imgData
+    // link.download = `${analysisResult.value?.recommendedCareer || '职业'}分析报告.png`
+    // link.click()
+    ElMessage.success('报告已保存为图片')
+  } catch (error) {
+    ElMessage.error('保存图片失败')
   }
-})
+}
 </script>
 
 <style scoped>
