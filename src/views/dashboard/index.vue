@@ -194,6 +194,24 @@
             从职业定位、能力提升到考试备考，提供一站式职业发展解决方案
           </p>
         </div>
+
+        <div class="advantage-card">
+          <div class="advantage-icon">
+            <el-icon><DocumentChecked /></el-icon>
+          </div>
+          <h3 class="advantage-title">简历优化</h3>
+          <p class="advantage-description">
+            智能分析简历内容，提供针对性的优化建议，提升求职竞争力
+          </p>
+        </div>
+
+        <div class="advantage-card">
+          <div class="advantage-icon">
+            <el-icon><Promotion /></el-icon>
+          </div>
+          <h3 class="advantage-title">持续学习</h3>
+          <p class="advantage-description">提供专业技能提升资源和学习路径，助力职场持续成长</p>
+        </div>
       </div>
     </div>
 
@@ -266,7 +284,7 @@
     </el-card>
 
     <!-- 页脚 -->
-    <footer class="footer">
+    <!-- <footer class="footer">
       <div class="footer-content">
         <div class="footer-logo">
           <span class="logo-text">智航 CareerAI</span>
@@ -307,7 +325,7 @@
           © {{ new Date().getFullYear() }} 智航 CareerAI 职业生涯规划平台 版权所有
         </p>
       </div>
-    </footer>
+    </footer> -->
   </div>
 </template>
 
@@ -332,7 +350,8 @@ import {
   Reading,
   Service,
   Close,
-  InfoFilled
+  InfoFilled,
+  Promotion
 } from '@element-plus/icons-vue'
 
 // 创建路由实例
@@ -826,11 +845,17 @@ function initRobotParticles() {
   box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
 }
 
+.additional-card .el-card__body {
+  height: 100%;
+  padding: 0;
+}
+
 .additional-content {
-  padding: 30px;
   display: flex;
   align-items: center;
+  justify-content: center;
   height: 100%;
+  padding: 20px;
 }
 
 .additional-icon {

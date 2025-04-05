@@ -60,7 +60,7 @@
 
         <BorderBox7 class="panel-item center-bottom">
           <div class="panel-header center">
-            <h3>每日答题量</h3>
+            <h3>每日服务量</h3>
           </div>
           <div class="chart-container" v-if="mounted">
             <div ref="lineChartRef" style="width: 100%; height: 100%"></div>
@@ -172,38 +172,12 @@ const overviewData = ref([
     }
   },
   {
-    label: '日活跃用户',
-    value: 8546,
-    unit: '人',
+    label: '职业规划完成',
+    value: 7843,
+    unit: '份',
     config: {
-      number: [8546],
+      number: [7843],
       content: '{nt}',
-      style: {
-        fontSize: 36,
-        fill: '#58a1ff'
-      }
-    }
-  },
-  {
-    label: '今日答题量',
-    value: 3375,
-    unit: '次',
-    config: {
-      number: [3375],
-      content: '{nt}',
-      style: {
-        fontSize: 36,
-        fill: '#58a1ff'
-      }
-    }
-  },
-  {
-    label: '职业规划完成率',
-    value: 78,
-    unit: '%',
-    config: {
-      number: [78],
-      content: '{nt}%',
       style: {
         fontSize: 36,
         fill: '#58a1ff'
@@ -212,10 +186,36 @@ const overviewData = ref([
   },
   {
     label: '简历生成量',
-    value: 2156,
+    value: 5621,
     unit: '份',
     config: {
-      number: [2156],
+      number: [5621],
+      content: '{nt}',
+      style: {
+        fontSize: 36,
+        fill: '#58a1ff'
+      }
+    }
+  },
+  {
+    label: '就业成功率',
+    value: 82,
+    unit: '%',
+    config: {
+      number: [82],
+      content: '{nt}%',
+      style: {
+        fontSize: 36,
+        fill: '#58a1ff'
+      }
+    }
+  },
+  {
+    label: 'AI对话次数',
+    value: 12756,
+    unit: '次',
+    config: {
+      number: [12756],
       content: '{nt}',
       style: {
         fontSize: 36,
@@ -275,18 +275,18 @@ const ageDistributionConfig = reactive({
 
 // 用户地域分布配置
 const regionConfig = reactive({
-  header: ['城市', '活跃用户', '注册用户', '职业规划完成率'],
+  header: ['城市', '职业规划数', '简历生成数', '就业成功率'],
   data: [
-    ['北京', '2,345', '4,567', '85%'],
-    ['上海', '1,987', '3,876', '82%'],
-    ['广州', '1,654', '3,221', '78%'],
-    ['深圳', '1,432', '2,987', '80%'],
-    ['杭州', '1,087', '2,341', '75%'],
-    ['成都', '876', '1,765', '72%'],
-    ['武汉', '765', '1,543', '70%'],
-    ['南京', '654', '1,432', '68%'],
-    ['西安', '543', '1,234', '65%'],
-    ['重庆', '432', '987', '62%']
+    ['北京', '1,245', '986', '85%'],
+    ['上海', '1,087', '876', '82%'],
+    ['广州', '854', '721', '78%'],
+    ['深圳', '832', '687', '80%'],
+    ['杭州', '587', '491', '75%'],
+    ['成都', '476', '365', '72%'],
+    ['武汉', '465', '343', '70%'],
+    ['南京', '354', '302', '68%'],
+    ['西安', '343', '274', '65%'],
+    ['重庆', '332', '287', '62%']
   ],
   index: true,
   columnWidth: [80],
@@ -362,12 +362,12 @@ const examLineConfig = reactive({
   },
   series: [
     {
-      name: '答题量',
+      name: '职业规划',
       type: 'line',
       smooth: true,
       symbol: 'circle',
       symbolSize: 8,
-      data: [45, 65, 78, 52, 67, 82, 59, 71, 49, 68],
+      data: [15, 25, 28, 32, 67, 82, 59, 71, 49, 38],
       itemStyle: {
         color: '#00BAFF'
       },
@@ -391,12 +391,12 @@ const examLineConfig = reactive({
       }
     },
     {
-      name: '简历生成',
+      name: 'AI对话',
       type: 'line',
       smooth: true,
       symbol: 'circle',
       symbolSize: 8,
-      data: [35, 45, 58, 42, 57, 62, 49, 61, 39, 58],
+      data: [25, 35, 48, 42, 57, 92, 69, 81, 49, 48],
       itemStyle: {
         color: '#3DE7C9'
       },
@@ -424,7 +424,7 @@ const examLineConfig = reactive({
 
 // 简历制作量水位图配置
 const resumeConfig = reactive({
-  data: [66],
+  data: [78],
   shape: 'round',
   colors: ['#00baff', '#3de7c9'],
   waveNum: 3,
@@ -481,20 +481,20 @@ const refreshData = () => {
   overviewData.value[0].value = Math.floor(15000 + Math.random() * 2000)
   overviewData.value[0].config.number = [overviewData.value[0].value]
 
-  // 更新日活跃用户
-  overviewData.value[1].value = Math.floor(8000 + Math.random() * 1000)
+  // 更新职业规划完成数
+  overviewData.value[1].value = Math.floor(7500 + Math.random() * 1000)
   overviewData.value[1].config.number = [overviewData.value[1].value]
 
-  // 更新今日答题量
-  overviewData.value[2].value = Math.floor(3000 + Math.random() * 800)
+  // 更新简历生成量
+  overviewData.value[2].value = Math.floor(5000 + Math.random() * 1000)
   overviewData.value[2].config.number = [overviewData.value[2].value]
 
-  // 更新职业规划完成率
-  overviewData.value[3].value = Math.floor(70 + Math.random() * 20)
+  // 更新就业成功率
+  overviewData.value[3].value = Math.floor(75 + Math.random() * 15)
   overviewData.value[3].config.number = [overviewData.value[3].value]
 
-  // 更新简历生成量
-  overviewData.value[4].value = Math.floor(2000 + Math.random() * 500)
+  // 更新AI对话次数
+  overviewData.value[4].value = Math.floor(12000 + Math.random() * 1500)
   overviewData.value[4].config.number = [overviewData.value[4].value]
 
   // 更新日活跃用户环图数据
@@ -510,16 +510,16 @@ const refreshData = () => {
     }
   ]
 
-  // 更新每日答题量折线图数据
-  const newExamData = Array(10)
+  // 更新每日折线图数据
+  const newPlanningData = Array(10)
     .fill(0)
-    .map(() => Math.floor(40 + Math.random() * 80))
-  const newResumeData = Array(10)
+    .map(() => Math.floor(20 + Math.random() * 80))
+  const newChatData = Array(10)
     .fill(0)
-    .map(() => Math.floor(30 + Math.random() * 60))
+    .map(() => Math.floor(30 + Math.random() * 70))
 
-  examLineConfig.series[0].data = newExamData
-  examLineConfig.series[1].data = newResumeData
+  examLineConfig.series[0].data = newPlanningData
+  examLineConfig.series[1].data = newChatData
 
   // 更新用户年龄分布数据
   ageDistributionConfig.data = [
@@ -531,7 +531,7 @@ const refreshData = () => {
   ]
 
   // 更新简历制作量水位图数据
-  resumeConfig.data = [Math.floor(50 + Math.random() * 40)]
+  resumeConfig.data = [Math.floor(70 + Math.random() * 20)]
 }
 
 const initEnterAnimation = () => {

@@ -157,7 +157,7 @@ const handleFileUpload = (event: Event) => {
   }
 }
 
-const formatDate = (date: Date | null) => {
+const formatDate = (date: Date | string | null) => {
   if (!date) return ''
   return dayjs(date).format('YYYY.MM')
 }

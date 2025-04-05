@@ -4,7 +4,6 @@
  */
 
 import { nextTick } from 'vue'
-import type { ResumeForm } from '@/types/resume'
 
 interface TemplateClass {
   [key: string]: string
