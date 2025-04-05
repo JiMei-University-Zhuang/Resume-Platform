@@ -175,7 +175,7 @@ const isFullScreen = ref(false)
 // 用户信息相关
 const userInfo = ref<GetUserResult | null>(null)
 const userAvatar = computed(
-  () => userInfo.value?.avatar || 'https://avatars.githubusercontent.com/u/1?v=4'
+  () => userInfo.value?.avatar
 )
 const userName = computed(() => userInfo.value?.name || 'Admin')
 
