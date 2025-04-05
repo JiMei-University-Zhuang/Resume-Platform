@@ -50,12 +50,25 @@
                 </el-input>
               </el-form-item>
 
-              <el-form-item prop="captcha_value" class="captcha-container custom-input">
+              <el-form-item
+                prop="captcha_value"
+                class="captcha-container custom-input"
+                style="
+                  width: auto;
+                  display: flex;
+                  align-items: center;
+                  justify-content: space-between;
+                "
+              >
                 <el-input
                   v-model="loginForm.captcha_value"
                   placeholder="请输入验证码"
-                  style="width: auto"
-                />
+                  style="width: auto; flex: 1; margin-right: 10px"
+                >
+                  <template #prefix>
+                    <el-icon><ChatSquare /></el-icon>
+                  </template>
+                </el-input>
                 <img
                   :src="captchaUrl"
                   alt="验证码"
@@ -102,14 +115,19 @@
                 <el-input
                   v-model="loginFormEmail.captchaValue"
                   placeholder="请输入验证码"
-                  style="width: auto; flex: 1; margin-right: 10px"
+                  class="captcha-input"
                 >
                   <template #prefix>
                     <el-icon><ChatSquare /></el-icon>
                   </template>
                 </el-input>
-                <el-button type="primary" :loading="sendingCaptcha" @click="sendEmailCaptcha">
-                  获取验证码
+                <el-button
+                  type="primary"
+                  :disabled="countdown.email > 0"
+                  @click="sendEmailCaptcha"
+                  class="captcha-button"
+                >
+                  {{ countdown.email > 0 ? `${countdown.email}s后重试` : '获取验证码' }}
                 </el-button>
               </el-form-item>
               <el-form-item>
@@ -140,7 +158,7 @@
             <el-input
               v-model="registerForm.username"
               placeholder="请输入用户名"
-              class="custom-input"
+              class="custom-input register-item"
             >
               <template #prefix>
                 <el-icon><UserFilled /></el-icon>
@@ -160,7 +178,7 @@
               </template>
             </el-input>
           </el-form-item>
-          <el-form-item prop="name">
+          <el-form-item prop="email">
             <el-input
               v-model="registerForm.email"
               placeholder="请输入邮箱地址"
@@ -179,18 +197,30 @@
             <el-input
               v-model="registerForm.captchaValue"
               placeholder="请输入验证码"
+              class="custom-input"
               style="width: auto; flex: 1; margin-right: 10px"
             >
               <template #prefix>
                 <el-icon><ChatSquare /></el-icon>
               </template>
             </el-input>
-            <el-button type="primary" :loading="sendingCaptcha" @click="sendRegisterEmailCaptcha"
-              >获取验证码</el-button
+            <el-button
+              type="primary"
+              :disabled="countdown.register > 0"
+              @click="sendRegisterEmailCaptcha"
+              class="captcha-button"
             >
+              {{ countdown.register > 0 ? `${countdown.register}s后重试` : '获取验证码' }}
+            </el-button>
           </el-form-item>
           <el-form-item>
-            <el-button class="login-button" type="primary" id="register" @click="handleRegister">
+            <el-button
+              class="login-button"
+              type="primary"
+              id="register"
+              :loading="loading"
+              @click="handleRegister"
+            >
               注册
             </el-button>
           </el-form-item>
@@ -229,6 +259,12 @@ interface AxiosResponse<T = any> {
   config: any
   request: any
 }
+// 添加类型定义
+interface ValidateError {
+  fields: {
+    [field: string]: Array<{ message: string }>
+  }
+}
 
 // 登录响应类型
 type LoginResponse = AxiosResponse<ApiResponse<string>>
@@ -262,7 +298,7 @@ const loginFormEmail = reactive({
 })
 const loginrulesEmail = {
   email: [{ required: true, message: '请输入邮箱', trigger: 'blur' }],
-  captcha_value: [{ required: true, message: '请输入验证码', trigger: 'blur' }]
+  captchaValue: [{ required: true, message: '请输入验证码', trigger: 'blur' }]
 }
 
 const registerForm = reactive({
@@ -307,41 +343,151 @@ const getCaptchaData = async () => {
     ElMessage.error('获取验证码失败，请刷新重试')
   }
 }
-// 邮箱登录发送的验证码
+
+// 添加倒计时状态
+const countdown = reactive({
+  email: 0,
+  register: 0
+})
+// 通用倒计时方法
+const startCountdown = (type: 'email' | 'register') => {
+  countdown[type] = 60
+  const timer = setInterval(() => {
+    countdown[type]--
+    if (countdown[type] <= 0) {
+      clearInterval(timer)
+    }
+  }, 1000)
+} // 邮箱登录发送的验证码
 const sendEmailCaptcha = async () => {
-  if (sendingCaptcha.value) return
-  sendingCaptcha.value = true
+  if (countdown.email > 0) return
   try {
+    const valid = await loginFormEmailRef.value.validateField('email')
+    if (!valid) {
+      ElMessage.warning('请先输入有效的邮箱地址')
+      return
+    }
+    sendingCaptcha.value = true
     const response = await sendEmailCaptchaValue({
       email: loginFormEmail.email
     })
     if (response.data.code === 200) {
       ElMessage.success('验证码发送成功')
-    } else if (response.data.code === 500) {
+      startCountdown('email')
     }
   } catch (error) {
-    // ElMessage.error('验证码发送失败，请刷新重试')
+    ElMessage.error('验证码发送失败，请输入正确的邮箱地址')
   } finally {
     sendingCaptcha.value = false
   }
 }
+
 // 发送注册邮箱验证码
+// const sendRegisterEmailCaptcha = async () => {
+//   if (countdown.register > 0) return
+//   try {
+//     // 验证必填字段
+//     const isValid = await registerFormRef.value.validate(['username', 'password', 'email'])
+//       .then(() => true)
+//       .catch((error: ValidateError) => { // 显式声明错误类型
+//         const invalidFields = error.fields
+//         const firstErrorKey = Object.keys(invalidFields)[0]
+//         const errorMessage = invalidFields[firstErrorKey][0].message
+//         ElMessage.warning(errorMessage+'，请输入正确信息')
+//         // 滚动到错误项
+//         const errorElement = document.querySelector(`[prop="${firstErrorKey}"]`)
+//         errorElement?.scrollIntoView({
+//           behavior: 'smooth',
+//           block: 'center'
+//         })
+//         return false
+//       })
+
+//     if (!isValid) return
+//     // 发送验证码请求
+//     sendingCaptcha.value = true
+//     const response = await sendRegisterEmailCaptchaValue({
+//       email: registerForm.email
+//     })
+//     if (response.data.code === 200) {
+//       ElMessage.success('验证码发送成功')
+//       startCountdown('register')
+//     }
+//   } catch (error: unknown) {
+//     let errorMessage = '验证码发送失败'
+//     if (error instanceof Error) {
+//       errorMessage = error.message
+//     }
+//     if (typeof error === 'object' && error !== null && 'response' in error) {
+//       const axiosError = error as { response?: { data?: { message?: string } } }
+//       if (axiosError.response?.data?.message) {
+//         errorMessage += `：${axiosError.response.data.message}`
+//       }
+//     }
+//     ElMessage.error(errorMessage)
+//   } finally {
+//     sendingCaptcha.value = false
+//   }
+// }
+// 修改后的发送注册验证码方法（中文提示版）
 const sendRegisterEmailCaptcha = async () => {
-  if (sendingCaptcha.value) return
-  sendingCaptcha.value = true
+  if (countdown.register > 0) return
+
   try {
+    // 验证必填字段（带中文提示）
+    const isValid = await registerFormRef.value
+      .validate(['username', 'password', 'email'])
+      .then(() => true)
+      .catch((error: ValidateError) => {
+        if (!error.fields) {
+          ElMessage.warning('请正确填写所有必填项')
+          return false
+        }
+
+        const invalidFields = error.fields
+        const firstErrorKey = Object.keys(invalidFields)[0]
+
+        // 获取中文错误提示
+        const errorMessage = invalidFields[firstErrorKey][0].message
+
+        // 显示中文提示
+        ElMessage.warning(`请检查输入：${errorMessage}`)
+
+        // 滚动到错误项
+        const errorElement = document.querySelector(`[prop="${firstErrorKey}"]`)
+        errorElement?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center'
+        })
+        return false
+      })
+
+    if (!isValid) return
+
+    // 发送验证码请求
+    sendingCaptcha.value = true
     const response = await sendRegisterEmailCaptchaValue({
       email: registerForm.email
     })
+
     if (response.data.code === 200) {
       ElMessage.success('验证码发送成功')
+      startCountdown('register')
     } else {
-      const errorMessage = response.data.message || '验证码发送失败，请刷新重试'
-      ElMessage.error(errorMessage)
+      ElMessage.error(response.data.message || '验证码发送失败，请重试')
     }
-  } catch (error) {
-    console.log('发送验证码失败:', error)
-    ElMessage.error('验证码发送失败，请刷新重试')
+  } catch (error: unknown) {
+    let errorMessage = '验证码发送失败'
+    if (error instanceof Error) {
+      errorMessage = error.message
+    }
+    if (typeof error === 'object' && error !== null && 'response' in error) {
+      const axiosError = error as { response?: { data?: { message?: string } } }
+      if (axiosError.response?.data?.message) {
+        errorMessage += `：${axiosError.response.data.message}`
+      }
+    }
+    ElMessage.error(errorMessage)
   } finally {
     sendingCaptcha.value = false
   }
@@ -380,8 +526,9 @@ const handleLogin = async (formEl: any) => {
         })) as any as LoginResponse
         if (response.data.code === 200 && response.data.data) {
           ElMessage.success('登录成功')
-          router.push('/dashboard')
-          localStorage.setItem('token', response.data.data)
+          // router.push('/dashboard')
+          // localStorage.setItem('token', response.data.data)
+           handleLoginSuccess(response.data.data)
         }
       } catch (error: any) {
         const errorMessage =
@@ -407,7 +554,8 @@ const handleEmailLogin = async (formEl: any) => {
         })) as any as LoginEmailResponse
         if (response.data.code === 200 && response.data.data) {
           ElMessage.success('登录成功')
-          router.push('/dashboard')
+          // router.push('/dashboard')
+           handleLoginSuccess(response.data.data)
         }
       } catch (error: any) {
         let errorMessage = '登录失败，请检查邮箱和验证码'
@@ -426,6 +574,12 @@ const handleEmailLogin = async (formEl: any) => {
       }
     }
   })
+}
+//完善登录后处理
+const handleLoginSuccess = (token: string) => {
+  localStorage.setItem('token', token)
+  // 推荐使用window.location.href实现硬刷新
+  window.location.href = router.currentRoute.value.query.redirect?.toString() || '/dashboard'
 }
 
 const handleRegister = async () => {
@@ -461,6 +615,10 @@ const handleRegister = async () => {
       }
     }
   })
+}
+//统一表单重置方式
+const resetRegisterForm = () => {
+  registerFormRef.value?.resetFields()
 }
 
 // 在创建组件时加载验证码
@@ -553,6 +711,21 @@ onMounted(() => {
   align-items: center;
   justify-content: space-between;
 }
+.captcha-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.captcha-input {
+  width: auto;
+  flex: 1;
+  margin-right: 10px;
+}
+
+.captcha-button {
+  height: 44px;
+}
 
 :deep(.custom-input .el-input__wrapper) {
   background-color: #f5f7fa;
@@ -561,6 +734,7 @@ onMounted(() => {
   box-shadow: none;
   transition: all 0.3s ease;
   padding: 0 15px;
+  height: 44px;
 }
 
 :deep(.custom-input .el-input__wrapper:hover) {
