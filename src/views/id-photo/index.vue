@@ -43,6 +43,31 @@
           </div>
         </div>
 
+        <!-- 生成照片预览区域 -->
+        <div v-if="generatedPhotoUrl" class="generated-photo-container">
+          <div class="section-title">生成效果对比</div>
+          <div class="photo-comparison">
+            <div class="comparison-item">
+              <div class="comparison-label">原始图片</div>
+              <div class="comparison-image-wrapper">
+                <img :src="previewUrl" class="comparison-image" :style="filterStyle" />
+              </div>
+            </div>
+
+            <div class="comparison-arrow">
+              <el-icon><Right /></el-icon>
+            </div>
+
+            <div class="comparison-item">
+              <div class="comparison-label">证件照预览</div>
+              <div class="comparison-image-wrapper">
+                <img :src="generatedPhotoUrl" class="comparison-image generated" />
+                <span class="photo-info">{{ getSizeLabel }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <el-drawer
           v-model="drawerVisible"
           title="证件照拍摄指南"
@@ -242,7 +267,15 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed } from 'vue'
-import { UploadFilled, Download, Delete, InfoFilled, Picture, Check } from '@element-plus/icons-vue'
+import {
+  UploadFilled,
+  Download,
+  Delete,
+  InfoFilled,
+  Picture,
+  Check,
+  Right
+} from '@element-plus/icons-vue'
 import type { UploadFile } from 'element-plus'
 import { ElMessage } from 'element-plus'
 import { uploadIdPhoto } from '@/api/id-photo'
@@ -425,6 +458,27 @@ const downloadPhoto = () => {
     ElMessage.error('下载失败，请重试')
   }
 }
+
+// 获取大小标签
+const getSizeLabel = computed(() => {
+  const sizeOptions = [
+    { value: 'one-inch', label: '一寸(25×35mm)' },
+    { value: 'two-inch', label: '二寸(35×49mm)' },
+    { value: 'small-two-inch', label: '小二寸(35×45mm)' },
+    { value: 'id-card', label: '身份证(26×32mm)' },
+    { value: 'job-photo', label: '职业照(38×50mm)' },
+    { value: 'work-permit', label: '工作证(32×40mm)' },
+    { value: 'visa-us', label: '美国签证(51×51mm)' },
+    { value: 'visa-uk', label: '英国签证(35×45mm)' },
+    { value: 'visa-eu', label: '欧盟签证(35×45mm)' },
+    { value: 'visa-ca', label: '加拿大签证(35×45mm)' },
+    { value: 'cert-photo', label: '资格证书(35×45mm)' },
+    { value: 'student-card', label: '学生证(相同比例)' }
+  ]
+
+  const selected = sizeOptions.find(option => option.value === photoSettings.size)
+  return selected ? selected.label : '自定义尺寸'
+})
 </script>
 
 <style scoped>
@@ -680,6 +734,7 @@ const downloadPhoto = () => {
 
 .form-control {
   width: 100%;
+  padding-left: 3px;
 }
 
 .size-select,
@@ -759,5 +814,87 @@ const downloadPhoto = () => {
 
 .download-btn:hover {
   background: #389e0d;
+}
+
+/* 新增样式 - 生成照片对比区域 */
+.generated-photo-container {
+  margin-top: 32px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  padding: 20px;
+  border: 1px solid #e6e6fa;
+}
+
+.photo-comparison {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.comparison-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.comparison-label {
+  font-size: 14px;
+  color: #606266;
+  margin-bottom: 12px;
+  font-weight: 500;
+}
+
+.comparison-image-wrapper {
+  position: relative;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  background-color: #fff;
+}
+
+.comparison-image {
+  max-width: 100%;
+  max-height: 200px;
+  object-fit: contain;
+}
+
+.comparison-image.generated {
+  background-color: v-bind('photoSettings.backgroundColor');
+}
+
+.comparison-arrow {
+  color: #409eff;
+  font-size: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.photo-info {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  color: white;
+  font-size: 12px;
+  padding: 4px 8px;
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .photo-comparison {
+    flex-direction: column;
+  }
+
+  .comparison-arrow {
+    transform: rotate(90deg);
+    margin: 16px 0;
+  }
 }
 </style>

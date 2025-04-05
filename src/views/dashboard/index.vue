@@ -251,7 +251,7 @@
               </div>
               <div class="additional-info">
                 <h3 class="additional-title">考试中心</h3>
-                <p class="additional-description">公务员考试、考研备考资源，助力你的升学就业之路</p>
+                <p class="additional-description">考公考研备考资源，助力你的升学就业之路</p>
                 <el-button text
                   >进入中心 <el-icon><ArrowRight /></el-icon
                 ></el-button>

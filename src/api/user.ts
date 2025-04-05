@@ -123,11 +123,12 @@ export interface GetUserResult {
   createTime: string
   token: string
 }
-
-// 添加新的getUser接口
 export function getUser() {
   return request({
     url: '/auth/getUser',
-    method: 'get'
+    method: 'post',
+    headers: {
+      Authorization: `${localStorage.getItem('token')}`
+    }
   })
 }
