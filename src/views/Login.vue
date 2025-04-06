@@ -528,7 +528,7 @@ const handleLogin = async (formEl: any) => {
           ElMessage.success('登录成功')
           // router.push('/dashboard')
           // localStorage.setItem('token', response.data.data)
-           handleLoginSuccess(response.data.data)
+          handleLoginSuccess(response.data.data)
         }
       } catch (error: any) {
         const errorMessage =
@@ -555,7 +555,7 @@ const handleEmailLogin = async (formEl: any) => {
         if (response.data.code === 200 && response.data.data) {
           ElMessage.success('登录成功')
           // router.push('/dashboard')
-           handleLoginSuccess(response.data.data)
+          handleLoginSuccess(response.data.data)
         }
       } catch (error: any) {
         let errorMessage = '登录失败，请检查邮箱和验证码'
@@ -615,10 +615,6 @@ const handleRegister = async () => {
       }
     }
   })
-}
-//统一表单重置方式
-const resetRegisterForm = () => {
-  registerFormRef.value?.resetFields()
 }
 
 // 在创建组件时加载验证码

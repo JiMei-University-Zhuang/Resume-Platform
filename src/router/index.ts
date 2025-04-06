@@ -64,14 +64,6 @@ const routes: RouteRecordRaw[] = [
         }
       },
       {
-        path: '/personality',
-        name: 'Personality',
-        component: () => import('@/views/personality/Test.vue'),
-        meta: {
-          title: 'AI 性格测试'
-        }
-      },
-      {
         path: 'resume',
         name: 'Resume',
         redirect: '/resume/create',

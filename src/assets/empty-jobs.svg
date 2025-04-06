@@ -1,0 +1,26 @@
+<svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- 背景元素 -->
+  <circle cx="100" cy="100" r="80" fill="#F0F4FF" />
+  
+  <!-- 公文包 -->
+  <rect x="60" y="80" width="80" height="60" rx="8" fill="#CCDCFF" stroke="#4B8BF4" stroke-width="2"/>
+  <rect x="90" y="70" width="20" height="10" rx="3" fill="#4B8BF4" stroke="#4B8BF4" stroke-width="2"/>
+  <line x1="60" y1="90" x2="140" y2="90" stroke="#4B8BF4" stroke-width="2"/>
+  
+  <!-- 搜索放大镜 -->
+  <circle cx="120" cy="60" r="20" fill="#F0F4FF" stroke="#4B8BF4" stroke-width="2"/>
+  <line x1="134.071" y1="73.071" x2="144.071" y2="83.071" stroke="#4B8BF4" stroke-width="3" stroke-linecap="round"/>
+  
+  <!-- X标记 -->
+  <line x1="80" y1="110" x2="120" y2="110" stroke="#CCCCCC" stroke-width="2" stroke-dasharray="4 4"/>
+  <line x1="80" y1="120" x2="120" y2="120" stroke="#CCCCCC" stroke-width="2" stroke-dasharray="4 4"/>
+  <line x1="80" y1="130" x2="105" y2="130" stroke="#CCCCCC" stroke-width="2" stroke-dasharray="4 4"/>
+  
+  <!-- 问号标记 -->
+  <circle cx="50" cy="50" r="10" fill="#E0EBFF" stroke="#4B8BF4" stroke-width="2"/>
+  <path d="M48 46.5C48 45.6716 48.6716 45 49.5 45H50.5C51.3284 45 52 45.6716 52 46.5V47.5C52 48.3284 51.3284 49 50.5 49H49.5C48.6716 49 48 48.3284 48 47.5V46.5Z" fill="#4B8BF4"/>
+  <rect x="49" y="51" width="2" height="5" rx="1" fill="#4B8BF4"/>
+  
+  <!-- 星标记 -->
+  <path d="M155 50L158.541 58.4549L168 59.5279L161.5 65.7961L163.082 75L155 70.3549L146.918 75L148.5 65.7961L142 59.5279L151.459 58.4549L155 50Z" fill="#FFD966" stroke="#4B8BF4" stroke-width="1.5"/>
+</svg> 

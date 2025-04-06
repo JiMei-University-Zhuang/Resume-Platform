@@ -174,9 +174,7 @@ const isFullScreen = ref(false)
 
 // 用户信息相关
 const userInfo = ref<GetUserResult | null>(null)
-const userAvatar = computed(
-  () => userInfo.value?.avatar
-)
+const userAvatar = computed(() => userInfo.value?.avatar)
 const userName = computed(() => userInfo.value?.name || 'Admin')
 
 // 语言切换
