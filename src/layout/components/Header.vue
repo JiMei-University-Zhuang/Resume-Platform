@@ -216,7 +216,7 @@ const handleFullscreenChange = () => {
 
 // 打开文档中心
 const openDocumentation = () => {
-  window.open('https://example.com/documentation', '_blank')
+  window.open('http://net.yinhenx.cn/', '_blank')
 }
 
 // 处理登出的函数

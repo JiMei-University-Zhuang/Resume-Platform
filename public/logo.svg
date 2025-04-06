@@ -1,0 +1,13 @@
+<svg width="200" height="50" viewBox="0 0 200 50" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#fe6ad4"/>
+      <stop offset="50%" style="stop-color:#887dff"/>
+      <stop offset="100%" style="stop-color:#55daff"/>
+    </linearGradient>
+  </defs>
+  <text x="10" y="35" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="url(#gradient)">智航CareerAI</text>
+  <path d="M5 45 L195 45" stroke="url(#gradient)" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <circle cx="180" cy="15" r="5" fill="url(#gradient)" opacity="0.8"/>
+  <circle cx="190" cy="25" r="3" fill="url(#gradient)" opacity="0.6"/>
+</svg>

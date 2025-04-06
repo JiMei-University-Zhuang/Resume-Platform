@@ -406,17 +406,22 @@
                   <el-icon><Check /></el-icon> 回答正确
                 </template>
                 <template v-else-if="userPoliticsSingleAnswers[index]">
-                  <el-icon><Close /></el-icon> 回答错误，正确答案: {{ question.correctAnswer || '未知' }}
+                  <el-icon><Close /></el-icon> 回答错误，正确答案:
+                  {{ question.correctAnswer || '未知' }}
                 </template>
                 <template v-else>
-                  <el-icon><InfoFilled /></el-icon> 未作答，正确答案: {{ question.correctAnswer || '未知' }}
+                  <el-icon><InfoFilled /></el-icon> 未作答，正确答案:
+                  {{ question.correctAnswer || '未知' }}
                 </template>
               </div>
             </div>
           </div>
 
           <!-- 政治多选题 -->
-          <div v-else-if="isPoliticsMultipleChoice(question)" class="politics-multiple-choice-section">
+          <div
+            v-else-if="isPoliticsMultipleChoice(question)"
+            class="politics-multiple-choice-section"
+          >
             <div class="politics-choice-item">
               <div class="politics-item-header-row">
                 <span class="politics-item-number">{{ question.questionId }}.</span>
@@ -431,11 +436,15 @@
                         :key="opt"
                         :label="opt"
                         :class="{
-                          'correct-option': showReference && question.correctAnswer && question.correctAnswer.includes(opt),
+                          'correct-option':
+                            showReference &&
+                            question.correctAnswer &&
+                            question.correctAnswer.includes(opt),
                           'wrong-option':
                             showReference &&
                             userPoliticsMultiAnswers[index].includes(opt) &&
-                            question.correctAnswer && !question.correctAnswer.includes(opt)
+                            question.correctAnswer &&
+                            !question.correctAnswer.includes(opt)
                         }"
                       >
                         {{
@@ -451,7 +460,8 @@
                           v-if="
                             showReference &&
                             userPoliticsMultiAnswers[index].includes(opt) &&
-                            question.correctAnswer && !question.correctAnswer.includes(opt)
+                            question.correctAnswer &&
+                            !question.correctAnswer.includes(opt)
                           "
                           class="wrong-icon"
                           ><Close
@@ -465,18 +475,31 @@
                 v-if="showReference"
                 class="option-answer"
                 :class="{
-                  'correct-answer': isMultipleChoiceCorrect(userPoliticsMultiAnswers[index], question.correctAnswer),
-                  'wrong-answer': !isMultipleChoiceCorrect(userPoliticsMultiAnswers[index], question.correctAnswer) && userPoliticsMultiAnswers[index].length > 0
+                  'correct-answer': isMultipleChoiceCorrect(
+                    userPoliticsMultiAnswers[index],
+                    question.correctAnswer
+                  ),
+                  'wrong-answer':
+                    !isMultipleChoiceCorrect(
+                      userPoliticsMultiAnswers[index],
+                      question.correctAnswer
+                    ) && userPoliticsMultiAnswers[index].length > 0
                 }"
               >
-                <template v-if="isMultipleChoiceCorrect(userPoliticsMultiAnswers[index], question.correctAnswer)">
+                <template
+                  v-if="
+                    isMultipleChoiceCorrect(userPoliticsMultiAnswers[index], question.correctAnswer)
+                  "
+                >
                   <el-icon><Check /></el-icon> 回答正确
                 </template>
                 <template v-else-if="userPoliticsMultiAnswers[index].length > 0">
-                  <el-icon><Close /></el-icon> 回答错误，正确答案: {{ question.correctAnswer || '未知' }}
+                  <el-icon><Close /></el-icon> 回答错误，正确答案:
+                  {{ question.correctAnswer || '未知' }}
                 </template>
                 <template v-else>
-                  <el-icon><InfoFilled /></el-icon> 未作答，正确答案: {{ question.correctAnswer || '未知' }}
+                  <el-icon><InfoFilled /></el-icon> 未作答，正确答案:
+                  {{ question.correctAnswer || '未知' }}
                 </template>
               </div>
             </div>
@@ -625,14 +648,27 @@ const isTranslationQuestion = (question: Question) => {
 
 // 判断是否为政治单选题
 const isPoliticsSingleChoice = (question: Question) => {
-  return question.optionA && question.optionB && question.optionC && question.optionD && 
-         question.correctAnswer && question.correctAnswer.length === 1
+  return (
+    question.optionA &&
+    question.optionB &&
+    question.optionC &&
+    question.optionD &&
+    question.correctAnswer &&
+    question.correctAnswer.length === 1
+  )
 }
 
 // 判断是否为政治多选题
 const isPoliticsMultipleChoice = (question: Question) => {
-  return question.optionA && question.optionB && question.optionC && question.optionD && 
-         question.correctAnswer && question.correctAnswer.length > 1 && question.correctAnswer.includes(',')
+  return (
+    question.optionA &&
+    question.optionB &&
+    question.optionC &&
+    question.optionD &&
+    question.correctAnswer &&
+    question.correctAnswer.length > 1 &&
+    question.correctAnswer.includes(',')
+  )
 }
 
 const formatText = (text: string | undefined) => {
@@ -873,7 +909,10 @@ const hasUnansweredQuestions = () => {
       unansweredCount += 1
     } else if (isPoliticsSingleChoice(question) && !userPoliticsSingleAnswers.value[index]) {
       unansweredCount += 1
-    } else if (isPoliticsMultipleChoice(question) && (!userPoliticsMultiAnswers.value[index] || userPoliticsMultiAnswers.value[index].length === 0)) {
+    } else if (
+      isPoliticsMultipleChoice(question) &&
+      (!userPoliticsMultiAnswers.value[index] || userPoliticsMultiAnswers.value[index].length === 0)
+    ) {
       unansweredCount += 1
     }
   })
@@ -969,12 +1008,14 @@ const updateCurrentQuestion = () => {
 // 检查多选题答案是否正确
 const isMultipleChoiceCorrect = (userAnswer: string[], correctAnswer: string | undefined) => {
   if (!userAnswer || !correctAnswer) return false
-  
+
   const correctOptions = correctAnswer.split(',')
   if (userAnswer.length !== correctOptions.length) return false
-  
-  return correctOptions.every(opt => userAnswer.includes(opt)) && 
-         userAnswer.every(opt => correctOptions.includes(opt))
+
+  return (
+    correctOptions.every(opt => userAnswer.includes(opt)) &&
+    userAnswer.every(opt => correctOptions.includes(opt))
+  )
 }
 </script>
 
@@ -1855,7 +1896,9 @@ const isMultipleChoiceCorrect = (userAnswer: string[], correctAnswer: string | u
 .politics-options .el-radio.correct-option :deep(.el-radio__label),
 .politics-options .el-radio.correct-option :deep(.el-radio__input.is-checked .el-radio__inner),
 .politics-options .el-checkbox.correct-option :deep(.el-checkbox__label),
-.politics-options .el-checkbox.correct-option :deep(.el-checkbox__input.is-checked .el-checkbox__inner) {
+.politics-options
+  .el-checkbox.correct-option
+  :deep(.el-checkbox__input.is-checked .el-checkbox__inner) {
   color: #52c41a;
   border-color: #52c41a;
 }
@@ -1863,7 +1906,9 @@ const isMultipleChoiceCorrect = (userAnswer: string[], correctAnswer: string | u
 .politics-options .el-radio.wrong-option :deep(.el-radio__label),
 .politics-options .el-radio.wrong-option :deep(.el-radio__input.is-checked .el-radio__inner),
 .politics-options .el-checkbox.wrong-option :deep(.el-checkbox__label),
-.politics-options .el-checkbox.wrong-option :deep(.el-checkbox__input.is-checked .el-checkbox__inner) {
+.politics-options
+  .el-checkbox.wrong-option
+  :deep(.el-checkbox__input.is-checked .el-checkbox__inner) {
   color: #ff4d4f;
   border-color: #ff4d4f;
 }
