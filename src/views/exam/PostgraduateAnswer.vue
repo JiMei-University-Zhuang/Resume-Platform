@@ -346,6 +346,142 @@
             </div>
           </div>
 
+          <!-- 政治单选题 -->
+          <div v-else-if="isPoliticsSingleChoice(question)" class="politics-single-choice-section">
+            <div class="politics-choice-item">
+              <div class="politics-item-header-row">
+                <span class="politics-item-number">{{ question.questionId }}.</span>
+                <div class="politics-item-content-wrapper">
+                  <div class="option-group politics-options">
+                    <el-radio-group
+                      v-model="userPoliticsSingleAnswers[index]"
+                      :disabled="showReference"
+                    >
+                      <el-radio
+                        v-for="opt in ['A', 'B', 'C', 'D']"
+                        :key="opt"
+                        :label="opt"
+                        :class="{
+                          'correct-option': showReference && opt === question.correctAnswer,
+                          'wrong-option':
+                            showReference &&
+                            userPoliticsSingleAnswers[index] === opt &&
+                            opt !== question.correctAnswer
+                        }"
+                      >
+                        {{
+                          opt === 'A'
+                            ? question.optionA || ''
+                            : opt === 'B'
+                              ? question.optionB || ''
+                              : opt === 'C'
+                                ? question.optionC || ''
+                                : question.optionD || ''
+                        }}
+                        <el-icon
+                          v-if="
+                            showReference &&
+                            userPoliticsSingleAnswers[index] === opt &&
+                            opt !== question.correctAnswer
+                          "
+                          class="wrong-icon"
+                          ><Close
+                        /></el-icon>
+                      </el-radio>
+                    </el-radio-group>
+                  </div>
+                </div>
+              </div>
+              <div
+                v-if="showReference"
+                class="option-answer"
+                :class="{
+                  'correct-answer': userPoliticsSingleAnswers[index] === question.correctAnswer,
+                  'wrong-answer':
+                    userPoliticsSingleAnswers[index] !== question.correctAnswer &&
+                    userPoliticsSingleAnswers[index]
+                }"
+              >
+                <template v-if="userPoliticsSingleAnswers[index] === question.correctAnswer">
+                  <el-icon><Check /></el-icon> 回答正确
+                </template>
+                <template v-else-if="userPoliticsSingleAnswers[index]">
+                  <el-icon><Close /></el-icon> 回答错误，正确答案: {{ question.correctAnswer || '未知' }}
+                </template>
+                <template v-else>
+                  <el-icon><InfoFilled /></el-icon> 未作答，正确答案: {{ question.correctAnswer || '未知' }}
+                </template>
+              </div>
+            </div>
+          </div>
+
+          <!-- 政治多选题 -->
+          <div v-else-if="isPoliticsMultipleChoice(question)" class="politics-multiple-choice-section">
+            <div class="politics-choice-item">
+              <div class="politics-item-header-row">
+                <span class="politics-item-number">{{ question.questionId }}.</span>
+                <div class="politics-item-content-wrapper">
+                  <div class="option-group politics-options">
+                    <el-checkbox-group
+                      v-model="userPoliticsMultiAnswers[index]"
+                      :disabled="showReference"
+                    >
+                      <el-checkbox
+                        v-for="opt in ['A', 'B', 'C', 'D']"
+                        :key="opt"
+                        :label="opt"
+                        :class="{
+                          'correct-option': showReference && question.correctAnswer && question.correctAnswer.includes(opt),
+                          'wrong-option':
+                            showReference &&
+                            userPoliticsMultiAnswers[index].includes(opt) &&
+                            question.correctAnswer && !question.correctAnswer.includes(opt)
+                        }"
+                      >
+                        {{
+                          opt === 'A'
+                            ? question.optionA || ''
+                            : opt === 'B'
+                              ? question.optionB || ''
+                              : opt === 'C'
+                                ? question.optionC || ''
+                                : question.optionD || ''
+                        }}
+                        <el-icon
+                          v-if="
+                            showReference &&
+                            userPoliticsMultiAnswers[index].includes(opt) &&
+                            question.correctAnswer && !question.correctAnswer.includes(opt)
+                          "
+                          class="wrong-icon"
+                          ><Close
+                        /></el-icon>
+                      </el-checkbox>
+                    </el-checkbox-group>
+                  </div>
+                </div>
+              </div>
+              <div
+                v-if="showReference"
+                class="option-answer"
+                :class="{
+                  'correct-answer': isMultipleChoiceCorrect(userPoliticsMultiAnswers[index], question.correctAnswer),
+                  'wrong-answer': !isMultipleChoiceCorrect(userPoliticsMultiAnswers[index], question.correctAnswer) && userPoliticsMultiAnswers[index].length > 0
+                }"
+              >
+                <template v-if="isMultipleChoiceCorrect(userPoliticsMultiAnswers[index], question.correctAnswer)">
+                  <el-icon><Check /></el-icon> 回答正确
+                </template>
+                <template v-else-if="userPoliticsMultiAnswers[index].length > 0">
+                  <el-icon><Close /></el-icon> 回答错误，正确答案: {{ question.correctAnswer || '未知' }}
+                </template>
+                <template v-else>
+                  <el-icon><InfoFilled /></el-icon> 未作答，正确答案: {{ question.correctAnswer || '未知' }}
+                </template>
+              </div>
+            </div>
+          </div>
+
           <!-- 常规题目（如材料分析题） -->
           <div v-else class="answer-section">
             <h3>我的解答</h3>
@@ -364,7 +500,9 @@
               !isClozeQuestion(question) &&
               !isReadingQuestion(question) &&
               !isMatchingQuestion(question) &&
-              !isTranslationQuestion(question)
+              !isTranslationQuestion(question) &&
+              !isPoliticsSingleChoice(question) &&
+              !isPoliticsMultipleChoice(question)
             "
             class="reference-answer"
           >
@@ -439,6 +577,11 @@ interface Question {
   readingOptionInfos?: ReadingOptionInfo[]
   matchingOptionInfos?: MatchingOptionInfo[]
   translationOptionInfos?: TranslationOptionInfo[]
+  optionA?: string
+  optionB?: string
+  optionC?: string
+  optionD?: string
+  correctAnswer?: string
 }
 
 const route = useRoute()
@@ -452,6 +595,8 @@ const userClozeAnswers = ref<string[][]>([])
 const userReadingAnswers = ref<string[][]>([])
 const userMatchingAnswers = ref<string[][]>([])
 const userTranslationAnswers = ref<string[][]>([])
+const userPoliticsSingleAnswers = ref<string[]>([])
+const userPoliticsMultiAnswers = ref<string[][]>([])
 const showReference = ref(false)
 const timeLeft = ref(7200) // 2小时，单位为秒
 const loadingPercentage = ref(0)
@@ -476,6 +621,18 @@ const isMatchingQuestion = (question: Question) => {
 // 判断是否为翻译题
 const isTranslationQuestion = (question: Question) => {
   return question.translationOptionInfos && question.translationOptionInfos.length > 0
+}
+
+// 判断是否为政治单选题
+const isPoliticsSingleChoice = (question: Question) => {
+  return question.optionA && question.optionB && question.optionC && question.optionD && 
+         question.correctAnswer && question.correctAnswer.length === 1
+}
+
+// 判断是否为政治多选题
+const isPoliticsMultipleChoice = (question: Question) => {
+  return question.optionA && question.optionB && question.optionC && question.optionD && 
+         question.correctAnswer && question.correctAnswer.length > 1 && question.correctAnswer.includes(',')
 }
 
 const formatText = (text: string | undefined) => {
@@ -684,6 +841,15 @@ const initializeAnswers = () => {
     }
     return []
   })
+
+  userPoliticsSingleAnswers.value = new Array(questions.value.length).fill('')
+
+  userPoliticsMultiAnswers.value = questions.value.map(question => {
+    if (isPoliticsMultipleChoice(question)) {
+      return []
+    }
+    return []
+  })
 }
 
 // 检查是否有未回答的题目
@@ -704,6 +870,10 @@ const hasUnansweredQuestions = () => {
       const answered = userTranslationAnswers.value[index]?.filter(a => a && a.trim()).length || 0
       unansweredCount += question.translationOptionInfos.length - answered
     } else if (!userAnswers.value[index]?.trim()) {
+      unansweredCount += 1
+    } else if (isPoliticsSingleChoice(question) && !userPoliticsSingleAnswers.value[index]) {
+      unansweredCount += 1
+    } else if (isPoliticsMultipleChoice(question) && (!userPoliticsMultiAnswers.value[index] || userPoliticsMultiAnswers.value[index].length === 0)) {
       unansweredCount += 1
     }
   })
@@ -794,6 +964,17 @@ const updateCurrentQuestion = () => {
       return
     }
   }
+}
+
+// 检查多选题答案是否正确
+const isMultipleChoiceCorrect = (userAnswer: string[], correctAnswer: string | undefined) => {
+  if (!userAnswer || !correctAnswer) return false
+  
+  const correctOptions = correctAnswer.split(',')
+  if (userAnswer.length !== correctOptions.length) return false
+  
+  return correctOptions.every(opt => userAnswer.includes(opt)) && 
+         userAnswer.every(opt => correctOptions.includes(opt))
 }
 </script>
 
@@ -1562,5 +1743,135 @@ const updateCurrentQuestion = () => {
   border-radius: 50%;
   font-size: 12px;
   padding: 2px;
+}
+
+/* 政治单选题和多选题样式 */
+.politics-single-choice-section,
+.politics-multiple-choice-section {
+  margin-bottom: 24px;
+}
+
+.politics-choice-item {
+  padding: 16px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border-left: 3px solid #1677ff;
+  margin-bottom: 16px;
+  transition: all 0.3s ease;
+}
+
+.politics-choice-item:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.politics-item-header-row {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.politics-item-number {
+  font-weight: 600;
+  color: #1677ff;
+  margin-right: 12px;
+  margin-top: 12px;
+  min-width: 30px;
+}
+
+.politics-item-content-wrapper {
+  flex: 1;
+}
+
+.politics-options {
+  margin-top: 12px;
+}
+
+.politics-options .el-radio-group,
+.politics-options .el-checkbox-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.politics-options .el-radio,
+.politics-options .el-checkbox {
+  margin-right: 0;
+  margin-bottom: 0;
+  width: calc(50% - 5px);
+  min-width: auto;
+  padding: 10px 14px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  border: 1px solid #f0f0f0;
+  background-color: white;
+}
+
+.politics-options .el-radio:hover,
+.politics-options .el-checkbox:hover {
+  background-color: #e6f7ff;
+  border-color: #1677ff;
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(22, 119, 255, 0.1);
+}
+
+.politics-options .el-radio.is-checked,
+.politics-options .el-checkbox.is-checked {
+  background-color: #e6f7ff;
+  border-color: #1677ff;
+}
+
+.politics-options :deep(.el-radio__input),
+.politics-options :deep(.el-checkbox__input) {
+  margin-top: 0;
+  align-self: flex-start;
+}
+
+.politics-options :deep(.el-radio__label),
+.politics-options :deep(.el-checkbox__label) {
+  padding-left: 12px;
+  color: #262626;
+  line-height: 1.5;
+  display: flex;
+  align-items: center;
+  width: calc(100% - 20px);
+  white-space: normal;
+  word-break: break-word;
+  font-size: 14px;
+}
+
+.politics-options .el-radio.correct-option,
+.politics-options .el-checkbox.correct-option {
+  background-color: #f6ffed;
+  border-color: #52c41a;
+}
+
+.politics-options .el-radio.wrong-option,
+.politics-options .el-checkbox.wrong-option {
+  background-color: #fff2f0;
+  border-color: #ff4d4f;
+}
+
+.politics-options .el-radio.correct-option :deep(.el-radio__label),
+.politics-options .el-radio.correct-option :deep(.el-radio__input.is-checked .el-radio__inner),
+.politics-options .el-checkbox.correct-option :deep(.el-checkbox__label),
+.politics-options .el-checkbox.correct-option :deep(.el-checkbox__input.is-checked .el-checkbox__inner) {
+  color: #52c41a;
+  border-color: #52c41a;
+}
+
+.politics-options .el-radio.wrong-option :deep(.el-radio__label),
+.politics-options .el-radio.wrong-option :deep(.el-radio__input.is-checked .el-radio__inner),
+.politics-options .el-checkbox.wrong-option :deep(.el-checkbox__label),
+.politics-options .el-checkbox.wrong-option :deep(.el-checkbox__input.is-checked .el-checkbox__inner) {
+  color: #ff4d4f;
+  border-color: #ff4d4f;
+}
+
+.politics-options .el-radio .wrong-icon,
+.politics-options .el-checkbox .wrong-icon {
+  color: #ff4d4f;
+  margin-left: 8px;
+  vertical-align: middle;
 }
 </style>
