@@ -24,7 +24,13 @@
         <h2 class="login-title">开启智能职业规划</h2>
         <el-tabs v-model="activeTab" class="login-tabs">
           <el-tab-pane label="账号登录" name="account">
-            <el-form ref="loginFormRef" :model="loginForm" :rules="loginrules" class="login-form" @keyup.enter="handleLogin(loginFormRef)">
+            <el-form
+              ref="loginFormRef"
+              :model="loginForm"
+              :rules="loginrules"
+              class="login-form"
+              @keyup.enter="handleLogin(loginFormRef)"
+            >
               <el-form-item prop="username">
                 <el-input
                   v-model="loginForm.username"

@@ -47,8 +47,41 @@ export function getCSExam(data: CSExam) {
 //获取研究生考试练习
 export function getGSPractice(data: GSPractice) {
   return request({
-    url: '/practice/getGSPractice',
+    url: '/graduate/practice',
     method: 'post',
     data
+  })
+}
+
+/**
+ * 根据卷子名称获取思想政治卷子详情
+ * @param examName 卷子名称
+ * @returns
+ */
+export function getPoliticsPaperByName(examName: string) {
+  return request({
+    url: '/exam/getPoliticalExam',
+    method: 'post',
+    data: {
+      examName
+    }
+  })
+}
+
+export function getEnglishExam(examName: string) {
+  return request({
+    url: '/exam/getEnglishExam',
+    method: 'post',
+    data: {
+      examName  
+    }
+  })
+}
+
+export function getProfessionalExam(examName: string) {
+  return request({
+    url: '/exam/getProfessionalExam',
+    method: 'post',
+    data: { examName }
   })
 }

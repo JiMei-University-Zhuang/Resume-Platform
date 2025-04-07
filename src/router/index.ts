@@ -1,7 +1,6 @@
 // src/router/index.ts
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
 import { BasicLayout } from '../layout'
-import PostgraduateAnswer from '@/views/exam/PostgraduateAnswer.vue'
 import { ElMessageBox, ElMessage } from 'element-plus'
 import { useExamStore } from '@/stores/examStore'
 
@@ -164,10 +163,10 @@ const routes: RouteRecordRaw[] = [
             meta: { title: '考试页面' }
           },
           {
-            path: 'postgraduate-answer',
-            name: 'PostgraduateAnswer',
-            component: PostgraduateAnswer,
-            meta: { title: '考研答题' }
+            path: 'politics-answer',
+            name: 'PoliticsAnswer',
+            component: () => import('@/views/exam/PoliticsAnswer.vue'),
+            meta: { title: '政治答题' }
           }
         ]
       }
