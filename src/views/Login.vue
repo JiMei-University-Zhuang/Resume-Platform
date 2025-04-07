@@ -24,7 +24,7 @@
         <h2 class="login-title">开启智能职业规划</h2>
         <el-tabs v-model="activeTab" class="login-tabs">
           <el-tab-pane label="账号登录" name="account">
-            <el-form ref="loginFormRef" :model="loginForm" :rules="loginrules" class="login-form">
+            <el-form ref="loginFormRef" :model="loginForm" :rules="loginrules" class="login-form" @keyup.enter="handleLogin(loginFormRef)">
               <el-form-item prop="username">
                 <el-input
                   v-model="loginForm.username"
@@ -95,6 +95,7 @@
               :model="loginFormEmail"
               :rules="loginrulesEmail"
               class="login-form"
+              @keyup.enter="handleEmailLogin(loginFormEmailRef)"
             >
               <el-form-item prop="email">
                 <el-input
@@ -153,6 +154,7 @@
           ref="registerFormRef"
           :model="registerForm"
           :rules="registerrules"
+          @keyup.enter="handleRegister"
         >
           <el-form-item prop="username">
             <el-input
@@ -525,10 +527,9 @@ const handleLogin = async (formEl: any) => {
           captcha_value: loginForm.captcha_value
         })) as any as LoginResponse
         if (response.data.code === 200 && response.data.data) {
+          localStorage.setItem('token', response.data.data)
           ElMessage.success('登录成功')
-          // router.push('/dashboard')
-          // localStorage.setItem('token', response.data.data)
-          handleLoginSuccess(response.data.data)
+          router.push(router.currentRoute.value.query.redirect?.toString() || '/dashboard')
         }
       } catch (error: any) {
         const errorMessage =
@@ -553,9 +554,9 @@ const handleEmailLogin = async (formEl: any) => {
           captchaValue: loginFormEmail.captchaValue
         })) as any as LoginEmailResponse
         if (response.data.code === 200 && response.data.data) {
+          localStorage.setItem('token', response.data.data)
           ElMessage.success('登录成功')
-          // router.push('/dashboard')
-          handleLoginSuccess(response.data.data)
+          router.push(router.currentRoute.value.query.redirect?.toString() || '/dashboard')
         }
       } catch (error: any) {
         let errorMessage = '登录失败，请检查邮箱和验证码'
@@ -574,12 +575,6 @@ const handleEmailLogin = async (formEl: any) => {
       }
     }
   })
-}
-//完善登录后处理
-const handleLoginSuccess = (token: string) => {
-  localStorage.setItem('token', token)
-  // 推荐使用window.location.href实现硬刷新
-  window.location.href = router.currentRoute.value.query.redirect?.toString() || '/dashboard'
 }
 
 const handleRegister = async () => {

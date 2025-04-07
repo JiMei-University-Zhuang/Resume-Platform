@@ -2,7 +2,7 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
 import { BasicLayout } from '../layout'
 import PostgraduateAnswer from '@/views/exam/PostgraduateAnswer.vue'
-import { ElMessageBox } from 'element-plus'
+import { ElMessageBox, ElMessage } from 'element-plus'
 import { useExamStore } from '@/stores/examStore'
 
 const routes: RouteRecordRaw[] = [
@@ -193,29 +193,12 @@ const router = createRouter({
   }
 })
 
-const originalPush = router.push
-router.push = function push(location) {
-  return originalPush.call(this, location).catch(err => {
-    if (err.name !== 'NavigationDuplicated') {
-      throw err
-    }
-  })
-}
-
-const originalReplace = router.replace
-router.replace = function replace(location) {
-  return originalReplace.call(this, location).catch(err => {
-    if (err.name !== 'NavigationDuplicated') {
-      throw err
-    }
-  })
-}
-
 router.beforeEach((to, from, next) => {
   const isAuthenticated = localStorage.getItem('token')
   const examStore = useExamStore()
 
   if (to.path !== '/login' && !isAuthenticated) {
+    ElMessage.error('请先登录~')
     next('/login')
   } else if (examStore.isInExam && to.path !== from.path) {
     ElMessageBox.confirm('确定要退出吗？', '提示', {
