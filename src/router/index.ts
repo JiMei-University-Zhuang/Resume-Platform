@@ -158,6 +158,19 @@ const routes: RouteRecordRaw[] = [
             meta: { title: '考研备考' }
           },
           {
+            path: 'scorePage',
+            name: 'scorePage',
+            component: () => import('@/views/exam/scorePage.vue'),
+            meta: { title: '成绩页' }
+          },
+          {
+            path: 'wrongPage',
+            name: 'wrongPage',
+            component: () => import('@/views/exam/WrongQuestionRecord.vue'),
+            meta: { title: '错题也米娜' }
+          },
+
+          {
             path: 'ExamPage',
             name: 'ExamPage',
             component: () => import('@/views/exam/ExamPage.vue'),
