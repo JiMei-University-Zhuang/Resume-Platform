@@ -222,7 +222,7 @@ const analysisAnswers = ref<string[]>([])
 const fetchPaper = async () => {
   loading.value = true
   loadingPercentage.value = 0
-  
+
   try {
     // 模拟加载进度
     const loadingTimer = setInterval(() => {
@@ -231,15 +231,15 @@ const fetchPaper = async () => {
         clearInterval(loadingTimer)
       }
     }, 200)
-    
-    const examName = "2024年全国硕士研究生招生考试思想政治理论真题";
-    const response = await getPoliticsPaperByName(examName);
-    
+
+    const examName = '2024年全国硕士研究生招生考试思想政治理论真题'
+    const response = await getPoliticsPaperByName(examName)
+
     if (response.data) {
       paperData.value = response.data
       paperTitle.value = examName
       initializeAnswers()
-      
+
       clearInterval(loadingTimer)
       loadingPercentage.value = 100
       loading.value = false
@@ -248,7 +248,6 @@ const fetchPaper = async () => {
       clearInterval(loadingTimer)
       loading.value = false
     }
-    
   } catch (error) {
     console.error('获取试卷失败：', error)
     ElMessage.error('获取试卷失败，请重试')
@@ -266,7 +265,9 @@ const initializeAnswers = () => {
 
   // 初始化多选题答案
   if (paperData.value.multiChoiceVOs) {
-    multiChoiceAnswers.value = new Array(paperData.value.multiChoiceVOs.length).fill(null).map(() => [])
+    multiChoiceAnswers.value = new Array(paperData.value.multiChoiceVOs.length)
+      .fill(null)
+      .map(() => [])
   }
 
   // 初始化分析题答案
@@ -333,13 +334,15 @@ const startTimer = () => {
 // 提交答案
 const submitAnswers = async () => {
   // 检查是否有未完成的题目
-  const totalQuestions = (paperData.value.choiceVOs?.length || 0) +
-                         (paperData.value.multiChoiceVOs?.length || 0) +
-                         (paperData.value.analysisVOs?.length || 0)
+  const totalQuestions =
+    (paperData.value.choiceVOs?.length || 0) +
+    (paperData.value.multiChoiceVOs?.length || 0) +
+    (paperData.value.analysisVOs?.length || 0)
 
-  const answeredQuestions = singleChoiceAnswers.value.filter(a => a).length +
-                           multiChoiceAnswers.value.filter(a => a.length > 0).length +
-                           analysisAnswers.value.filter(a => a.trim()).length
+  const answeredQuestions =
+    singleChoiceAnswers.value.filter(a => a).length +
+    multiChoiceAnswers.value.filter(a => a.length > 0).length +
+    analysisAnswers.value.filter(a => a.trim()).length
 
   const unansweredCount = totalQuestions - answeredQuestions
 
@@ -363,6 +366,7 @@ const submitAnswers = async () => {
   ElMessage.success('答案已提交')
 }
 
+// 返回主页
 const returnToHome = () => {
   router.push('/exam/postgraduate')
 }

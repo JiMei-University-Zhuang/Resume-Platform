@@ -73,7 +73,7 @@ export function getEnglishExam(examName: string) {
     url: '/exam/getEnglishExam',
     method: 'post',
     data: {
-      examName  
+      examName
     }
   })
 }
