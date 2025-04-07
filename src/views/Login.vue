@@ -289,6 +289,23 @@ const sendingCaptcha = ref(false)
 const isSendingEmailCaptcha = ref(false)
 const isSendingRegisterCaptcha = ref(false)
 
+// 密码验证规则
+const validatePassword = (rule: any, value: string, callback: any) => {
+  // 管理员则跳过提示
+  if (loginForm.username === 'root') {
+    callback()
+    return
+  }
+  const passwordPattern = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,18}$/
+  if (!value) {
+    callback(new Error('请输入密码'))
+  } else if (!passwordPattern.test(value)) {
+    callback(new Error('密码长度在6-18位之间,同时包含字母和数字'))
+  } else {
+    callback()
+  }
+}
+
 //登录表单
 const loginForm = reactive({
   username: '',
@@ -298,7 +315,7 @@ const loginForm = reactive({
 })
 const loginrules = {
   username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
-  password: [{ required: true, message: '请输入密码', trigger: 'blur' }],
+  password: [{ validator: validatePassword, trigger: 'blur' }],
   captcha_value: [{ required: true, message: '请输入验证码', trigger: 'blur' }]
 }
 //登录邮箱表单
@@ -319,7 +336,7 @@ const registerForm = reactive({
 })
 const registerrules = {
   username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
-  password: [{ required: true, message: '请输入密码', trigger: 'blur' }],
+  password: [{ validator: validatePassword, trigger: 'blur' }],
   email: [
     { required: true, message: '请输入邮箱', trigger: 'blur' },
     {
@@ -360,8 +377,8 @@ const countdown = reactive({
   register: 0
 })
 // 通用倒计时方法
-const startCountdown = (type: 'email' | 'register') => {
-  countdown[type] = 60
+const startCountdown = (type: 'email' | 'register', time = 60) => {
+  countdown[type] = time
   const timer = setInterval(() => {
     countdown[type]--
     if (countdown[type] <= 0) {
@@ -464,6 +481,10 @@ const gotoRegister = () => {
 }
 const gotoLogin = () => {
   isLogin.value = true
+  registerForm.username = ''
+  registerForm.password = ''
+  registerForm.email = ''
+  registerForm.captchaValue = ''
 }
 
 watch(isLogin, newVal => {
@@ -502,6 +523,7 @@ const handleLogin = async (formEl: any) => {
     }
   })
 }
+
 const handleEmailLogin = async (formEl: any) => {
   if (!formEl) return
 
@@ -528,8 +550,8 @@ const handleEmailLogin = async (formEl: any) => {
           } else if (error.response.data.message.includes('账号不存在')) {
             errorMessage = '账号不存在，请注册'
           }
+          ElMessage.error(errorMessage)
         }
-        ElMessage.error(errorMessage)
       } finally {
         loading.value = false
       }

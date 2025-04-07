@@ -35,35 +35,35 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import { getWrongQuestionRecordCount, saveWrongQuestion } from '@/api/exam';
-import { ElMessage } from 'element-plus';
+import { ref } from 'vue'
+import { getWrongQuestionRecordCount, saveWrongQuestion } from '@/api/exam'
+import { ElMessage } from 'element-plus'
 
 // 获取错题记录数表单数据
 const recordCountForm = ref({
   userId: '',
   type: ''
-});
+})
 
 // 错题记录数
-const recordCount = ref(null);
+const recordCount = ref(null)
 
 // 错题列表
-const wrongQuestionList = ref([]);
+const wrongQuestionList = ref([])
 
 // 获取错题记录数
 const getRecordCount = async () => {
   try {
-    const response = await getWrongQuestionRecordCount(recordCountForm.value);
+    const response = await getWrongQuestionRecordCount(recordCountForm.value)
     if (response.code === 200) {
-      recordCount.value = response.data.length;
+      recordCount.value = response.data.length
     } else {
-      ElMessage.error('获取错题记录数失败');
+      ElMessage.error('获取错题记录数失败')
     }
   } catch (error) {
-    ElMessage.error('请求出错，请检查网络');
+    ElMessage.error('请求出错，请检查网络')
   }
-};
+}
 
 // 模拟保存错题（可根据实际情况完善逻辑）
 const saveMockWrongQuestion = async () => {
@@ -77,18 +77,18 @@ const saveMockWrongQuestion = async () => {
         userAnswer: 'A'
       }
     ]
-  };
+  }
   try {
-    const response = await saveWrongQuestion(mockData);
+    const response = await saveWrongQuestion(mockData)
     if (response.code === 200) {
-      ElMessage.success('保存错题成功');
+      ElMessage.success('保存错题成功')
     } else {
-      ElMessage.error('保存错题失败');
+      ElMessage.error('保存错题失败')
     }
   } catch (error) {
-    ElMessage.error('保存错题请求出错，请检查网络');
+    ElMessage.error('保存错题请求出错，请检查网络')
   }
-};
+}
 </script>
 
 <style scoped>

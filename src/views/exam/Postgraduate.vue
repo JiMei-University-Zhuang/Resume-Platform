@@ -283,7 +283,9 @@
           <div class="modal-header">
             <h3 class="modal-title">
               {{ currentExamPaper.category === 'politics' ? '政治考试' : '开始考试' }}
-              <span v-if="currentExamPaper.category === 'politics'" class="category-badge politics">政治</span>
+              <span v-if="currentExamPaper.category === 'politics'" class="category-badge politics"
+                >政治</span
+              >
             </h3>
             <button class="modal-close" @click="isExamDialogVisible = false">×</button>
           </div>
@@ -291,7 +293,7 @@
             <img :src="currentExamPaper.imageUrl" alt="试卷封面" class="modal-image" />
             <h4 class="modal-paper-title">{{ currentExamPaper.title }}</h4>
             <p class="modal-description">{{ currentExamPaper.description }}</p>
-            
+
             <!-- 政治试卷额外信息 -->
             <div v-if="currentExamPaper.category === 'politics'" class="politics-info">
               <div class="info-item">
@@ -485,10 +487,10 @@ const openExamDialog = (paper: any) => {
 // 开始考试的方法
 const startExam = (paperId: number) => {
   isExamDialogVisible.value = false
-  
+
   // 根据试卷类型决定跳转路径
   const paperCategory = papers.value.find(p => p.id === paperId)?.category
-  
+
   if (paperCategory === 'politics') {
     // 政治试卷跳转到politics-answer
     router.push({
@@ -531,7 +533,7 @@ const startPractice = () => {
 // 预览试卷的方法
 const previewPaper = (paperId: number) => {
   console.log('预览试卷，试卷id：', paperId)
-  
+
   // 查找对应的试卷
   const paper = papers.value.find(p => p.id === paperId)
   if (paper) {
