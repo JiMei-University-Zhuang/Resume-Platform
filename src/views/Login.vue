@@ -291,6 +291,11 @@ const isSendingRegisterCaptcha = ref(false)
 
 // 密码验证规则
 const validatePassword = (_rule: any, value: string, callback: any) => {
+  // 管理员则跳过提示
+  if (loginForm.username === 'root') {
+    callback()
+    return
+  }
   const passwordPattern = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,18}$/
   if (!value) {
     callback(new Error('请输入密码'))

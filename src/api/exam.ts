@@ -160,3 +160,11 @@ export function getProfessionalExam(examName: string) {
     data: { examName }
   })
 }
+
+export function submitProfessionalExam(data: any) {
+  return request({
+    url: '/exam/submitProfessionalExam',
+    method: 'post',
+    data
+  })
+}

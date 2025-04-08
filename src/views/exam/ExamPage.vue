@@ -80,7 +80,7 @@
                   </div>
                 </div>
               </div>
-            <div v-if="showAnalysis[index]" class="essay-answer-container">
+              <div v-if="showAnalysis[index]" class="essay-answer-container">
                 <div>
                   分析结果：
                   <div>
@@ -89,7 +89,7 @@
                 </div>
               </div>
               <el-button
-                v-if="showCorrectAnswers &&!showAnalysis[index]"
+                v-if="showCorrectAnswers && !showAnalysis[index]"
                 type="primary"
                 @click="analyzeQuestion(index)"
               >
@@ -348,64 +348,64 @@ const answerStatus = computed(() => {
 })
 const analyzeQuestionSSE = (questionId: string): Promise<string> => {
   return new Promise((resolve, reject) => {
-    console.log('正在请求分析结果，questionId:', questionId);
+    console.log('正在请求分析结果，questionId:', questionId)
     const eventSource = new EventSource(
       `http://8.130.75.193:8081/ai/analysis?questionId=${questionId}`
-    );
+    )
 
     eventSource.onopen = function () {
-      console.log('SSE 连接已打开');
-    };
+      console.log('SSE 连接已打开')
+    }
 
     eventSource.onmessage = function (event) {
-      console.log('接收到服务器消息:', event.data);
-      const analysisResult = event.data;
-      eventSource.close();
-      resolve(analysisResult);
-    };
+      console.log('接收到服务器消息:', event.data)
+      const analysisResult = event.data
+      eventSource.close()
+      resolve(analysisResult)
+    }
 
     eventSource.onerror = function (err) {
-      console.error('SSE 连接错误:', err);
-      eventSource.close();
-      reject(err);
-    };
-  });
-};
+      console.error('SSE 连接错误:', err)
+      eventSource.close()
+      reject(err)
+    }
+  })
+}
 const submitRealExam = async () => {
   showEssayAnswers.value = true
   isExamInProgress.value = false
 }
 
 const analyzeQuestion = async (index: number) => {
-  const questionId = questions.value[index].questionId;
-  console.log('准备分析题目，questionId:', questionId);
+  const questionId = questions.value[index].questionId
+  console.log('准备分析题目，questionId:', questionId)
   try {
-    const analysisResult = await analyzeQuestionSSE(questionId);
-    console.log(`题目 ${questionId} 的分析结果：`, analysisResult);
-    essayAnalysisResults.value[index] = analysisResult;
-    showAnalysis.value[index] = true;
+    const analysisResult = await analyzeQuestionSSE(questionId)
+    console.log(`题目 ${questionId} 的分析结果：`, analysisResult)
+    essayAnalysisResults.value[index] = analysisResult
+    showAnalysis.value[index] = true
   } catch (error) {
-    console.error('分析题目时出错：', error);
+    console.error('分析题目时出错：', error)
   }
-};
+}
 
 onMounted(() => {
-  fetchQuestions();
+  fetchQuestions()
   if (route.query.type === 'exam') {
     const timer = setInterval(() => {
       if (timeLeft.value > 0) {
-        timeLeft.value--;
+        timeLeft.value--
       } else {
-        clearInterval(timer);
-        submitExam();
+        clearInterval(timer)
+        submitExam()
       }
-    }, 1000);
+    }, 1000)
   }
-  examStore.setExamStatus(true);
-});
+  examStore.setExamStatus(true)
+})
 onUnmounted(() => {
-  examStore.setExamStatus(false);
-});
+  examStore.setExamStatus(false)
+})
 </script>
 
 <style scoped>

@@ -2,7 +2,7 @@
   <div class="exam-page">
     <div class="card-header">
       <h1 class="exam-title">{{ isExamMode ? '考试开始' : '练习开始' }}</h1>
-      <p class="exam-subtitle">思想政治试卷: {{ paperTitle }}</p>
+      <p class="exam-subtitle">计算机专业课试卷: {{ paperTitle }}</p>
 
       <div v-if="isExamMode" class="real-exam-badge">
         <div class="timer" v-html="formatTime(timeLeft) + '<br>考试剩余时间'"></div>
@@ -26,7 +26,7 @@
         <!-- 单选题部分 -->
         <div v-if="paperData.choiceVOs && paperData.choiceVOs.length > 0" class="question-category">
           <h2 class="category-title">
-            一、单项选择题（每题1分，共{{ paperData.choiceVOs.length }}分）
+            一、单项选择题（每题{{ paperData.choiceVOs[0].score }}分，共{{ paperData.choiceVOs.length * paperData.choiceVOs[0].score }}分）
           </h2>
           <div class="question-list">
             <div
@@ -44,11 +44,11 @@
                   class="options-group"
                   :disabled="showReference"
                 >
-                  <div class="options-grid">
+                  <div class="options-grid options-grid-cs">
                     <div
                       v-for="option in ['A', 'B', 'C', 'D']"
                       :key="option"
-                      class="option-item"
+                      class="option-item option-item-cs"
                       :class="{
                         'correct-option': showReference && option === question.correctAnswer,
                         'wrong-option':
@@ -83,81 +83,18 @@
           </div>
         </div>
 
-        <!-- 多选题部分 -->
+        <!-- 解答题部分 -->
         <div
-          v-if="paperData.multiChoiceVOs && paperData.multiChoiceVOs.length > 0"
+          v-if="paperData.solveVOs && paperData.solveVOs.length > 0"
           class="question-category"
         >
           <h2 class="category-title">
-            二、多项选择题（每题2分，共{{ paperData.multiChoiceVOs.length * 2 }}分）
+            二、解答题（每题{{ paperData.solveVOs[0].score }}分，共{{ paperData.solveVOs.length * paperData.solveVOs[0].score }}分）
           </h2>
           <div class="question-list">
             <div
-              v-for="(question, questionIndex) in paperData.multiChoiceVOs"
-              :key="'multi-' + question.questionId"
-              class="question-item"
-            >
-              <div class="question-header">
-                <span class="question-number">{{ questionIndex + 1 }}.</span>
-                <div class="question-content" v-html="question.questionContent"></div>
-              </div>
-              <div class="options-container multi-choice-options">
-                <el-checkbox-group
-                  v-model="multiChoiceAnswers[questionIndex]"
-                  class="options-group"
-                  :disabled="showReference"
-                >
-                  <div class="options-grid">
-                    <div
-                      v-for="option in ['A', 'B', 'C', 'D']"
-                      :key="option"
-                      class="option-item"
-                      :class="{
-                        'correct-option': showReference && question.correctAnswer.includes(option),
-                        'wrong-option':
-                          showReference &&
-                          multiChoiceAnswers[questionIndex].includes(option) &&
-                          !question.correctAnswer.includes(option)
-                      }"
-                    >
-                      <el-checkbox :label="option">
-                        <span v-html="question['option' + option]"></span>
-                      </el-checkbox>
-                      <template v-if="showReference">
-                        <span v-if="question.correctAnswer.includes(option)" class="correct-icon">
-                          <i class="el-icon-check"></i>
-                        </span>
-                        <span
-                          v-else-if="multiChoiceAnswers[questionIndex].includes(option)"
-                          class="wrong-icon"
-                        >
-                          <i class="el-icon-close"></i>
-                        </span>
-                      </template>
-                    </div>
-                  </div>
-                </el-checkbox-group>
-              </div>
-              <div v-if="showReference" class="reference-answer">
-                <div class="reference-title">参考答案：</div>
-                <div class="reference-content">{{ question.correctAnswer }}</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 分析题部分 -->
-        <div
-          v-if="paperData.analysisVOs && paperData.analysisVOs.length > 0"
-          class="question-category"
-        >
-          <h2 class="category-title">
-            三、分析题（每题10分，共{{ paperData.analysisVOs.length * 10 }}分）
-          </h2>
-          <div class="question-list">
-            <div
-              v-for="(question, questionIndex) in paperData.analysisVOs"
-              :key="'analysis-' + question.questionId"
+              v-for="(question, questionIndex) in paperData.solveVOs"
+              :key="'solve-' + question.questionId"
               class="question-item"
             >
               <div class="question-header">
@@ -175,7 +112,7 @@
                   ></el-input>
                 </div>
               </div>
-              <div v-if="showReference" class="reference-answer">
+              <div v-if="showReference && question.referenceAnswer" class="reference-answer">
                 <div class="reference-title">参考答案：</div>
                 <div
                   class="reference-content"
@@ -199,7 +136,7 @@
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { getPoliticsPaperByName } from '@/api/exam'
+import { getProfessionalExam } from '@/api/exam'
 
 const route = useRoute()
 const router = useRouter()
@@ -214,7 +151,6 @@ const timerId = ref<number | null>(null)
 
 // 答案相关数据
 const singleChoiceAnswers = ref<string[]>([])
-const multiChoiceAnswers = ref<string[][]>([])
 const analysisAnswers = ref<string[]>([])
 
 // 加载试卷数据
@@ -231,8 +167,8 @@ const fetchPaper = async () => {
       }
     }, 200)
 
-    const examName = '2024年全国硕士研究生招生考试思想政治理论真题'
-    const response = await getPoliticsPaperByName(examName)
+    const examName = '2024年全国硕士研究生招生考试计算机学科专业基础(408)真题'
+    const response = await getProfessionalExam(examName)
 
     if (response.data) {
       paperData.value = response.data
@@ -262,16 +198,9 @@ const initializeAnswers = () => {
     singleChoiceAnswers.value = new Array(paperData.value.choiceVOs.length).fill('')
   }
 
-  // 初始化多选题答案
-  if (paperData.value.multiChoiceVOs) {
-    multiChoiceAnswers.value = new Array(paperData.value.multiChoiceVOs.length)
-      .fill(null)
-      .map(() => [])
-  }
-
-  // 初始化分析题答案
-  if (paperData.value.analysisVOs) {
-    analysisAnswers.value = new Array(paperData.value.analysisVOs.length).fill('')
+  // 初始化解答题答案
+  if (paperData.value.solveVOs) {
+    analysisAnswers.value = new Array(paperData.value.solveVOs.length).fill('')
   }
 }
 
@@ -288,16 +217,10 @@ const calculateProgress = computed(() => {
     total += paperData.value.choiceVOs.length
   }
 
-  // 统计多选题
-  if (paperData.value.multiChoiceVOs) {
-    answered += multiChoiceAnswers.value.filter(a => a.length > 0).length
-    total += paperData.value.multiChoiceVOs.length
-  }
-
-  // 统计分析题
-  if (paperData.value.analysisVOs) {
+  // 统计解答题
+  if (paperData.value.solveVOs) {
     answered += analysisAnswers.value.filter(a => a.trim()).length
-    total += paperData.value.analysisVOs.length
+    total += paperData.value.solveVOs.length
   }
 
   return total > 0 ? Math.floor((answered / total) * 100) : 0
@@ -335,12 +258,10 @@ const submitAnswers = async () => {
   // 检查是否有未完成的题目
   const totalQuestions =
     (paperData.value.choiceVOs?.length || 0) +
-    (paperData.value.multiChoiceVOs?.length || 0) +
-    (paperData.value.analysisVOs?.length || 0)
+    (paperData.value.solveVOs?.length || 0)
 
   const answeredQuestions =
     singleChoiceAnswers.value.filter(a => a).length +
-    multiChoiceAnswers.value.filter(a => a.length > 0).length +
     analysisAnswers.value.filter(a => a.trim()).length
 
   const unansweredCount = totalQuestions - answeredQuestions
@@ -361,13 +282,14 @@ const submitAnswers = async () => {
     }
   }
 
+  // 直接显示参考答案，不发送到服务器
   showReference.value = true
   ElMessage.success('答案已提交')
 }
 
 // 返回主页
 const returnToHome = () => {
-  router.push('politics')
+  router.push('/exam/postgraduate')
 }
 
 onMounted(() => {
@@ -391,7 +313,7 @@ onBeforeUnmount(() => {
   margin: 0 auto;
   padding: 24px;
   padding-bottom: 80px;
-  position: relative; /* 添加相对定位，用于绝对定位倒计时 */
+  position: relative;
 }
 
 .card-header {
@@ -452,18 +374,17 @@ onBeforeUnmount(() => {
 
 .progress-container {
   margin-bottom: 20px;
-  background-color: white;
-  border-radius: 8px;
-  padding: 16px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+  padding: 15px;
+  background-color: #fff;
+  border-radius: 4px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
 }
 
 .progress-info {
   display: flex;
   justify-content: space-between;
   margin-bottom: 8px;
-  color: #262626;
-  font-weight: 500;
+  font-size: 14px;
 }
 
 .question-section {
@@ -529,42 +450,50 @@ onBeforeUnmount(() => {
   width: 100%;
 }
 
-.option-item {
+.options-grid-cs {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  width: 100%;
+}
+
+.option-item-cs {
   margin-bottom: 0;
   padding: 12px 16px;
   border-radius: 6px;
   transition: all 0.3s;
   position: relative;
+  border: 1px solid #f0f0f0;
 }
 
-.option-item:hover {
+.option-item-cs:hover {
   background-color: #f5f5f5;
 }
 
-.option-item .el-radio,
-.option-item .el-checkbox {
-  margin-right: 0;
+.option-item-cs .el-radio {
   width: 100%;
-  display: block;
-  padding-right: 30px; /* 为图标留出空间 */
+  margin-right: 0;
+  display: flex;
+  align-items: center;
 }
 
-.option-item :deep(.el-radio__label),
-.option-item :deep(.el-checkbox__label) {
+.option-item-cs :deep(.el-radio__label) {
   white-space: normal;
   line-height: 1.5;
   font-size: 15px;
   color: #262626;
+  display: inline-block;
+  padding-right: 30px; /* 为图标留出空间 */
 }
 
 .correct-option {
   background-color: rgba(82, 196, 26, 0.1);
-  border: 1px solid #52c41a;
+  border: 1px solid #52c41a !important;
 }
 
 .wrong-option {
   background-color: rgba(255, 77, 79, 0.1);
-  border: 1px solid #ff4d4f;
+  border: 1px solid #ff4d4f !important;
 }
 
 .correct-icon,
@@ -579,7 +508,7 @@ onBeforeUnmount(() => {
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  z-index: 1; /* 确保图标在文本上层 */
+  z-index: 2; /* 确保图标在文本和radio上层 */
 }
 
 .correct-icon {
@@ -598,7 +527,7 @@ onBeforeUnmount(() => {
   width: 100%;
 }
 
-/* 分析题样式 */
+/* 解答题样式 */
 .analysis-answer-area {
   margin-top: 16px;
 }
@@ -654,4 +583,4 @@ onBeforeUnmount(() => {
     grid-template-columns: 1fr;
   }
 }
-</style>
+</style> 
