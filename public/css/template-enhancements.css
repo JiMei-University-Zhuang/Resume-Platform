@@ -1,0 +1,321 @@
+/* 简历模板样式增强 */
+
+/* 个人信息单行显示 */
+.resume .info-columns,
+.resume .personal-info {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 15px !important;
+}
+
+.resume .info-column p,
+.resume .contact-info-item {
+  display: inline-flex !important;
+  align-items: center !important;
+  margin-right: 15px !important;
+  white-space: nowrap !important;
+}
+
+/* 改进的标题样式 */
+.resume .section-title {
+  border-bottom: 2px solid #3182ce !important;
+  padding-bottom: 8px !important;
+  margin-top: 25px !important;
+  margin-bottom: 15px !important;
+  color: #2d3748 !important;
+  font-size: 18px !important;
+  font-weight: 600 !important;
+  background-color: transparent !important;
+  display: block !important;
+}
+
+/* 改进的简历头部 */
+.resume .resume-header,
+.resume-header {
+  margin-bottom: 25px !important;
+  background: linear-gradient(to right, #1a365d, #3182ce) !important;
+  padding: 15px !important;
+  color: white !important;
+}
+
+.resume .title {
+  font-size: 28px !important;
+  margin-bottom: 5px !important;
+  color: white !important;
+}
+
+/* 经验项美化 */
+.resume .timeline-item {
+  margin-bottom: 20px !important;
+  padding-bottom: 15px !important;
+  border-bottom: 1px dashed #e2e8f0 !important;
+}
+
+.resume .timeline-date {
+  color: #4a5568 !important;
+  font-weight: 500 !important;
+  margin-bottom: 5px !important;
+}
+
+.resume .timeline-title {
+  font-weight: 600 !important;
+  color: #2d3748 !important;
+  font-size: 16px !important;
+}
+
+.resume .timeline-degree {
+  font-weight: 500 !important;
+  color: #4a5568 !important;
+  font-style: italic !important;
+}
+
+/* 技能标签美化 */
+.resume .skill-list li {
+  background-color: #ebf8ff !important;
+  border-radius: 4px !important;
+  padding: 6px 12px !important;
+  color: #3182ce !important;
+  border: 1px solid #bee3f8 !important;
+  transition: all 0.3s !important;
+}
+
+.resume .skill-list li:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 2px 5px rgba(49, 130, 206, 0.15) !important;
+}
+
+/* 自我评价美化 */
+.resume .self-assessment {
+  background-color: #f7fafc !important;
+  padding: 15px !important;
+  border-radius: 8px !important;
+  border-left: 3px solid #3182ce !important;
+}
+
+/* 整体简历容器美化 */
+.resume {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+  border-radius: 8px !important;
+  overflow: hidden !important;
+  border: none !important;
+  transition: all 0.3s !important;
+}
+
+.resume:hover {
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12) !important;
+}
+
+/* ============ 特定模板优化 ============ */
+
+/* Muban1 模板优化 */
+.resume:has(.resume-header .title:contains("个人简历")) {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+}
+
+/* 优化个人信息在同一行显示 */
+.resume .personal-info .info-columns {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 10px 20px !important;
+}
+
+.resume .personal-info .info-column p {
+  margin: 5px 0 !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+.resume .personal-info .info-column p span {
+  margin-left: 5px !important;
+  font-weight: 500 !important;
+}
+
+/* Muban2 模板优化 */
+.resume:has(.section[data-section="personal"]) {
+  font-family: 'Helvetica Neue', Arial, sans-serif !important;
+}
+
+/* 使联系信息在同一行 */
+.resume .contact-info {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 15px !important;
+  margin-top: 10px !important;
+}
+
+.resume .contact-item {
+  display: flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+}
+
+.resume .contact-icon {
+  color: #3182ce !important;
+}
+
+/* Muban3 商务风格优化 */
+.resume:has(.resume-header.business-style) {
+  font-family: 'Georgia', serif !important;
+}
+
+.resume .business-style {
+  background: linear-gradient(135deg, #1a365d, #2b6cb0) !important;
+}
+
+.resume .business-style .contact-row {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  justify-content: center !important;
+  gap: 15px !important;
+  margin-top: 15px !important;
+}
+
+/* Muban4 创意风格优化 */
+.resume:has(.creative-header) {
+  font-family: 'Montserrat', sans-serif !important;
+}
+
+.resume .creative-header {
+  background: linear-gradient(45deg, #6b46c1, #3182ce) !important;
+  border-radius: 0 0 30% 0 !important;
+  padding: 25px !important;
+}
+
+.resume .creative-section .section-title {
+  border-bottom: none !important;
+  border-left: 4px solid #6b46c1 !important;
+  padding-left: 10px !important;
+}
+
+/* Muban5 学术风格优化 */
+.resume:has(.academic-resume) {
+  font-family: 'Times New Roman', serif !important;
+  line-height: 1.6 !important;
+}
+
+.resume .academic-header {
+  text-align: center !important;
+  border-bottom: 2px solid #2c5282 !important;
+  background: #f7fafc !important;
+  color: #2d3748 !important;
+}
+
+.resume .academic-header h1 {
+  color: #2c5282 !important;
+}
+
+.resume .academic-section .section-title {
+  color: #2c5282 !important;
+  font-variant: small-caps !important;
+}
+
+/* Muban6-10 美化 */
+/* 营销风格 */
+.resume:has(.marketing-style) {
+  font-family: 'Roboto', sans-serif !important;
+}
+
+.resume .marketing-style .header {
+  background: linear-gradient(to right, #ed8936, #f6ad55) !important;
+}
+
+/* 医疗风格 */
+.resume:has(.medical-style) {
+  font-family: 'Quicksand', sans-serif !important;
+}
+
+.resume .medical-style .header {
+  background: linear-gradient(to right, #38a169, #68d391) !important;
+}
+
+.resume .medical-style .section-title {
+  color: #38a169 !important;
+  border-color: #38a169 !important;
+}
+
+/* 教育风格 */
+.resume:has(.education-style) {
+  font-family: 'Lora', serif !important;
+}
+
+.resume .education-style .header {
+  background: linear-gradient(to right, #3182ce, #63b3ed) !important;
+}
+
+/* 工程风格 */
+.resume:has(.engineering-style) {
+  font-family: 'Roboto Mono', monospace !important;
+}
+
+.resume .engineering-style .header {
+  background: linear-gradient(to right, #4a5568, #718096) !important;
+}
+
+.resume .engineering-style .section-title {
+  font-family: 'Roboto Mono', monospace !important;
+  border-color: #4a5568 !important;
+}
+
+/* 金融风格 */
+.resume:has(.finance-style) {
+  font-family: 'Playfair Display', serif !important;
+}
+
+.resume .finance-style .header {
+  background: linear-gradient(to right, #2c5282, #2b6cb0) !important;
+}
+
+/* 通用样式增强 */
+/* 添加统一的图标效果 */
+.resume .icon {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 20px !important;
+  height: 20px !important;
+  margin-right: 5px !important;
+  color: #3182ce !important;
+}
+
+/* 改进所有模板的个人信息项，确保在一行显示 */
+.resume p, .resume .info-item {
+  margin: 5px 0 !important;
+}
+
+.resume .info-row, 
+.resume .contact-row,
+.resume .personal-row {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 15px 30px !important;
+  margin-bottom: 10px !important;
+}
+
+.resume .info-item,
+.resume .contact-item,
+.resume .personal-item {
+  display: flex !important;
+  align-items: center !important;
+  white-space: nowrap !important;
+}
+
+.resume .info-label,
+.resume .contact-label,
+.resume .personal-label {
+  font-weight: 600 !important;
+  margin-right: 5px !important;
+  color: #4a5568 !important;
+}
+
+/* 打印优化 */
+@media print {
+  .resume {
+    box-shadow: none !important;
+    border: none !important;
+  }
+  
+  .resume * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+} 

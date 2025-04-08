@@ -174,9 +174,7 @@ const isFullScreen = ref(false)
 
 // 用户信息相关
 const userInfo = ref<GetUserResult | null>(null)
-const userAvatar = computed(
-  () => userInfo.value?.avatar || 'https://avatars.githubusercontent.com/u/1?v=4'
-)
+const userAvatar = computed(() => userInfo.value?.avatar)
 const userName = computed(() => userInfo.value?.name || 'Admin')
 
 // 语言切换
@@ -218,7 +216,7 @@ const handleFullscreenChange = () => {
 
 // 打开文档中心
 const openDocumentation = () => {
-  window.open('https://example.com/documentation', '_blank')
+  window.open('http://net.yinhenx.cn/', '_blank')
 }
 
 // 处理登出的函数

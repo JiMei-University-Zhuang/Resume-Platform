@@ -6,7 +6,17 @@ export interface LoginParams {
   captcha_key: string
   captcha_value: string
 }
+export interface EmailLoginParams {
+  email: string
+  captchaValue: string
+}
 
+export interface RegisterParams {
+  username: string
+  password: string
+  email: string
+  captchaValue: string
+}
 export interface LoginResult {
   code: number
   msg?: string
@@ -20,7 +30,7 @@ export interface LoginResult {
     }
   }
 }
-
+//账号密码登录
 export const login = (data: LoginParams): Promise<LoginResult> => {
   return request({
     url: '/auth/login',
@@ -28,7 +38,16 @@ export const login = (data: LoginParams): Promise<LoginResult> => {
     data
   })
 }
+//邮箱登录
+export const emailLogin = (data: EmailLoginParams): Promise<LoginResult> => {
+  return request({
+    url: '/auth/emailLogin',
+    method: 'post',
+    data
+  })
+}
 
+//登出
 export const logout = () => {
   return request({
     url: '/auth/logout',
@@ -55,6 +74,32 @@ export function getCaptchaKey() {
   })
 }
 
+//发送邮箱验证码（邮箱登录）
+export function sendEmailCaptchaValue(data: { email: string }) {
+  return request({
+    url: '/auth/loginSend',
+    method: 'post',
+    data
+  })
+}
+
+//发送邮箱验证码（邮箱注册）
+export function sendRegisterEmailCaptchaValue(data: { email: string }) {
+  return request({
+    url: '/auth/registerSend',
+    method: 'post',
+    data
+  })
+}
+
+//邮箱注册
+export function register(data: RegisterParams) {
+  return request({
+    url: 'auth/emailRegister',
+    method: 'post',
+    data
+  })
+}
 //获取用户信息
 export function getUserInfo() {
   return request({
@@ -78,11 +123,12 @@ export interface GetUserResult {
   createTime: string
   token: string
 }
-
-// 添加新的getUser接口
 export function getUser() {
   return request({
     url: '/auth/getUser',
-    method: 'get'
+    method: 'post',
+    headers: {
+      Authorization: `${localStorage.getItem('token')}`
+    }
   })
 }

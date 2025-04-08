@@ -172,7 +172,7 @@
       </el-tabs>
 
       <div class="job-lists">
-        <el-row :gutter="20">
+        <el-row :gutter="20" v-if="filteredHotJobs.length > 0">
           <el-col :xs="24" :sm="12" v-for="job in filteredHotJobs" :key="job.id">
             <el-card class="hot-job-card" shadow="hover">
               <div class="company-info">
@@ -228,6 +228,26 @@
             </el-card>
           </el-col>
         </el-row>
+
+        <!-- 无职位提示 -->
+        <el-empty
+          v-else
+          description="暂无热门职位推荐"
+          :image-size="200"
+          class="empty-jobs-container"
+        >
+          <template #image>
+            <img src="@/assets/empty-jobs.svg" alt="暂无职位" class="empty-jobs-image" />
+          </template>
+          <template #description>
+            <p class="empty-jobs-description">
+              暂无符合条件的热门职位
+              <br />
+              <span class="empty-jobs-hint">请尝试切换其他职位类别或修改搜索条件</span>
+            </p>
+          </template>
+          <el-button type="primary" @click="activeTab = 'all'"> 查看全部职位 </el-button>
+        </el-empty>
       </div>
     </div>
 
@@ -566,6 +586,32 @@ const getHotJobTagType = (
   width: 16px;
   height: 16px;
   object-fit: contain;
+}
+
+/* 空职位提示区域 */
+.empty-jobs-container {
+  margin: 40px 0;
+  padding: 20px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+}
+
+.empty-jobs-image {
+  width: 200px;
+  height: 200px;
+  object-fit: contain;
+}
+
+.empty-jobs-description {
+  font-size: 16px;
+  color: #606266;
+  margin-bottom: 20px;
+  line-height: 1.6;
+}
+
+.empty-jobs-hint {
+  font-size: 14px;
+  color: #909399;
 }
 
 /* 热门职位区域样式 */

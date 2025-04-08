@@ -1,5 +1,28 @@
 <template>
   <div class="resume-create">
+    <!-- 顶部标题栏 -->
+    <div class="page-header">
+      <h1 class="page-title">简历创建</h1>
+      <div class="header-actions">
+        <el-button type="primary" size="large" @click="changeTemplate">
+          <el-icon><Document /></el-icon>
+          切换模板
+        </el-button>
+        <el-button type="success" size="large" @click="exportPDF">
+          <el-icon><Download /></el-icon>
+          导出PDF
+        </el-button>
+        <el-button type="warning" size="large" @click="previewResume">
+          <el-icon><View /></el-icon>
+          预览
+        </el-button>
+        <el-button type="danger" size="large" @click="confirmClearResumeForm">
+          <el-icon><Delete /></el-icon>
+          清空
+        </el-button>
+      </div>
+    </div>
+
     <el-row :gutter="20">
       <el-col :span="11">
         <el-card class="edit-area">
@@ -7,15 +30,30 @@
             <div class="card-header">
               <span class="card-title">简历信息</span>
               <div class="header-actions">
-                <el-button type="primary" @click="analyzeResume" size="small">
+                <el-button
+                  type="primary"
+                  @click="analyzeResume"
+                  size="small"
+                  style="background-color: #3182ce; color: white; border-color: #3182ce"
+                >
                   <el-icon><OfficeBuilding /></el-icon> AI 分析优化
-                </el-button>
-                <el-button type="danger" @click="confirmClearResumeForm" size="small">
-                  <el-icon><Delete /></el-icon> 清空简历
                 </el-button>
               </div>
             </div>
           </template>
+
+          <div class="resume-type-selector">
+            <span class="resume-type-label">简历类型:</span>
+            <el-radio-group
+              v-model="currentResumeType"
+              size="small"
+              @change="val => changeResumeType(val as string)"
+            >
+              <el-radio-button v-for="type in resumeTypes" :key="type.value" :label="type.value">
+                {{ type.label }}
+              </el-radio-button>
+            </el-radio-group>
+          </div>
 
           <el-form :model="resumeForm" label-width="100px" class="resume-form">
             <el-divider>个人信息</el-divider>
@@ -23,9 +61,9 @@
               <el-input v-model="resumeForm.name" placeholder="请输入姓名"></el-input>
             </el-form-item>
             <el-form-item label="性别">
-              <el-radio-group v-model="resumeForm.gender">
-                <el-radio value="男" label="男">男</el-radio>
-                <el-radio value="女" label="女">女</el-radio>
+              <el-radio-group v-model="resumeForm.gender" size="small">
+                <el-radio-button label="男">男</el-radio-button>
+                <el-radio-button label="女">女</el-radio-button>
               </el-radio-group>
             </el-form-item>
             <el-form-item label="求职意向">
@@ -117,11 +155,18 @@
                   </el-form-item>
                 </el-col>
               </el-row>
-              <el-button type="danger" @click="removeEducation(index)" v-if="index > 0"
-                >删除</el-button
-              >
             </div>
-            <el-button type="primary" @click="addEducation">添加教育经历</el-button>
+            <div class="action-buttons">
+              <el-button type="primary" @click="addEducation">添加教育经历</el-button>
+              <template
+                v-for="(edu, eduIndex) in resumeForm.education"
+                :key="'del-edu-' + eduIndex"
+              >
+                <el-button type="danger" @click="removeEducation(eduIndex)" v-if="eduIndex > 0"
+                  >删除 {{ edu.school || '教育经历' + (eduIndex + 1) }}</el-button
+                >
+              </template>
+            </div>
 
             <el-divider>工作经验</el-divider>
             <div v-for="(exp, index) in resumeForm.experience" :key="index" class="experience-item">
@@ -155,11 +200,18 @@
                   placeholder="请输入工作内容"
                 ></el-input>
               </el-form-item>
-              <el-button type="danger" @click="removeExperience(index)" v-if="index > 0"
-                >删除</el-button
-              >
             </div>
-            <el-button type="primary" @click="addExperience">添加工作经验</el-button>
+            <div class="action-buttons">
+              <el-button type="primary" @click="addExperience">添加工作经验</el-button>
+              <template
+                v-for="(exp, expIndex) in resumeForm.experience"
+                :key="'del-exp-' + expIndex"
+              >
+                <el-button type="danger" @click="removeExperience(expIndex)" v-if="expIndex > 0"
+                  >删除 {{ exp.company || '工作经验' + (expIndex + 1) }}</el-button
+                >
+              </template>
+            </div>
 
             <el-divider>在校经历</el-divider>
             <el-form-item label="在校经历">
@@ -173,25 +225,27 @@
 
             <el-divider>专业技能</el-divider>
             <el-form-item label="技能标签">
-              <el-tag
-                v-for="tag in resumeForm.skills"
-                :key="tag"
-                closable
-                :disable-transitions="false"
-                @close="handleClose(tag)"
-                class="skill-tag"
-              >
-                {{ tag }}
-              </el-tag>
-              <el-input
-                v-if="inputVisible"
-                ref="InputRef"
-                v-model="inputValue"
-                class="input-new-tag"
-                @keyup.enter="handleInputConfirm"
-                @blur="handleInputConfirm"
-              />
-              <el-button v-else class="button-new-tag" @click="showInput">+ 添加技能</el-button>
+              <div class="skill-tags-container">
+                <el-tag
+                  v-for="tag in resumeForm.skills"
+                  :key="tag"
+                  closable
+                  :disable-transitions="false"
+                  @close="handleClose(tag)"
+                  class="skill-tag"
+                >
+                  {{ tag }}
+                </el-tag>
+                <el-input
+                  v-if="inputVisible"
+                  ref="InputRef"
+                  v-model="inputValue"
+                  class="input-new-tag"
+                  @keyup.enter="handleInputConfirm"
+                  @blur="handleInputConfirm"
+                />
+                <el-button v-else class="button-new-tag" @click="showInput">+ 添加技能</el-button>
+              </div>
             </el-form-item>
 
             <el-divider>自我评价</el-divider>
@@ -213,14 +267,8 @@
             <div class="card-header">
               <span class="card-title">预览</span>
               <div class="header-actions">
-                <el-button type="success" @click="exportPDF" size="small">
-                  <el-icon><DocumentCopy /></el-icon> 导出 PDF
-                </el-button>
                 <el-button type="primary" @click="previewResume" size="small">
                   <el-icon><View /></el-icon> 预览效果
-                </el-button>
-                <el-button @click="changeTemplate" size="small">
-                  <el-icon><SwitchButton /></el-icon> 切换模板
                 </el-button>
 
                 <el-dialog
@@ -389,12 +437,12 @@
 <script setup lang="ts">
 import { templateConfig } from '@/components/Template/templateConfig'
 import { analyzeResume as analyzeResumeApi } from '@/api/template'
-import { Delete, DocumentCopy, View, SwitchButton, OfficeBuilding } from '@element-plus/icons-vue'
+import { View, OfficeBuilding, Document, Download, Delete } from '@element-plus/icons-vue'
+import templateAdapter from '@/components/Template/template-adapter'
 
-import { ref } from 'vue'
+import { ref, watch, onMounted, nextTick } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useRoute } from 'vue-router'
-import { watch } from 'vue'
 import html2canvas from 'html2canvas'
 import jsPDF from 'jspdf'
 import dayjs from 'dayjs'
@@ -438,77 +486,250 @@ interface AISuggestions {
   }>
 }
 
-interface ResumeForm {
-  name: string
-  gender: string
-  jobTitle: string
-  birthday: string | Date
-  origin: string
-  currentResidence: string
-  politicalStatus: string
-  contact: string
-  email: string
-  honors: string
-  certifications: string
-  education: {
-    school: string
-    major: string
-    degree: string
-    time: [Date, Date]
-  }[]
-  experience: {
-    company: string
-    position: string
-    description: string
-    time: [Date, Date]
-  }[]
-  campusExperience: string
-  skills: string[]
-  selfAssessment: string
-}
-
 const route = useRoute()
 const currentTemplate = ref(null) // 初始化为 null
 const inputVisible = ref(false)
 const inputValue = ref('')
-const resumeForm = ref<ResumeForm>({
-  name: '张三',
-  gender: '男',
-  jobTitle: '前端开发工程师',
-  birthday: '1995-05-15',
-  origin: '北京',
-  currentResidence: '上海',
-  politicalStatus: '团员',
-  contact: '13800138000',
-  email: 'zhangsan@example.com',
-  honors: '2022年获得公司优秀员工奖',
-  certifications: 'PMP认证，前端开发高级工程师',
-  education: [
-    {
-      school: '北京大学',
-      major: '计算机科学与技术',
-      degree: '本科',
-      time: [new Date('2013-09-01'), new Date('2017-06-30')]
-    }
-  ],
-  experience: [
-    {
-      company: '腾讯科技',
-      position: '前端开发工程师',
-      description: '负责公司核心产品的前端开发工作，使用Vue.js框架',
-      time: [new Date('2018-07-01'), new Date('2021-12-31')]
-    },
-    {
-      company: '阿里巴巴',
-      position: '高级前端开发工程师',
-      description: '负责电商平台的前端架构设计和开发',
-      time: [new Date('2022-01-01'), new Date()]
-    }
-  ],
-  campusExperience: '在校期间担任学生会技术部部长，组织多次技术分享会',
-  skills: ['Vue.js', 'React', 'TypeScript', 'Node.js'],
-  selfAssessment: '5年前端开发经验，熟练掌握主流前端技术栈，具有良好的团队协作能力和沟通能力'
-})
+
+// 定义简历类型
+const resumeTypes = [
+  { label: '应届生简历', value: 'graduate' },
+  { label: '技术岗简历', value: 'tech' },
+  { label: '管理岗简历', value: 'management' },
+  { label: '市场营销简历', value: 'marketing' },
+  { label: '财务会计简历', value: 'finance' }
+]
+
+// 当前选择的简历类型
+const currentResumeType = ref('tech')
+
+// 定义不同类型简历的初始数据模板
+const resumeTemplates = {
+  graduate: {
+    name: '李明',
+    gender: '男',
+    jobTitle: '应届毕业生求职',
+    birthday: '2000-06-15',
+    origin: '广州',
+    currentResidence: '广州',
+    politicalStatus: '团员',
+    contact: '13800138001',
+    email: 'liming@example.com',
+    honors: '校级优秀毕业生\n学业奖学金二等奖\n英语四六级证书',
+    certifications: '计算机等级证书二级\n大学生创新创业项目结项证书',
+    education: [
+      {
+        school: '华南理工大学',
+        major: '电子信息工程',
+        degree: '本科',
+        time: [new Date('2019-09-01'), new Date('2023-06-30')]
+      }
+    ],
+    experience: [
+      {
+        company: '广州智能科技有限公司',
+        position: '前端开发实习生',
+        description:
+          '参与公司产品前端页面的开发和维护，使用Vue.js框架进行开发，配合后端完成数据交互功能。',
+        time: [new Date('2022-07-01'), new Date('2022-08-31')]
+      }
+    ],
+    campusExperience:
+      '担任班级学习委员，负责组织学习交流活动\n参与校园科技创新大赛，获得三等奖\n参加志愿者活动，累计服务时长超过50小时',
+    skills: ['HTML/CSS', 'JavaScript', 'Vue.js', 'Python'],
+    selfAssessment:
+      '作为一名即将毕业的学生，我具有扎实的专业知识基础和良好的学习能力，对新技术有浓厚的兴趣。在校期间积极参与各类实践活动，培养了团队协作和沟通能力。工作认真负责，有较强的适应能力和抗压能力。'
+  },
+  tech: {
+    name: '张三',
+    gender: '男',
+    jobTitle: '前端开发工程师',
+    birthday: '1995-05-15',
+    origin: '北京',
+    currentResidence: '上海',
+    politicalStatus: '团员',
+    contact: '13800138000',
+    email: 'zhangsan@example.com',
+    honors: '2022年获得公司优秀员工奖',
+    certifications: 'PMP认证，前端开发高级工程师',
+    education: [
+      {
+        school: '北京大学',
+        major: '计算机科学与技术',
+        degree: '本科',
+        time: [new Date('2013-09-01'), new Date('2017-06-30')]
+      }
+    ],
+    experience: [
+      {
+        company: '腾讯科技',
+        position: '前端开发工程师',
+        description:
+          '【情境】面对日益增长的用户需求及市场竞争压力，【任务】我被委任为腾讯科技核心产品的主要前端开发者之一，负责提升用户体验并优化性能。【行动】利用Vue.js框架重构了多个关键页面，引入了TypeScript提高代码质量，并实施了一系列性能优化措施。【成果】最终实现了加载速度提升30%，用户满意度提高了15%。',
+        time: [new Date('2018-07-01'), new Date('2021-12-31')]
+      },
+      {
+        company: '阿里巴巴',
+        position: '高级前端开发工程师',
+        description:
+          '【情境】电商平台面临用户体验不一致和性能瓶颈问题，【任务】作为前端架构师，负责制定前端技术标准并带领团队进行系统重构。【行动】设计并实施了组件化开发流程，建立了严格的代码审查机制，优化了前端构建流程。【成果】重构后的系统性能提升40%，开发效率提高25%，用户转化率提升10%。',
+        time: [new Date('2022-01-01'), new Date()]
+      }
+    ],
+    campusExperience: '在校期间担任学生会技术部部长，组织多次技术分享会',
+    skills: ['Vue.js', 'React', 'TypeScript', 'Node.js', 'Webpack', 'Docker'],
+    selfAssessment:
+      '5年前端开发经验，熟练掌握主流前端技术栈，具有良好的团队协作能力和沟通能力。对新技术有浓厚兴趣，能快速学习并应用到实际项目中。注重代码质量和用户体验，善于解决复杂技术问题。有带领团队经验，能够进行技术架构设计和技术选型。'
+  },
+  management: {
+    name: '王丽',
+    gender: '女',
+    jobTitle: '项目经理',
+    birthday: '1990-03-25',
+    origin: '南京',
+    currentResidence: '深圳',
+    politicalStatus: '党员',
+    contact: '13800138002',
+    email: 'wangli@example.com',
+    honors: '深圳市优秀管理者\n公司年度管理创新奖',
+    certifications: 'PMP认证\nScrumMaster认证\nMBA学位',
+    education: [
+      {
+        school: '复旦大学',
+        major: '工商管理',
+        degree: '硕士',
+        time: [new Date('2012-09-01'), new Date('2015-06-30')]
+      },
+      {
+        school: '南京大学',
+        major: '计算机科学',
+        degree: '本科',
+        time: [new Date('2008-09-01'), new Date('2012-06-30')]
+      }
+    ],
+    experience: [
+      {
+        company: '华为技术有限公司',
+        position: '高级项目经理',
+        description:
+          '【情境】公司大型跨国项目面临进度延迟和团队协作问题，【任务】被任命为项目经理负责扭转局面，【行动】重组团队结构，优化工作流程，建立清晰的沟通机制和里程碑追踪系统，【成果】项目提前一个月完成，客户满意度达95%，为公司带来3000万收入。',
+        time: [new Date('2018-03-01'), new Date()]
+      },
+      {
+        company: '中兴通讯',
+        position: '项目主管',
+        description:
+          '【情境】多个研发项目并行推进，资源冲突严重，【任务】作为项目主管统筹资源并确保项目按时交付，【行动】实施敏捷项目管理方法，建立资源共享机制，优化团队协作模式，【成果】团队生产力提升35%，所有项目按期交付，节省成本20%。',
+        time: [new Date('2015-07-01'), new Date('2018-02-28')]
+      }
+    ],
+    campusExperience: '研究生期间担任MBA协会主席，组织多次企业参访和管理论坛',
+    skills: ['项目管理', '团队领导', '敏捷开发', '风险管理', '预算控制', '商务谈判'],
+    selfAssessment:
+      '拥有8年项目管理经验，擅长带领跨职能团队完成复杂项目。具有出色的领导力、沟通能力和问题解决能力。精通敏捷和传统项目管理方法，能够根据项目特点灵活选择合适的管理方式。注重团队成长和业务价值的实现，有成功管理千万级项目的经验。'
+  },
+  marketing: {
+    name: '赵芳',
+    gender: '女',
+    jobTitle: '市场营销经理',
+    birthday: '1993-11-08',
+    origin: '成都',
+    currentResidence: '北京',
+    politicalStatus: '群众',
+    contact: '13800138003',
+    email: 'zhaofang@example.com',
+    honors: '年度最佳营销案例奖\n行业影响力人物提名',
+    certifications: '数字营销专业认证\n社交媒体营销证书',
+    education: [
+      {
+        school: '中国人民大学',
+        major: '市场营销',
+        degree: '本科',
+        time: [new Date('2011-09-01'), new Date('2015-06-30')]
+      }
+    ],
+    experience: [
+      {
+        company: '字节跳动',
+        position: '市场营销经理',
+        description:
+          '【情境】新产品上线初期用户增长缓慢，【任务】负责制定并执行市场推广策略，【行动】设计了多渠道整合营销方案，包括社交媒体营销、KOL合作和线下活动，【成果】三个月内用户增长200%，品牌知名度提升50%，产品跻身行业前三。',
+        time: [new Date('2019-04-01'), new Date()]
+      },
+      {
+        company: '京东集团',
+        position: '营销专员',
+        description:
+          '【情境】618购物节需要创新营销方案，【任务】作为团队核心成员负责创意策划和执行，【行动】提出并实施了"品类日"概念，结合直播和社交裂变，【成果】带动品类销售额同比增长150%，获得公司年度创新奖。',
+        time: [new Date('2015-07-01'), new Date('2019-03-31')]
+      }
+    ],
+    campusExperience: '大学期间创办校园营销协会，举办多场营销大赛和企业分享会',
+    skills: ['数字营销', '品牌策划', '社交媒体运营', '内容营销', '用户增长', '数据分析'],
+    selfAssessment:
+      '具有7年互联网行业市场营销经验，对数字营销和品牌建设有深入理解。擅长整合各类营销渠道，制定有效的营销策略。具有出色的创意思维和执行力，能够将创意转化为有效的市场行动。熟悉用户心理，善于数据分析，能够不断优化营销效果。有团队管理经验，能够带领团队实现营销目标。'
+  },
+  finance: {
+    name: '陈明',
+    gender: '男',
+    jobTitle: '财务分析师',
+    birthday: '1992-09-20',
+    origin: '上海',
+    currentResidence: '上海',
+    politicalStatus: '群众',
+    contact: '13800138004',
+    email: 'chenming@example.com',
+    honors: '注册会计师考试专业阶段优秀考生\n公司财务创新奖',
+    certifications: 'CPA注册会计师\nFRM金融风险管理师\nCFA一级',
+    education: [
+      {
+        school: '上海财经大学',
+        major: '财务管理',
+        degree: '硕士',
+        time: [new Date('2014-09-01'), new Date('2017-06-30')]
+      },
+      {
+        school: '复旦大学',
+        major: '会计学',
+        degree: '本科',
+        time: [new Date('2010-09-01'), new Date('2014-06-30')]
+      }
+    ],
+    experience: [
+      {
+        company: '普华永道会计师事务所',
+        position: '高级财务分析师',
+        description:
+          '【情境】某大型跨国公司并购项目需要财务尽职调查，【任务】作为项目负责人进行财务分析和风险评估，【行动】组织团队深入分析目标公司财务状况，识别潜在风险并提出解决方案，【成果】顺利完成尽职调查，为客户节省约2000万并购成本，获得客户高度评价。',
+        time: [new Date('2020-02-01'), new Date()]
+      },
+      {
+        company: '安永华明会计师事务所',
+        position: '审计师',
+        description:
+          '【情境】多家上市公司年度审计工作任务繁重，【任务】负责财务报表审计和内控评估，【行动】优化审计流程，应用数据分析工具提高审计效率，【成果】比预期提前完成多个项目，审计质量获得客户认可，被评为年度优秀员工。',
+        time: [new Date('2017-07-01'), new Date('2020-01-31')]
+      }
+    ],
+    campusExperience: '研究生期间担任金融俱乐部副主席，组织企业参访和行业讲座',
+    skills: ['财务分析', '财务建模', '风险评估', '审计', 'Excel高级应用', 'SQL', 'Python数据分析'],
+    selfAssessment:
+      '拥有6年财务分析和审计经验，对财务报表分析和企业估值有深入研究。具备扎实的会计和金融知识，精通财务建模和风险管理。工作严谨细致，善于发现财务数据中的问题并提出建设性意见。良好的沟通能力和团队协作精神，能够向非财务人员清晰解释复杂的财务概念。持续学习新知识，保持专业敏感度。'
+  }
+}
+
+// 将resumeForm改为一个函数，根据当前选择的类型返回对应的模板
+const resumeForm = ref(JSON.parse(JSON.stringify(resumeTemplates.tech)))
+
+// 添加切换简历类型的函数
+const changeResumeType = (type: string) => {
+  currentResumeType.value = type
+  // 深拷贝模板数据，避免相互影响
+  resumeForm.value = JSON.parse(
+    JSON.stringify(resumeTemplates[type as keyof typeof resumeTemplates])
+  )
+  ElMessage.success(`已切换到${resumeTypes.find(item => item.value === type)?.label}`)
+}
 
 const analyzing = ref(false)
 const analysisDialogVisible = ref(false)
@@ -520,6 +741,12 @@ const resumePreview = ref(null)
 const selectTemplate = async (template: string) => {
   await loadTemplate(template)
   templateDialogVisible.value = false
+
+  // 应用模板增强
+  await nextTick()
+  if (resumePreview.value) {
+    await templateAdapter.enhanceTemplate(template, resumePreview.value)
+  }
 }
 
 // 定义模板加载函数
@@ -531,10 +758,22 @@ const loadTemplate = async (templateName?: string) => {
     if (templateKey in templateComponents) {
       const module = await templateComponents[templateKey]()
       currentTemplate.value = module.default
+
+      // 应用模板增强
+      await nextTick()
+      if (resumePreview.value) {
+        await templateAdapter.enhanceTemplate(templateKey, resumePreview.value)
+      }
     } else {
       // 回退到默认模板
       const fallback = await templateComponents['muban1']()
       currentTemplate.value = fallback.default
+
+      // 应用默认模板增强
+      await nextTick()
+      if (resumePreview.value) {
+        await templateAdapter.enhanceTemplate('muban1', resumePreview.value)
+      }
     }
   } catch (error) {
     console.error('加载模板失败:', error)
@@ -559,7 +798,7 @@ watch(
 )
 
 const handleClose = (tag: string) => {
-  resumeForm.value.skills = resumeForm.value.skills.filter(t => t !== tag)
+  resumeForm.value.skills = resumeForm.value.skills.filter((t: string) => t !== tag)
 }
 
 const showInput = () => {
@@ -657,14 +896,14 @@ const analyzeResume = async () => {
       birthday: resumeForm.value.birthday
         ? dayjs(resumeForm.value.birthday).format('YYYY-MM-DD')
         : '',
-      education: resumeForm.value.education.map(edu => ({
+      education: resumeForm.value.education.map((edu: any) => ({
         ...edu,
         time: [
           dayjs(edu.time[0]).format('YYYY-MM-DD'),
           dayjs(edu.time[1]).format('YYYY-MM-DD')
         ] as [string, string]
       })),
-      experience: resumeForm.value.experience.map(exp => ({
+      experience: resumeForm.value.experience.map((exp: any) => ({
         ...exp,
         time: [
           dayjs(exp.time[0]).format('YYYY-MM-DD'),
@@ -718,14 +957,19 @@ const applyAISuggestions = () => {
   const workExperienceSuggestion = revisions.find(rev => rev.section === '工作经历')
   if (workExperienceSuggestion && Array.isArray(workExperienceSuggestion.suggestion)) {
     // 获取每个工作经历的优化建议
-    const suggestions = workExperienceSuggestion.suggestion as SuggestionItem[]
+    workExperienceSuggestion.suggestion.forEach(suggestion => {
+      // 检查建议是否是字符串
+      if (typeof suggestion === 'string') {
+        // 如果是普通字符串，可能是针对整体的建议
+        // 这里可以选择性地处理字符串类型的建议
+        return // 暂时忽略字符串类型的建议
+      }
 
-    // 遍历建议，根据原始内容匹配对应的工作经历并应用优化
-    suggestions.forEach(suggestion => {
-      if ('original' in suggestion && 'optimized' in suggestion) {
+      // 检查是否是 SuggestionItem 对象
+      if (isSuggestionItem(suggestion)) {
         // 查找匹配的工作经历
         const experienceIndex = resumeForm.value.experience.findIndex(
-          exp => exp.description.trim() === suggestion.original.trim()
+          (exp: any) => exp.description.trim() === suggestion.original.trim()
         )
 
         // 如果找到匹配的工作经历，应用优化建议
@@ -740,11 +984,9 @@ const applyAISuggestions = () => {
   const educationSuggestion = revisions.find(rev => rev.section === '教育经历')
   if (educationSuggestion && Array.isArray(educationSuggestion.suggestion)) {
     // 获取教育经历的优化建议
-    const suggestions = educationSuggestion.suggestion as SuggestionItem[]
-
-    // 尝试匹配校园经历并应用优化
-    suggestions.forEach(suggestion => {
-      if ('original' in suggestion && 'optimized' in suggestion) {
+    educationSuggestion.suggestion.forEach(suggestion => {
+      // 检查是否是 SuggestionItem 对象
+      if (isSuggestionItem(suggestion)) {
         // 如果原始内容与校园经历匹配
         if (resumeForm.value.campusExperience.includes(suggestion.original)) {
           // 替换匹配的部分
@@ -771,9 +1013,6 @@ const applyAISuggestions = () => {
               suggestion.optimized
             )
           }
-        } else if (typeof suggestion === 'string') {
-          // 如果是字符串类型
-          resumeForm.value.campusExperience = suggestion
         }
       })
     } else if (typeof campusExperienceSuggestion.suggestion === 'string') {
@@ -843,7 +1082,7 @@ const clearResumeForm = () => {
     name: '',
     gender: '',
     jobTitle: '',
-    birthday: '1995-05-15',
+    birthday: '',
     origin: '',
     currentResidence: '',
     politicalStatus: '',
@@ -880,7 +1119,7 @@ const getProgressColor = (score: number): string => {
   return '#F56C6C'
 }
 
-// 新增的类型守卫函数
+// 类型守卫函数
 function isSuggestionItemTemplate(item: any): item is SuggestionItem {
   return (
     typeof item === 'object' &&
@@ -935,6 +1174,16 @@ const getTemplateStyle = (templateKey: string) => {
   return styleMap[templateKey.toLowerCase()] || '标准风格'
 }
 
+onMounted(async () => {
+  // 初始化时确保模板正确加载
+  await nextTick()
+  // 应用模板增强
+  if (resumePreview.value && currentTemplate.value) {
+    const currentTemplateName = route.params.template?.toString() || 'muban1'
+    await templateAdapter.enhanceTemplate(currentTemplateName, resumePreview.value)
+  }
+})
+
 // 暴露函数给模板使用
 defineExpose({
   resumeForm,
@@ -966,15 +1215,74 @@ defineExpose({
   previewResume,
   confirmClearResumeForm,
   clearResumeForm,
-  isSuggestionItemTemplate
+  isSuggestionItemTemplate,
+  changeResumeType
 })
 </script>
 
 <style scoped>
 .resume-create {
-  padding: 20px;
-  background-color: #f5f7fa;
+  padding: 24px;
+  background-color: #f0f2f5;
   min-height: calc(100vh - 64px);
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  background: linear-gradient(to right, #1a365d, #3182ce);
+  padding: 20px 24px;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  color: white;
+}
+
+.page-title {
+  margin: 0;
+  font-size: 24px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.page-title::before {
+  content: '';
+  display: inline-block;
+  width: 4px;
+  height: 24px;
+  background-color: white;
+  border-radius: 2px;
+}
+
+.header-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.header-actions .el-button {
+  transition: all 0.3s;
+  font-weight: 500;
+  font-size: 14px;
+  height: 40px;
+  padding: 0 16px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.header-actions .el-button--primary {
+  background-color: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: white;
+}
+
+.header-actions .el-button--primary:hover {
+  background-color: rgba(255, 255, 255, 0.25);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .card-header {
@@ -1004,51 +1312,75 @@ defineExpose({
   border-radius: 2px;
 }
 
-.header-actions {
-  display: flex;
-  gap: 8px;
-}
-
 .edit-area,
 .preview-area {
-  height: calc(100vh - 120px);
+  height: calc(100vh - 140px);
   overflow-y: auto;
   border-radius: 8px;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+  background-color: white;
+  padding: 0;
 }
 
 .edit-area:hover,
 .preview-area:hover {
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+}
+
+.edit-area {
+  padding: 24px;
 }
 
 .resume-form :deep(.el-divider__text) {
-  background-color: #f8f9fa;
-  color: #409eff;
+  background-color: white;
+  color: #3182ce;
   font-weight: 600;
-  font-size: 15px;
+  font-size: 16px;
+  padding: 0 16px;
+}
+
+.resume-form :deep(.el-divider) {
+  margin: 32px 0 20px;
 }
 
 .resume-form :deep(.el-form-item__label) {
   font-weight: 500;
+  color: #2d3748;
+}
+
+.resume-form :deep(.el-input__wrapper),
+.resume-form :deep(.el-textarea__wrapper) {
+  box-shadow: 0 0 0 1px #e2e8f0 inset;
+  border-radius: 6px;
+  transition: all 0.3s;
+}
+
+.resume-form :deep(.el-input__wrapper:hover),
+.resume-form :deep(.el-textarea__wrapper:hover) {
+  box-shadow: 0 0 0 1px #3182ce inset;
+}
+
+.resume-form :deep(.el-input__wrapper.is-focus),
+.resume-form :deep(.el-textarea__wrapper.is-focus) {
+  box-shadow: 0 0 0 2px rgba(49, 130, 206, 0.2) inset !important;
 }
 
 .education-item,
 .experience-item {
-  margin-bottom: 20px;
+  margin-bottom: 24px;
   padding: 20px;
-  border: 1px solid #ebeef5;
+  border: 1px solid #e2e8f0;
   border-radius: 8px;
-  background-color: #f8f9fa;
+  background-color: #f8fafc;
   position: relative;
   transition: all 0.3s ease;
 }
 
 .education-item:hover,
 .experience-item:hover {
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
-  border-color: #dcdfe6;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  border-color: #cbd5e0;
 }
 
 .education-item .el-button,
@@ -1056,73 +1388,197 @@ defineExpose({
   position: absolute;
   right: 15px;
   bottom: 15px;
+  transition: all 0.3s;
+}
+
+.education-item .el-button:hover,
+.experience-item .el-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+}
+
+.section-title {
+  font-size: 18px;
+  color: #3182ce;
+  margin: 20px 0 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.section-title::before {
+  content: '';
+  display: inline-block;
+  width: 3px;
+  height: 18px;
+  background-color: #3182ce;
+  border-radius: 2px;
 }
 
 .skill-tag {
   margin-right: 10px;
   margin-bottom: 10px;
   transition: all 0.3s ease;
+  border-radius: 4px;
+  background-color: #ebf8ff;
+  border-color: #bee3f8;
+  color: #3182ce;
 }
 
 .skill-tag:hover {
   transform: translateY(-2px);
+  box-shadow: 0 2px 5px rgba(49, 130, 206, 0.15);
 }
 
 .input-new-tag {
-  width: 120px;
+  width: 150px;
   margin-right: 10px;
+  margin-bottom: 10px;
   vertical-align: bottom;
 }
 
 .resume-preview {
-  padding: 20px;
+  padding: 30px;
   min-height: 800px;
   background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* 重写预览区域样式，让邮箱等信息在同一行显示 */
+.resume-preview :deep(.contact-info) {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.resume-preview :deep(.contact-info-item) {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.resume-preview :deep(.section-heading) {
+  border-bottom: 2px solid #3182ce;
+  padding-bottom: 8px;
+  margin-top: 25px;
+  margin-bottom: 15px;
+  color: #2d3748;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.resume-preview :deep(.resume-header) {
+  margin-bottom: 25px;
+}
+
+.resume-preview :deep(.resume-header h1) {
+  font-size: 28px;
+  margin-bottom: 5px;
+  color: #1a365d;
+}
+
+.resume-preview :deep(.resume-header h2) {
+  font-size: 18px;
+  color: #3182ce;
+  margin-bottom: 15px;
+}
+
+.resume-preview :deep(.time-period) {
+  color: #4a5568;
+  font-weight: 500;
+  margin-bottom: 5px;
+}
+
+.resume-preview :deep(.experience-item),
+.resume-preview :deep(.education-item) {
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px dashed #e2e8f0;
+}
+
+.resume-preview :deep(.experience-header),
+.resume-preview :deep(.education-header) {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.resume-preview :deep(.company-school) {
+  font-weight: 600;
+  color: #2d3748;
+  font-size: 16px;
+}
+
+.resume-preview :deep(.position-major) {
+  font-weight: 500;
+  color: #4a5568;
+  font-style: italic;
+}
+
+/* 按钮样式重写 */
+:deep(.el-button--primary) {
+  background-color: #1890ff;
+  border-color: #1890ff;
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.05);
+  transition: all 0.3s;
   border-radius: 4px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
 }
 
-/* 创建简历的按钮样式 */
-.el-button--primary {
-  background-color: #409eff;
-  border-color: #409eff;
+:deep(.el-button--primary:hover) {
+  background-color: #40a9ff;
+  border-color: #40a9ff;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px rgba(24, 144, 255, 0.25);
 }
 
-.el-button--danger {
-  background-color: #f56c6c;
-  border-color: #f56c6c;
+:deep(.el-button--danger) {
+  background-color: #f5222d;
+  border-color: #f5222d;
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.05);
 }
 
-.el-button--success {
-  background-color: #67c23a;
-  border-color: #67c23a;
+:deep(.el-button--danger:hover) {
+  background-color: #ff4d4f;
+  border-color: #ff4d4f;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px rgba(245, 34, 45, 0.25);
 }
 
-.el-button--primary:hover,
-.el-button--primary:focus {
-  background-color: #66b1ff;
-  border-color: #66b1ff;
+:deep(.el-button--success) {
+  background-color: #52c41a;
+  border-color: #52c41a;
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.05);
 }
 
-.el-button--danger:hover,
-.el-button--danger:focus {
-  background-color: #f78989;
-  border-color: #f78989;
+:deep(.el-button--success:hover) {
+  background-color: #73d13d;
+  border-color: #73d13d;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px rgba(82, 196, 26, 0.25);
 }
 
-.el-button--success:hover,
-.el-button--success:focus {
-  background-color: #85ce61;
-  border-color: #85ce61;
+:deep(.el-button--warning) {
+  background-color: #faad14;
+  border-color: #faad14;
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+:deep(.el-button--warning:hover) {
+  background-color: #ffc53d;
+  border-color: #ffc53d;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px rgba(250, 173, 20, 0.25);
 }
 
 .preview-overlay {
   background-color: rgba(0, 0, 0, 0.7) !important;
-  backdrop-filter: blur(2px);
+  backdrop-filter: blur(4px);
 }
 
 .preview-modal {
-  border-radius: 8px;
+  border-radius: 12px;
   overflow: hidden;
 }
 
@@ -1130,65 +1586,66 @@ defineExpose({
   max-width: 90vw;
   max-height: 90vh;
   margin: 5vh auto !important;
-  border-radius: 8px;
+  border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+}
+
+.resume-preview-dialog :deep(.el-dialog__header) {
+  background-color: #f7fafc;
+  padding: 16px 20px;
+  margin-right: 0;
+  border-bottom: 1px solid #edf2f7;
+}
+
+.resume-preview-dialog :deep(.el-dialog__title) {
+  font-size: 18px;
+  color: #2d3748;
+  font-weight: 600;
+}
+
+.resume-preview-dialog :deep(.el-dialog__headerbtn) {
+  top: 16px;
+}
+
+.resume-preview-dialog :deep(.el-dialog__body) {
+  padding: 0;
 }
 
 .resume-preview-dialog-content {
-  padding: 20px;
+  padding: 30px;
   background-color: white;
-  border-radius: 4px;
-  transform: scale(0.85);
+  transform: scale(0.9);
   transform-origin: center;
-  margin: 0 auto;
+  margin: 20px auto;
   max-height: 70vh;
   overflow-y: auto;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s;
 }
 
-.mb-20 {
-  margin-bottom: 20px;
-}
-
-.resume-preview h1 {
-  font-size: 24px;
-  margin-bottom: 10px;
-}
-
-.resume-preview h2 {
-  font-size: 18px;
-  color: #666;
-  margin-bottom: 20px;
-}
-
-.resume-preview h3 {
-  font-size: 16px;
-  margin: 20px 0 10px;
-  padding-bottom: 5px;
-  border-bottom: 2px solid #1849ea;
-}
-
-.resume-preview p {
-  margin: 5px 0;
-  line-height: 1.6;
+.resume-preview-dialog-content:hover {
+  transform: scale(0.92);
 }
 
 .template-card {
-  margin-bottom: 20px;
+  margin-bottom: 24px;
   transition: all 0.3s;
-  border: 1px solid #e4e7ed;
+  border: 1px solid #e2e8f0;
   border-radius: 8px;
   overflow: hidden;
   height: 240px;
   display: flex;
   flex-direction: column;
   cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .template-card:hover {
-  box-shadow: 0 6px 18px 0 rgba(0, 0, 0, 0.1);
-  transform: translateY(-3px);
-  border-color: #409eff;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  transform: translateY(-4px);
+  border-color: #3182ce;
 }
 
 .template-preview-box {
@@ -1196,9 +1653,14 @@ defineExpose({
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #f8f9fa;
-  border-bottom: 1px solid #e4e7ed;
+  background: #f7fafc;
   overflow: hidden;
+  border-bottom: 1px solid #e2e8f0;
+  transition: all 0.3s;
+}
+
+.template-card:hover .template-preview-box {
+  background: #edf2f7;
 }
 
 .template-thumbnail {
@@ -1348,5 +1810,162 @@ defineExpose({
   flex-wrap: wrap;
   align-items: stretch;
   margin: 0 -10px;
+}
+
+.remove-button {
+  position: absolute;
+  right: 20px;
+  top: 20px;
+  z-index: 10;
+}
+
+.add-section {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.w-100 {
+  width: 100%;
+}
+
+.action-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.action-buttons .el-button--danger {
+  margin-left: 5px;
+}
+
+.resume-type-selector {
+  margin: 10px 0 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background-color: #f6f8fa;
+  border-radius: 8px;
+  border: 1px solid #e6e8eb;
+}
+
+.resume-type-label {
+  font-weight: 500;
+  color: #2d3748;
+  margin-right: 8px;
+}
+
+.resume-type-selector .el-radio-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.resume-type-selector :deep(.el-radio-button__inner) {
+  padding: 8px 16px;
+  border-radius: 4px;
+  border: 1px solid #d9d9d9;
+  transition: all 0.3s;
+}
+
+.resume-type-selector :deep(.el-radio-button:not(:first-child) .el-radio-button__inner) {
+  border-left: 1px solid #d9d9d9;
+}
+
+.resume-type-selector :deep(.el-radio-button__orig-radio:checked + .el-radio-button__inner) {
+  background-color: #1890ff;
+  border-color: #1890ff;
+  box-shadow: -1px 0 0 0 #1890ff;
+  color: white;
+}
+
+.resume-type-selector :deep(.el-radio-button:hover .el-radio-button__inner) {
+  color: #1890ff;
+  border-color: #1890ff;
+}
+
+.resume-type-selector :deep(.el-radio-button__orig-radio:checked:hover + .el-radio-button__inner) {
+  color: white;
+}
+
+/* 专业技能区样式优化 */
+.skill-tags-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.skill-tag {
+  padding: 8px 16px;
+  margin-right: 0;
+  margin-bottom: 0;
+  border-radius: 4px;
+  background-color: #f0f7ff;
+  border-color: #d6e8ff;
+  color: #1890ff;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.015);
+}
+
+.skill-tag:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(24, 144, 255, 0.15);
+  background-color: #e6f4ff;
+  border-color: #a6d2ff;
+}
+
+.input-new-tag {
+  width: 150px;
+  margin-right: 0;
+  margin-bottom: 0;
+  vertical-align: middle;
+}
+
+.button-new-tag {
+  padding: 8px 16px;
+  height: auto;
+  border-style: dashed;
+  font-size: 14px;
+  color: #666;
+  border-color: #d9d9d9;
+  background: #fafafa;
+}
+
+.button-new-tag:hover {
+  color: #1890ff;
+  border-color: #1890ff;
+  background: #f0f7ff;
+}
+
+/* 调整预览区域的专业技能样式 */
+.resume-preview :deep(.skills-section) {
+  margin-top: 20px;
+}
+
+.resume-preview :deep(.skills-container) {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.resume-preview :deep(.skill-item) {
+  background-color: #f5f7fa;
+  border-radius: 6px;
+  padding: 10px 16px;
+  color: #333;
+  font-weight: 500;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s;
+}
+
+.resume-preview :deep(.skill-item:hover) {
+  background-color: #ebf5ff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
 }
 </style>

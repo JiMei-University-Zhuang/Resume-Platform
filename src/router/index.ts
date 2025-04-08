@@ -1,8 +1,7 @@
 // src/router/index.ts
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
 import { BasicLayout } from '../layout'
-import PostgraduateAnswer from '@/views/exam/PostgraduateAnswer.vue'
-import { ElMessageBox } from 'element-plus'
+import { ElMessageBox, ElMessage } from 'element-plus'
 import { useExamStore } from '@/stores/examStore'
 
 const routes: RouteRecordRaw[] = [
@@ -61,14 +60,6 @@ const routes: RouteRecordRaw[] = [
           title: 'AI助手',
           icon: 'ChatDotRound',
           roles: ['admin', 'user']
-        }
-      },
-      {
-        path: '/personality',
-        name: 'Personality',
-        component: () => import('@/views/personality/Test.vue'),
-        meta: {
-          title: 'AI 性格测试'
         }
       },
       {
@@ -166,6 +157,19 @@ const routes: RouteRecordRaw[] = [
             meta: { title: '考研备考' }
           },
           {
+            path: 'scorePage',
+            name: 'scorePage',
+            component: () => import('@/views/exam/scorePage.vue'),
+            meta: { title: '成绩页' }
+          },
+          {
+            path: 'wrongPage',
+            name: 'wrongPage',
+            component: () => import('@/views/exam/WrongQuestionRecord.vue'),
+            meta: { title: '错题也米娜' }
+          },
+
+          {
             path: 'ExamPage',
             name: 'ExamPage',
             component: () => import('@/views/exam/ExamPage.vue'),
@@ -174,8 +178,14 @@ const routes: RouteRecordRaw[] = [
           {
             path: 'postgraduate-answer',
             name: 'PostgraduateAnswer',
-            component: PostgraduateAnswer,
+            component: () => import('@/views/exam/PostgraduateAnswer.vue'),
             meta: { title: '考研答题' }
+          },
+          {
+            path: 'politics-answer',
+            name: 'PoliticsAnswer',
+            component: () => import('@/views/exam/PoliticsAnswer.vue'),
+            meta: { title: '政治答题' }
           }
         ]
       }
@@ -201,29 +211,12 @@ const router = createRouter({
   }
 })
 
-const originalPush = router.push
-router.push = function push(location) {
-  return originalPush.call(this, location).catch(err => {
-    if (err.name !== 'NavigationDuplicated') {
-      throw err
-    }
-  })
-}
-
-const originalReplace = router.replace
-router.replace = function replace(location) {
-  return originalReplace.call(this, location).catch(err => {
-    if (err.name !== 'NavigationDuplicated') {
-      throw err
-    }
-  })
-}
-
 router.beforeEach((to, from, next) => {
   const isAuthenticated = localStorage.getItem('token')
   const examStore = useExamStore()
 
   if (to.path !== '/login' && !isAuthenticated) {
+    ElMessage.error('请先登录~')
     next('/login')
   } else if (examStore.isInExam && to.path !== from.path) {
     ElMessageBox.confirm('确定要退出吗？', '提示', {

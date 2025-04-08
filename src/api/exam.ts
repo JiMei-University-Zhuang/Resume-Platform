@@ -23,7 +23,41 @@ export interface ExamData {
     answer?: string
   }[]
   duration: number
-  mode: 'practice' | 'real' // 新增模式标识
+}
+
+export interface ScoresaveData {
+  userId: number
+  score: number
+  type: '练习' | '考试'
+}
+export interface ScoregetData {
+  userId: number
+  type: '练习' | '考试'
+}
+
+export interface Question {
+  userId: number
+  type: '练习' | '考试'
+  recordId: number
+}
+
+// 保存错题单个
+export interface WrongQuestionRecord {
+  questionId: number
+  itemId: number | null
+  userAnswer: string
+}
+
+// 保存错题整体
+export interface SaveWrongQuestionData {
+  userId: number
+  type: '练习' | '考试'
+  records: WrongQuestionRecord[]
+}
+
+export interface GetRecordData {
+  userId: number
+  type: '练习' | '考试'
 }
 
 //获取公务员考试练习
@@ -50,5 +84,79 @@ export function getGSPractice(data: GSPractice) {
     url: '/practice/getGSPractice',
     method: 'post',
     data
+  })
+}
+//保存成绩的接口
+export function saveScore(data: ScoresaveData) {
+  return request({
+    url: '/score/record',
+    method: 'post',
+    data
+  })
+}
+
+//获取练习成绩或者考试成绩接口
+export function getScore(data: ScoregetData) {
+  return request({
+    url: '/score/get',
+    method: 'post',
+    data
+  })
+}
+//获取错题接口
+export function getWrongQuestion(data: Question) {
+  return request({
+    url: '/record/restore',
+    method: 'post',
+    data
+  })
+}
+//保存错题的接口
+export function saveWrongQuestion(data: SaveWrongQuestionData) {
+  return request({
+    url: '/record/save',
+    method: 'post',
+    data
+  })
+}
+// 获取错题记录数的接口
+export function getWrongQuestionRecordCount(data: GetRecordData) {
+  return request({
+    url: '/record/getRecord',
+    method: 'post',
+    data
+  })
+}
+
+/**
+ * 根据卷子名称获取思想政治卷子详情
+ * @param examName 卷子名称
+ * @returns
+ */
+export function getPoliticsPaperByName(examName: string) {
+  return request({
+    url: '/exam/getPoliticalExam',
+    method: 'post',
+    data: {
+      examName
+    }
+  })
+}
+
+export function getEnglishExam(examName: string) {
+  return request({
+    url: '/exam/getEnglishExam',
+    method: 'post',
+    data: {
+      examName
+    }
+  })
+}
+
+export function getProfessionalExam(examName: string) {
+  return request({
+    url: '/exam/getProfessionalExam',
+    method: 'post',
+    data: { examName }
   })
 }

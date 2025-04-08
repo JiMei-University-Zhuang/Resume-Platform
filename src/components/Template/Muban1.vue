@@ -133,13 +133,13 @@
     </div>
 
     <!-- 专业技能 -->
-    <div class="section">
+    <div class="section skills-section">
       <h2 class="section-title">专业技能</h2>
-      <ul class="bullet-list skill-list">
-        <li v-for="(skill, index) in resumeForm.skills" :key="index">
+      <div class="skills-container">
+        <div class="skill-item" v-for="(skill, index) in resumeForm.skills" :key="index">
           {{ skill }}
-        </li>
-      </ul>
+        </div>
+      </div>
     </div>
 
     <!-- 自我评价 -->
@@ -369,6 +369,58 @@ const handleFileUpload = (event: Event) => {
   font-size: 14px;
 }
 
+/* 新增专业技能样式 */
+.skills-section {
+  background-color: #f9f9f9;
+}
+
+.skills-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.skill-item {
+  background-color: #fff;
+  border: 1px solid #e0e6ed;
+  border-radius: 4px;
+  padding: 12px 18px;
+  color: #2c3e50;
+  font-weight: 500;
+  font-size: 14px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s;
+  position: relative;
+  text-align: center;
+  min-width: 120px;
+}
+
+.skill-item:hover {
+  background-color: #f0f7ff;
+  border-color: #6c8eb3;
+  transform: translateY(-2px);
+  box-shadow: 0 3px 6px rgba(108, 142, 179, 0.15);
+  color: #3182ce;
+}
+
+.skill-item::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, #6c8eb3, #a3c0f1);
+  border-radius: 0 0 4px 4px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.skill-item:hover::before {
+  opacity: 1;
+}
+
 .self-assessment {
   background-color: #f9f9f9;
   padding: 10px;
@@ -379,4 +431,3 @@ p {
   margin: 0 0 5px 0;
 }
 </style>
-10{5hght.6
