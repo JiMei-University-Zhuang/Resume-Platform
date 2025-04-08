@@ -157,6 +157,7 @@
           </div>
           <el-button type="primary" @click="submitRealExam">提交答案</el-button>
         </div>
+        
       </template>
     </div>
     <div v-else>
@@ -175,6 +176,7 @@ import passimg2 from '@/assets/images/exam_imgs/pass2.png'
 import failimg1 from '@/assets/images/exam_imgs/failpass1.png'
 import failimg2 from '@/assets/images/exam_imgs/failpass2.png'
 import { useExamStore } from '@/stores/examStore'
+import { analyzeAnswer } from '@/views/exam/sseAnalysis';
 
 // 定义题目接口
 interface Question {
@@ -353,6 +355,7 @@ const analyzeQuestionSSE = (questionId: string): Promise<string> => {
       `http://8.130.75.193:8081/ai/analysis?questionId=${questionId}`
     )
 
+<<<<<<< Updated upstream
     eventSource.onopen = function () {
       console.log('SSE 连接已打开')
     }
@@ -388,7 +391,43 @@ const analyzeQuestion = async (index: number) => {
     console.error('分析题目时出错：', error)
   }
 }
+=======
+>>>>>>> Stashed changes
 
+const submitRealExam = async () => {
+  // 申论提交逻辑
+  console.log('提交的答案：', essayAnswers.value);
+
+  questions.value.forEach(async (question, questionIndex) => {
+    // 检查 expoundingOptionInfos 是否存在，若不存在则使用空数组
+    const subQuestions = question.expoundingOptionInfos || [];
+    
+    subQuestions.forEach(async (subQuestion, subIndex) => {
+      const answerIndex = questionIndex * subQuestions.length + subIndex;
+      const userAnswer = essayAnswers.value[answerIndex];
+      
+      try {
+        const analysisResult = await analyzeAnswer(subQuestion.itemId, userAnswer);
+        console.log(`题目 ${subQuestion.itemId} 的分析结果：`, analysisResult);
+        
+        // 显示分析结果和参考答案
+        ElMessageBox({
+          message: `
+            <div>
+              <p>你的答案：${userAnswer}</p>
+              <p>参考答案：${subQuestion.correctAnswer}</p>
+              <p>分析结果：${analysisResult}</p>
+            </div>
+          `,
+          dangerouslyUseHTMLString: true,
+          confirmButtonText: '确定',
+        });
+      } catch (error) {
+        console.error('分析答案时出错：', error);
+      }
+    });
+  });
+};
 onMounted(() => {
   fetchQuestions()
   if (route.query.type === 'exam') {
@@ -695,4 +734,4 @@ onUnmounted(() => {
   background: #fff0f0;
   margin-top: 60px;
 }
-</style>
+</style>    

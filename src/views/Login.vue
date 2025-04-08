@@ -306,6 +306,23 @@ const validatePassword = (_rule: any, value: string, callback: any) => {
   }
 }
 
+// 密码验证规则
+const validatePassword = (rule: any, value: string, callback: any) => {
+  // 管理员则跳过提示
+  if (loginForm.username === 'root') {
+    callback()
+    return
+  }
+  const passwordPattern = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,18}$/
+  if (!value) {
+    callback(new Error('请输入密码'))
+  } else if (!passwordPattern.test(value)) {
+    callback(new Error('密码长度在6-18位之间,同时包含字母和数字'))
+  } else {
+    callback()
+  }
+}
+
 //登录表单
 const loginForm = reactive({
   username: '',
@@ -315,7 +332,11 @@ const loginForm = reactive({
 })
 const loginrules = {
   username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
+<<<<<<< Updated upstream
   password: [{ required: true, message: '请输入密码 ', trigger: 'blur' }],
+=======
+  password: [{ validator: validatePassword, trigger: 'blur' }],
+>>>>>>> Stashed changes
   captcha_value: [{ required: true, message: '请输入验证码', trigger: 'blur' }]
 }
 //登录邮箱表单
@@ -336,6 +357,7 @@ const registerForm = reactive({
 })
 const registerrules = {
   username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
+<<<<<<< Updated upstream
   password: [
     { required: true, message: '请输入密码', trigger: 'blur' },
     {
@@ -343,6 +365,9 @@ const registerrules = {
       trigger: 'blur'
     }
   ],
+=======
+  password: [{ validator: validatePassword, trigger: 'blur' }],
+>>>>>>> Stashed changes
   email: [
     { required: true, message: '请输入邮箱', trigger: 'blur' },
     {
@@ -523,10 +548,14 @@ const gotoRegister = () => {
 }
 const gotoLogin = () => {
   isLogin.value = true
+<<<<<<< Updated upstream
   registerForm.username = ''
   registerForm.password = ''
   registerForm.email = ''
   registerForm.captchaValue = ''
+=======
+  resetRegisterForm()
+>>>>>>> Stashed changes
 }
 
 watch(isLogin, newVal => {
@@ -552,7 +581,11 @@ const handleLogin = async (formEl: any) => {
         if (response.data.code === 200 && response.data.data) {
           localStorage.setItem('token', response.data.data)
           ElMessage.success('登录成功')
+<<<<<<< Updated upstream
           router.push(router.currentRoute.value.query.redirect?.toString() || '/dashboard')
+=======
+          handleLoginSuccess(response.data.data)
+>>>>>>> Stashed changes
         }
       } catch (error: any) {
         const errorMessage =
@@ -580,6 +613,7 @@ const handleEmailLogin = async (formEl: any) => {
         if (response.data.code === 200 && response.data.data) {
           localStorage.setItem('token', response.data.data)
           ElMessage.success('登录成功')
+<<<<<<< Updated upstream
           router.push(router.currentRoute.value.query.redirect?.toString() || '/dashboard')
         }
       } catch (error: any) {
@@ -591,6 +625,17 @@ const handleEmailLogin = async (formEl: any) => {
             errorMessage = '请输入正确的验证码'
           } else if (error.response.data.message.includes('账号不存在')) {
             errorMessage = '账号不存在，请注册'
+=======
+          handleLoginSuccess(response.data.data)
+        } else if (response.data.code === 500 && response.data.data) {
+          let errorMessage = '登录失败，请检查邮箱和验证码'
+          if (response.data.message.includes('邮箱参数错误')) {
+            errorMessage = '请输入正确的邮箱地址111'
+          } else if (response.data.message.includes('验证码错误')) {
+            errorMessage = '请输入正确的验证码1111'
+          } else if (response.data.message.includes('该邮箱还未注册，请先注册再登录')) {
+            errorMessage = '该邮箱还未注册，请先注册再登录1111'
+>>>>>>> Stashed changes
           }
           ElMessage.error(errorMessage)
         }
@@ -600,6 +645,15 @@ const handleEmailLogin = async (formEl: any) => {
     }
   })
 }
+<<<<<<< Updated upstream
+=======
+//完善登录后处理
+const handleLoginSuccess = (token: string) => {
+  localStorage.setItem('token', token)
+  window.location.href = '/dashboard'
+}
+
+>>>>>>> Stashed changes
 const handleRegister = async () => {
   if (!registerFormRef.value) return
 
@@ -617,10 +671,7 @@ const handleRegister = async () => {
           ElMessage.success('注册成功')
           gotoLogin()
           refreshCaptcha()
-          registerForm.username = ''
-          registerForm.password = ''
-          registerForm.email = ''
-          registerForm.captchaValue = ''
+          resetRegisterForm()
         } else {
           const errorMessage = response.data.message || '注册失败，请重试'
           if (errorMessage.includes('账号已经存在')) {

@@ -331,7 +331,6 @@ import zhengzhi1Image from '@/assets/images/paper_imgs/zhengzhi1.png'
 import jisuanji1Image from '@/assets/images/paper_imgs/jisuanji1.png'
 import yingyuyi1Image from '@/assets/images/paper_imgs/yingyu1.png'
 
-
 const router = useRouter()
 const activeTab = ref('specialized-practice')
 const selectedSubject = ref('英语一')
