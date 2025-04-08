@@ -3,7 +3,7 @@
     <div class="card-header">
       <h1 class="exam-title">{{ isExamMode ? '考试开始' : '练习开始' }}</h1>
       <p class="exam-subtitle">思想政治试卷: {{ paperTitle }}</p>
-      
+
       <div v-if="isExamMode" class="real-exam-badge">
         <div class="timer" v-html="formatTime(timeLeft) + '<br>考试剩余时间'"></div>
       </div>
