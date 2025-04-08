@@ -9,14 +9,14 @@
             <span></span>
             <span></span>
             <span></span>
-          </div>
+            </div>
           <p class="page-description">提供专业、系统的考研备考资源，助力你的学术梦想</p>
           <div class="title-action">
             <button class="get-started-btn" @click="scrollToContent">
               <span>开始备考</span>
             </button>
-          </div>
-        </div>
+              </div>
+            </div>
       </div>
       <div class="countdown-wrapper">
         <div class="countdown-card">
@@ -257,7 +257,7 @@
             <div v-for="paper in filteredPapers" :key="paper.id" class="paper-card">
               <div class="paper-image">
                 <img :src="paper.imageUrl" alt="试卷封面" />
-              </div>
+            </div>
               <div class="paper-info">
                 <h3 class="paper-title">{{ paper.title }}</h3>
                 <p class="paper-description">{{ paper.description }}</p>
@@ -276,14 +276,16 @@
       </transition>
     </div>
 
-    <!-- 考试对话框 -->
+        <!-- 考试对话框 -->
     <transition name="modal">
       <div class="modal-overlay" v-if="isExamDialogVisible" @click="isExamDialogVisible = false">
         <div class="modal-container" @click.stop>
           <div class="modal-header">
             <h3 class="modal-title">
               {{ currentExamPaper.category === 'politics' ? '政治考试' : '开始考试' }}
-              <span v-if="currentExamPaper.category === 'politics'" class="category-badge politics">政治</span>
+              <span v-if="currentExamPaper.category === 'politics'" class="category-badge politics"
+                >政治</span
+              >
             </h3>
             <button class="modal-close" @click="isExamDialogVisible = false">×</button>
           </div>
@@ -291,7 +293,7 @@
             <img :src="currentExamPaper.imageUrl" alt="试卷封面" class="modal-image" />
             <h4 class="modal-paper-title">{{ currentExamPaper.title }}</h4>
             <p class="modal-description">{{ currentExamPaper.description }}</p>
-            
+
             <!-- 政治试卷额外信息 -->
             <div v-if="currentExamPaper.category === 'politics'" class="politics-info">
               <div class="info-item">
@@ -325,6 +327,7 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
+import zhengzhi1Image from '@/assets/images/paper_imgs/zhengzhi1.png'
 
 const router = useRouter()
 const activeTab = ref('specialized-practice')
@@ -415,48 +418,42 @@ const papers = ref([
     title: '2024年考研数学一模拟试卷',
     description: '适合数学与应用数学、计算数学等学科专业的考生备考',
     category: 'math',
-    imageUrl:
-      'https://img1.baidu.com/it/u=1179842283,3228312369&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=333'
+    imageUrl: zhengzhi1Image
   },
   {
     id: 2,
     title: '计算机学科 数据结构专题',
     description: '涵盖树、图、排序算法等重点考察内容',
     category: 'professional',
-    imageUrl:
-      'https://img1.baidu.com/it/u=2268689860,2470329386&fm=253&fmt=auto&app=138&f=JPEG?w=889&h=500'
+    imageUrl: zhengzhi1Image
   },
   {
     id: 3,
     title: '2023年专业课真题解析',
     description: '包含详细解答及考点分析',
     category: 'professional',
-    imageUrl:
-      'https://img2.baidu.com/it/u=3395592570,3040142441&fm=253&fmt=auto&app=138&f=JPEG?w=800&h=500'
+    imageUrl: zhengzhi1Image
   },
   {
     id: 5,
     title: '英语二全真模拟',
     description: '考研英语阅读理解专项训练',
     category: 'english',
-    imageUrl:
-      'https://img2.baidu.com/it/u=1664294230,2438572169&fm=253&fmt=auto&app=138&f=JPEG?w=800&h=500'
+    imageUrl: zhengzhi1Image
   },
   {
     id: 6,
     title: '2024年考研政治真题',
     description: '历年真题解析及答题技巧',
     category: 'politics',
-    imageUrl:
-      'https://img0.baidu.com/it/u=2768645936,2195354502&fm=253&fmt=auto&app=138&f=JPEG?w=888&h=500'
+    imageUrl: zhengzhi1Image
   },
   {
     id: 7,
     title: '计算机网络与操作系统',
     description: '计算机专业核心知识点练习',
     category: 'professional',
-    imageUrl:
-      'https://img1.baidu.com/it/u=997886866,3785565363&fm=253&fmt=auto&app=138&f=JPEG?w=800&h=500'
+    imageUrl: zhengzhi1Image
   }
 ])
 
@@ -485,10 +482,10 @@ const openExamDialog = (paper: any) => {
 // 开始考试的方法
 const startExam = (paperId: number) => {
   isExamDialogVisible.value = false
-  
+
   // 根据试卷类型决定跳转路径
   const paperCategory = papers.value.find(p => p.id === paperId)?.category
-  
+
   if (paperCategory === 'politics') {
     // 政治试卷跳转到politics-answer
     router.push({
@@ -531,7 +528,7 @@ const startPractice = () => {
 // 预览试卷的方法
 const previewPaper = (paperId: number) => {
   console.log('预览试卷，试卷id：', paperId)
-  
+
   // 查找对应的试卷
   const paper = papers.value.find(p => p.id === paperId)
   if (paper) {
@@ -799,7 +796,7 @@ const previewPaper = (paperId: number) => {
 @media (max-width: 768px) {
   .page-header {
     flex-direction: column;
-    align-items: center;
+  align-items: center;
     padding: 24px 0;
   }
 
