@@ -291,11 +291,11 @@ const isSendingRegisterCaptcha = ref(false)
 
 // 密码验证规则
 const validatePassword = (rule: any, value: string, callback: any) => {
-  // 管理员则跳过提示
-  if (loginForm.username === 'root') {
-    callback()
-    return
-  }
+  // // 管理员则跳过提示
+  // if (loginForm.username === 'root') {
+  //   callback()
+  //   return
+  // }
   const passwordPattern = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,18}$/
   if (!value) {
     callback(new Error('请输入密码'))
@@ -315,7 +315,7 @@ const loginForm = reactive({
 })
 const loginrules = {
   username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
-  password: [{ validator: validatePassword, trigger: 'blur' }],
+  password: [{ required: true, message: '请输入密码 ', trigger: 'blur' }],
   captcha_value: [{ required: true, message: '请输入验证码', trigger: 'blur' }]
 }
 //登录邮箱表单
@@ -323,10 +323,10 @@ const loginFormEmail = reactive({
   email: '',
   captchaValue: ''
 })
-const loginrulesEmail = {
+const loginrulesEmail = reactive({
   email: [{ required: true, message: '请输入邮箱', trigger: 'blur' }],
   captchaValue: [{ required: true, message: '请输入验证码', trigger: 'blur' }]
-}
+})
 
 const registerForm = reactive({
   username: '',
@@ -385,16 +385,14 @@ const startCountdown = (type: 'email' | 'register', time = 60) => {
       clearInterval(timer)
     }
   }, 1000)
-} // 邮箱登录发送的验证码
+}
+// 邮箱登录发送的验证码
 const sendEmailCaptcha = async () => {
   if (countdown.email > 0 || isSendingEmailCaptcha.value) return
   try {
     isSendingEmailCaptcha.value = true
-    const valid = await loginFormEmailRef.value.validateField('email')
-    if (!valid) {
-      ElMessage.warning('请先输入有效的邮箱地址')
-      return
-    }
+    // 验证邮箱地址
+    await loginFormEmailRef.value.validateField('email')
     sendingCaptcha.value = true
     const response = await sendEmailCaptchaValue({
       email: loginFormEmail.email
@@ -402,9 +400,10 @@ const sendEmailCaptcha = async () => {
     if (response.data.code === 200) {
       ElMessage.success('验证码发送成功')
       startCountdown('email')
+    } else {
+      ElMessage.error('验证码发送失败，请重试')
     }
   } catch (error) {
-    ElMessage.error('验证码发送失败，请输入正确的邮箱地址')
   } finally {
     sendingCaptcha.value = false
     isSendingEmailCaptcha.value = false
