@@ -72,30 +72,24 @@
                   {{ answers[index] }}
                 </div>
               </div>
-              <div v-if="showCorrectAnswers" class="essay-answer-container">
-                <div>
-                  分析结果：
-                  <div>
-                    {{ essayAnalysisResults[index] }}
-                  </div>
-                </div>
-              </div>
-              <div v-if="showAnalysis[index]" class="essay-answer-container">
-                <div>
-                  分析结果：
-                  <div>
-                    {{ essayAnalysisResults[index] }}
-                  </div>
-                </div>
-              </div>
-              <el-button
-                v-if="showCorrectAnswers && !showAnalysis[index]"
-                type="primary"
-                @click="analyzeQuestion(index)"
-              >
-                AI 分析
-              </el-button>
+              
             </div>
+            <div v-if="showAnalysis[index]" class="essay-answer-container">
+                <div>
+                  分析结果：
+                  <pre id="response-{{ index }}" class="analysis-result">{{
+                    essayAnalysisResults[index]
+                  }}</pre>
+                </div>
+              </div>
+              <div
+                v-if="showCorrectAnswers && !showAnalysis[index]"
+                class="ai-parse-button-container"
+              >
+                <el-button type="primary" @click="analyzeQuestion(index)" class="ai-parse-button">
+                  AI 解析
+                </el-button>
+              </div>
           </div>
           <el-button type="primary" @click="handleSubmit">提交试卷</el-button>
         </div>
@@ -142,22 +136,11 @@
                   参考答案：
                   <div><span v-html="formatText(subQuestion.correctAnswer)"></span></div>
                 </div>
-                <div>
-                  分析结果：
-                  <div>
-                    {{
-                      essayAnalysisResults[
-                        questionIndex * (question.expoundingOptionInfos?.length || 1) + subIndex
-                      ]
-                    }}
-                  </div>
-                </div>
               </div>
             </div>
           </div>
           <el-button type="primary" @click="submitRealExam">提交答案</el-button>
         </div>
-        
       </template>
     </div>
     <div v-else>
@@ -176,7 +159,6 @@ import passimg2 from '@/assets/images/exam_imgs/pass2.png'
 import failimg1 from '@/assets/images/exam_imgs/failpass1.png'
 import failimg2 from '@/assets/images/exam_imgs/failpass2.png'
 import { useExamStore } from '@/stores/examStore'
-import { analyzeAnswer } from '@/views/exam/sseAnalysis';
 
 // 定义题目接口
 interface Question {
@@ -348,86 +330,40 @@ const answerStatus = computed(() => {
     return answers.value[index] === question.correctAnswer ? 'correct' : 'incorrect'
   })
 })
-const analyzeQuestionSSE = (questionId: string): Promise<string> => {
-  return new Promise((resolve, reject) => {
-    console.log('正在请求分析结果，questionId:', questionId)
-    const eventSource = new EventSource(
-      `http://8.130.75.193:8081/ai/analysis?questionId=${questionId}`
-    )
+const analyzeQuestionSSE = (questionId: string, index: number): void => {
+  const eventSource = new EventSource(
+    `http://8.130.75.193:8081/ai/analysis?questionId=${questionId}`
+  )
 
-<<<<<<< Updated upstream
-    eventSource.onopen = function () {
-      console.log('SSE 连接已打开')
-    }
+  eventSource.onopen = function () {
+    console.log('SSE 连接已打开')
+  }
 
-    eventSource.onmessage = function (event) {
-      console.log('接收到服务器消息:', event.data)
-      const analysisResult = event.data
-      eventSource.close()
-      resolve(analysisResult)
-    }
+  eventSource.onmessage = function (event) {
+    console.log('接收到服务器消息:', event.data)
+    // 逐步更新分析结果
+    essayAnalysisResults.value[index] += event.data
+  }
 
-    eventSource.onerror = function (err) {
-      console.error('SSE 连接错误:', err)
-      eventSource.close()
-      reject(err)
-    }
-  })
+  eventSource.onerror = function (err) {
+    console.error('SSE 连接错误:', err)
+    eventSource.close()
+  }
 }
 const submitRealExam = async () => {
   showEssayAnswers.value = true
   isExamInProgress.value = false
 }
 
-const analyzeQuestion = async (index: number) => {
+const analyzeQuestion = (index: number) => {
   const questionId = questions.value[index].questionId
   console.log('准备分析题目，questionId:', questionId)
-  try {
-    const analysisResult = await analyzeQuestionSSE(questionId)
-    console.log(`题目 ${questionId} 的分析结果：`, analysisResult)
-    essayAnalysisResults.value[index] = analysisResult
-    showAnalysis.value[index] = true
-  } catch (error) {
-    console.error('分析题目时出错：', error)
-  }
+  // 初始化分析结果
+  essayAnalysisResults.value[index] = ''
+  showAnalysis.value[index] = true
+  analyzeQuestionSSE(questionId, index)
 }
-=======
->>>>>>> Stashed changes
 
-const submitRealExam = async () => {
-  // 申论提交逻辑
-  console.log('提交的答案：', essayAnswers.value);
-
-  questions.value.forEach(async (question, questionIndex) => {
-    // 检查 expoundingOptionInfos 是否存在，若不存在则使用空数组
-    const subQuestions = question.expoundingOptionInfos || [];
-    
-    subQuestions.forEach(async (subQuestion, subIndex) => {
-      const answerIndex = questionIndex * subQuestions.length + subIndex;
-      const userAnswer = essayAnswers.value[answerIndex];
-      
-      try {
-        const analysisResult = await analyzeAnswer(subQuestion.itemId, userAnswer);
-        console.log(`题目 ${subQuestion.itemId} 的分析结果：`, analysisResult);
-        
-        // 显示分析结果和参考答案
-        ElMessageBox({
-          message: `
-            <div>
-              <p>你的答案：${userAnswer}</p>
-              <p>参考答案：${subQuestion.correctAnswer}</p>
-              <p>分析结果：${analysisResult}</p>
-            </div>
-          `,
-          dangerouslyUseHTMLString: true,
-          confirmButtonText: '确定',
-        });
-      } catch (error) {
-        console.error('分析答案时出错：', error);
-      }
-    });
-  });
-};
 onMounted(() => {
   fetchQuestions()
   if (route.query.type === 'exam') {
@@ -530,7 +466,7 @@ onUnmounted(() => {
 .correct-answer-container {
   display: flex;
   gap: 20px;
-  margin-top: 20px;
+  margin: 20px 0;
   padding: 5px 20px;
   line-height: 25px;
   background-color: #c2e8cb;
@@ -572,16 +508,13 @@ onUnmounted(() => {
   background-color: #f9f9f9;
 }
 .essay-answer-container div:first-child {
-  /* 你的答案部分样式调整，可按需修改 */
   color: #303133;
 }
 .essay-answer-container div:nth-child(2) {
-  /* 参考答案部分样式调整，可按需修改 */
   color: #67c23a;
   font-weight: bold;
 }
 .essay-answer-container div:last-child {
-  /* 分析结果部分样式调整，可按需修改 */
   color: #f56c6c;
 }
 
@@ -734,4 +667,31 @@ onUnmounted(() => {
   background: #fff0f0;
   margin-top: 60px;
 }
-</style>    
+
+.ai-parse-button-container {
+  display: block;
+  margin-top: 10px;
+}
+.ai-parse-button-container.el-button.ai-parse-button {
+  display: block;
+  width: auto;
+  margin: 0 auto;
+  padding: 10px 20px;
+  border-radius: 5px;
+  font-size: 16px;
+  background-color: #409eff;
+  border-color: #409eff;
+  transition: background-color 0.3s ease;
+}
+.ai-parse-button-container.el-button.ai-parse-button:hover {
+  background-color: #66b1ff;
+}
+.analysis-result {
+  border: 1px solid #e4e7ed;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+  padding: 10px;
+  white-space: pre-wrap;
+  margin-top: 5px;
+}
+</style>
