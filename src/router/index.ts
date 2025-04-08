@@ -168,7 +168,6 @@ const routes: RouteRecordRaw[] = [
             component: () => import('@/views/exam/WrongQuestionRecord.vue'),
             meta: { title: '错题也米娜' }
           },
-
           {
             path: 'ExamPage',
             name: 'ExamPage',
@@ -186,6 +185,18 @@ const routes: RouteRecordRaw[] = [
             name: 'PoliticsAnswer',
             component: () => import('@/views/exam/PoliticsAnswer.vue'),
             meta: { title: '政治答题' }
+          },
+          {
+            path: 'professional-answer',
+            name: 'ProfessionalAnswer',
+            component: () => import('@/views/exam/ProfessionalAnswer.vue'),
+            meta: { title: '计算机专业课答题' }
+          },
+          {
+            path: 'english-answer',
+            name: 'EnglishAnswer',
+            component: () => import('@/views/exam/EnglishAnswer.vue'),
+            meta: { title: '英语答题' }
           }
         ]
       }

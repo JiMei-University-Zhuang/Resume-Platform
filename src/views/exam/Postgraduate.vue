@@ -328,6 +328,9 @@
 import { ref, computed, watch, onMounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import zhengzhi1Image from '@/assets/images/paper_imgs/zhengzhi1.png'
+import jisuanji1Image from '@/assets/images/paper_imgs/jisuanji1.png'
+import yingyuyi1Image from '@/assets/images/paper_imgs/yingyu1.png'
+
 
 const router = useRouter()
 const activeTab = ref('specialized-practice')
@@ -398,7 +401,7 @@ const calculateCountdown = () => {
   secondsLeft.value = seconds
 }
 
-// 启动倒计时
+// 获取URL参数
 onMounted(() => {
   calculateCountdown()
   setInterval(calculateCountdown, 1000)
@@ -425,7 +428,7 @@ const papers = ref([
     title: '计算机学科 数据结构专题',
     description: '涵盖树、图、排序算法等重点考察内容',
     category: 'professional',
-    imageUrl: zhengzhi1Image
+    imageUrl: jisuanji1Image
   },
   {
     id: 3,
@@ -436,10 +439,10 @@ const papers = ref([
   },
   {
     id: 5,
-    title: '英语二全真模拟',
-    description: '考研英语阅读理解专项训练',
+    title: '2024年全国硕士研究生招生考试英语一真题',
+    description: '考研英语一完整真题及答案解析',
     category: 'english',
-    imageUrl: zhengzhi1Image
+    imageUrl: yingyuyi1Image
   },
   {
     id: 6,
@@ -453,7 +456,7 @@ const papers = ref([
     title: '计算机网络与操作系统',
     description: '计算机专业核心知识点练习',
     category: 'professional',
-    imageUrl: zhengzhi1Image
+    imageUrl: jisuanji1Image
   }
 ])
 
@@ -490,6 +493,24 @@ const startExam = (paperId: number) => {
     // 政治试卷跳转到politics-answer
     router.push({
       path: '/exam/politics-answer',
+      query: {
+        id: paperId.toString(),
+        type: 'exam'
+      }
+    })
+  } else if (paperCategory === 'professional') {
+    // 计算机专业课试卷跳转到professional-answer
+    router.push({
+      path: '/exam/professional-answer',
+      query: {
+        id: paperId.toString(),
+        type: 'exam'
+      }
+    })
+  } else if (paperCategory === 'english') {
+    // 英语试卷跳转到english-answer
+    router.push({
+      path: '/exam/english-answer',
       query: {
         id: paperId.toString(),
         type: 'exam'
