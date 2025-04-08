@@ -102,7 +102,34 @@
                 "
                 rows="10"
                 cols="80"
+                :disabled="showEssayAnswers"
               ></textarea>
+              <div v-if="showEssayAnswers" class="essay-answer-container">
+                <div>
+                  答案：
+                  <div>
+                    {{
+                      essayAnswers[
+                        questionIndex * (question.expoundingOptionInfos?.length || 1) + subIndex
+                      ]
+                    }}
+                  </div>
+                </div>
+                <div>
+                  参考答案：
+                  <div><span v-html="formatText(subQuestion.correctAnswer)"></span></div>
+                </div>
+                <div>
+                  分析结果：
+                  <div>
+                    {{
+                      essayAnalysisResults[
+                        questionIndex * (question.expoundingOptionInfos?.length || 1) + subIndex
+                      ]
+                    }}
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
           <el-button type="primary" @click="submitRealExam">提交答案</el-button>
@@ -125,6 +152,7 @@ import passimg2 from '@/assets/images/exam_imgs/pass2.png'
 import failimg1 from '@/assets/images/exam_imgs/failpass1.png'
 import failimg2 from '@/assets/images/exam_imgs/failpass2.png'
 import { useExamStore } from '@/stores/examStore'
+import { analyzeAnswer } from '@/views/exam/sseAnalysis'
 
 // 定义题目接口
 interface Question {
@@ -156,6 +184,8 @@ const totalScore = ref<number>(0)
 const showCorrectAnswers = ref<boolean>(false)
 const timeLeft = ref(7200)
 const isExamInProgress = ref<boolean>(false)
+const essayAnalysisResults = ref<string[]>([])
+const showEssayAnswers = ref<boolean>(false)
 const fetchQuestions = async () => {
   try {
     const isRealExam = route.query.type === 'exam'
@@ -200,6 +230,8 @@ const handleSubmit = async () => {
       type: 'warning'
     })
     submitExam()
+    showCorrectAnswers.value = true
+    isExamInProgress.value = false
   } catch (error) {
     console.log('用户取消提交')
   }
@@ -283,7 +315,6 @@ const submitExam = () => {
       padding: '0 20px 20px'
     }
   })
-  showCorrectAnswers.value = true
   isExamInProgress.value = false
 }
 
@@ -293,9 +324,31 @@ const answerStatus = computed(() => {
   })
 })
 
-const submitRealExam = () => {
-  // 申论提交逻辑
-  console.log('提交的答案：', essayAnswers.value)
+const submitRealExam = async () => {
+  const promises: Promise<void>[] = []
+  questions.value.forEach((question, questionIndex) => {
+    // 检查 expoundingOptionInfos 是否存在，若不存在则使用空数组
+    const subQuestions = question.expoundingOptionInfos || []
+
+    subQuestions.forEach((subQuestion, subIndex) => {
+      const answerIndex = questionIndex * subQuestions.length + subIndex
+      const userAnswer = essayAnswers.value[answerIndex]
+      const promise = analyzeAnswer(subQuestion.itemId, userAnswer)
+        .then(analysisResult => {
+          console.log(`题目 ${subQuestion.itemId} 的分析结果：`, analysisResult)
+          // 存储分析结果
+          essayAnalysisResults.value[answerIndex] = analysisResult
+        })
+        .catch(error => {
+          console.error('分析答案时出错：', error)
+        })
+      promises.push(promise)
+    })
+  })
+
+  await Promise.all(promises)
+  showEssayAnswers.value = true
+  isExamInProgress.value = false
 }
 
 onMounted(() => {
@@ -396,7 +449,7 @@ onUnmounted(() => {
   margin-bottom: 25px;
   color: #303133;
 }
-/* 答案显示处理 */
+/* 行测答案显示处理 */
 .correct-answer-container {
   display: flex;
   gap: 20px;
@@ -431,6 +484,28 @@ onUnmounted(() => {
 }
 .user-answer > div {
   text-align: center;
+}
+
+/* 申论答案显示处理 */
+.essay-answer-container > div {
+  margin-bottom: 10px;
+  padding: 10px;
+  border: 1px solid #e4e7ed;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+}
+.essay-answer-container div:first-child {
+  /* 你的答案部分样式调整，可按需修改 */
+  color: #303133;
+}
+.essay-answer-container div:nth-child(2) {
+  /* 参考答案部分样式调整，可按需修改 */
+  color: #67c23a;
+  font-weight: bold;
+}
+.essay-answer-container div:last-child {
+  /* 分析结果部分样式调整，可按需修改 */
+  color: #f56c6c;
 }
 
 /* 添加弹窗样式 */
