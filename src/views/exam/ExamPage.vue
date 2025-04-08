@@ -72,6 +72,29 @@
                   {{ answers[index] }}
                 </div>
               </div>
+              <div v-if="showCorrectAnswers" class="essay-answer-container">
+                <div>
+                  分析结果：
+                  <div>
+                    {{ essayAnalysisResults[index] }}
+                  </div>
+                </div>
+              </div>
+            <div v-if="showAnalysis[index]" class="essay-answer-container">
+                <div>
+                  分析结果：
+                  <div>
+                    {{ essayAnalysisResults[index] }}
+                  </div>
+                </div>
+              </div>
+              <el-button
+                v-if="showCorrectAnswers &&!showAnalysis[index]"
+                type="primary"
+                @click="analyzeQuestion(index)"
+              >
+                AI 分析
+              </el-button>
             </div>
           </div>
           <el-button type="primary" @click="handleSubmit">提交试卷</el-button>
@@ -152,7 +175,6 @@ import passimg2 from '@/assets/images/exam_imgs/pass2.png'
 import failimg1 from '@/assets/images/exam_imgs/failpass1.png'
 import failimg2 from '@/assets/images/exam_imgs/failpass2.png'
 import { useExamStore } from '@/stores/examStore'
-import { analyzeAnswer } from '@/views/exam/sseAnalysis'
 
 // 定义题目接口
 interface Question {
@@ -186,6 +208,7 @@ const timeLeft = ref(7200)
 const isExamInProgress = ref<boolean>(false)
 const essayAnalysisResults = ref<string[]>([])
 const showEssayAnswers = ref<boolean>(false)
+const showAnalysis = ref<boolean[]>([])
 const fetchQuestions = async () => {
   try {
     const isRealExam = route.query.type === 'exam'
@@ -323,51 +346,66 @@ const answerStatus = computed(() => {
     return answers.value[index] === question.correctAnswer ? 'correct' : 'incorrect'
   })
 })
+const analyzeQuestionSSE = (questionId: string): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    console.log('正在请求分析结果，questionId:', questionId);
+    const eventSource = new EventSource(
+      `http://8.130.75.193:8081/ai/analysis?questionId=${questionId}`
+    );
 
+    eventSource.onopen = function () {
+      console.log('SSE 连接已打开');
+    };
+
+    eventSource.onmessage = function (event) {
+      console.log('接收到服务器消息:', event.data);
+      const analysisResult = event.data;
+      eventSource.close();
+      resolve(analysisResult);
+    };
+
+    eventSource.onerror = function (err) {
+      console.error('SSE 连接错误:', err);
+      eventSource.close();
+      reject(err);
+    };
+  });
+};
 const submitRealExam = async () => {
-  const promises: Promise<void>[] = []
-  questions.value.forEach((question, questionIndex) => {
-    // 检查 expoundingOptionInfos 是否存在，若不存在则使用空数组
-    const subQuestions = question.expoundingOptionInfos || []
-
-    subQuestions.forEach((subQuestion, subIndex) => {
-      const answerIndex = questionIndex * subQuestions.length + subIndex
-      const userAnswer = essayAnswers.value[answerIndex]
-      const promise = analyzeAnswer(subQuestion.itemId, userAnswer)
-        .then(analysisResult => {
-          console.log(`题目 ${subQuestion.itemId} 的分析结果：`, analysisResult)
-          // 存储分析结果
-          essayAnalysisResults.value[answerIndex] = analysisResult
-        })
-        .catch(error => {
-          console.error('分析答案时出错：', error)
-        })
-      promises.push(promise)
-    })
-  })
-
-  await Promise.all(promises)
   showEssayAnswers.value = true
   isExamInProgress.value = false
 }
 
+const analyzeQuestion = async (index: number) => {
+  const questionId = questions.value[index].questionId;
+  console.log('准备分析题目，questionId:', questionId);
+  try {
+    const analysisResult = await analyzeQuestionSSE(questionId);
+    console.log(`题目 ${questionId} 的分析结果：`, analysisResult);
+    essayAnalysisResults.value[index] = analysisResult;
+    showAnalysis.value[index] = true;
+  } catch (error) {
+    console.error('分析题目时出错：', error);
+  }
+};
+
 onMounted(() => {
-  fetchQuestions()
+  fetchQuestions();
   if (route.query.type === 'exam') {
     const timer = setInterval(() => {
       if (timeLeft.value > 0) {
-        timeLeft.value--
+        timeLeft.value--;
       } else {
-        clearInterval(timer)
-        submitExam()
+        clearInterval(timer);
+        submitExam();
       }
-    }, 1000)
+    }, 1000);
   }
-  examStore.setExamStatus(true)
-})
+  examStore.setExamStatus(true);
+});
 onUnmounted(() => {
-  examStore.setExamStatus(false)
-})
+  examStore.setExamStatus(false);
+});
 </script>
 
 <style scoped>

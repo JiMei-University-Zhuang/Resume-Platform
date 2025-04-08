@@ -290,17 +290,12 @@ const isSendingEmailCaptcha = ref(false)
 const isSendingRegisterCaptcha = ref(false)
 
 // 密码验证规则
-const validatePassword = (rule: any, value: string, callback: any) => {
-  // // 管理员则跳过提示
-  // if (loginForm.username === 'root') {
-  //   callback()
-  //   return
-  // }
+const validatePassword = (_rule: any, value: string, callback: any) => {
   const passwordPattern = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,18}$/
   if (!value) {
     callback(new Error('请输入密码'))
   } else if (!passwordPattern.test(value)) {
-    callback(new Error('密码长度在6-18位之间,同时包含字母和数字'))
+    callback(new Error('密码长度应在6-18位之间,同时包含字母和数字'))
   } else {
     callback()
   }
@@ -336,7 +331,13 @@ const registerForm = reactive({
 })
 const registerrules = {
   username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
-  password: [{ validator: validatePassword, trigger: 'blur' }],
+  password: [
+    { required: true, message: '请输入密码', trigger: 'blur' },
+    {
+      validator: validatePassword,
+      trigger: 'blur'
+    }
+  ],
   email: [
     { required: true, message: '请输入邮箱', trigger: 'blur' },
     {
@@ -411,35 +412,72 @@ const sendEmailCaptcha = async () => {
 }
 
 // 发送注册验证码方法（中文提示版）
+// const sendRegisterEmailCaptcha = async () => {
+//   if (countdown.register > 0 || isSendingRegisterCaptcha.value) return
+//   try {
+//     isSendingRegisterCaptcha.value = true
+//     const isValid = await registerFormRef.value
+//       .validate(['password'])
+//       .then(() => true)
+//       .catch((error: ValidateError) => {
+//         if (!error.fields) {
+//           ElMessage.warning('请正确填写所有必填项')
+//           return false
+//         }
+//         const invalidFields = error.fields
+//         const firstErrorKey = Object.keys(invalidFields)[0]
+//         // 获取中文错误提示
+//         const errorMessage = invalidFields[firstErrorKey][0].message
+//         // 显示中文提示
+//         ElMessage.warning(`请检查输入：${errorMessage}`)
+//         // 滚动到错误项
+//         const errorElement = document.querySelector(`[prop="${firstErrorKey}"]`)
+//         errorElement?.scrollIntoView({
+//           behavior: 'smooth',
+//           block: 'center'
+//         })
+//         return false
+//       })
+
+//     if (!isValid) return
+
+//     // 发送验证码请求
+//     sendingCaptcha.value = true
+//     const response = await sendRegisterEmailCaptchaValue({
+//       email: registerForm.email
+//     })
+
+//     if (response.data.code === 200) {
+//       ElMessage.success('验证码发送成功')
+//       startCountdown('register')
+//     } else {
+//       ElMessage.error(response.data.message || '验证码发送失败，请重试')
+//     }
+//   } catch (error: unknown) {
+//     let errorMessage = '验证码发送失败'
+//     if (error instanceof Error) {
+//       errorMessage = error.message
+//     }
+//     if (typeof error === 'object' && error !== null && 'response' in error) {
+//       const axiosError = error as { response?: { data?: { message?: string } } }
+//       if (axiosError.response?.data?.message) {
+//         errorMessage += `：${axiosError.response.data.message}`
+//       }
+//     }
+//     ElMessage.error(errorMessage)
+//   } finally {
+//     sendingCaptcha.value = false
+//     isSendingRegisterCaptcha.value = false
+//   }
+// }
+
 const sendRegisterEmailCaptcha = async () => {
   if (countdown.register > 0 || isSendingRegisterCaptcha.value) return
   try {
     isSendingRegisterCaptcha.value = true
-    // 验证必填字段（带中文提示）
-    const isValid = await registerFormRef.value
-      .validate(['username', 'password', 'email'])
-      .then(() => true)
-      .catch((error: ValidateError) => {
-        if (!error.fields) {
-          ElMessage.warning('请正确填写所有必填项')
-          return false
-        }
-        const invalidFields = error.fields
-        const firstErrorKey = Object.keys(invalidFields)[0]
-        // 获取中文错误提示
-        const errorMessage = invalidFields[firstErrorKey][0].message
-        // 显示中文提示
-        ElMessage.warning(`请检查输入：${errorMessage}`)
-        // 滚动到错误项
-        const errorElement = document.querySelector(`[prop="${firstErrorKey}"]`)
-        errorElement?.scrollIntoView({
-          behavior: 'smooth',
-          block: 'center'
-        })
-        return false
-      })
 
-    if (!isValid) return
+    // 验证邮箱地址
+    await registerFormRef.value.validateField('email')
 
     // 发送验证码请求
     sendingCaptcha.value = true
@@ -557,7 +595,6 @@ const handleEmailLogin = async (formEl: any) => {
     }
   })
 }
-
 const handleRegister = async () => {
   if (!registerFormRef.value) return
 
@@ -581,7 +618,13 @@ const handleRegister = async () => {
           registerForm.captchaValue = ''
         } else {
           const errorMessage = response.data.message || '注册失败，请重试'
-          ElMessage.error(errorMessage)
+          if (errorMessage.includes('账号已经存在')) {
+            ElMessage.warning('该用户名已被注册，请更换用户名重试')
+          } else if (response.data.code === 500 && errorMessage.includes('邮箱')) {
+            ElMessage.error('请输入正确的邮箱地址')
+          } else {
+            ElMessage.error(errorMessage)
+          }
         }
       } catch (error: any) {
         const errorMessage = error.response?.data?.message || error.message || '注册失败，请重试'
@@ -592,6 +635,89 @@ const handleRegister = async () => {
     }
   })
 }
+// const handleRegister = async () => {
+//   if (!registerFormRef.value) return
+
+//   await registerFormRef.value.validate(async (valid: boolean) => {
+//     if (valid) {
+//       loading.value = true
+//       try {
+//         const response = await register({
+//           username: registerForm.username,
+//           password: registerForm.password,
+//           email: registerForm.email,
+//           captchaValue: registerForm.captchaValue
+//         })
+//         if (response.data.code === 200) {
+//           ElMessage.success('注册成功')
+//           gotoLogin()
+//           refreshCaptcha()
+//           registerForm.username = ''
+//           registerForm.password = ''
+//           registerForm.email = ''
+//           registerForm.captchaValue = ''
+//         } else {
+//           const errorMessage = response.data.message || '注册失败，请重试'
+//           if (errorMessage.includes('账号已经存在')) {
+//             ElMessage.warning('该用户名已被注册，请更换用户名重试')
+//           } else if (error.response && error.response.status === 500 && errorMessage.includes('邮箱')) {
+//             // 新增判断，当状态码为500且错误信息包含邮箱相关内容时
+//             ElMessage.error('请输入正确的邮箱地址')
+//           } else {
+//             ElMessage.error(errorMessage)
+//           }
+//         }
+//       } catch (error: any) {
+//         const errorMessage = error.response?.data?.message || error.message || '注册失败，请重试'
+//         ElMessage.error(errorMessage)
+//       } finally {
+//         loading.value = false
+//       }
+//     }
+//   })
+// }
+
+// const handleRegister = async () => {
+//   if (!registerFormRef.value) return;
+//   await registerFormRef.value.validate(async (valid: boolean) => {
+//     if (valid) {
+//       loading.value = true;
+//       try {
+//         const response = await register({
+//           username: registerForm.username,
+//           password: registerForm.password,
+//           email: registerForm.email,
+//           captchaValue: registerForm.captchaValue
+//         });
+//         if (response.data.code === 200) {
+//           ElMessage.success('注册成功');
+//           gotoLogin();
+//           refreshCaptcha();
+//           registerForm.username = '';
+//           registerForm.password = '';
+//           registerForm.email = '';
+//           registerForm.captchaValue = '';
+//         } else {
+//           const errorMessage = response.data.message || '注册失败，请重试';
+//           // 新增判断
+//           if (errorMessage.includes('该邮箱已被注册过，请换一个邮箱重试')) {
+//             const hasShown = localStorage.getItem('emailRegisteredPromptShown');
+//             if (!hasShown) {
+//               localStorage.setItem('emailRegisteredPromptShown', 'true');
+//             }
+//           } else {
+//             ElMessage.error(errorMessage);
+//           }
+//         }
+//       } catch (error: any) {
+//         const errorMessage = error.response?.data?.message || error.message || '注册失败，请重试';
+//         ElMessage.error(errorMessage);
+//       } finally {
+//         loading.value = false;
+//       }
+//     }
+//   });
+// };
 
 // 在创建组件时加载验证码
 onMounted(() => {
