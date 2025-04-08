@@ -176,6 +176,12 @@ const routes: RouteRecordRaw[] = [
             meta: { title: '考试页面' }
           },
           {
+            path: 'postgraduate-answer',
+            name: 'PostgraduateAnswer',
+            component: () => import('@/views/exam/PostgraduateAnswer.vue'),
+            meta: { title: '考研答题' }
+          },
+          {
             path: 'politics-answer',
             name: 'PoliticsAnswer',
             component: () => import('@/views/exam/PoliticsAnswer.vue'),

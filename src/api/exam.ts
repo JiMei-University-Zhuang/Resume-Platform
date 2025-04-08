@@ -81,7 +81,7 @@ export function getCSExam(data: CSExam) {
 //获取研究生考试练习
 export function getGSPractice(data: GSPractice) {
   return request({
-    url: '/graduate/practice',
+    url: '/practice/getGSPractice',
     method: 'post',
     data
   })

@@ -3,10 +3,10 @@
     <div class="card-header">
       <h1 class="exam-title">{{ isExamMode ? '考试开始' : '练习开始' }}</h1>
       <p class="exam-subtitle">思想政治试卷: {{ paperTitle }}</p>
-    </div>
-
-    <div v-if="isExamMode" class="real-exam-badge">
-      <div class="timer" v-html="formatTime(timeLeft) + '<br>考试剩余时间'"></div>
+      
+      <div v-if="isExamMode" class="real-exam-badge">
+        <div class="timer" v-html="formatTime(timeLeft) + '<br>考试剩余时间'"></div>
+      </div>
     </div>
 
     <div v-if="loading" class="loading-container">
@@ -392,11 +392,13 @@ onBeforeUnmount(() => {
   margin: 0 auto;
   padding: 24px;
   padding-bottom: 80px;
+  position: relative; /* 添加相对定位，用于绝对定位倒计时 */
 }
 
 .card-header {
   text-align: center;
   margin-bottom: 28px;
+  position: relative;
 }
 
 .exam-title {
@@ -411,19 +413,32 @@ onBeforeUnmount(() => {
 }
 
 .real-exam-badge {
-  margin-bottom: 24px;
-  display: flex;
-  justify-content: center;
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 10;
 }
 
 .timer {
   background: linear-gradient(135deg, #fa541c 0%, #ff7a45 100%);
   color: white;
-  padding: 12px 24px;
+  padding: 10px 15px;
   border-radius: 8px;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 600;
   box-shadow: 0 4px 12px rgba(250, 84, 28, 0.2);
+  text-align: center;
+  line-height: 1.3;
+  animation: pulse-light 2s infinite alternate;
+}
+
+@keyframes pulse-light {
+  0% {
+    box-shadow: 0 4px 12px rgba(250, 84, 28, 0.2);
+  }
+  100% {
+    box-shadow: 0 8px 20px rgba(250, 84, 28, 0.4);
+  }
 }
 
 .loading-container {
