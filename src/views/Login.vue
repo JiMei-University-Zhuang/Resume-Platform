@@ -290,7 +290,7 @@ const isSendingEmailCaptcha = ref(false)
 const isSendingRegisterCaptcha = ref(false)
 
 // 密码验证规则
-const validatePassword = (rule: any, value: string, callback: any) => {
+const validatePassword = (_rule: any, value: string, callback: any) => {
   // 管理员则跳过提示
   if (loginForm.username === 'root') {
     callback()
