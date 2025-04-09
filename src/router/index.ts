@@ -63,6 +63,16 @@ const routes: RouteRecordRaw[] = [
         }
       },
       {
+        path: '/chat/history',
+        name: 'ChatHistory',
+        component: () => import('../views/chat/ChatHistory.vue'),
+        meta: {
+          title: '聊天历史',
+          icon: 'ChatDotRound',
+          roles: ['admin', 'user']
+        }
+      },
+      {
         path: 'resume',
         name: 'Resume',
         redirect: '/resume/create',

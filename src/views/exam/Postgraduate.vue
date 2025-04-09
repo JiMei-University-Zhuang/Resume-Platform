@@ -9,14 +9,14 @@
             <span></span>
             <span></span>
             <span></span>
-          </div>
+            </div>
           <p class="page-description">提供专业、系统的考研备考资源，助力你的学术梦想</p>
           <div class="title-action">
             <button class="get-started-btn" @click="scrollToContent">
               <span>开始备考</span>
             </button>
-          </div>
-        </div>
+              </div>
+            </div>
       </div>
       <div class="countdown-wrapper">
         <div class="countdown-card">
@@ -257,7 +257,7 @@
             <div v-for="paper in filteredPapers" :key="paper.id" class="paper-card">
               <div class="paper-image">
                 <img :src="paper.imageUrl" alt="试卷封面" />
-              </div>
+            </div>
               <div class="paper-info">
                 <h3 class="paper-title">{{ paper.title }}</h3>
                 <p class="paper-description">{{ paper.description }}</p>
@@ -276,7 +276,7 @@
       </transition>
     </div>
 
-    <!-- 考试对话框 -->
+        <!-- 考试对话框 -->
     <transition name="modal">
       <div class="modal-overlay" v-if="isExamDialogVisible" @click="isExamDialogVisible = false">
         <div class="modal-container" @click.stop>
@@ -528,12 +528,6 @@ const startExam = (paperId: number) => {
 
 // 开始专项练习
 const startPractice = () => {
-  console.log('开始专项练习', {
-    subject: selectedSubject.value,
-    questionType: selectedquestionType.value,
-    count: selectedCount.value
-  })
-
   router.push({
     path: '/exam/postgraduate-answer',
     query: {
@@ -547,8 +541,6 @@ const startPractice = () => {
 
 // 预览试卷的方法
 const previewPaper = (paperId: number) => {
-  console.log('预览试卷，试卷id：', paperId)
-
   // 查找对应的试卷
   const paper = papers.value.find(p => p.id === paperId)
   if (paper) {
@@ -816,7 +808,7 @@ const previewPaper = (paperId: number) => {
 @media (max-width: 768px) {
   .page-header {
     flex-direction: column;
-    align-items: center;
+  align-items: center;
     padding: 24px 0;
   }
 

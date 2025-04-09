@@ -142,15 +142,19 @@ export function getWrongQuestionRecordCount(data: GetRecordData) {
 /**
  * 根据卷子名称获取思想政治卷子详情
  * @param examName 卷子名称
+ * @param token 可选的token参数
  * @returns
  */
-export function getPoliticsPaperByName(examName: string) {
+export function getPoliticsPaperByName(examName: string, token?: string) {
+  const data: any = { examName }
+  if (token) {
+    data.token = token
+  }
+  
   return request({
     url: '/exam/getPoliticalExam',
     method: 'post',
-    data: {
-      examName
-    }
+    data
   })
 }
 
