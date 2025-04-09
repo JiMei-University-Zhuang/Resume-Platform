@@ -77,6 +77,7 @@ import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { getChatHistory, ChatSession } from '@/api/chat'
 import { Refresh, ChatLineRound } from '@element-plus/icons-vue'
+import { useUserStore } from '@/stores/userStore'
 
 const router = useRouter()
 const loading = ref(false)
@@ -86,6 +87,7 @@ const currentPage = ref(1)
 const pageSize = ref(10)
 const totalItems = ref(0)
 const totalPages = ref(0)
+const userStore = useUserStore()
 
 // 格式化时间戳
 const formatTime = (timestamp: number): string => {
@@ -114,19 +116,19 @@ const toggleSession = (index: number) => {
 const fetchHistory = async () => {
   loading.value = true
   try {
-    // 这里使用 'root' 作为用户名，实际应用中可能需要从用户状态或登录信息中获取
-    const username = 'root'
+    // 使用Pinia中的用户名，如果不存在则使用默认值
+    const username = userStore.getUsername
     const response = await getChatHistory(
       username,
       currentPage.value.toString(),
       pageSize.value.toString()
     )
-
+    
     if (response.code === 200) {
       chatSessions.value = response.data
       totalItems.value = response.total || chatSessions.value.length
       totalPages.value = Math.ceil(totalItems.value / pageSize.value)
-
+      
       // 默认展开第一个会话
       if (chatSessions.value.length > 0 && expandedSessions.value.length === 0) {
         expandedSessions.value = [0]

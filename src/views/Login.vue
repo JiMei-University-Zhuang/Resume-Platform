@@ -267,12 +267,6 @@ interface AxiosResponse<T = any> {
   config: any
   request: any
 }
-// 添加类型定义
-interface ValidateError {
-  fields: {
-    [field: string]: Array<{ message: string }>
-  }
-}
 
 // 登录响应类型
 type LoginResponse = AxiosResponse<ApiResponse<string>>

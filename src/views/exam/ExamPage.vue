@@ -72,24 +72,23 @@
                   {{ answers[index] }}
                 </div>
               </div>
-              
             </div>
             <div v-if="showAnalysis[index]" class="essay-answer-container">
-                <div>
-                  分析结果：
-                  <pre id="response-{{ index }}" class="analysis-result">{{
-                    essayAnalysisResults[index]
-                  }}</pre>
-                </div>
+              <div>
+                分析结果：
+                <pre id="response-{{ index }}" class="analysis-result">{{
+                  essayAnalysisResults[index]
+                }}</pre>
               </div>
-              <div
-                v-if="showCorrectAnswers && !showAnalysis[index]"
-                class="ai-parse-button-container"
-              >
-                <el-button type="primary" @click="analyzeQuestion(index)" class="ai-parse-button">
-                  AI 解析
-                </el-button>
-              </div>
+            </div>
+            <div
+              v-if="showCorrectAnswers && !showAnalysis[index]"
+              class="ai-parse-button-container"
+            >
+              <el-button type="primary" @click="analyzeQuestion(index)" class="ai-parse-button">
+                AI 解析
+              </el-button>
+            </div>
           </div>
           <el-button type="primary" @click="handleSubmit">提交试卷</el-button>
         </div>
