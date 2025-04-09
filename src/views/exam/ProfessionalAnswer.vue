@@ -26,7 +26,9 @@
         <!-- 单选题部分 -->
         <div v-if="paperData.choiceVOs && paperData.choiceVOs.length > 0" class="question-category">
           <h2 class="category-title">
-            一、单项选择题（每题{{ paperData.choiceVOs[0].score }}分，共{{ paperData.choiceVOs.length * paperData.choiceVOs[0].score }}分）
+            一、单项选择题（每题{{ paperData.choiceVOs[0].score }}分，共{{
+              paperData.choiceVOs.length * paperData.choiceVOs[0].score
+            }}分）
           </h2>
           <div class="question-list">
             <div
@@ -84,12 +86,11 @@
         </div>
 
         <!-- 解答题部分 -->
-        <div
-          v-if="paperData.solveVOs && paperData.solveVOs.length > 0"
-          class="question-category"
-        >
+        <div v-if="paperData.solveVOs && paperData.solveVOs.length > 0" class="question-category">
           <h2 class="category-title">
-            二、解答题（每题{{ paperData.solveVOs[0].score }}分，共{{ paperData.solveVOs.length * paperData.solveVOs[0].score }}分）
+            二、解答题（每题{{ paperData.solveVOs[0].score }}分，共{{
+              paperData.solveVOs.length * paperData.solveVOs[0].score
+            }}分）
           </h2>
           <div class="question-list">
             <div
@@ -257,8 +258,7 @@ const startTimer = () => {
 const submitAnswers = async () => {
   // 检查是否有未完成的题目
   const totalQuestions =
-    (paperData.value.choiceVOs?.length || 0) +
-    (paperData.value.solveVOs?.length || 0)
+    (paperData.value.choiceVOs?.length || 0) + (paperData.value.solveVOs?.length || 0)
 
   const answeredQuestions =
     singleChoiceAnswers.value.filter(a => a).length +
@@ -583,4 +583,4 @@ onBeforeUnmount(() => {
     grid-template-columns: 1fr;
   }
 }
-</style> 
+</style>

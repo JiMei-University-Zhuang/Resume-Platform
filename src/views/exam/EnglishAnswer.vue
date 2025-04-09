@@ -26,12 +26,13 @@
       <div class="question-section" v-if="paperData">
         <!-- 完形填空部分 -->
         <div v-if="paperData.clozeVO" class="question-category">
-          <h2 class="category-title">
-            Section I Cloze Test (每题1分，共20分)
-          </h2>
+          <h2 class="category-title">Section I Cloze Test (每题1分，共20分)</h2>
           <div class="question-item">
             <div class="question-header">
-              <div class="question-content passage-text" v-html="paperData.clozeVO.questionContent"></div>
+              <div
+                class="question-content passage-text"
+                v-html="paperData.clozeVO.questionContent"
+              ></div>
             </div>
             <div class="cloze-options-container">
               <div
@@ -66,10 +67,7 @@
                           <span v-if="option === item.correctAnswer" class="correct-icon">
                             <i class="el-icon-check"></i>
                           </span>
-                          <span
-                            v-else-if="clozeAnswers[index] === option"
-                            class="wrong-icon"
-                          >
+                          <span v-else-if="clozeAnswers[index] === option" class="wrong-icon">
                             <i class="el-icon-close"></i>
                           </span>
                         </template>
@@ -87,12 +85,13 @@
         </div>
 
         <!-- 阅读理解部分 -->
-        <div v-if="paperData.readingVOs && paperData.readingVOs.length > 0" class="question-category">
-          <h2 class="category-title">
-            Section II Reading Comprehension (每题2分，共40分)
-          </h2>
-          <div 
-            v-for="(reading, readingIndex) in paperData.readingVOs" 
+        <div
+          v-if="paperData.readingVOs && paperData.readingVOs.length > 0"
+          class="question-category"
+        >
+          <h2 class="category-title">Section II Reading Comprehension (每题2分，共40分)</h2>
+          <div
+            v-for="(reading, readingIndex) in paperData.readingVOs"
             :key="'reading-' + reading.questionId"
             class="reading-passage"
           >
@@ -162,12 +161,13 @@
 
         <!-- 匹配题部分 -->
         <div v-if="paperData.matchingVO" class="question-category">
-          <h2 class="category-title">
-            Section III Matching (每题2分，共10分)
-          </h2>
+          <h2 class="category-title">Section III Matching (每题2分，共10分)</h2>
           <div class="question-item">
             <div class="reading-passage-content">
-              <div class="question-content passage-text" v-html="paperData.matchingVO.questionContent"></div>
+              <div
+                class="question-content passage-text"
+                v-html="paperData.matchingVO.questionContent"
+              ></div>
             </div>
             <div class="matching-options-container">
               <div
@@ -204,12 +204,13 @@
 
         <!-- 翻译题部分 -->
         <div v-if="paperData.translationVO" class="question-category">
-          <h2 class="category-title">
-            Section IV Translation (每题2分，共10分)
-          </h2>
+          <h2 class="category-title">Section IV Translation (每题2分，共10分)</h2>
           <div class="question-item">
             <div class="reading-passage-content">
-              <div class="question-content passage-text" v-html="paperData.translationVO.questionContent"></div>
+              <div
+                class="question-content passage-text"
+                v-html="paperData.translationVO.questionContent"
+              ></div>
             </div>
             <div class="translation-options-container">
               <div
@@ -240,12 +241,13 @@
 
         <!-- 写作题部分 -->
         <div v-if="paperData.writingVO" class="question-category">
-          <h2 class="category-title">
-            Section V Writing (10分)
-          </h2>
+          <h2 class="category-title">Section V Writing (10分)</h2>
           <div class="question-item">
             <div class="reading-passage-content">
-              <div class="question-content passage-text" v-html="paperData.writingVO.questionContent"></div>
+              <div
+                class="question-content passage-text"
+                v-html="paperData.writingVO.questionContent"
+              ></div>
             </div>
             <div class="writing-answer-area">
               <el-input
@@ -260,11 +262,25 @@
               <div class="reference-title">参考范文：</div>
               <div class="reference-content writing-reference">
                 <p>Dear Paul,</p>
-                <p>I'm glad to offer some advice for your oral report on an ancient Chinese scientist.</p>
-                <p>First, choose someone whose achievements are significant, like Zhang Heng (inventor of the first seismograph) or Zu Chongzhi (mathematical pioneer). Research their life story, contributions, and historical context.</p>
-                <p>For your presentation, start with a brief introduction of the scientist's background. Then focus on their major discoveries and inventions, explaining why they were revolutionary. Visual aids like images or simple models would enhance your report. Finally, discuss how their work influenced modern science.</p>
-                <p>Feel free to ask if you need more specific guidance on any particular scientist.</p>
-                <p>Best regards,<br>Li Ming</p>
+                <p>
+                  I'm glad to offer some advice for your oral report on an ancient Chinese
+                  scientist.
+                </p>
+                <p>
+                  First, choose someone whose achievements are significant, like Zhang Heng
+                  (inventor of the first seismograph) or Zu Chongzhi (mathematical pioneer).
+                  Research their life story, contributions, and historical context.
+                </p>
+                <p>
+                  For your presentation, start with a brief introduction of the scientist's
+                  background. Then focus on their major discoveries and inventions, explaining why
+                  they were revolutionary. Visual aids like images or simple models would enhance
+                  your report. Finally, discuss how their work influenced modern science.
+                </p>
+                <p>
+                  Feel free to ask if you need more specific guidance on any particular scientist.
+                </p>
+                <p>Best regards,<br />Li Ming</p>
               </div>
             </div>
           </div>
@@ -357,12 +373,16 @@ const initializeAnswers = () => {
 
   // 初始化匹配题答案
   if (paperData.value.matchingVO) {
-    matchingAnswers.value = new Array(paperData.value.matchingVO.matchingOptionInfos.length).fill('')
+    matchingAnswers.value = new Array(paperData.value.matchingVO.matchingOptionInfos.length).fill(
+      ''
+    )
   }
 
   // 初始化翻译题答案
   if (paperData.value.translationVO) {
-    translationAnswers.value = new Array(paperData.value.translationVO.translationOptionInfos.length).fill('')
+    translationAnswers.value = new Array(
+      paperData.value.translationVO.translationOptionInfos.length
+    ).fill('')
   }
 
   // 初始化写作题答案
@@ -801,7 +821,7 @@ onBeforeUnmount(() => {
   .exam-page {
     padding: 16px;
   }
-  
+
   .real-exam-badge {
     position: relative;
     top: 0;
@@ -817,15 +837,15 @@ onBeforeUnmount(() => {
   .options-grid-two-columns {
     grid-template-columns: 1fr;
   }
-  
+
   .option-item-eng {
     padding: 12px 14px;
   }
-  
+
   .option-item-eng :deep(.el-radio__label) {
     font-size: 14px;
   }
-  
+
   .matching-select,
   .translation-answer-area :deep(.el-textarea__inner),
   .writing-answer-area :deep(.el-textarea__inner) {
@@ -874,4 +894,4 @@ onBeforeUnmount(() => {
 .translation-answer-area {
   margin: 16px 0;
 }
-</style> 
+</style>

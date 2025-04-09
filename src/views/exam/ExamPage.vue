@@ -335,7 +335,6 @@ const submitRealExam = async () => {
       const userAnswer = essayAnswers.value[answerIndex]
       const promise = analyzeAnswer(subQuestion.itemId, userAnswer)
         .then(analysisResult => {
-          console.log(`题目 ${subQuestion.itemId} 的分析结果：`, analysisResult)
           // 存储分析结果
           essayAnalysisResults.value[answerIndex] = analysisResult
         })

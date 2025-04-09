@@ -331,7 +331,6 @@ import zhengzhi1Image from '@/assets/images/paper_imgs/zhengzhi1.png'
 import jisuanji1Image from '@/assets/images/paper_imgs/jisuanji1.png'
 import yingyuyi1Image from '@/assets/images/paper_imgs/yingyu1.png'
 
-
 const router = useRouter()
 const activeTab = ref('specialized-practice')
 const selectedSubject = ref('英语一')
@@ -529,12 +528,6 @@ const startExam = (paperId: number) => {
 
 // 开始专项练习
 const startPractice = () => {
-  console.log('开始专项练习', {
-    subject: selectedSubject.value,
-    questionType: selectedquestionType.value,
-    count: selectedCount.value
-  })
-
   router.push({
     path: '/exam/postgraduate-answer',
     query: {
@@ -548,8 +541,6 @@ const startPractice = () => {
 
 // 预览试卷的方法
 const previewPaper = (paperId: number) => {
-  console.log('预览试卷，试卷id：', paperId)
-
   // 查找对应的试卷
   const paper = papers.value.find(p => p.id === paperId)
   if (paper) {
