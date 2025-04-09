@@ -9,14 +9,14 @@
             <span></span>
             <span></span>
             <span></span>
-            </div>
+          </div>
           <p class="page-description">提供专业、系统的考研备考资源，助力你的学术梦想</p>
           <div class="title-action">
             <button class="get-started-btn" @click="scrollToContent">
               <span>开始备考</span>
             </button>
-              </div>
-            </div>
+          </div>
+        </div>
       </div>
       <div class="countdown-wrapper">
         <div class="countdown-card">
@@ -257,7 +257,7 @@
             <div v-for="paper in filteredPapers" :key="paper.id" class="paper-card">
               <div class="paper-image">
                 <img :src="paper.imageUrl" alt="试卷封面" />
-            </div>
+              </div>
               <div class="paper-info">
                 <h3 class="paper-title">{{ paper.title }}</h3>
                 <p class="paper-description">{{ paper.description }}</p>
@@ -276,7 +276,7 @@
       </transition>
     </div>
 
-        <!-- 考试对话框 -->
+    <!-- 考试对话框 -->
     <transition name="modal">
       <div class="modal-overlay" v-if="isExamDialogVisible" @click="isExamDialogVisible = false">
         <div class="modal-container" @click.stop>
@@ -328,6 +328,8 @@
 import { ref, computed, watch, onMounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import zhengzhi1Image from '@/assets/images/paper_imgs/zhengzhi1.png'
+import jisuanji1Image from '@/assets/images/paper_imgs/jisuanji1.png'
+import yingyuyi1Image from '@/assets/images/paper_imgs/yingyu1.png'
 
 const router = useRouter()
 const activeTab = ref('specialized-practice')
@@ -398,7 +400,7 @@ const calculateCountdown = () => {
   secondsLeft.value = seconds
 }
 
-// 启动倒计时
+// 获取URL参数
 onMounted(() => {
   calculateCountdown()
   setInterval(calculateCountdown, 1000)
@@ -425,7 +427,7 @@ const papers = ref([
     title: '计算机学科 数据结构专题',
     description: '涵盖树、图、排序算法等重点考察内容',
     category: 'professional',
-    imageUrl: zhengzhi1Image
+    imageUrl: jisuanji1Image
   },
   {
     id: 3,
@@ -436,10 +438,10 @@ const papers = ref([
   },
   {
     id: 5,
-    title: '英语二全真模拟',
-    description: '考研英语阅读理解专项训练',
+    title: '2024年全国硕士研究生招生考试英语一真题',
+    description: '考研英语一完整真题及答案解析',
     category: 'english',
-    imageUrl: zhengzhi1Image
+    imageUrl: yingyuyi1Image
   },
   {
     id: 6,
@@ -453,7 +455,7 @@ const papers = ref([
     title: '计算机网络与操作系统',
     description: '计算机专业核心知识点练习',
     category: 'professional',
-    imageUrl: zhengzhi1Image
+    imageUrl: jisuanji1Image
   }
 ])
 
@@ -495,6 +497,24 @@ const startExam = (paperId: number) => {
         type: 'exam'
       }
     })
+  } else if (paperCategory === 'professional') {
+    // 计算机专业课试卷跳转到professional-answer
+    router.push({
+      path: '/exam/professional-answer',
+      query: {
+        id: paperId.toString(),
+        type: 'exam'
+      }
+    })
+  } else if (paperCategory === 'english') {
+    // 英语试卷跳转到english-answer
+    router.push({
+      path: '/exam/english-answer',
+      query: {
+        id: paperId.toString(),
+        type: 'exam'
+      }
+    })
   } else {
     router.push({
       path: '/exam/postgraduate-answer',
@@ -508,12 +528,6 @@ const startExam = (paperId: number) => {
 
 // 开始专项练习
 const startPractice = () => {
-  console.log('开始专项练习', {
-    subject: selectedSubject.value,
-    questionType: selectedquestionType.value,
-    count: selectedCount.value
-  })
-
   router.push({
     path: '/exam/postgraduate-answer',
     query: {
@@ -527,8 +541,6 @@ const startPractice = () => {
 
 // 预览试卷的方法
 const previewPaper = (paperId: number) => {
-  console.log('预览试卷，试卷id：', paperId)
-
   // 查找对应的试卷
   const paper = papers.value.find(p => p.id === paperId)
   if (paper) {
@@ -796,7 +808,7 @@ const previewPaper = (paperId: number) => {
 @media (max-width: 768px) {
   .page-header {
     flex-direction: column;
-  align-items: center;
+    align-items: center;
     padding: 24px 0;
   }
 

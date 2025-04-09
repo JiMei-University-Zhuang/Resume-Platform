@@ -63,6 +63,16 @@ const routes: RouteRecordRaw[] = [
         }
       },
       {
+        path: '/chat/history',
+        name: 'ChatHistory',
+        component: () => import('../views/chat/ChatHistory.vue'),
+        meta: {
+          title: '聊天历史',
+          icon: 'ChatDotRound',
+          roles: ['admin', 'user']
+        }
+      },
+      {
         path: 'resume',
         name: 'Resume',
         redirect: '/resume/create',
@@ -166,9 +176,8 @@ const routes: RouteRecordRaw[] = [
             path: 'wrongPage',
             name: 'wrongPage',
             component: () => import('@/views/exam/WrongQuestionRecord.vue'),
-            meta: { title: '错题也米娜' }
+            meta: { title: '错题页面' }
           },
-
           {
             path: 'ExamPage',
             name: 'ExamPage',
@@ -186,6 +195,18 @@ const routes: RouteRecordRaw[] = [
             name: 'PoliticsAnswer',
             component: () => import('@/views/exam/PoliticsAnswer.vue'),
             meta: { title: '政治答题' }
+          },
+          {
+            path: 'professional-answer',
+            name: 'ProfessionalAnswer',
+            component: () => import('@/views/exam/ProfessionalAnswer.vue'),
+            meta: { title: '计算机专业课答题' }
+          },
+          {
+            path: 'english-answer',
+            name: 'EnglishAnswer',
+            component: () => import('@/views/exam/EnglishAnswer.vue'),
+            meta: { title: '英语答题' }
           }
         ]
       }

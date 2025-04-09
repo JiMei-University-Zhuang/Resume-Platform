@@ -8,6 +8,10 @@
             <i class="el-icon-plus"></i>
             <span>新对话</span>
           </button>
+          <button class="action-button history-btn" @click="viewChatHistory" title="历史记录">
+            <i class="el-icon-time"></i>
+            <span>历史记录</span>
+          </button>
           <el-tooltip content="清空对话">
             <button class="action-button" @click="clearMessages">
               <i class="el-icon-delete"></i>
@@ -105,11 +109,12 @@
 /// <reference lib="dom" />
 
 import { ref, nextTick, onMounted, watch } from 'vue'
+import { useRouter } from 'vue-router'
 import MarkdownIt from 'markdown-it'
 import type { Options as MarkdownItOptions } from 'markdown-it'
 import Prism from 'prismjs'
 import type { ChatMessage, MockData } from '@/types/chat'
-import { connectAIChatSSE } from '@/api/chat'
+import { connectAIChatFetch } from '@/api/chat'
 
 import 'prismjs/themes/prism-tomorrow.css'
 import 'prismjs/components/prism-javascript'
@@ -134,6 +139,7 @@ const inputRef = ref<any>(null)
 const messages = ref<ChatMessage[]>([])
 const userInput = ref('')
 const isTyping = ref(false)
+const router = useRouter()
 
 // 调整文本区域高度
 const adjustTextareaHeight = () => {
@@ -200,6 +206,11 @@ const clearMessages = () => {
 const startNewChat = () => {
   clearMessages()
   userInput.value = ''
+}
+
+// 查看聊天历史
+const viewChatHistory = () => {
+  router.push('/chat/history')
 }
 
 // 使用建议
@@ -464,56 +475,73 @@ const handleSendMessage = async () => {
   isTyping.value = true
 
   try {
-    if (userMessage in mockData) {
-      await streamAiReply(mockData[userMessage])
-    } else {
-      // 创建新的消息
-      messages.value.push({ role: 'ai', text: '' })
-      const currentIndex = messages.value.length - 1
+    // 首先检查是否有预定义的回复
+    if (
+      Object.keys(mockData).some(
+        key =>
+          userMessage.toLowerCase().includes(key.toLowerCase()) ||
+          key.toLowerCase() === userMessage.toLowerCase()
+      )
+    ) {
+      // 找到最匹配的预定义回复
+      const bestMatch =
+        Object.keys(mockData).find(key => key.toLowerCase() === userMessage.toLowerCase()) ||
+        Object.keys(mockData).find(key => userMessage.toLowerCase().includes(key.toLowerCase()))
 
-      // 使用Promise来处理EventSource事件
-      await new Promise((resolve, reject) => {
-        let hasReceivedData = false
-
-        const connection = connectAIChatSSE(userMessage, {
-          onMessage: async data => {
-            hasReceivedData = true
-            if (messages.value[currentIndex]) {
-              messages.value[currentIndex].text += data
-              await nextTick()
-              scrollToBottom()
-              Prism.highlightAll()
-            }
-          },
-          onDone: () => {
-            isTyping.value = false
-            resolve(true)
-          },
-          onError: error => {
-            console.error('SSE Error:', error)
-            isTyping.value = false
-
-            // 如果在错误发生前已经接收到一些数据，则附加错误信息
-            if (hasReceivedData && messages.value[currentIndex]) {
-              messages.value[currentIndex].text += '\n\n> ⚠️ 连接中断，部分回复可能丢失。'
-              resolve(true) // 仍然解析为成功，因为已经接收到部分数据
-            } else {
-              // 如果完全没有接收到数据，则标记为错误
-              reject(new Error('Connection failed'))
-            }
-          },
-          timeout: 30000 // 30秒超时
-        })
-
-        // 添加一个清理函数到Promise的catch中
-        Promise.allSettled([]).catch(() => {
-          connection.close()
-        })
-      }).catch(err => {
-        console.error('处理流出错:', err)
-        // 错误已经在前面处理，这里不需要显示任何提示
-      })
+      if (bestMatch) {
+        await streamAiReply(mockData[bestMatch])
+        return
+      }
     }
+
+    // 如果没有预定义回复，尝试使用API
+    // 创建新的消息
+    messages.value.push({ role: 'ai', text: '' })
+    const currentIndex = messages.value.length - 1
+
+    // 使用Promise来处理EventSource事件
+    await new Promise((resolve, reject) => {
+      let hasReceivedData = false
+
+      // 使用带认证的连接函数
+      const connection = connectAIChatFetch(userMessage, {
+        onMessage: async data => {
+          hasReceivedData = true
+          if (messages.value[currentIndex]) {
+            messages.value[currentIndex].text += data
+            await nextTick()
+            scrollToBottom()
+            Prism.highlightAll()
+          }
+        },
+        onDone: () => {
+          isTyping.value = false
+          resolve(true)
+        },
+        onError: error => {
+          console.error('Fetch API Error:', error)
+          isTyping.value = false
+
+          // 如果在错误发生前已经接收到一些数据，则附加错误信息
+          if (hasReceivedData && messages.value[currentIndex]) {
+            messages.value[currentIndex].text += '\n\n> ⚠️ 连接中断，部分回复可能丢失。'
+            resolve(true) // 仍然解析为成功，因为已经接收到部分数据
+          } else {
+            // 如果完全没有接收到数据，则标记为错误
+            reject(new Error('Connection failed'))
+          }
+        },
+        timeout: 30000 // 30秒超时
+      })
+
+      // 添加一个清理函数到Promise的catch中
+      Promise.allSettled([]).catch(() => {
+        connection.close()
+      })
+    }).catch(err => {
+      console.error('处理流出错:', err)
+      // 错误已经在前面处理，这里不需要显示任何提示
+    })
   } catch (error) {
     const err = error as Error
     console.error('发送消息失败:', err)
@@ -624,6 +652,21 @@ onMounted(() => {
   color: white;
 }
 
+.action-button.history-btn {
+  display: flex;
+  align-items: center;
+  background-color: #8a74dd; /* 稍微不同的紫色 */
+  color: white;
+  padding: 6px 12px;
+  border-radius: 6px;
+  margin-left: 8px; /* 与新对话按钮保持间距 */
+}
+
+.action-button.history-btn:hover {
+  background-color: #9a84ee;
+  color: white;
+}
+
 .chat-messages {
   flex: 1;
   overflow-y: auto;
@@ -674,6 +717,21 @@ onMounted(() => {
   color: #6b7280;
   max-width: 500px;
   margin: 0;
+}
+
+.history-note {
+  font-size: 14px;
+  color: #6b7280;
+  max-width: 500px;
+  margin: 8px 0 12px; /* 增加上下间距 */
+  padding: 8px 16px;
+  background-color: #f0edf9; /* 浅紫色背景 */
+  border-radius: 8px;
+  border-left: 3px solid #6a5acd; /* 左侧紫色边框 */
+}
+
+.history-note strong {
+  color: #6a5acd; /* 加粗文字使用主题紫色 */
 }
 
 .suggestion-chips {
@@ -1091,6 +1149,15 @@ textarea {
 
   .action-button.new-chat-btn span {
     display: none;
+  }
+
+  /* 确保历史按钮文字在移动端保持显示 */
+  .action-button.history-btn {
+    padding: 6px 8px;
+  }
+
+  .action-button.history-btn span {
+    font-size: 14px;
   }
 
   .message-content {
