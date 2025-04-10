@@ -1,13 +1,23 @@
 <template>
   <div class="career-recommendation">
+    <!-- 页面标题和引导语 -->
+    <div class="page-header">
+      <h1 class="page-title">
+        <el-icon><StarFilled /></el-icon>
+        职业机会探索
+        <span class="beta-tag">Beta</span>
+      </h1>
+      <p class="page-description">发掘适合你专业背景的热门职位，为你的职业之旅开启新可能。</p>
+    </div>
+
     <!-- 搜索和筛选区域 -->
     <el-card class="search-card">
       <template #header>
         <div class="card-header">
           <span>
-            <el-icon><StarFilled /></el-icon> 职业推荐
+            <el-icon><Search /></el-icon> 职位搜索
           </span>
-          <el-tooltip content="根据您的条件，推荐匹配度最高的职位，点击可直接跳转到招聘平台">
+          <el-tooltip content="根据你的条件，探索适合的职位机会，发现潜在的实习与就业可能">
             <el-icon><QuestionFilled /></el-icon>
           </el-tooltip>
         </div>
@@ -16,30 +26,33 @@
       <el-form :model="searchForm" label-width="120px" label-position="top">
         <el-row :gutter="20">
           <el-col :span="8">
-            <el-form-item label="当前职位" required>
+            <el-form-item label="专业方向" required>
               <el-select
-                v-model="searchForm.currentPosition"
+                v-model="searchForm.major"
                 filterable
-                allow-create
-                placeholder="请选择或输入您当前的职位"
+                placeholder="请选择或输入你的专业"
                 style="width: 100%"
-                @change="handlePositionChange"
+                @change="handleMajorChange"
               >
-                <el-option
-                  v-for="position in commonPositions"
-                  :key="position"
-                  :label="position"
-                  :value="position"
-                />
+                <el-option label="计算机/软件工程" value="cs" />
+                <el-option label="电子信息工程" value="ee" />
+                <el-option label="数学/统计学" value="math" />
+                <el-option label="物理/化学" value="physics" />
+                <el-option label="经济/金融" value="economics" />
+                <el-option label="管理学" value="management" />
+                <el-option label="文学/传媒" value="literature" />
+                <el-option label="艺术设计" value="design" />
+                <el-option label="医学/生物" value="medicine" />
+                <el-option label="其他" value="other" />
               </el-select>
             </el-form-item>
           </el-col>
 
           <el-col :span="8">
-            <el-form-item label="工作地点">
+            <el-form-item label="意向城市">
               <el-select
                 v-model="searchForm.location"
-                placeholder="请选择工作地点"
+                placeholder="请选择意向城市"
                 style="width: 100%"
                 @change="handleFilterChange"
               >
@@ -55,19 +68,18 @@
           </el-col>
 
           <el-col :span="8">
-            <el-form-item label="期望薪资">
+            <el-form-item label="期望类型">
               <el-select
-                v-model="searchForm.salary"
-                placeholder="请选择期望薪资"
+                v-model="searchForm.jobType"
+                placeholder="请选择职位类型"
                 style="width: 100%"
                 @change="handleFilterChange"
               >
                 <el-option label="不限" value="" />
-                <el-option label="10k以下" value="0-10k" />
-                <el-option label="10k-20k" value="10k-20k" />
-                <el-option label="20k-30k" value="20k-30k" />
-                <el-option label="30k-50k" value="30k-50k" />
-                <el-option label="50k以上" value="50k+" />
+                <el-option label="实习" value="internship" />
+                <el-option label="校招" value="campus" />
+                <el-option label="社招" value="social" />
+                <el-option label="兼职" value="parttime" />
               </el-select>
             </el-form-item>
           </el-col>
@@ -76,7 +88,7 @@
         <el-row>
           <el-col :span="24">
             <el-form-item>
-              <el-button type="primary" @click="searchJobs" :loading="loading">
+              <el-button type="primary" @click="searchJobs" :loading="loading" class="glow-btn">
                 <el-icon><Search /></el-icon> 搜索职位
               </el-button>
               <el-button @click="resetForm">
@@ -91,8 +103,8 @@
     <!-- 职位推荐区域 -->
     <div v-if="recommendationResult" class="recommendation-section">
       <h2 class="section-title">
-        <el-icon><Medal /></el-icon> 为您推荐的职位
-        <span class="sub-title">基于您的职业背景，为您精选以下职位</span>
+        <el-icon><Medal /></el-icon> 为你推荐的职位
+        <span class="sub-title">基于你的专业背景，为你精选以下职位</span>
       </h2>
 
       <div class="job-list">
@@ -101,9 +113,12 @@
             <el-card class="job-card" shadow="hover">
               <div class="job-header">
                 <h3 class="job-title">{{ job.title }}</h3>
-                <el-tag type="success" effect="dark" size="small">
+                <div
+                  class="match-badge"
+                  :style="{ backgroundColor: getMatchColor(job.matchScore) }"
+                >
                   {{ job.matchScore }}% 匹配
-                </el-tag>
+                </div>
               </div>
 
               <p class="job-description">{{ job.description }}</p>
@@ -113,7 +128,7 @@
                   <el-icon><Money /></el-icon> {{ job.averageSalary }}
                 </div>
                 <div class="job-detail">
-                  <el-icon><TrendCharts /></el-icon> 发展前景: {{ job.growthProspect }}
+                  <el-icon><TrendCharts /></el-icon> 职业前景: {{ job.growthProspect }}
                 </div>
                 <div class="job-detail">
                   <el-icon><MagicStick /></el-icon> 工作生活平衡: {{ job.workLifeBalance }}
@@ -136,7 +151,7 @@
               </div>
 
               <div class="job-links">
-                <h4>去这里应聘</h4>
+                <h4>查看招聘信息</h4>
                 <div class="platform-links">
                   <a
                     v-for="link in job.jobLinks"
@@ -159,8 +174,8 @@
     <!-- 热门职位区域 -->
     <div class="hot-jobs-section">
       <h2 class="section-title">
-        <el-icon><StarFilled /></el-icon> 热门职位推荐
-        <span class="sub-title">精选热门企业最新职位</span>
+        <el-icon><StarFilled /></el-icon> 热门实习与校招
+        <span class="sub-title">精选知名企业最新职位</span>
       </h2>
 
       <el-tabs v-model="activeTab" class="job-tabs">
@@ -169,6 +184,7 @@
         <el-tab-pane label="产品" name="product"></el-tab-pane>
         <el-tab-pane label="设计" name="design"></el-tab-pane>
         <el-tab-pane label="运营" name="operation"></el-tab-pane>
+        <el-tab-pane label="市场" name="marketing"></el-tab-pane>
       </el-tabs>
 
       <div class="job-lists">
@@ -194,7 +210,7 @@
                   <el-icon><Reading /></el-icon> {{ job.education }}
                 </div>
                 <div class="info-item">
-                  <el-icon><Stopwatch /></el-icon> {{ job.experience }}
+                  <el-icon><Stopwatch /></el-icon> {{ job.type }}
                 </div>
               </div>
 
@@ -202,8 +218,7 @@
                 <el-tag
                   v-for="(tag, index) in job.tags"
                   :key="index"
-                  :type="getHotJobTagType(index)"
-                  effect="plain"
+                  :type="getTagType(index)"
                   size="small"
                   class="job-tag"
                 >
@@ -212,79 +227,75 @@
               </div>
 
               <div class="job-actions">
-                <div class="platform-buttons">
-                  <a
-                    v-for="link in job.jobLinks"
-                    :key="link.platform"
-                    :href="link.url"
-                    target="_blank"
-                    class="platform-button"
-                  >
-                    {{ link.platform }}
-                    <el-icon><Right /></el-icon>
-                  </a>
-                </div>
+                <el-button type="primary" size="small" @click="viewJobDetails(job)">
+                  查看详情
+                </el-button>
+                <el-button size="small" @click="applyForJob(job)"> 立即申请 </el-button>
               </div>
             </el-card>
           </el-col>
         </el-row>
-
-        <!-- 无职位提示 -->
-        <el-empty
-          v-else
-          description="暂无热门职位推荐"
-          :image-size="200"
-          class="empty-jobs-container"
-        >
-          <template #image>
-            <img src="@/assets/empty-jobs.svg" alt="暂无职位" class="empty-jobs-image" />
-          </template>
-          <template #description>
-            <p class="empty-jobs-description">
-              暂无符合条件的热门职位
-              <br />
-              <span class="empty-jobs-hint">请尝试切换其他职位类别或修改搜索条件</span>
-            </p>
-          </template>
-          <el-button type="primary" @click="activeTab = 'all'"> 查看全部职位 </el-button>
-        </el-empty>
+        <div v-else class="empty-jobs">
+          <img src="@/assets/empty-search.svg" alt="暂无数据" class="empty-image" />
+          <p>暂无相关职位，请调整筛选条件</p>
+        </div>
       </div>
     </div>
 
-    <!-- 行业趋势区域 -->
-    <div v-if="recommendationResult?.industryTrends?.length" class="trends-section">
+    <!-- 招聘日历 -->
+    <div class="recruitment-calendar">
       <h2 class="section-title">
-        <el-icon><DataAnalysis /></el-icon> 行业趋势分析
-        <span class="sub-title">了解行业发展趋势，把握职业机会</span>
+        <el-icon><Calendar /></el-icon> 招聘日历
+        <span class="sub-title">近期校园招聘会和宣讲会信息</span>
       </h2>
 
-      <el-row :gutter="20">
-        <el-col
-          :xs="24"
-          :md="8"
-          v-for="(trend, index) in recommendationResult.industryTrends"
-          :key="index"
-        >
-          <el-card class="trend-card" shadow="hover">
-            <div class="trend-header">
-              <h3>{{ trend.industry }}</h3>
-              <div class="growth-rate">增长率: {{ trend.growthRate }}</div>
+      <el-card shadow="hover" class="calendar-card">
+        <el-calendar v-model="calendarValue">
+          <template #dateCell="{ data }">
+            <div class="calendar-cell">
+              <p>{{ data.day.split('-').slice(2).join('-') }}</p>
+              <div v-if="hasEvent(data.day)" class="calendar-events">
+                <div
+                  v-for="(event, index) in getEvents(data.day)"
+                  :key="index"
+                  class="calendar-event-dot"
+                  :style="{ backgroundColor: event.color }"
+                ></div>
+              </div>
             </div>
-            <p class="trend-description">{{ trend.description }}</p>
-          </el-card>
-        </el-col>
-      </el-row>
-    </div>
+          </template>
+        </el-calendar>
 
-    <!-- 职业建议区域 -->
-    <div v-if="recommendationResult?.careerAdvice" class="advice-section">
-      <el-card class="advice-card">
-        <template #header>
-          <div class="card-header">
-            <el-icon><ChatLineRound /></el-icon> 职业发展建议
+        <div class="upcoming-events">
+          <h3 class="events-title">近期招聘活动</h3>
+          <div class="events-list">
+            <div v-for="(event, index) in upcomingEvents" :key="index" class="event-item">
+              <div class="event-date">
+                <div class="event-month">{{ event.month }}</div>
+                <div class="event-day">{{ event.day }}</div>
+              </div>
+              <div class="event-content">
+                <h4 class="event-title">{{ event.title }}</h4>
+                <p class="event-info">
+                  <el-icon><Location /></el-icon> {{ event.location }}
+                </p>
+                <p class="event-info">
+                  <el-icon><Clock /></el-icon> {{ event.time }}
+                </p>
+                <div class="event-tags">
+                  <el-tag
+                    size="small"
+                    effect="plain"
+                    :type="event.type === '校招' ? 'primary' : 'success'"
+                  >
+                    {{ event.type }}
+                  </el-tag>
+                  <el-tag size="small" effect="plain" type="info">{{ event.company }}</el-tag>
+                </div>
+              </div>
+            </div>
           </div>
-        </template>
-        <p class="advice-content">{{ recommendationResult.careerAdvice }}</p>
+        </div>
       </el-card>
     </div>
   </div>
@@ -307,7 +318,9 @@ import {
   Reading,
   Stopwatch,
   ChatLineRound,
-  Right
+  Right,
+  Calendar,
+  Clock
 } from '@element-plus/icons-vue'
 import type {
   CareerRecommendationForm,
@@ -315,19 +328,20 @@ import type {
   CareerRecommendation,
   HotJob
 } from '@/types/career'
-import { getCommonPositions } from '@/api/career'
+import { getCommonPositions, getJobRecommendations, getHotJobs } from '@/api/career'
 import { getProfessionRecommendation } from '@/api/ai'
 
 const loading = ref(false)
 const activeTab = ref('all')
 const commonPositions = ref<string[]>([])
 const recommendationResult = ref<CareerRecommendationResult | null>(null)
+const calendarValue = ref(new Date())
 
 // 搜索表单
 const searchForm = reactive({
-  currentPosition: '',
+  major: '',
   location: '',
-  salary: ''
+  jobType: ''
 })
 
 // 获取常见职位列表
@@ -340,23 +354,23 @@ onMounted(async () => {
 })
 
 // 根据当前职位自动获取推荐
-const handlePositionChange = async () => {
-  if (searchForm.currentPosition) {
+const handleMajorChange = async () => {
+  if (searchForm.major) {
     await searchJobs()
   }
 }
 
 // 筛选变化时重新搜索
 const handleFilterChange = async () => {
-  if (searchForm.currentPosition) {
+  if (searchForm.major) {
     await searchJobs()
   }
 }
 
 // 搜索职位
 const searchJobs = async () => {
-  if (!searchForm.currentPosition) {
-    ElMessage.warning('请选择当前职位')
+  if (!searchForm.major) {
+    ElMessage.warning('请选择专业方向')
     return
   }
 
@@ -367,10 +381,10 @@ const searchJobs = async () => {
       interests: [],
       education: '',
       experience: 0,
-      currentPosition: searchForm.currentPosition,
+      currentPosition: searchForm.major,
       preferredLocation: searchForm.location || undefined,
       // 薪资范围通过搜索条件传递，后端可根据此调整推荐结果
-      preferredIndustry: searchForm.salary ? 'salary:' + searchForm.salary : undefined
+      preferredIndustry: searchForm.jobType ? 'jobType:' + searchForm.jobType : undefined
     }
 
     const response = await getProfessionRecommendation(form)
@@ -386,9 +400,9 @@ const searchJobs = async () => {
 
 // 重置表单
 const resetForm = () => {
-  searchForm.currentPosition = ''
+  searchForm.major = ''
   searchForm.location = ''
-  searchForm.salary = ''
+  searchForm.jobType = ''
   recommendationResult.value = null
 }
 
@@ -415,7 +429,8 @@ const filteredHotJobs = computed<HotJob[]>(() => {
     tech: ['开发', '工程师', '算法', '技术', 'Java', '前端', '后端', '全栈', '数据'],
     product: ['产品', '经理'],
     design: ['设计', 'UI', 'UX'],
-    operation: ['运营', '市场', '营销']
+    operation: ['运营', '市场', '营销'],
+    marketing: ['市场', '营销']
   }
 
   const keywords = jobTypeMap[activeTab.value] || []
@@ -436,17 +451,121 @@ const getTagType = (
   return types[index % types.length]
 }
 
-// 获取热门职位标签类型
-const getHotJobTagType = (
-  index: number
-): 'success' | 'warning' | 'info' | 'primary' | 'danger' | undefined => {
-  const types: ('success' | 'warning' | 'info' | 'primary' | 'danger' | undefined)[] = [
-    'success',
-    'info',
-    'warning'
-  ]
-  return types[index % types.length]
+// 获取匹配颜色
+const getMatchColor = (matchScore: number): string => {
+  if (matchScore >= 80) return '#67c23a'
+  if (matchScore >= 60) return '#e6a23c'
+  return '#f56c6c'
 }
+
+// 查看职位详情
+const viewJobDetails = (job: CareerRecommendation) => {
+  // 实现查看职位详情的逻辑
+  console.log('查看职位详情:', job)
+}
+
+// 申请职位
+const applyForJob = (job: CareerRecommendation) => {
+  // 实现申请职位的逻辑
+  console.log('申请职位:', job)
+}
+
+// 获取事件
+const getEvents = (date: string): any[] => {
+  // 实现获取事件的逻辑
+  return []
+}
+
+// 判断是否有事件
+const hasEvent = (date: string): boolean => {
+  // 实现判断是否有事件的逻辑
+  return false
+}
+
+// 获取近期招聘活动列表
+const upcomingEvents = computed(() => {
+  const now = new Date()
+  const events = recruitmentEvents.value
+    .filter(event => {
+      const eventDate = new Date(event.date)
+      return eventDate >= now
+    })
+    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+    .slice(0, 3)
+    .map(event => {
+      const date = new Date(event.date)
+      const months = [
+        '一月',
+        '二月',
+        '三月',
+        '四月',
+        '五月',
+        '六月',
+        '七月',
+        '八月',
+        '九月',
+        '十月',
+        '十一月',
+        '十二月'
+      ]
+      return {
+        ...event,
+        month: months[date.getMonth()],
+        day: date.getDate()
+      }
+    })
+
+  return events
+})
+
+// 日历事件数据
+const recruitmentEvents = ref([
+  {
+    date: '2023-12-05',
+    title: '腾讯2024校园招聘宣讲会',
+    location: '计算机科学与技术学院报告厅',
+    time: '14:30-16:30',
+    company: '腾讯',
+    type: '校招',
+    color: '#1677ff'
+  },
+  {
+    date: '2023-12-08',
+    title: '字节跳动实习生招聘',
+    location: '就业指导中心1号厅',
+    time: '10:00-12:00',
+    company: '字节跳动',
+    type: '实习',
+    color: '#52c41a'
+  },
+  {
+    date: '2023-12-12',
+    title: '阿里巴巴技术岗位专场',
+    location: '线上直播',
+    time: '19:00-21:00',
+    company: '阿里巴巴',
+    type: '校招',
+    color: '#1677ff'
+  },
+  {
+    date: '2023-12-15',
+    title: '华为产品经理招聘',
+    location: '经管学院报告厅',
+    time: '15:00-17:00',
+    company: '华为',
+    type: '校招',
+    color: '#1677ff'
+  },
+  {
+    date: '2023-12-20',
+    title: '百度AI开发实习生招聘',
+    location: '就业指导中心2号厅',
+    time: '14:00-16:00',
+    company: '百度',
+    type: '实习',
+    color: '#52c41a'
+  }
+])
 </script>
 
 <style scoped>
@@ -800,5 +919,119 @@ const getHotJobTagType = (
   .platform-link {
     width: 100%;
   }
+}
+
+/* 招聘日历样式 */
+.recruitment-calendar {
+  margin-top: 40px;
+  margin-bottom: 30px;
+}
+
+.calendar-card {
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.calendar-cell {
+  position: relative;
+}
+
+.calendar-cell p {
+  margin: 0;
+  text-align: center;
+}
+
+.calendar-events {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  gap: 4px;
+}
+
+.calendar-event-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #409eff;
+}
+
+.upcoming-events {
+  margin-top: 20px;
+}
+
+.events-title {
+  font-size: 1.2rem;
+  color: #303133;
+  margin-bottom: 10px;
+}
+
+.events-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.event-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.event-date {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.event-month {
+  font-size: 0.9rem;
+  color: #606266;
+}
+
+.event-day {
+  font-size: 1.2rem;
+  color: #303133;
+}
+
+.event-content {
+  flex: 1;
+}
+
+.event-title {
+  font-size: 1rem;
+  color: #303133;
+  margin-bottom: 5px;
+}
+
+.event-info {
+  font-size: 0.9rem;
+  color: #606266;
+}
+
+.event-tags {
+  margin-top: 5px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.empty-jobs {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+}
+
+.empty-image {
+  width: 200px;
+  height: 200px;
+  object-fit: contain;
+  margin-bottom: 20px;
 }
 </style>

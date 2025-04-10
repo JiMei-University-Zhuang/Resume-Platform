@@ -295,16 +295,16 @@ export const connectAIChatFetch = (message: string, options: EventSourceOptions)
   // 使用any类型来解决类型定义问题
   const abortController = new (window as any).AbortController()
   let isCancelled = false
-  
+
   // 优先从localStorage获取token，更全面的token获取方式
   const getToken = () => {
     // 尝试从localStorage获取
     const tokenFromStorage = localStorage.getItem('token')
     if (tokenFromStorage) return tokenFromStorage
-    
+
     return ''
   }
-  
+
   // 获取token
   const token = getToken()
   // API URL 需要添加 message 和 token 参数
@@ -312,36 +312,36 @@ export const connectAIChatFetch = (message: string, options: EventSourceOptions)
   if (token) {
     apiUrl += `&token=${encodeURIComponent(token)}`
   }
-  
+
   const fetchData = async () => {
     try {
       const headers: Record<string, string> = {
-        'Accept': 'text/event-stream'
+        Accept: 'text/event-stream'
       }
-      
+
       if (token) {
         headers['Authorization'] = `Bearer ${token}`
         headers['token'] = token
       }
-      
+
       const response = await fetch(apiUrl, {
-        method: 'GET', 
+        method: 'GET',
         headers,
         signal: abortController.signal
       })
-      
+
       // 检查错误状态
       if (response.status === 500) {
         throw new Error('服务器内部错误，请联系管理员或稍后再试')
       } else if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
       }
-      
+
       const reader = response.body?.getReader()
       if (!reader) {
         throw new Error('No reader available')
       }
-      
+
       const decoder = new TextDecoder()
 
       try {
@@ -381,7 +381,7 @@ export const connectAIChatFetch = (message: string, options: EventSourceOptions)
   }
 
   // 执行异步获取数据函数
-  fetchData();
+  fetchData()
 
   // 返回控制对象
   return {

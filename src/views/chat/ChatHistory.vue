@@ -123,12 +123,12 @@ const fetchHistory = async () => {
       currentPage.value.toString(),
       pageSize.value.toString()
     )
-    
+
     if (response.code === 200) {
       chatSessions.value = response.data
       totalItems.value = response.total || chatSessions.value.length
       totalPages.value = Math.ceil(totalItems.value / pageSize.value)
-      
+
       // 默认展开第一个会话
       if (chatSessions.value.length > 0 && expandedSessions.value.length === 0) {
         expandedSessions.value = [0]

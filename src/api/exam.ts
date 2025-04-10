@@ -139,7 +139,7 @@ export function getPoliticsPaperByName(examName: string, token?: string) {
   if (token) {
     data.token = token
   }
-  
+
   return request({
     url: '/exam/getPoliticalExam',
     method: 'post',
