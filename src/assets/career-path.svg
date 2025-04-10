@@ -1,39 +1,88 @@
-<svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <!-- 背景元素 -->
-  <circle cx="100" cy="100" r="80" fill="#F0F8FF" />
-  
-  <!-- 阶梯路径 -->
-  <path d="M40 160L70 130L100 160L130 130L160 160" stroke="#4B8BF4" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-  
-  <!-- 起点标记 -->
-  <circle cx="40" cy="160" r="8" fill="#CCDCFF" stroke="#4B8BF4" stroke-width="2"/>
-  
-  <!-- 中间点1 -->
-  <circle cx="70" cy="130" r="8" fill="#CCDCFF" stroke="#4B8BF4" stroke-width="2"/>
-  
-  <!-- 中间点2 -->
-  <circle cx="100" cy="160" r="8" fill="#CCDCFF" stroke="#4B8BF4" stroke-width="2"/>
-  
-  <!-- 中间点3 -->
-  <circle cx="130" cy="130" r="8" fill="#CCDCFF" stroke="#4B8BF4" stroke-width="2"/>
-  
-  <!-- 终点标记（星） -->
-  <circle cx="160" cy="160" r="12" fill="#FFD966" stroke="#4B8BF4" stroke-width="2"/>
-  <path d="M160 152L162.225 157.573L168 158.135L164 162.517L164.899 168L160 165.347L155.101 168L156 162.517L152 158.135L157.775 157.573L160 152Z" fill="#FFFFFF"/>
-  
-  <!-- 人物图标 -->
-  <circle cx="40" cy="145" r="6" fill="#4B8BF4"/>
-  <path d="M32 170C32 162.268 38.268 156 46 156H48C55.732 156 62 162.268 62 170V170H32V170Z" fill="#4B8BF4"/>
-  
-  <!-- 旗帜 -->
-  <line x1="160" y1="140" x2="160" y2="115" stroke="#4B8BF4" stroke-width="2"/>
-  <path d="M160 115L180 125L160 135V115Z" fill="#FF7F7F" stroke="#4B8BF4" stroke-width="2"/>
-  
-  <!-- 指南针 -->
-  <circle cx="100" cy="80" r="20" fill="#FFFFFF" stroke="#4B8BF4" stroke-width="2"/>
-  <path d="M100 64L105 95L100 90L95 95L100 64Z" fill="#FF7F7F" stroke="#4B8BF4" stroke-width="1.5"/>
-  <path d="M100 64L95 95L100 90L105 95L100 64Z" fill="#4B8BF4" stroke="#4B8BF4" stroke-width="1.5"/>
-  
-  <!-- 上升箭头 -->
-  <path d="M140 75L158 40M158 40L173 55M158 40L143 55" stroke="#4B8BF4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="200px" height="200px" viewBox="0 0 200 200" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>职业发展路径</title>
+    <defs>
+        <linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="linearGradient-1">
+            <stop stop-color="#EFF7FF" offset="0%"></stop>
+            <stop stop-color="#F4F7FF" offset="100%"></stop>
+        </linearGradient>
+        <linearGradient x1="0%" y1="0%" x2="100%" y2="100%" id="linearGradient-2">
+            <stop stop-color="#1890FF" offset="0%"></stop>
+            <stop stop-color="#36CFC9" offset="100%"></stop>
+        </linearGradient>
+        <linearGradient x1="0%" y1="0%" x2="100%" y2="0%" id="linearGradient-3">
+            <stop stop-color="#52C41A" offset="0%"></stop>
+            <stop stop-color="#FAAD14" offset="100%"></stop>
+        </linearGradient>
+    </defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="career-path">
+            <!-- 背景圆 -->
+            <circle id="Background" fill="url(#linearGradient-1)" cx="100" cy="100" r="100"></circle>
+            
+            <!-- 道路路径 -->
+            <path d="M40,160 C40,120 60,120 100,140 C140,160 160,150 160,100 C160,50 120,40 100,40" id="path" stroke="url(#linearGradient-2)" stroke-width="8" stroke-linecap="round" stroke-dasharray="1,0"></path>
+            
+            <!-- 起点 -->
+            <g id="start" transform="translate(85.000000, 25.000000)">
+                <circle id="start-circle" fill="#FFFFFF" stroke="#1890FF" stroke-width="3" cx="15" cy="15" r="15"></circle>
+                <text id="起" font-family="PingFangSC-Medium, PingFang SC" font-size="14" font-weight="400" fill="#1890FF">
+                    <tspan x="9" y="20">起</tspan>
+                </text>
+            </g>
+            
+            <!-- 终点 -->
+            <g id="end" transform="translate(25.000000, 145.000000)">
+                <circle id="end-circle" fill="#FFFFFF" stroke="#52C41A" stroke-width="3" cx="15" cy="15" r="15"></circle>
+                <text id="终" font-family="PingFangSC-Medium, PingFang SC" font-size="14" font-weight="400" fill="#52C41A">
+                    <tspan x="9" y="20">终</tspan>
+                </text>
+            </g>
+            
+            <!-- 阶梯元素 -->
+            <g id="steps" transform="translate(110.000000, 90.000000)">
+                <rect id="step-1" fill="#E6F7FF" x="0" y="40" width="30" height="10" rx="2"></rect>
+                <rect id="step-2" fill="#E6F7FF" x="10" y="30" width="30" height="10" rx="2"></rect>
+                <rect id="step-3" fill="#E6F7FF" x="20" y="20" width="30" height="10" rx="2"></rect>
+                <rect id="step-4" fill="#E6F7FF" x="30" y="10" width="30" height="10" rx="2"></rect>
+                <rect id="step-5" fill="#E6F7FF" x="40" y="0" width="30" height="10" rx="2"></rect>
+                <!-- 小人 -->
+                <g id="person" transform="translate(42.000000, -10.000000)">
+                    <circle id="head" fill="#1890FF" cx="8" cy="8" r="8"></circle>
+                    <path d="M8,18 L8,30" id="body" stroke="#1890FF" stroke-width="4" stroke-linecap="round"></path>
+                    <path d="M8,22 L0,16" id="arm-left" stroke="#1890FF" stroke-width="3" stroke-linecap="round"></path>
+                    <path d="M8,22 L16,16" id="arm-right" stroke="#1890FF" stroke-width="3" stroke-linecap="round"></path>
+                    <path d="M8,30 L2,40" id="leg-left" stroke="#1890FF" stroke-width="3" stroke-linecap="round"></path>
+                    <path d="M8,30 L14,40" id="leg-right" stroke="#1890FF" stroke-width="3" stroke-linecap="round"></path>
+                </g>
+            </g>
+            
+            <!-- 里程碑标记 -->
+            <g id="milestone-1" transform="translate(60.000000, 120.000000)">
+                <circle id="milestone-circle-1" fill="#FFFFFF" stroke="#FAAD14" stroke-width="2" cx="10" cy="10" r="10"></circle>
+                <text id="1" font-family="PingFangSC-Medium, PingFang SC" font-size="12" font-weight="400" fill="#FAAD14">
+                    <tspan x="7" y="14">1</tspan>
+                </text>
+            </g>
+            
+            <g id="milestone-2" transform="translate(120.000000, 130.000000)">
+                <circle id="milestone-circle-2" fill="#FFFFFF" stroke="#FAAD14" stroke-width="2" cx="10" cy="10" r="10"></circle>
+                <text id="2" font-family="PingFangSC-Medium, PingFang SC" font-size="12" font-weight="400" fill="#FAAD14">
+                    <tspan x="7" y="14">2</tspan>
+                </text>
+            </g>
+            
+            <g id="milestone-3" transform="translate(150.000000, 80.000000)">
+                <circle id="milestone-circle-3" fill="#FFFFFF" stroke="#FAAD14" stroke-width="2" cx="10" cy="10" r="10"></circle>
+                <text id="3" font-family="PingFangSC-Medium, PingFang SC" font-size="12" font-weight="400" fill="#FAAD14">
+                    <tspan x="7" y="14">3</tspan>
+                </text>
+            </g>
+            
+            <!-- 文字标签 -->
+            <text id="职业发展规划" font-family="PingFangSC-Medium, PingFang SC" font-size="16" font-weight="400" fill="#303133">
+                <tspan x="65" y="175">职业发展规划</tspan>
+            </text>
+        </g>
+    </g>
 </svg> 

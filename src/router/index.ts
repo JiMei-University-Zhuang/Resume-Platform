@@ -126,12 +126,6 @@ const routes: RouteRecordRaw[] = [
         },
         children: [
           {
-            path: 'analysis',
-            name: 'CareerAnalysis',
-            component: () => import('@/views/career-planning/Analysis.vue'),
-            meta: { title: '职业分析' }
-          },
-          {
             path: 'roadmap',
             name: 'CareerRoadmap',
             component: () => import('@/views/career-planning/Roadmap.vue'),

@@ -5,10 +5,9 @@
       <h1 class="page-title">
         <el-icon><Connection /></el-icon>
         职业发展规划
+        <span class="beta-tag">Beta</span>
       </h1>
-      <p class="page-description">
-        基于您的目标和当前状态，量身定制个性化的职业发展路线图，指引您的职业成长之路。
-      </p>
+      <p class="page-description">为你定制大学毕业后的职业成长路径，助你规划未来的职业发展蓝图。</p>
     </div>
 
     <el-row :gutter="24" class="main-content">
@@ -17,8 +16,8 @@
         <el-card v-if="!roadmapResult" class="form-card" shadow="hover">
           <template #header>
             <div class="card-header">
-              <span>设定您的职业目标</span>
-              <el-tooltip content="填写您的基本信息和目标职位，我们将为您生成详细的职业发展路线图">
+              <span>设定你的职业目标</span>
+              <el-tooltip content="填写你的学习背景和理想职位，我们将为你生成职业发展规划">
                 <el-icon><QuestionFilled /></el-icon>
               </el-tooltip>
             </div>
@@ -26,20 +25,27 @@
 
           <el-form :model="roadmapForm" label-position="top">
             <!-- 核心信息 -->
-            <el-form-item label="当前职位" required>
-              <el-input
+            <el-form-item label="当前状态" required>
+              <el-select
                 v-model="roadmapForm.currentPosition"
-                placeholder="例如：初级前端工程师"
-                clearable
+                placeholder="选择你的当前状态"
+                style="width: 100%"
               >
-                <template #prefix>
-                  <el-icon><User /></el-icon>
-                </template>
-              </el-input>
+                <el-option label="大一在读" value="freshman" />
+                <el-option label="大二在读" value="sophomore" />
+                <el-option label="大三在读" value="junior" />
+                <el-option label="大四在读" value="senior" />
+                <el-option label="研究生在读" value="graduate" />
+                <el-option label="应届毕业生" value="new_graduate" />
+              </el-select>
             </el-form-item>
 
             <el-form-item label="目标职位" required>
-              <el-input v-model="roadmapForm.targetPosition" placeholder="例如：技术总监" clearable>
+              <el-input
+                v-model="roadmapForm.targetPosition"
+                placeholder="例如：AI工程师、产品经理"
+                clearable
+              >
                 <template #prefix>
                   <el-icon><Aim /></el-icon>
                 </template>
@@ -49,30 +55,13 @@
             <el-divider content-position="center">基本信息</el-divider>
 
             <el-row :gutter="12">
-              <el-col :span="12">
-                <el-form-item label="工作经验" required>
-                  <el-select
-                    v-model="roadmapForm.yearsOfExperience"
-                    placeholder="请选择"
-                    style="width: 100%"
-                  >
-                    <el-option :label="'应届毕业/无经验'" :value="0" />
-                    <el-option :label="'1年以下'" :value="1" />
-                    <el-option :label="'1-3年'" :value="2" />
-                    <el-option :label="'3-5年'" :value="4" />
-                    <el-option :label="'5-10年'" :value="7" />
-                    <el-option :label="'10年以上'" :value="12" />
-                  </el-select>
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="学历背景" required>
+              <el-col :span="24">
+                <el-form-item label="学历层次" required>
                   <el-select
                     v-model="roadmapForm.education"
                     placeholder="请选择"
                     style="width: 100%"
                   >
-                    <el-option label="高中/中专" value="high_school" />
                     <el-option label="大专" value="college" />
                     <el-option label="本科" value="bachelor" />
                     <el-option label="硕士" value="master" />
@@ -82,29 +71,27 @@
               </el-col>
             </el-row>
 
-            <el-form-item label="技能特长 (最多选择5项)" required>
+            <el-form-item label="已获得的证书/技能 (最多选择5项)">
               <el-select
                 v-model="roadmapForm.skills"
                 multiple
                 filterable
                 allow-create
                 default-first-option
-                placeholder="请选择或输入您的技能"
+                placeholder="请选择或输入你已掌握的技能"
                 style="width: 100%"
                 :max-collapse-tags="3"
                 :max="5"
               >
+                <el-option-group label="职业证书">
+                  <el-option label="英语四/六级" value="cet4_6" />
+                  <el-option label="计算机等级证书" value="computer_cert" />
+                  <el-option label="普通话证书" value="mandarin_cert" />
+                  <el-option label="教师资格证" value="teacher_cert" />
+                </el-option-group>
                 <el-option-group label="技术技能">
                   <el-option
                     v-for="skill in techSkills"
-                    :key="skill.id"
-                    :label="skill.name"
-                    :value="skill.name"
-                  />
-                </el-option-group>
-                <el-option-group label="管理技能">
-                  <el-option
-                    v-for="skill in managementSkills"
                     :key="skill.id"
                     :label="skill.name"
                     :value="skill.name"
@@ -124,7 +111,7 @@
             <el-form-item label="行业偏好" required>
               <el-select
                 v-model="roadmapForm.preferredIndustry"
-                placeholder="请选择您感兴趣的行业"
+                placeholder="请选择你感兴趣的行业"
                 style="width: 100%"
               >
                 <el-option
@@ -138,9 +125,9 @@
 
             <el-form-item label="期望达成时间">
               <el-radio-group v-model="expectedYears" class="time-radio-group">
-                <el-radio :label="2">短期 (1-2年)</el-radio>
-                <el-radio :label="5">中期 (3-5年)</el-radio>
-                <el-radio :label="10">长期 (5年以上)</el-radio>
+                <el-radio :label="1">入职即达成</el-radio>
+                <el-radio :label="3">3年内</el-radio>
+                <el-radio :label="5">5年内</el-radio>
               </el-radio-group>
             </el-form-item>
           </el-form>
@@ -150,7 +137,12 @@
               <el-icon><RefreshLeft /></el-icon>
               重置
             </el-button>
-            <el-button type="primary" @click="generateRoadmap" :loading="generating">
+            <el-button
+              type="primary"
+              @click="generateRoadmap"
+              :loading="generating"
+              class="generate-btn"
+            >
               <el-icon><Connection /></el-icon>
               生成路线图
             </el-button>
@@ -172,21 +164,21 @@
 
             <div class="plan-overview">
               <div class="plan-stat">
-                <div class="stat-value">{{ roadmapResult.currentLevel }}</div>
+                <div class="stat-value">{{ roadmapForm.currentPosition || '学生' }}</div>
                 <div class="stat-label">当前阶段</div>
               </div>
               <div class="plan-arrow">
                 <el-icon><ArrowRight /></el-icon>
               </div>
               <div class="plan-stat">
-                <div class="stat-value">{{ roadmapResult.targetPosition }}</div>
+                <div class="stat-value">{{ roadmapForm.targetPosition }}</div>
                 <div class="stat-label">目标职位</div>
               </div>
               <div class="plan-arrow">
                 <el-icon><Timer /></el-icon>
               </div>
               <div class="plan-stat">
-                <div class="stat-value">{{ roadmapResult.timelineYears }}年</div>
+                <div class="stat-value">{{ expectedYears }}年</div>
                 <div class="stat-label">预计时间</div>
               </div>
             </div>
@@ -326,7 +318,6 @@ import {
   Connection,
   Aim,
   QuestionFilled,
-  User,
   RefreshLeft,
   Back,
   ArrowRight,
@@ -348,22 +339,53 @@ const allSkills = ref<CareerSkill[]>([])
 const generating = ref(false)
 const roadmapResult = ref<CareerRoadmapResult | null>(null)
 
+// 模拟数据，仅在开发环境中使用
+const mockRoadmapResult: CareerRoadmapResult = {
+  targetPosition: '技术总监',
+  currentLevel: '高级开发工程师',
+  timelineYears: 5,
+  milestones: [
+    {
+      stage: 1,
+      title: '架构师',
+      duration: '2年',
+      tasks: [
+        '深入参与系统架构设计与优化',
+        '领导或参与重要项目的技术选型和方案制定',
+        '指导初级到中级开发者'
+      ],
+      skillsToAcquire: ['云原生架构设计', '大规模分布式系统管理']
+    },
+    {
+      stage: 2,
+      title: '高级架构师/技术经理',
+      duration: '3年',
+      tasks: ['负责多个项目的整体技术规划', '团队管理和人才培养', '跨部门沟通协作，推动技术创新'],
+      skillsToAcquire: ['敏捷开发流程管理', '产品思维', '领导力与团队建设']
+    }
+  ],
+  recommendations: [
+    '积极寻找机会参与到更广泛的项目中去，尤其是那些能够锻炼你架构设计能力的项目。',
+    '加强与行业内其他专业人士的交流，比如参加相关的技术论坛、会议等，以拓宽视野并建立人脉。',
+    '考虑获取相关认证（如AWS Certified Solutions Architect, CNCF Kubernetes Administrator）来证明你的专业水平。',
+    '主动承担更多责任，比如带领小团队完成特定任务，以此积累管理经验。',
+    '持续关注最新的技术趋势和发展方向，特别是云计算、容器化等领域的新进展。'
+  ]
+}
+
 // 表单数据
 const roadmapForm = reactive<CareerRoadmapForm>({
   currentPosition: '',
   targetPosition: '',
-  yearsOfExperience: 2,
+  yearsOfExperience: expectedYears.value,
   skills: [],
   interests: [],
-  education: '',
+  education: 'bachelor',
   preferredIndustry: ''
 })
 
 // 技能分类
 const techSkills = computed(() => allSkills.value.filter(skill => skill.category === 'tech'))
-const managementSkills = computed(() =>
-  allSkills.value.filter(skill => skill.category === 'management')
-)
 const softSkills = computed(() => allSkills.value.filter(skill => skill.category === 'soft'))
 
 // 行业选项
@@ -416,28 +438,44 @@ onMounted(async () => {
 const generateRoadmap = async () => {
   // 表单验证
   if (!roadmapForm.currentPosition) {
-    ElMessage.warning('请填写当前职位')
+    ElMessage.warning('请填写当前状态')
     return
   }
   if (!roadmapForm.targetPosition) {
     ElMessage.warning('请填写目标职位')
     return
   }
-  if (roadmapForm.skills.length === 0) {
-    ElMessage.warning('请至少选择一项技能')
+  if (!roadmapForm.education) {
+    ElMessage.warning('请选择学历层次')
     return
   }
 
+  // 更新年限
+  roadmapForm.yearsOfExperience = expectedYears.value
+
   generating.value = true
+
   try {
-    // 调用接口生成路线图
+    // 调用API获取路线图数据
     const response = await getProfessionRoadmap(roadmapForm)
     roadmapResult.value = response.data
-    ElMessage.success('路线图生成成功')
-  } catch (error) {
-    ElMessage.error('生成路线图失败，请重试')
-  } finally {
+
+    // 展示成功消息
+    ElMessage.success('职业发展路线图生成成功')
     generating.value = false
+  } catch (error) {
+    console.error('生成路线图失败:', error)
+    ElMessage.error('生成路线图失败，请重试')
+    generating.value = false
+
+    // 开发环境下使用模拟数据
+    if (import.meta.env.DEV) {
+      setTimeout(() => {
+        roadmapResult.value = mockRoadmapResult
+        generating.value = false
+        ElMessage.info('使用模拟数据展示')
+      }, 1000)
+    }
   }
 }
 
@@ -445,13 +483,12 @@ const generateRoadmap = async () => {
 const resetForm = () => {
   roadmapForm.currentPosition = ''
   roadmapForm.targetPosition = ''
-  roadmapForm.yearsOfExperience = 2
+  roadmapForm.yearsOfExperience = 3
   roadmapForm.skills = []
   roadmapForm.interests = []
-  roadmapForm.education = ''
+  roadmapForm.education = 'bachelor'
   roadmapForm.preferredIndustry = ''
-  expectedYears.value = 5
-  // activeTab.value = 'position' // 不再需要
+  expectedYears.value = 3
 }
 
 // 重新开始规划
