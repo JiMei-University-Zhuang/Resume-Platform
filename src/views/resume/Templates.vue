@@ -124,16 +124,42 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, defineExpose } from 'vue'
+import { ref, computed, defineExpose, onMounted ,nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import type { FilterType, Template } from '@/types/templates'
 import { getTagType } from '@/types/templates'
 import { User, Star, InfoFilled } from '@element-plus/icons-vue'
+import { driver } from "driver.js"
+import "driver.js/dist/driver.css"
 
 const router = useRouter()
 const filter = ref<FilterType>('all')
 const previewDialogVisible = ref(false)
 const selectedTemplate = ref<Template | null>(null)
+
+const driverObj = driver({
+  showProgress: true,
+  steps: [
+    { element: '.filters', popover: { title: '模板筛选', description: '根据您的需求选择合适的模板类型，包括应届生、技术类、商务类等不同风格', side: "bottom", align: 'start' }},
+    { element: '.template-card', popover: { title: '模板预览', description: '点击预览按钮可以查看模板的详细信息和使用场景', side: "left", align: 'start' }},
+    { element: '.template-actions', popover: { title: '使用模板', description: '找到心仪的模板后，点击使用模板按钮开始创建您的简历', side: "bottom", align: 'start' }},
+    { element: '.template-tags', popover: { title: '模板标签', description: '通过标签快速了解模板的适用场景和风格', side: "left", align: 'start' }},
+    { popover: { title: '开始使用', description: '现在，让我们开始选择一个适合您的简历模板吧！' }}
+  ]
+});
+
+// 在组件挂载后启动导览
+onMounted(() => {
+  const hasSeenTemplatesGuide = localStorage.getItem('hasSeenTemplatesGuide');
+  if (!hasSeenTemplatesGuide) {
+    nextTick(() => {
+      setTimeout(() => {
+        driverObj.drive();
+        localStorage.setItem('hasSeenTemplatesGuide', 'true');
+      }, 500);
+    });
+  }
+});
 
 const handleFilterChange = (value: FilterType) => {
   filter.value = value

@@ -343,13 +343,7 @@ import { ElMessage } from 'element-plus'
 import type { CareerAnalysisForm, CareerAnalysisResult, CareerSkill } from '@/types/career'
 import { getCareerSkills } from '@/api/career'
 import { getProfessionAnalysis } from '@/api/ai'
-import {
-  Aim,
-  InfoFilled,
-  CircleCheckFilled,
-  ArrowLeft,
-  ArrowRight,
-  Star,
+import {  Star,
   Check,
   Warning,
   View,
@@ -399,54 +393,11 @@ const interestOptions = [
 // 加载技能列表
 onMounted(async () => {
   try {
-    allSkills.value = await getCareerSkills()
-  } catch (error) {
-    ElMessage.error('获取技能列表失败')
-  }
-})
-
-// 步骤控制
-const nextStep = () => {
-  // 进行简单验证
-  if (currentStep.value === 1) {
-    if (!analysisForm.education || !analysisForm.major) {
-      ElMessage.warning('请填写完整的教育背景信息')
-      return
-    }
-  }
-  currentStep.value++
-}
-
-// 提交分析
-const submitAnalysis = async () => {
-  if (!analysisForm.education || !analysisForm.major || analysisForm.skills.length === 0) {
-    ElMessage.warning('请填写必要的信息（教育背景、专业方向和技能特长）')
-    return
-  }
-
-  analyzing.value = true
-  try {
-    // 实际项目中，这里请求后端API
-    const response = await getProfessionAnalysis(analysisForm)
-    analysisResult.value = response.data
-    ElMessage.success('分析完成')
+    allSkillssse背专业方v 
+yisus('分析完成')
   } catch (error) {
     ElMessage.error('分析失败，请重试')
-    console.error(error)
-  } finally {
-    analyzing.value = false
-  }
-}
-
-// 获取分数颜色
-const getScoreColor = (score: number) => {
-  if (score >= 90) return '#67C23A'
-  if (score >= 70) return '#409EFF'
-  return '#F56C6C'
-}
-
-// 获取相关职业匹配度
-const getRelatedCareerMatch = (index: number) => {
+    console.error(eronF#'eMatch = (index: number) => {
   if (!analysisResult.value) return 0
   const baseScore = analysisResult.value.suitabilityScore
   return Math.max(50, baseScore - (index + 1) * 5)
