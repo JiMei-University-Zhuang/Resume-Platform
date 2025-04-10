@@ -37,45 +37,6 @@
           </router-link>
 
           <div class="category-section">
-            <h3 class="section-title">AI工具</h3>
-          </div>
-
-          <router-link
-            to="/chat"
-            class="category-item"
-            :class="{ active: route.path === '/chat' }"
-            @click="navigateTo('/chat')"
-          >
-            <div class="category-icon">
-              <el-icon><ChatDotRound /></el-icon>
-            </div>
-            <span class="category-label">AI助手</span>
-          </router-link>
-
-          <!-- 暂时废弃 -->
-          <!-- <router-link
-            to="/personality"
-            class="category-item"
-            :class="{ active: route.path === '/personality' }"
-          >
-            <div class="category-icon">
-              <el-icon><UserFilled /></el-icon>
-            </div>
-            <span class="category-label">AI性格测试</span>
-          </router-link> -->
-
-          <router-link
-            to="/id-photo"
-            class="category-item"
-            :class="{ active: route.path === '/id-photo' }"
-          >
-            <div class="category-icon">
-              <el-icon><Camera /></el-icon>
-            </div>
-            <span class="category-label">AI证件照</span>
-          </router-link>
-
-          <div class="category-section">
             <h3 class="section-title">简历模块</h3>
           </div>
 
@@ -115,18 +76,61 @@
             <span class="category-label">简历分析</span>
           </router-link>
 
-          <!-- 暂时废弃 -->
-          <!-- <router-link
-            to="/resume/insights"
+          <div class="category-section">
+            <h3 class="section-title">考试中心</h3>
+          </div>
+
+          <!-- 公务员考试 -->
+          <router-link
+            to="/exam/civil-service"
             class="category-item"
-            :class="{ active: route.path === '/resume/insights' }"
-            @click="navigateTo('/resume/insights')"
+            :class="{ active: route.path === '/exam/civil-service' }"
+            @click="navigateTo('/exam/civil-service')"
           >
             <div class="category-icon">
-              <el-icon><TrendCharts /></el-icon>
+              <el-icon><Reading /></el-icon>
             </div>
-            <span class="category-label">行业洞察</span>
-          </router-link> -->
+            <span class="category-label">公务员考试</span>
+          </router-link>
+
+          <router-link
+            to="/exam/postgraduate"
+            class="category-item"
+            :class="{ active: route.path === '/exam/postgraduate' }"
+            @click="navigateTo('/exam/postgraduate')"
+          >
+            <div class="category-icon">
+              <el-icon><Collection /></el-icon>
+            </div>
+            <span class="category-label">考研备考</span>
+          </router-link>
+
+          <div class="category-section">
+            <h3 class="section-title">AI工具</h3>
+          </div>
+
+          <router-link
+            to="/chat"
+            class="category-item"
+            :class="{ active: route.path === '/chat' }"
+            @click="navigateTo('/chat')"
+          >
+            <div class="category-icon">
+              <el-icon><ChatDotRound /></el-icon>
+            </div>
+            <span class="category-label">AI助手</span>
+          </router-link>
+
+          <router-link
+            to="/id-photo"
+            class="category-item"
+            :class="{ active: route.path === '/id-photo' }"
+          >
+            <div class="category-icon">
+              <el-icon><Camera /></el-icon>
+            </div>
+            <span class="category-label">AI证件照</span>
+          </router-link>
 
           <div class="category-section">
             <h3 class="section-title">职业规划</h3>
@@ -166,34 +170,6 @@
               <el-icon><StarFilled /></el-icon>
             </div>
             <span class="category-label">职业推荐</span>
-          </router-link>
-
-          <div class="category-section">
-            <h3 class="section-title">考试中心</h3>
-          </div>
-
-          <router-link
-            to="/exam/civil-service"
-            class="category-item"
-            :class="{ active: route.path === '/exam/civil-service' }"
-            @click="navigateTo('/exam/civil-service')"
-          >
-            <div class="category-icon">
-              <el-icon><Reading /></el-icon>
-            </div>
-            <span class="category-label">公务员考试</span>
-          </router-link>
-
-          <router-link
-            to="/exam/postgraduate"
-            class="category-item"
-            :class="{ active: route.path === '/exam/postgraduate' }"
-            @click="navigateTo('/exam/postgraduate')"
-          >
-            <div class="category-icon">
-              <el-icon><Collection /></el-icon>
-            </div>
-            <span class="category-label">考研备考</span>
           </router-link>
         </div>
       </div>
