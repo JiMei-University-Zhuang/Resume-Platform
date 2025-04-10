@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="200px" height="200px" viewBox="0 0 200 200" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>职业匹配</title>
+    <defs>
+        <linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="linearGradient-1">
+            <stop stop-color="#F6FFED" offset="0%"></stop>
+            <stop stop-color="#E6F7FF" offset="100%"></stop>
+        </linearGradient>
+        <linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="linearGradient-2">
+            <stop stop-color="#52C41A" offset="0%"></stop>
+            <stop stop-color="#49A61C" offset="100%"></stop>
+        </linearGradient>
+        <linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="linearGradient-3">
+            <stop stop-color="#1890FF" offset="0%"></stop>
+            <stop stop-color="#096DD9" offset="100%"></stop>
+        </linearGradient>
+    </defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="career-match">
+            <!-- 背景圆 -->
+            <circle id="Background" fill="url(#linearGradient-1)" cx="100" cy="100" r="100"></circle>
+            
+            <!-- 中心匹配图标 -->
+            <g id="match-icon" transform="translate(50.000000, 50.000000)">
+                <!-- 左侧人形 -->
+                <g id="person-left" transform="translate(0.000000, 30.000000)">
+                    <circle id="head" fill="#1890FF" cx="15" cy="15" r="15"></circle>
+                    <path d="M15,40 L15,60 C15,60 5,65 5,75 L25,75 C25,65 15,60 15,60 L15,40 Z" id="body" fill="#1890FF"></path>
+                </g>
+                
+                <!-- 右侧工作图标 -->
+                <g id="job-right" transform="translate(70.000000, 30.000000)">
+                    <rect id="briefcase" fill="url(#linearGradient-2)" x="0" y="15" width="30" height="25" rx="4"></rect>
+                    <path d="M10,15 L10,5 C10,2.23857625 12.2385763,0 15,0 C17.7614237,0 20,2.23857625 20,5 L20,15 L10,15 Z" id="handle" fill="url(#linearGradient-2)"></path>
+                </g>
+                
+                <!-- 匹配箭头和指示 -->
+                <g id="match-arrows" transform="translate(35.000000, 40.000000)">
+                    <path d="M0,10 L30,10" id="line" stroke="#52C41A" stroke-width="4" stroke-linecap="round"></path>
+                    <path d="M15,0 L30,10 L15,20" id="right-arrow" stroke="#52C41A" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path>
+                    <path d="M15,0 L0,10 L15,20" id="left-arrow" stroke="#52C41A" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path>
+                </g>
+                
+                <!-- 匹配百分比圆环 -->
+                <g id="percentage" transform="translate(35.000000, 0.000000)">
+                    <circle id="bg-circle" stroke="#F0F0F0" stroke-width="6" cx="15" cy="15" r="15"></circle>
+                    <circle id="progress" stroke="url(#linearGradient-3)" stroke-width="6" stroke-linecap="round" cx="15" cy="15" r="15" stroke-dasharray="75 94.2"></circle>
+                    <text id="85%" font-family="PingFangSC-Semibold, PingFang SC" font-size="14" font-weight="500" fill="#1890FF">
+                        <tspan x="6" y="20">85%</tspan>
+                    </text>
+                </g>
+            </g>
+            
+            <!-- 匹配度指示条 -->
+            <g id="match-meter" transform="translate(60.000000, 140.000000)">
+                <rect id="meter-bg" fill="#F5F5F5" x="0" y="0" width="80" height="10" rx="5"></rect>
+                <rect id="meter-progress" fill="url(#linearGradient-3)" x="0" y="0" width="68" height="10" rx="5"></rect>
+            </g>
+            
+            <!-- 文字标签 -->
+            <text id="职业匹配度" font-family="PingFangSC-Medium, PingFang SC" font-size="16" font-weight="400" fill="#303133">
+                <tspan x="65" y="170">职业匹配度</tspan>
+            </text>
+        </g>
+    </g>
+</svg> 

@@ -28,23 +28,23 @@ export const useUserStore = defineStore('user', {
     } as UserInfo,
     isLoggedIn: false
   }),
-  
+
   getters: {
-    getUserInfo: (state) => state.userInfo,
-    getUsername: (state) => state.userInfo.username || 'guest'
+    getUserInfo: state => state.userInfo,
+    getUsername: state => state.userInfo.username || 'guest'
   },
-  
+
   actions: {
     setUserInfo(user: UserInfo) {
       this.userInfo = user
       this.isLoggedIn = true
-      
+
       // 更新localStorage中的token
       if (user.token) {
         localStorage.setItem('token', user.token)
       }
     },
-    
+
     clearUserInfo() {
       this.userInfo = {
         id: '',
@@ -58,9 +58,9 @@ export const useUserStore = defineStore('user', {
         token: ''
       }
       this.isLoggedIn = false
-      
+
       // 清除localStorage中的token
       localStorage.removeItem('token')
     }
   }
-}) 
+})
