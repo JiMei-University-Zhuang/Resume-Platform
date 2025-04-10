@@ -141,7 +141,7 @@
               </div>
             </div>
           </div>
-          <el-button type="primary" @click="submitRealExam" >提交答案</el-button>
+          <el-button type="primary" @click="submitRealExam">提交答案</el-button>
         </div>
       </template>
     </div>
@@ -154,8 +154,8 @@
 <script setup lang="ts">
 import { ref, onMounted, computed, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
-import { getCSPractice, getCSExam, saveScore ,ScoresaveData} from '@/api/exam'
-import {getUser} from '@/api/user'
+import { getCSPractice, getCSExam, saveScore, ScoresaveData } from '@/api/exam'
+import { getUser } from '@/api/user'
 import { ElMessageBox } from 'element-plus'
 import passimg1 from '@/assets/images/exam_imgs/pass1.jpg'
 import passimg2 from '@/assets/images/exam_imgs/pass2.png'
@@ -197,7 +197,7 @@ const essayAnalysisResults = ref<string[]>([])
 const showEssayAnswers = ref<boolean>(false)
 const showAnalysis = ref<boolean[]>([])
 const aiAnalysisStatus = ref<number[]>([])
-let userId: number | null = null 
+let userId: number | null = null
 
 const fetchQuestions = async () => {
   try {
@@ -249,8 +249,8 @@ const handleSubmit = async () => {
     console.log('用户取消提交')
   }
 }
-const submitExam =async () => {
-    if (!userId) {
+const submitExam = async () => {
+  if (!userId) {
     console.error('用户 ID 未获取到，无法保存成绩')
     return
   }
@@ -266,11 +266,11 @@ const submitExam =async () => {
     (sum, q, i) => (answers.value[i] === q.correctAnswer ? sum + q.score : sum),
     0
   )
-    // 调用保存成绩接口
+  // 调用保存成绩接口
   const scoreData: ScoresaveData = {
     userId,
     score: totalScore.value,
-    type: route.query.type === 'exam'? '考试' : '练习'
+    type: route.query.type === 'exam' ? '考试' : '练习'
   }
 
   try {
@@ -383,7 +383,7 @@ const analyzeQuestion = (index: number) => {
   analyzeQuestionSSE(questionId, index)
 }
 
-onMounted(async() => {
+onMounted(async () => {
   try {
     const response = await getUser()
     userId = response.data.id
@@ -407,8 +407,6 @@ onMounted(async() => {
 onUnmounted(() => {
   examStore.setExamStatus(false)
 })
-
-
 </script>
 
 <style scoped>

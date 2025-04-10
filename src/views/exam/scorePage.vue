@@ -12,9 +12,9 @@
     </div>
     <el-card class="score-card">
       <el-table :data="currentPageFilteredScoreList" border stripe class="score-table">
-        <el-table-column prop="createTime" label="考试时间" ></el-table-column>
-        <el-table-column prop="type" label="类型" ></el-table-column>
-        <el-table-column prop="score" label="考试分数" ></el-table-column>
+        <el-table-column prop="createTime" label="考试时间"></el-table-column>
+        <el-table-column prop="type" label="类型"></el-table-column>
+        <el-table-column prop="score" label="考试分数"></el-table-column>
         <el-table-column prop="record" label="记录次数"></el-table-column>
       </el-table>
     </el-card>
@@ -164,13 +164,10 @@ main()
 .score-table thead {
   background-color: #f4f4f4;
   color: #303133;
-  
 }
 
 .score-table tbody {
   background-color: #fff;
- 
-  
 }
 
 .filter-container {
