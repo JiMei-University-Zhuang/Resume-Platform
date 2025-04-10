@@ -14,7 +14,8 @@ export interface GSPractice {
 export interface CSExam {
   examName: string
 }
-// 新增统一的响应类型
+
+// 统一的响应类型
 export interface ExamData {
   questions: {
     id: number
@@ -30,9 +31,15 @@ export interface ScoresaveData {
   score: number
   type: '练习' | '考试'
 }
+
 export interface ScoregetData {
   userId: number
   type: '练习' | '考试'
+  examName?: string
+  subject?: string
+  totalScore?: number
+  accuracy?: number
+  timestamp?: number
 }
 
 export interface Question {
@@ -86,6 +93,7 @@ export function getGSPractice(data: GSPractice) {
     data
   })
 }
+
 //保存成绩的接口
 export function saveScore(data: ScoresaveData) {
   return request({
@@ -103,6 +111,7 @@ export function getScore(data: ScoregetData) {
     data
   })
 }
+
 //获取错题接口
 export function getWrongQuestion(data: Question) {
   return request({
@@ -111,6 +120,7 @@ export function getWrongQuestion(data: Question) {
     data
   })
 }
+
 //保存错题的接口
 export function saveWrongQuestion(data: SaveWrongQuestionData) {
   return request({
@@ -119,6 +129,7 @@ export function saveWrongQuestion(data: SaveWrongQuestionData) {
     data
   })
 }
+
 // 获取错题记录数的接口
 export function getWrongQuestionRecordCount(data: GetRecordData) {
   return request({
@@ -131,15 +142,19 @@ export function getWrongQuestionRecordCount(data: GetRecordData) {
 /**
  * 根据卷子名称获取思想政治卷子详情
  * @param examName 卷子名称
+ * @param token 可选的token参数
  * @returns
  */
-export function getPoliticsPaperByName(examName: string) {
+export function getPoliticsPaperByName(examName: string, token?: string) {
+  const data: any = { examName }
+  if (token) {
+    data.token = token
+  }
+
   return request({
     url: '/exam/getPoliticalExam',
     method: 'post',
-    data: {
-      examName
-    }
+    data
   })
 }
 

@@ -72,25 +72,38 @@
                   {{ answers[index] }}
                 </div>
               </div>
-              
             </div>
             <div v-if="showAnalysis[index]" class="essay-answer-container">
-                <div>
-                  分析结果：
-                  <pre id="response-{{ index }}" class="analysis-result">{{
-                    essayAnalysisResults[index]
-                  }}</pre>
-                </div>
+              <div>
+                分析结果：
+                <pre id="response-{{ index }}" class="analysis-result">{{
+                  essayAnalysisResults[index]
+                }}</pre>
               </div>
-              <div
-                v-if="showCorrectAnswers && !showAnalysis[index]"
-                class="ai-parse-button-container"
-              >
-                <el-button type="primary" @click="analyzeQuestion(index)" class="ai-parse-button">
-                  AI 解析
-                </el-button>
+            </div>
+            <div
+              v-if="showCorrectAnswers && !showAnalysis[index]"
+              class="ai-parse-button-container"
+              @mouseenter="handleMouseEnter(index)"
+              @mouseleave="handleMouseLeave(index)"
+            >
+              <el-button type="primary" @click="analyzeQuestion(index)" class="ai-parse-button">
+                AI 解析
+              </el-button>
+              <div class="ai-parse-tooltip" v-show="isHovering[index]">
+                点击此按钮，获取本题的详细分析。
               </div>
+              <div v-if="aiAnalysisStatus[index] === 500" class="ai-analysis-status-tooltip">
+                提示：当前 AI 解析状态为 500，可能存在一些问题，请稍后再试。
+              </div>
+            </div>
           </div>
+          <div
+            v-if="showCorrectAnswers"
+            class="ai-parse-all-button-container"
+            @mouseenter="handleAllMouseEnter"
+            @mouseleave="handleAllMouseLeave"
+          ></div>
           <el-button type="primary" @click="handleSubmit">提交试卷</el-button>
         </div>
       </template>
@@ -193,6 +206,10 @@ const isExamInProgress = ref<boolean>(false)
 const essayAnalysisResults = ref<string[]>([])
 const showEssayAnswers = ref<boolean>(false)
 const showAnalysis = ref<boolean[]>([])
+const isHovering = ref<boolean[]>([])
+const isAllHovering = ref(false)
+const aiAnalysisStatus = ref<number[]>([])
+
 const fetchQuestions = async () => {
   try {
     const isRealExam = route.query.type === 'exam'
@@ -331,22 +348,19 @@ const answerStatus = computed(() => {
   })
 })
 const analyzeQuestionSSE = (questionId: string, index: number): void => {
-  const eventSource = new EventSource(
-    `http://8.130.75.193:8081/ai/analysis?questionId=${questionId}`
-  )
+  const apiBaseUrl = import.meta.env.DEV ? 'http://8.130.75.193:8081' : 'https://view.yinhenx.cn'
+  const requestUrl = `${apiBaseUrl}/ai/analysis?questionId=${questionId}`
 
-  eventSource.onopen = function () {
-    console.log('SSE 连接已打开')
-  }
+  const eventSource = new EventSource(requestUrl)
+
+  eventSource.onopen = function () {}
 
   eventSource.onmessage = function (event) {
-    console.log('接收到服务器消息:', event.data)
-    // 逐步更新分析结果
     essayAnalysisResults.value[index] += event.data
   }
 
-  eventSource.onerror = function (err) {
-    console.error('SSE 连接错误:', err)
+  eventSource.onerror = function (_err) {
+    aiAnalysisStatus.value[index] = 500
     eventSource.close()
   }
 }
@@ -357,10 +371,9 @@ const submitRealExam = async () => {
 
 const analyzeQuestion = (index: number) => {
   const questionId = questions.value[index].questionId
-  console.log('准备分析题目，questionId:', questionId)
-  // 初始化分析结果
   essayAnalysisResults.value[index] = ''
   showAnalysis.value[index] = true
+  aiAnalysisStatus.value[index] = 0
   analyzeQuestionSSE(questionId, index)
 }
 
@@ -377,10 +390,31 @@ onMounted(() => {
     }, 1000)
   }
   examStore.setExamStatus(true)
+  questions.value.forEach(() => {
+    isHovering.value.push(false)
+    aiAnalysisStatus.value.push(0)
+  })
 })
 onUnmounted(() => {
   examStore.setExamStatus(false)
 })
+
+// 添加鼠标悬停事件
+const handleMouseEnter = (index: number) => {
+  isHovering.value[index] = true
+}
+
+const handleMouseLeave = (index: number) => {
+  isHovering.value[index] = false
+}
+
+const handleAllMouseEnter = () => {
+  isAllHovering.value = true
+}
+
+const handleAllMouseLeave = () => {
+  isAllHovering.value = false
+}
 </script>
 
 <style scoped>
@@ -671,10 +705,12 @@ onUnmounted(() => {
 .ai-parse-button-container {
   display: block;
   margin-top: 10px;
+  position: relative;
 }
 .ai-parse-button-container.el-button.ai-parse-button {
   display: block;
   width: auto;
+  float: left;
   margin: 0 auto;
   padding: 10px 20px;
   border-radius: 5px;

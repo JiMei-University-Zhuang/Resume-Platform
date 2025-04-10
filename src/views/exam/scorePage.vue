@@ -1,6 +1,6 @@
 <template></template>
 <script>
-import { getUser } from '@/api/user' // 根据你的实际路径导入
+import { getUser } from '@/api/user'
 
 // 调用获取用户信息函数
 getUser()

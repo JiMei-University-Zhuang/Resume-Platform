@@ -17,6 +17,7 @@ export interface EventSourceOptions {
   onDone: () => void
   onError: (error: Event) => void
   timeout?: number
+  model?: string
 }
 
 export const sendChatMessage = async (message: string, system_message?: string) => {
@@ -74,26 +75,6 @@ export const sendChatMessage = async (message: string, system_message?: string) 
   }
 
   return { content }
-}
-
-// 添加简单的回退消息生成函数
-const generateFallbackResponse = (message: string): string => {
-  // 简单的关键词匹配
-  if (message.includes('你好') || message.includes('hi') || message.includes('hello')) {
-    return '你好！我是AI助手。很抱歉，服务器目前不可用，我只能提供有限的回应。请稍后再试。'
-  }
-
-  if (message.includes('时间') || message.includes('日期')) {
-    const now = new Date()
-    return `现在的时间是：${now.toLocaleString()}。（注意：服务器连接失败，这是本地生成的响应）`
-  }
-
-  if (message.includes('天气')) {
-    return '很抱歉，由于服务器连接问题，我无法获取实时天气信息。请稍后再试。'
-  }
-
-  // 提示用户服务器连接失败
-  return '抱歉，AI服务器连接失败。这是一个本地生成的回复。请稍后再试，或者联系系统管理员检查服务器状态。'
 }
 
 // 模拟流式返回文本
@@ -312,30 +293,52 @@ export const connectAIChatSSE = (message: string, options: EventSourceOptions) =
 
 // 使用fetch API的流式响应方案，可以正确携带认证头
 export const connectAIChatFetch = (message: string, options: EventSourceOptions) => {
+  console.log('=== connectAIChatFetch started ===')
   // 使用any类型来解决类型定义问题
   const abortController = new (window as any).AbortController()
   let isCancelled = false
 
-  // 添加token到请求参数中，作为第二种方式
-  const token = localStorage.getItem('token')
+  // 优先从localStorage获取token，更全面的token获取方式
+  const getToken = () => {
+    // 尝试从localStorage获取
+    const tokenFromStorage = localStorage.getItem('token')
+    if (tokenFromStorage) return tokenFromStorage
+
+    return ''
+  }
+
+  // 获取token
+  const token = getToken()
+  console.log('Token retrieved:', token ? 'Present' : 'Not found')
+
+  // API URL 需要添加 message 和 token 参数
   let apiUrl = `/api/ai/chat?message=${encodeURIComponent(message)}`
 
-  // 如果API路径带有token参数
+  // 添加模型参数，如果指定了模型
+  if (options.model) {
+    apiUrl += `&model=${encodeURIComponent(options.model)}`
+  }
+
   if (token) {
     apiUrl += `&token=${encodeURIComponent(token)}`
   }
 
-  // 异步函数立即执行
-  ;(async () => {
+  console.log('API URL:', apiUrl)
+
+  const fetchData = async () => {
+    console.log('Starting fetchData function')
     try {
       const headers: Record<string, string> = {
-        'Content-Type': 'application/json',
         Accept: 'text/event-stream'
       }
 
       if (token) {
         headers['Authorization'] = `Bearer ${token}`
+        headers['token'] = token
       }
+
+      console.log('Request headers:', headers)
+      console.log('Sending fetch request...')
 
       const response = await fetch(apiUrl, {
         method: 'GET',
@@ -343,7 +346,12 @@ export const connectAIChatFetch = (message: string, options: EventSourceOptions)
         signal: abortController.signal
       })
 
-      if (!response.ok) {
+      console.log('Fetch response received, status:', response.status)
+
+      // 检查错误状态
+      if (response.status === 500) {
+        throw new Error('服务器内部错误，请联系管理员或稍后再试')
+      } else if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
       }
 
@@ -352,47 +360,64 @@ export const connectAIChatFetch = (message: string, options: EventSourceOptions)
         throw new Error('No reader available')
       }
 
+      console.log('Reader obtained from response')
       const decoder = new TextDecoder()
 
       try {
+        console.log('Starting to read stream')
         while (!isCancelled) {
+          console.log('Reading chunk from stream...')
           const { done, value } = await reader.read()
 
           if (done) {
+            console.log('Stream reading complete')
             options.onDone()
             break
           }
 
+          console.log('Chunk received, size:', value ? value.length : 0)
           const chunk = decoder.decode(value, { stream: true })
+          console.log('Decoded chunk:', chunk)
           const lines = chunk.split('\n')
+          console.log('Lines after splitting:', lines.length)
 
           for (const line of lines) {
-            if (line.startsWith('data: ')) {
-              const data = line.slice(6)
+            if (line.startsWith('data:')) {
+              const data = line.slice(5).trim() // Remove 'data:' prefix and trim whitespace
+              console.log('Data extracted from line:', data)
               if (data === '[DONE]') {
+                console.log('Received [DONE] marker')
                 options.onDone()
                 return
               }
 
-              // 非DONE信号则传递给onMessage
+              // Send the raw text directly to the message handler
+              // Do NOT try to parse as JSON since each chunk is a small piece of text
               options.onMessage(data)
             }
           }
         }
       } finally {
+        console.log('Releasing reader')
         reader.releaseLock()
       }
     } catch (error) {
+      console.error('Fetch streaming error details:', error)
       if (!isCancelled) {
-        console.error('Fetch streaming error:', error)
+        console.error('Fetch streaming error, calling onError')
         options.onError(error as Event)
       }
     }
-  })()
+  }
+
+  // 执行异步获取数据函数
+  console.log('Calling fetchData function')
+  fetchData()
 
   // 返回控制对象
   return {
     close: () => {
+      console.log('Closing connection')
       isCancelled = true
       abortController.abort()
     }
@@ -422,7 +447,8 @@ export const getChatHistory = async (username: string, page: string = '1', size:
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          token: localStorage.getItem('token') || ''
         }
       }
     )
