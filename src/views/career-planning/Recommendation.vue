@@ -210,7 +210,7 @@
                   <el-icon><Reading /></el-icon> {{ job.education }}
                 </div>
                 <div class="info-item">
-                  <el-icon><Stopwatch /></el-icon> {{ job.type }}
+                  <el-icon><Stopwatch /></el-icon> {{ job.experience }}
                 </div>
               </div>
 
@@ -313,12 +313,9 @@ import {
   Money,
   TrendCharts,
   MagicStick,
-  DataAnalysis,
   Location,
   Reading,
   Stopwatch,
-  ChatLineRound,
-  Right,
   Calendar,
   Clock
 } from '@element-plus/icons-vue'
@@ -328,7 +325,7 @@ import type {
   CareerRecommendation,
   HotJob
 } from '@/types/career'
-import { getCommonPositions, getJobRecommendations, getHotJobs } from '@/api/career'
+import { getCommonPositions } from '@/api/career'
 import { getProfessionRecommendation } from '@/api/ai'
 
 const loading = ref(false)
@@ -459,27 +456,15 @@ const getMatchColor = (matchScore: number): string => {
 }
 
 // 查看职位详情
-const viewJobDetails = (job: CareerRecommendation) => {
+const viewJobDetails = (job: CareerRecommendation | HotJob) => {
   // 实现查看职位详情的逻辑
   console.log('查看职位详情:', job)
 }
 
 // 申请职位
-const applyForJob = (job: CareerRecommendation) => {
+const applyForJob = (job: CareerRecommendation | HotJob) => {
   // 实现申请职位的逻辑
   console.log('申请职位:', job)
-}
-
-// 获取事件
-const getEvents = (date: string): any[] => {
-  // 实现获取事件的逻辑
-  return []
-}
-
-// 判断是否有事件
-const hasEvent = (date: string): boolean => {
-  // 实现判断是否有事件的逻辑
-  return false
 }
 
 // 获取近期招聘活动列表
@@ -566,6 +551,15 @@ const recruitmentEvents = ref([
     color: '#52c41a'
   }
 ])
+
+// 日历相关函数
+const hasEvent = (day: string): boolean => {
+  return recruitmentEvents.value.some(event => event.date === day)
+}
+
+const getEvents = (day: string) => {
+  return recruitmentEvents.value.filter(event => event.date === day)
+}
 </script>
 
 <style scoped>

@@ -137,18 +137,6 @@
           </div>
 
           <router-link
-            to="/career-planning/analysis"
-            class="category-item"
-            :class="{ active: route.path === '/career-planning/analysis' }"
-            @click="navigateTo('/career-planning/analysis')"
-          >
-            <div class="category-icon">
-              <el-icon><Aim /></el-icon>
-            </div>
-            <span class="category-label">职业分析</span>
-          </router-link>
-
-          <router-link
             to="/career-planning/roadmap"
             class="category-item"
             :class="{ active: route.path === '/career-planning/roadmap' }"
@@ -223,10 +211,10 @@
           <el-icon><Document /></el-icon>
         </router-link>
         <router-link
-          to="/career-planning/analysis"
+          to="/career-planning/roadmap"
           class="category-icon-collapsed"
           :class="{ active: route.path.startsWith('/career-planning') }"
-          @click="navigateTo('/career-planning/analysis')"
+          @click="navigateTo('/career-planning/roadmap')"
         >
           <el-icon><Compass /></el-icon>
         </router-link>
@@ -253,7 +241,6 @@ import {
   Document,
   CopyDocument,
   DataAnalysis,
-  Aim,
   Compass,
   StarFilled,
   Reading,
