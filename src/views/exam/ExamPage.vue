@@ -84,26 +84,15 @@
             <div
               v-if="showCorrectAnswers && !showAnalysis[index]"
               class="ai-parse-button-container"
-              @mouseenter="handleMouseEnter(index)"
-              @mouseleave="handleMouseLeave(index)"
             >
               <el-button type="primary" @click="analyzeQuestion(index)" class="ai-parse-button">
                 AI 解析
               </el-button>
-              <div class="ai-parse-tooltip" v-show="isHovering[index]">
-                点击此按钮，获取本题的详细分析。
-              </div>
               <div v-if="aiAnalysisStatus[index] === 500" class="ai-analysis-status-tooltip">
                 提示：当前 AI 解析状态为 500，可能存在一些问题，请稍后再试。
               </div>
             </div>
           </div>
-          <div
-            v-if="showCorrectAnswers"
-            class="ai-parse-all-button-container"
-            @mouseenter="handleAllMouseEnter"
-            @mouseleave="handleAllMouseLeave"
-          ></div>
           <el-button type="primary" @click="handleSubmit">提交试卷</el-button>
         </div>
       </template>
@@ -152,7 +141,7 @@
               </div>
             </div>
           </div>
-          <el-button type="primary" @click="submitRealExam">提交答案</el-button>
+          <el-button type="primary" @click="submitRealExam" >提交答案</el-button>
         </div>
       </template>
     </div>
@@ -165,7 +154,8 @@
 <script setup lang="ts">
 import { ref, onMounted, computed, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
-import { getCSPractice, getCSExam } from '@/api/exam'
+import { getCSPractice, getCSExam, saveScore ,ScoresaveData} from '@/api/exam'
+import {getUser} from '@/api/user'
 import { ElMessageBox } from 'element-plus'
 import passimg1 from '@/assets/images/exam_imgs/pass1.jpg'
 import passimg2 from '@/assets/images/exam_imgs/pass2.png'
@@ -206,9 +196,8 @@ const isExamInProgress = ref<boolean>(false)
 const essayAnalysisResults = ref<string[]>([])
 const showEssayAnswers = ref<boolean>(false)
 const showAnalysis = ref<boolean[]>([])
-const isHovering = ref<boolean[]>([])
-const isAllHovering = ref(false)
 const aiAnalysisStatus = ref<number[]>([])
+let userId: number | null = null 
 
 const fetchQuestions = async () => {
   try {
@@ -260,7 +249,11 @@ const handleSubmit = async () => {
     console.log('用户取消提交')
   }
 }
-const submitExam = () => {
+const submitExam =async () => {
+    if (!userId) {
+    console.error('用户 ID 未获取到，无法保存成绩')
+    return
+  }
   let correctCount = 0
   questions.value.forEach((question, index) => {
     if (answers.value[index] === question.correctAnswer) {
@@ -273,6 +266,19 @@ const submitExam = () => {
     (sum, q, i) => (answers.value[i] === q.correctAnswer ? sum + q.score : sum),
     0
   )
+    // 调用保存成绩接口
+  const scoreData: ScoresaveData = {
+    userId,
+    score: totalScore.value,
+    type: route.query.type === 'exam'? '考试' : '练习'
+  }
+
+  try {
+    const response = await saveScore(scoreData)
+    console.log('保存成绩成功:', response.data)
+  } catch (error) {
+    console.error('保存成绩失败:', error)
+  }
   //结果弹窗
   const isPass = accuracy >= 60
   const title = '本次专项练习成绩'
@@ -377,7 +383,14 @@ const analyzeQuestion = (index: number) => {
   analyzeQuestionSSE(questionId, index)
 }
 
-onMounted(() => {
+onMounted(async() => {
+  try {
+    const response = await getUser()
+    userId = response.data.id
+    console.log('当前用户ID:', userId)
+  } catch (error) {
+    console.error('获取用户信息失败:', error)
+  }
   fetchQuestions()
   if (route.query.type === 'exam') {
     const timer = setInterval(() => {
@@ -390,31 +403,12 @@ onMounted(() => {
     }, 1000)
   }
   examStore.setExamStatus(true)
-  questions.value.forEach(() => {
-    isHovering.value.push(false)
-    aiAnalysisStatus.value.push(0)
-  })
 })
 onUnmounted(() => {
   examStore.setExamStatus(false)
 })
 
-// 添加鼠标悬停事件
-const handleMouseEnter = (index: number) => {
-  isHovering.value[index] = true
-}
 
-const handleMouseLeave = (index: number) => {
-  isHovering.value[index] = false
-}
-
-const handleAllMouseEnter = () => {
-  isAllHovering.value = true
-}
-
-const handleAllMouseLeave = () => {
-  isAllHovering.value = false
-}
 </script>
 
 <style scoped>

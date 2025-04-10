@@ -476,20 +476,21 @@ const handleSendMessage = async () => {
 
   try {
     // 首先检查是否有预定义的回复
-    if (Object.keys(mockData).some(key => 
-      userMessage.toLowerCase().includes(key.toLowerCase()) || 
-      key.toLowerCase() === userMessage.toLowerCase()
-    )) {
+    if (
+      Object.keys(mockData).some(
+        key =>
+          userMessage.toLowerCase().includes(key.toLowerCase()) ||
+          key.toLowerCase() === userMessage.toLowerCase()
+      )
+    ) {
       // 找到最匹配的预定义回复
-      const bestMatch = Object.keys(mockData).find(key => 
-        key.toLowerCase() === userMessage.toLowerCase()
-      ) || Object.keys(mockData).find(key => 
-        userMessage.toLowerCase().includes(key.toLowerCase())
-      );
-      
+      const bestMatch =
+        Object.keys(mockData).find(key => key.toLowerCase() === userMessage.toLowerCase()) ||
+        Object.keys(mockData).find(key => userMessage.toLowerCase().includes(key.toLowerCase()))
+
       if (bestMatch) {
-        await streamAiReply(mockData[bestMatch]);
-        return;
+        await streamAiReply(mockData[bestMatch])
+        return
       }
     }
 
@@ -522,7 +523,7 @@ const handleSendMessage = async () => {
           },
           onError: async error => {
             console.error('Fetch API Error:', error)
-            
+
             // 如果在错误发生前已经接收到一些数据，则附加错误信息
             if (hasReceivedData && messages.value[currentIndex]) {
               messages.value[currentIndex].text += '\n\n> ⚠️ 连接中断，部分回复可能丢失。'
@@ -540,18 +541,26 @@ const handleSendMessage = async () => {
                   // 生成一个友好的错误响应
                   const errorMsg = error instanceof Error ? error.message : '未知错误'
                   if (errorMsg.includes('500') || errorMsg.includes('服务器内部错误')) {
-                    messages.value[currentIndex].text = '很抱歉，服务器暂时遇到了问题。我会尽力提供一些帮助：\n\n'
-                    
+                    messages.value[currentIndex].text =
+                      '很抱歉，服务器暂时遇到了问题。我会尽力提供一些帮助：\n\n'
+
                     // 基于用户消息内容生成一个相关回复
                     if (userMessage.toLowerCase().includes('简历')) {
-                      messages.value[currentIndex].text += '关于简历，建议您注意以下几点：\n1. 确保信息清晰、准确且相关\n2. 突出您的成就和技能\n3. 针对申请的职位定制内容\n4. 使用简洁专业的语言\n5. 检查拼写和语法错误'
-                    } else if (userMessage.toLowerCase().includes('职业') || userMessage.toLowerCase().includes('工作')) {
-                      messages.value[currentIndex].text += '关于职业规划，您可以考虑：\n1. 评估自己的兴趣、技能和价值观\n2. 研究行业趋势和就业前景\n3. 设定短期和长期目标\n4. 寻找相关学习和发展机会\n5. 构建专业网络和寻找导师'
+                      messages.value[currentIndex].text +=
+                        '关于简历，建议您注意以下几点：\n1. 确保信息清晰、准确且相关\n2. 突出您的成就和技能\n3. 针对申请的职位定制内容\n4. 使用简洁专业的语言\n5. 检查拼写和语法错误'
+                    } else if (
+                      userMessage.toLowerCase().includes('职业') ||
+                      userMessage.toLowerCase().includes('工作')
+                    ) {
+                      messages.value[currentIndex].text +=
+                        '关于职业规划，您可以考虑：\n1. 评估自己的兴趣、技能和价值观\n2. 研究行业趋势和就业前景\n3. 设定短期和长期目标\n4. 寻找相关学习和发展机会\n5. 构建专业网络和寻找导师'
                     } else {
-                      messages.value[currentIndex].text += '我理解您可能在寻找一些信息或帮助。一旦服务恢复，我将能够更好地回答您的问题。如有紧急需求，请尝试使用其他功能或稍后再试。'
+                      messages.value[currentIndex].text +=
+                        '我理解您可能在寻找一些信息或帮助。一旦服务恢复，我将能够更好地回答您的问题。如有紧急需求，请尝试使用其他功能或稍后再试。'
                     }
                   } else {
-                    messages.value[currentIndex].text = `❌ 连接失败：${errorMsg}\n\n请稍后再试或者尝试刷新页面。`
+                    messages.value[currentIndex].text =
+                      `❌ 连接失败：${errorMsg}\n\n请稍后再试或者尝试刷新页面。`
                   }
                   resolve(true)
                 } else {
@@ -571,7 +580,6 @@ const handleSendMessage = async () => {
       console.error('处理流出错:', err)
       // 错误已经在前面处理，这里不需要显示任何提示
     })
-    
   } catch (error) {
     const err = error as Error
     console.error('发送消息失败:', err)
