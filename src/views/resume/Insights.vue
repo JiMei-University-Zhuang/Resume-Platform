@@ -20,22 +20,22 @@
       </el-radio-group>
 
       <div class="article-search">
-                    <el-input
+        <el-input
           v-model="searchKeyword"
           placeholder="搜索文章..."
-                      clearable
+          clearable
           :prefix-icon="Search"
           @clear="handleSearchClear"
           @input="handleSearch"
-                    >
-                    </el-input>
-                  </div>
-                </div>
-                
+        >
+        </el-input>
+      </div>
+    </div>
+
     <!-- 标签筛选区域 -->
     <div class="article-tags">
       <span class="tag-label">热门标签：</span>
-                    <el-tag
+      <el-tag
         v-for="tag in articleTags"
         :key="tag.value"
         class="article-tag"
@@ -44,9 +44,9 @@
         @click="toggleTag(tag.value)"
       >
         {{ tag.label }}
-                    </el-tag>
-                  </div>
-                  
+      </el-tag>
+    </div>
+
     <!-- 文章列表和详情区域 -->
     <el-row :gutter="24" class="content-container">
       <!-- 左侧：文章列表 -->
@@ -59,8 +59,8 @@
 
           <div v-if="isLoading" class="loading-container">
             <el-skeleton :rows="5" animated />
-                </div>
-                
+          </div>
+
           <el-empty
             v-else-if="filteredArticles.length === 0"
             description="没有找到符合条件的文章"
@@ -77,16 +77,16 @@
               <div class="article-meta">
                 <span class="article-date">{{ article.date }}</span>
                 <el-tag size="small" type="info">{{ article.readTime }}</el-tag>
-                    </div>
+              </div>
               <h3 class="article-title">{{ article.title }}</h3>
               <p class="article-summary">{{ article.summary }}</p>
               <div class="article-tags">
                 <el-tag v-for="tag in article.tags" :key="tag" size="small" class="tag-item">
                   {{ tag }}
                 </el-tag>
-                  </div>
-                </div>
-                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </el-col>
 
@@ -96,12 +96,12 @@
           <div v-if="!selectedArticleId && !isLoading" class="empty-article">
             <el-empty description="请从左侧选择一篇文章阅读">
               <el-button type="primary" @click="selectRandomArticle"> 推荐阅读 </el-button>
-                  </el-empty>
-                </div>
+            </el-empty>
+          </div>
 
           <div v-else-if="isLoading" class="loading-container">
             <el-skeleton :rows="10" animated />
-                    </div>
+          </div>
 
           <div v-else-if="currentArticle" class="article-detail">
             <div class="article-header">
@@ -118,15 +118,15 @@
                 <div class="meta-item">
                   <el-icon><View /></el-icon>
                   <span>{{ currentArticle.views }} 阅读</span>
-                      </div>
-                    </div>
+                </div>
+              </div>
               <div class="detail-tags">
                 <el-tag v-for="tag in currentArticle.tags" :key="tag" class="detail-tag">
                   {{ tag }}
                 </el-tag>
-                  </div>
-          </div>
-          
+              </div>
+            </div>
+
             <el-divider />
 
             <div class="article-content" v-html="currentArticle.content"></div>
@@ -137,8 +137,8 @@
                 <div class="author-info">
                   <div class="author-name">{{ currentArticle.author }}</div>
                   <div class="author-bio">{{ currentArticle.authorBio }}</div>
-                  </div>
-                        </div>
+                </div>
+              </div>
 
               <div class="article-actions">
                 <el-button type="primary" @click="shareArticle">
@@ -149,7 +149,7 @@
                   <el-icon>
                     <template v-if="currentArticle.isFavorite">
                       <StarFilled />
-              </template>
+                    </template>
                     <template v-else>
                       <Star />
                     </template>
@@ -160,9 +160,9 @@
                   <el-icon><Download /></el-icon>
                   下载
                 </el-button>
+              </div>
             </div>
-          </div>
-          
+
             <el-divider />
 
             <div class="related-articles">
@@ -176,8 +176,8 @@
                 >
                   <div class="related-title">{{ article.title }}</div>
                   <div class="related-date">{{ article.date }}</div>
-                      </div>
-                      </div>
+                </div>
+              </div>
             </div>
           </div>
         </transition>
@@ -717,23 +717,23 @@
   .insights-container {
     flex-direction: column;
   }
-  
+
   .career-paths {
     flex-direction: column;
   }
-  
+
   .match-scores-container {
     flex-direction: column;
   }
-  
+
   .page-header {
     padding: 20px;
   }
-  
+
   .page-title {
     font-size: 24px;
   }
-  
+
   .interaction-container,
   .analysis-result-container {
     margin-bottom: 24px;

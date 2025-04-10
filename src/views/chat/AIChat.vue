@@ -87,16 +87,15 @@
           <div class="model-selector-wrapper">
             <div class="model-name" @click="toggleModelList">
               <span>当前模型:</span>
-              <div class="model-badge" :class="selectedModel">{{ getModelDisplayName(selectedModel) }}</div>
+              <div class="model-badge" :class="selectedModel">
+                {{ getModelDisplayName(selectedModel) }}
+              </div>
               <i class="model-selector-icon">{{ showModelList ? '▲' : '▼' }}</i>
             </div>
-            
+
             <!-- 添加一个主题选择器 -->
             <div class="theme-selector">
-              <select 
-                class="theme-select" 
-                title="选择对话主题"
-                v-model="selectedTheme">
+              <select class="theme-select" title="选择对话主题" v-model="selectedTheme">
                 <option value="general">通用对话</option>
                 <option value="code">代码助手</option>
                 <option value="career">职业规划</option>
@@ -105,14 +104,14 @@
               </select>
             </div>
           </div>
-          
+
           <!-- 模型下拉列表 -->
           <div class="model-dropdown" v-if="showModelList">
-            <div 
-              v-for="model in availableModels" 
-              :key="model.value" 
-              class="model-option" 
-              :class="{ 'active': selectedModel === model.value }" 
+            <div
+              v-for="model in availableModels"
+              :key="model.value"
+              class="model-option"
+              :class="{ active: selectedModel === model.value }"
               @click="selectModel(model.value)"
             >
               <div class="model-option-inner">
@@ -122,7 +121,7 @@
             </div>
           </div>
         </div>
-        
+
         <div class="input-wrapper">
           <textarea
             v-model="userInput"
@@ -174,8 +173,8 @@ import 'katex/dist/katex.min.css'
 import markdownItKatexGpt from 'markdown-it-katex-gpt'
 
 interface LocalChatMessage {
-  role: 'user' | 'ai';
-  text: string;
+  role: 'user' | 'ai'
+  text: string
 }
 
 // 初始化变量
@@ -191,25 +190,25 @@ const selectedTheme = ref('general') // 添加主题选择状态
 
 // 可用模型列表
 const availableModels = [
-  { 
-    label: '千问-Max', 
-    value: 'qwen-max', 
-    description: '通用型AI助手，擅长中文交流和创意写作' 
+  {
+    label: '千问-Max',
+    value: 'qwen-max',
+    description: '通用型AI助手，擅长中文交流和创意写作'
   },
-  { 
-    label: 'DeepSeek-R1', 
-    value: 'deepseek-r1', 
-    description: '专注于数学、编程和理工科问题的解决' 
+  {
+    label: 'DeepSeek-R1',
+    value: 'deepseek-r1',
+    description: '专注于数学、编程和理工科问题的解决'
   },
-  { 
-    label: 'DeepSeek-V3', 
-    value: 'deepseek-v3', 
-    description: '强大的推理和思考能力，精准解决复杂问题' 
+  {
+    label: 'DeepSeek-V3',
+    value: 'deepseek-v3',
+    description: '强大的推理和思考能力，精准解决复杂问题'
   },
-  { 
-    label: '百川2-7B', 
-    value: 'baichuan2-7b-chat-v1', 
-    description: '轻量级模型，响应速度快，适合日常使用' 
+  {
+    label: '百川2-7B',
+    value: 'baichuan2-7b-chat-v1',
+    description: '轻量级模型，响应速度快，适合日常使用'
   }
 ]
 
@@ -550,10 +549,10 @@ const streamAiReply = async (fullText: string) => {
 
 // 消息处理函数
 const handleSendMessage = async () => {
-  console.log("=== handleSendMessage started ===");
+  console.log('=== handleSendMessage started ===')
   if (!userInput.value.trim() || isTyping.value) return
   const userMessage = userInput.value
-  console.log("User message:", userMessage);
+  console.log('User message:', userMessage)
   messages.value.push({ role: 'user', text: userMessage })
   userInput.value = ''
   adjustTextareaHeight()
@@ -562,7 +561,7 @@ const handleSendMessage = async () => {
 
   try {
     // 首先检查是否有预定义的回复
-    console.log("Checking for predefined replies");
+    console.log('Checking for predefined replies')
     if (
       Object.keys(mockData).some(
         key =>
@@ -576,18 +575,18 @@ const handleSendMessage = async () => {
         Object.keys(mockData).find(key => userMessage.toLowerCase().includes(key.toLowerCase()))
 
       if (bestMatch) {
-        console.log("Using mock reply for:", bestMatch);
+        console.log('Using mock reply for:', bestMatch)
         await streamAiReply(mockData[bestMatch])
         return
       }
     }
 
     // 如果没有预定义回复，尝试使用API
-    console.log("No mock reply found, using API");
+    console.log('No mock reply found, using API')
     // 创建新的消息
     messages.value.push({ role: 'ai', text: '' })
     const currentIndex = messages.value.length - 1
-    console.log("Created empty AI message at index:", currentIndex);
+    console.log('Created empty AI message at index:', currentIndex)
 
     // 使用Promise来处理Fetch API事件
     await new Promise((resolve, reject) => {
@@ -596,31 +595,31 @@ const handleSendMessage = async () => {
       const MAX_RETRIES = 1
 
       const tryConnect = () => {
-        console.log("Trying to connect to AI chat API with model:", selectedModel.value);
+        console.log('Trying to connect to AI chat API with model:', selectedModel.value)
         // 使用带认证的连接函数，并传递选中的模型
         connectAIChatFetch(userMessage, {
           model: selectedModel.value, // 传递选中的模型
           onMessage: async data => {
             hasReceivedData = true
-            console.log('Raw data received:', data);
-            console.log('Type of data:', typeof data);
-            
+            console.log('Raw data received:', data)
+            console.log('Type of data:', typeof data)
+
             if (messages.value[currentIndex]) {
               // Simply append the chunk to the existing message text
-              messages.value[currentIndex].text += data;
-              console.log('Added text chunk to message');
-              
+              messages.value[currentIndex].text += data
+              console.log('Added text chunk to message')
+
               // Update UI
               await nextTick()
               scrollToBottom()
               Prism.highlightAll()
             } else {
-              console.log('No message at index:', currentIndex);
+              console.log('No message at index:', currentIndex)
             }
           },
           onDone: () => {
             isTyping.value = false
-            console.log('Message streaming complete');
+            console.log('Message streaming complete')
             resolve(true)
           },
           onError: async error => {
@@ -639,7 +638,7 @@ const handleSendMessage = async () => {
                 setTimeout(tryConnect, 1000)
               } else {
                 // 超过重试次数，尝试使用本地模拟回复
-                console.log('Max retries reached, using fallback');
+                console.log('Max retries reached, using fallback')
                 if (messages.value[currentIndex]) {
                   // 生成一个友好的错误响应
                   const errorMsg = error instanceof Error ? error.message : '未知错误'
@@ -727,12 +726,15 @@ onMounted(() => {
 </script>
 
 <style scoped>
-
 .chat-container {
   display: flex;
   height: calc(100vh - 40px);
   background: linear-gradient(135deg, #f6f8fd 0%, #f0f2fa 100%);
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family:
+    'Inter',
+    system-ui,
+    -apple-system,
+    sans-serif;
 }
 
 .chat-main {
@@ -867,8 +869,14 @@ onMounted(() => {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .welcome-icon {
@@ -947,8 +955,14 @@ onMounted(() => {
 }
 
 @keyframes messageSlideIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .message-container.user {
@@ -1105,7 +1119,9 @@ onMounted(() => {
 }
 
 @keyframes typing {
-  0%, 60%, 100% {
+  0%,
+  60%,
+  100% {
     transform: translateY(0);
   }
   30% {
@@ -1160,7 +1176,11 @@ onMounted(() => {
   width: auto;
   min-width: 140px;
   text-align: left;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family:
+    'Inter',
+    system-ui,
+    -apple-system,
+    sans-serif;
 }
 
 .theme-select:hover {
@@ -1176,7 +1196,7 @@ onMounted(() => {
 
 /* 让select下拉框向上展开 */
 .theme-selector::after {
-  content: "▲";
+  content: '▲';
   position: absolute;
   right: 10px;
   top: 50%;
@@ -1234,7 +1254,7 @@ onMounted(() => {
 }
 
 .model-badge::before {
-  content: "";
+  content: '';
   position: absolute;
   top: 0;
   left: -100%;
@@ -1245,8 +1265,12 @@ onMounted(() => {
 }
 
 @keyframes shimmer {
-  0% { left: -100%; }
-  100% { left: 100%; }
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
 }
 
 .model-badge.deepseek-r1 {
@@ -1288,8 +1312,14 @@ onMounted(() => {
 }
 
 @keyframes dropdownSlideUp {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* 更新模型选择器图标样式，使向上箭头表示向上展开 */
@@ -1429,7 +1459,7 @@ textarea::placeholder {
 }
 
 :deep(.code-block::before) {
-  content: "";
+  content: '';
   position: absolute;
   top: 0;
   left: 0;
@@ -1615,56 +1645,56 @@ textarea::placeholder {
   .chat-container {
     height: calc(100vh - 68px);
   }
-  
+
   .chat-main {
     margin: 0;
     border-radius: 0;
   }
-  
+
   .chat-header {
     padding: 14px 16px;
     border-radius: 0;
   }
-  
+
   .chat-messages {
     padding: 16px;
   }
-  
+
   .welcome-icon {
     width: 64px;
     height: 64px;
   }
-  
+
   .welcome-message h3 {
     font-size: 24px;
   }
-  
+
   .suggestion-chips {
     max-width: 100%;
   }
-  
+
   .chat-input-container {
     padding: 12px 16px;
     border-radius: 0;
   }
-  
+
   .input-wrapper {
     padding: 8px 12px;
   }
-  
+
   .model-selector-container {
     max-width: 100%;
   }
-  
+
   .model-name {
     font-size: 13px;
   }
-  
+
   .model-badge {
     font-size: 12px;
     padding: 3px 8px;
   }
-  
+
   .model-dropdown {
     position: fixed;
     top: auto;
@@ -1674,7 +1704,7 @@ textarea::placeholder {
     width: auto;
     margin-bottom: 0;
   }
-  
+
   .send-button {
     width: 36px;
     height: 36px;
@@ -1687,7 +1717,7 @@ textarea::placeholder {
     gap: 10px;
     align-items: stretch;
   }
-  
+
   .theme-select {
     width: 100%;
   }

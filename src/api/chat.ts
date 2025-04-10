@@ -293,7 +293,7 @@ export const connectAIChatSSE = (message: string, options: EventSourceOptions) =
 
 // 使用fetch API的流式响应方案，可以正确携带认证头
 export const connectAIChatFetch = (message: string, options: EventSourceOptions) => {
-  console.log("=== connectAIChatFetch started ===");
+  console.log('=== connectAIChatFetch started ===')
   // 使用any类型来解决类型定义问题
   const abortController = new (window as any).AbortController()
   let isCancelled = false
@@ -309,24 +309,24 @@ export const connectAIChatFetch = (message: string, options: EventSourceOptions)
 
   // 获取token
   const token = getToken()
-  console.log("Token retrieved:", token ? "Present" : "Not found");
-  
+  console.log('Token retrieved:', token ? 'Present' : 'Not found')
+
   // API URL 需要添加 message 和 token 参数
   let apiUrl = `/api/ai/chat?message=${encodeURIComponent(message)}`
-  
+
   // 添加模型参数，如果指定了模型
   if (options.model) {
     apiUrl += `&model=${encodeURIComponent(options.model)}`
   }
-  
+
   if (token) {
     apiUrl += `&token=${encodeURIComponent(token)}`
   }
-  
-  console.log("API URL:", apiUrl);
+
+  console.log('API URL:', apiUrl)
 
   const fetchData = async () => {
-    console.log("Starting fetchData function");
+    console.log('Starting fetchData function')
     try {
       const headers: Record<string, string> = {
         Accept: 'text/event-stream'
@@ -336,17 +336,17 @@ export const connectAIChatFetch = (message: string, options: EventSourceOptions)
         headers['Authorization'] = `Bearer ${token}`
         headers['token'] = token
       }
-      
-      console.log("Request headers:", headers);
-      console.log("Sending fetch request...");
+
+      console.log('Request headers:', headers)
+      console.log('Sending fetch request...')
 
       const response = await fetch(apiUrl, {
         method: 'GET',
         headers,
         signal: abortController.signal
       })
-      
-      console.log("Fetch response received, status:", response.status);
+
+      console.log('Fetch response received, status:', response.status)
 
       // 检查错误状态
       if (response.status === 500) {
@@ -359,34 +359,34 @@ export const connectAIChatFetch = (message: string, options: EventSourceOptions)
       if (!reader) {
         throw new Error('No reader available')
       }
-      
-      console.log("Reader obtained from response");
+
+      console.log('Reader obtained from response')
       const decoder = new TextDecoder()
 
       try {
-        console.log("Starting to read stream");
+        console.log('Starting to read stream')
         while (!isCancelled) {
-          console.log("Reading chunk from stream...");
+          console.log('Reading chunk from stream...')
           const { done, value } = await reader.read()
 
           if (done) {
-            console.log("Stream reading complete");
+            console.log('Stream reading complete')
             options.onDone()
             break
           }
-          
-          console.log("Chunk received, size:", value ? value.length : 0);
+
+          console.log('Chunk received, size:', value ? value.length : 0)
           const chunk = decoder.decode(value, { stream: true })
-          console.log("Decoded chunk:", chunk);
+          console.log('Decoded chunk:', chunk)
           const lines = chunk.split('\n')
-          console.log("Lines after splitting:", lines.length);
+          console.log('Lines after splitting:', lines.length)
 
           for (const line of lines) {
             if (line.startsWith('data:')) {
               const data = line.slice(5).trim() // Remove 'data:' prefix and trim whitespace
-              console.log("Data extracted from line:", data);
+              console.log('Data extracted from line:', data)
               if (data === '[DONE]') {
-                console.log("Received [DONE] marker");
+                console.log('Received [DONE] marker')
                 options.onDone()
                 return
               }
@@ -398,11 +398,11 @@ export const connectAIChatFetch = (message: string, options: EventSourceOptions)
           }
         }
       } finally {
-        console.log("Releasing reader");
+        console.log('Releasing reader')
         reader.releaseLock()
       }
     } catch (error) {
-      console.error('Fetch streaming error details:', error);
+      console.error('Fetch streaming error details:', error)
       if (!isCancelled) {
         console.error('Fetch streaming error, calling onError')
         options.onError(error as Event)
@@ -411,13 +411,13 @@ export const connectAIChatFetch = (message: string, options: EventSourceOptions)
   }
 
   // 执行异步获取数据函数
-  console.log("Calling fetchData function");
+  console.log('Calling fetchData function')
   fetchData()
 
   // 返回控制对象
   return {
     close: () => {
-      console.log("Closing connection");
+      console.log('Closing connection')
       isCancelled = true
       abortController.abort()
     }
