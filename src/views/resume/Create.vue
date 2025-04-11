@@ -1010,9 +1010,6 @@ const analyzeResume = async () => {
     // 调用API
     const response = await analyzeResumeApi(formData)
 
-    // 处理API响应 - 提取aiSuggestions数据
-    console.log('API Response:', response)
-
     // 提取aiSuggestions数据
     if (response.data && response.data.aiSuggestions) {
       // 转换 API 响应数据中的字符串数字为实际数字

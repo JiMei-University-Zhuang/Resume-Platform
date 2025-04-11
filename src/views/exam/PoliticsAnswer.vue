@@ -18,7 +18,6 @@
       <div class="progress-container">
         <div class="progress-info">
           <span>答题进度</span>
-          <span>{{ calculateProgress }}%</span>
         </div>
         <el-progress :percentage="calculateProgress" :color="progressColor" />
       </div>
@@ -368,7 +367,7 @@ const submitAnswers = async () => {
 
 // 返回主页
 const returnToHome = () => {
-  router.push('/exam/postgraduate')
+  router.push('politics')
 }
 
 onMounted(() => {

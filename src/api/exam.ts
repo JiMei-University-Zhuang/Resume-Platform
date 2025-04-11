@@ -14,7 +14,8 @@ export interface GSPractice {
 export interface CSExam {
   examName: string
 }
-// 新增统一的响应类型
+
+// 统一的响应类型
 export interface ExamData {
   questions: {
     id: number
@@ -30,29 +31,21 @@ export interface ScoresaveData {
   score: number
   type: '练习' | '考试'
 }
+
 export interface ScoregetData {
   userId: number
   type: '练习' | '考试'
+  examName?: string
+  subject?: string
+  totalScore?: number
+  accuracy?: number
+  timestamp?: number
 }
 
 export interface Question {
   userId: number
   type: '练习' | '考试'
   recordId: number
-}
-
-// 保存错题单个
-export interface WrongQuestionRecord {
-  questionId: number
-  itemId: number | null
-  userAnswer: string
-}
-
-// 保存错题整体
-export interface SaveWrongQuestionData {
-  userId: number
-  type: '练习' | '考试'
-  records: WrongQuestionRecord[]
 }
 
 export interface GetRecordData {
@@ -86,6 +79,7 @@ export function getGSPractice(data: GSPractice) {
     data
   })
 }
+
 //保存成绩的接口
 export function saveScore(data: ScoresaveData) {
   return request({
@@ -103,43 +97,23 @@ export function getScore(data: ScoregetData) {
     data
   })
 }
-//获取错题接口
-export function getWrongQuestion(data: Question) {
-  return request({
-    url: '/record/restore',
-    method: 'post',
-    data
-  })
-}
-//保存错题的接口
-export function saveWrongQuestion(data: SaveWrongQuestionData) {
-  return request({
-    url: '/record/save',
-    method: 'post',
-    data
-  })
-}
-// 获取错题记录数的接口
-export function getWrongQuestionRecordCount(data: GetRecordData) {
-  return request({
-    url: '/record/getRecord',
-    method: 'post',
-    data
-  })
-}
 
 /**
  * 根据卷子名称获取思想政治卷子详情
  * @param examName 卷子名称
+ * @param token 可选的token参数
  * @returns
  */
-export function getPoliticsPaperByName(examName: string) {
+export function getPoliticsPaperByName(examName: string, token?: string) {
+  const data: any = { examName }
+  if (token) {
+    data.token = token
+  }
+
   return request({
     url: '/exam/getPoliticalExam',
     method: 'post',
-    data: {
-      examName
-    }
+    data
   })
 }
 
@@ -158,5 +132,13 @@ export function getProfessionalExam(examName: string) {
     url: '/exam/getProfessionalExam',
     method: 'post',
     data: { examName }
+  })
+}
+
+export function submitProfessionalExam(data: any) {
+  return request({
+    url: '/exam/submitProfessionalExam',
+    method: 'post',
+    data
   })
 }

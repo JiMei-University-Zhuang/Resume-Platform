@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import LoadingScreen from '@/components/LoadingScreen/index.vue'
+import { useUserStore } from './stores/userStore'
+import { getUser } from './api/user'
 
 const loading = ref(true)
+const userStore = useUserStore()
 
 const waitForResources = () => {
   return new Promise<void>(resolve => {
@@ -14,10 +17,26 @@ const waitForResources = () => {
   })
 }
 
+// 初始化用户信息
+const initUserInfo = async () => {
+  const token = localStorage.getItem('token')
+  if (token) {
+    try {
+      const response = await getUser()
+      if (response.data) {
+        userStore.setUserInfo(response.data)
+      }
+    } catch (error) {
+      console.error('初始化用户信息失败:', error)
+    }
+  }
+}
+
 onMounted(async () => {
   await waitForResources()
   await new Promise(resolve => setTimeout(resolve, 1000))
   loading.value = false
+  initUserInfo()
 })
 </script>
 
