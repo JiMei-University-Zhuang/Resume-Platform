@@ -169,7 +169,7 @@ const routes: RouteRecordRaw[] = [
           {
             path: 'wrongPage',
             name: 'wrongPage',
-            component: () => import('@/views/exam/WrongQuestionRecord.vue'),
+            component: () => import('@/views/exam/WrongQuestion.vue'),
             meta: { title: '错题页面' }
           },
           {

@@ -155,6 +155,8 @@
 import { ref, onMounted, computed, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { getCSPractice, getCSExam, saveScore, ScoresaveData } from '@/api/exam'
+import { saveWrongQuestion } from '@/api/errorRecord'
+import { SaveWrongQuestionData, WrongQuestionRecord } from '@/types/errorRecord'
 import { getUser } from '@/api/user'
 import { ElMessageBox } from 'element-plus'
 import passimg1 from '@/assets/images/exam_imgs/pass1.jpg'
@@ -198,6 +200,7 @@ const showEssayAnswers = ref<boolean>(false)
 const showAnalysis = ref<boolean[]>([])
 const aiAnalysisStatus = ref<number[]>([])
 let userId: number | null = null
+const wrongQuestions: WrongQuestionRecord[] = []
 
 const fetchQuestions = async () => {
   try {
@@ -258,6 +261,12 @@ const submitExam = async () => {
   questions.value.forEach((question, index) => {
     if (answers.value[index] === question.correctAnswer) {
       correctCount++
+    } else {
+      wrongQuestions.push({
+        questionId: parseInt(question.questionId, 10),
+        itemId: null,
+        userAnswer: answers.value[index] || '未作答'
+      })
     }
   })
 
@@ -279,6 +288,7 @@ const submitExam = async () => {
   } catch (error) {
     console.error('保存成绩失败:', error)
   }
+  saveScoreAndWrongQuestions()
   //结果弹窗
   const isPass = accuracy >= 60
   const title = '本次专项练习成绩'
@@ -373,6 +383,7 @@ const analyzeQuestionSSE = (questionId: string, index: number): void => {
 const submitRealExam = async () => {
   showEssayAnswers.value = true
   isExamInProgress.value = false
+  saveScoreAndWrongQuestions()
 }
 
 const analyzeQuestion = (index: number) => {
@@ -383,11 +394,31 @@ const analyzeQuestion = (index: number) => {
   analyzeQuestionSSE(questionId, index)
 }
 
+const saveScoreAndWrongQuestions = async () => {
+  if (userId === null) {
+    console.error('用户 ID 未获取到，无法保存错题')
+    return
+  }
+  // 保存错题
+  const wrongQuestionData: SaveWrongQuestionData = {
+    userId: userId,
+    type: route.query.type === 'exam' ? '考试' : '练习',
+    records: wrongQuestions
+  }
+
+  try {
+    const response = await saveWrongQuestion(wrongQuestionData)
+    console.log('保存错题成功44444:', response.data)
+  } catch (error) {
+    console.error('保存错题失败:', error)
+  }
+}
+
 onMounted(async () => {
   try {
     const response = await getUser()
     userId = response.data.id
-    console.log('当前用户ID:', userId)
+    // console.log('当前用户ID:', userId)
   } catch (error) {
     console.error('获取用户信息失败:', error)
   }
@@ -406,6 +437,7 @@ onMounted(async () => {
 })
 onUnmounted(() => {
   examStore.setExamStatus(false)
+  saveScoreAndWrongQuestions()
 })
 </script>
 
