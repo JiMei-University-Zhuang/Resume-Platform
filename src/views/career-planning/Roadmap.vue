@@ -309,11 +309,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted, nextTick } from 'vue'
 import { ElMessage } from 'element-plus'
 import type { CareerRoadmapForm, CareerRoadmapResult, CareerSkill } from '@/types/career'
 import { getCareerSkills } from '@/api/career'
 import { getProfessionRoadmap } from '@/api/ai'
+import { driver } from 'driver.js'
+import 'driver.js/dist/driver.css'
 import {
   Connection,
   Aim,
@@ -326,6 +328,86 @@ import {
   ChatDotRound,
   List
 } from '@element-plus/icons-vue'
+
+// 配置引导步骤
+const driverObj = driver({
+  showProgress: true,
+  steps: [
+    {
+      element: '.page-header',
+      popover: {
+        title: '职业规划页面',
+        description: '欢迎使用职业发展规划工具，这里可以帮助你规划未来的职业发展路径',
+        side: 'bottom',
+        align: 'start'
+      }
+    },
+    {
+      element: '.form-card',
+      popover: {
+        title: '目标设定',
+        description: '在这里填写你的当前状态、目标职位等信息，我们将为你生成个性化的职业规划',
+        side: 'left',
+        align: 'start'
+      }
+    },
+    {
+      element: '.time-radio-group',
+      popover: {
+        title: '时间规划',
+        description: '选择你期望达成目标的时间范围，这将影响职业路径的规划节奏',
+        side: 'bottom',
+        align: 'start'
+      }
+    },
+    {
+      element: '.generate-btn',
+      popover: {
+        title: '生成路线图',
+        description: '点击这里生成你的个性化职业发展路线图',
+        side: 'left',
+        align: 'start'
+      }
+    },
+    {
+      element: '.roadmap-timeline',
+      popover: {
+        title: '发展路线图',
+        description: '这里展示了你的职业发展阶段，包括每个阶段的关键任务和需要掌握的技能',
+        side: 'right',
+        align: 'start'
+      }
+    },
+    {
+      element: '.recommendations-card',
+      popover: {
+        title: '职业建议',
+        description: '基于你的目标，我们为你提供了详细的职业发展建议',
+        side: 'left',
+        align: 'start'
+      }
+    },
+    { 
+      popover: { 
+        title: '开始规划', 
+        description: '现在，让我们开始规划你的职业发展之路吧！' 
+      } 
+    }
+  ]
+})
+
+// 在组件挂载后启动导览
+onMounted(() => {
+  const hasSeenRoadmapGuide = localStorage.getItem('hasSeenRoadmapGuide')
+  if (!hasSeenRoadmapGuide) {
+    nextTick(() => {
+      setTimeout(() => {
+        driverObj.drive()
+        localStorage.setItem('hasSeenRoadmapGuide', 'true')
+      }, 500)
+    })
+  }
+})
 
 // 表单活动标签页
 // 简化版不再需要多标签页

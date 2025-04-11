@@ -35,8 +35,8 @@
             </div>
             <span class="category-label">数据大屏</span>
           </router-link>
-
-          <div class="category-section">
+<div class="category-note">
+  <div class="category-section">
             <h3 class="section-title">简历模块</h3>
           </div>
 
@@ -75,8 +75,10 @@
             </div>
             <span class="category-label">简历分析</span>
           </router-link>
-
-          <div class="category-section">
+</div>
+          
+<div class="category-exam">
+  <div class="category-section">
             <h3 class="section-title">考试中心</h3>
           </div>
 
@@ -104,7 +106,9 @@
             </div>
             <span class="category-label">考研备考</span>
           </router-link>
-
+</div>
+         
+         <div class="category-AI">
           <div class="category-section">
             <h3 class="section-title">AI工具</h3>
           </div>
@@ -131,8 +135,10 @@
             </div>
             <span class="category-label">AI证件照</span>
           </router-link>
-
-          <div class="category-section">
+         </div>
+         
+<div class="category-job">
+  <div class="category-section">
             <h3 class="section-title">职业规划</h3>
           </div>
 
@@ -159,6 +165,8 @@
             </div>
             <span class="category-label">职业推荐</span>
           </router-link>
+</div>
+         
         </div>
       </div>
 
