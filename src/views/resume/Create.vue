@@ -31,7 +31,7 @@
               <span class="card-title">简历信息</span>
               <div class="header-actions">
                 <el-button
-                class="analyze-button"
+                  class="analyze-button"
                   type="primary"
                   @click="analyzeResume"
                   size="small"
@@ -447,36 +447,100 @@ import { useRoute } from 'vue-router'
 import html2canvas from 'html2canvas'
 import jsPDF from 'jspdf'
 import dayjs from 'dayjs'
-import { driver } from "driver.js";
-    import "driver.js/dist/driver.css";
-    
-    const driverObj = driver({
-      showProgress: true,
-      steps: [
-        { element: '.header-actions', popover: { title: '顶部操作区', description: '这里提供了模板切换、导出PDF、预览和清空等常用操作', side: "left", align: 'start' }},
-        { element: '.resume-type-selector', popover: { title: '选择简历类型', description: '根据您的求职需求选择合适的简历类型，系统会为您推荐相应的内容格式', side: "bottom", align: 'start' }},
-        { element: '.resume-form', popover: { title: '个人信息', description: '填写基本的个人信息，包括姓名、性别、联系方式等', side: "left", align: 'start' }},
-        { element: '.education-item', popover: { title: '教育经历', description: '添加您的学历信息，包括学校、专业、学位等', side: "left", align: 'start' }},
-        { element: '.experience-item', popover: { title: '工作经验', description: '详细描述您的工作经历，突出重要成就和职责', side: "left", align: 'start' }},
-        { element: '.skill-tags-container', popover: { title: '技能标签', description: '添加您掌握的专业技能，让雇主快速了解您的能力', side: "left", align: 'start' }},
-        { element: '.analyze-button', popover: { title: 'AI优化', description: '利用 AI 技术优化简历内容，提高可读性和吸引力', side: "right", align:'start' }},
-        { element: '.resume-preview', popover: { title: '实时预览', description: '在右侧可以实时预览简历效果，帮助您及时调整内容和布局', side: "right", align: 'start' }},
-        { popover: { title: '开始创建', description: '现在，让我们开始创建您的专业简历吧！' }}
-      ]
-    });
-    
-    // 在组件挂载后启动导览
-    onMounted(() => {
-  const hasSeenCreateGuide = localStorage.getItem('hasSeenCreateGuide');
+import { driver } from 'driver.js'
+import 'driver.js/dist/driver.css'
+
+const driverObj = driver({
+  showProgress: true,
+  steps: [
+    {
+      element: '.header-actions',
+      popover: {
+        title: '顶部操作区',
+        description: '这里提供了模板切换、导出PDF、预览和清空等常用操作',
+        side: 'left',
+        align: 'start'
+      }
+    },
+    {
+      element: '.resume-type-selector',
+      popover: {
+        title: '选择简历类型',
+        description: '根据您的求职需求选择合适的简历类型，系统会为您推荐相应的内容格式',
+        side: 'bottom',
+        align: 'start'
+      }
+    },
+    {
+      element: '.resume-form',
+      popover: {
+        title: '个人信息',
+        description: '填写基本的个人信息，包括姓名、性别、联系方式等',
+        side: 'left',
+        align: 'start'
+      }
+    },
+    {
+      element: '.education-item',
+      popover: {
+        title: '教育经历',
+        description: '添加您的学历信息，包括学校、专业、学位等',
+        side: 'left',
+        align: 'start'
+      }
+    },
+    {
+      element: '.experience-item',
+      popover: {
+        title: '工作经验',
+        description: '详细描述您的工作经历，突出重要成就和职责',
+        side: 'left',
+        align: 'start'
+      }
+    },
+    {
+      element: '.skill-tags-container',
+      popover: {
+        title: '技能标签',
+        description: '添加您掌握的专业技能，让雇主快速了解您的能力',
+        side: 'left',
+        align: 'start'
+      }
+    },
+    {
+      element: '.analyze-button',
+      popover: {
+        title: 'AI优化',
+        description: '利用 AI 技术优化简历内容，提高可读性和吸引力',
+        side: 'right',
+        align: 'start'
+      }
+    },
+    {
+      element: '.resume-preview',
+      popover: {
+        title: '实时预览',
+        description: '在右侧可以实时预览简历效果，帮助您及时调整内容和布局',
+        side: 'right',
+        align: 'start'
+      }
+    },
+    { popover: { title: '开始创建', description: '现在，让我们开始创建您的专业简历吧！' } }
+  ]
+})
+
+// 在组件挂载后启动导览
+onMounted(() => {
+  const hasSeenCreateGuide = localStorage.getItem('hasSeenCreateGuide')
   if (!hasSeenCreateGuide) {
     nextTick(() => {
       setTimeout(() => {
-        driverObj.drive();
-        localStorage.setItem('hasSeenCreateGuide', 'true');
-      }, 500);
-    });
+        driverObj.drive()
+        localStorage.setItem('hasSeenCreateGuide', 'true')
+      }, 500)
+    })
   }
-});
+})
 
 // 修复模板相关的类型
 interface TemplateComponents {
