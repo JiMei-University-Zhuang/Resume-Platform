@@ -92,7 +92,12 @@
                 <div class="notification-time">{{ formatTime(item.publishTime) }}</div>
               </div>
               <div class="notification-actions">
-                <el-button type="danger" link size="small" @click.stop="deleteNotification(item.noticeId)">
+                <el-button
+                  type="danger"
+                  link
+                  size="small"
+                  @click.stop="deleteNotification(item.noticeId)"
+                >
                   删除
                 </el-button>
               </div>
@@ -104,7 +109,9 @@
             <el-icon class="loading-icon"><Loading /></el-icon>
             <span>加载消息中...</span>
           </div>
-          <div v-else-if="systemNotifications.length === 0" class="empty-notifications">暂无系统消息</div>
+          <div v-else-if="systemNotifications.length === 0" class="empty-notifications">
+            暂无系统消息
+          </div>
           <el-scrollbar height="calc(100vh - 200px)" v-else>
             <div
               v-for="item in systemNotifications"
@@ -122,7 +129,12 @@
                 <div class="notification-time">{{ formatTime(item.publishTime) }}</div>
               </div>
               <div class="notification-actions">
-                <el-button type="danger" link size="small" @click.stop="deleteNotification(item.noticeId)">
+                <el-button
+                  type="danger"
+                  link
+                  size="small"
+                  @click.stop="deleteNotification(item.noticeId)"
+                >
                   删除
                 </el-button>
               </div>
@@ -134,7 +146,9 @@
             <el-icon class="loading-icon"><Loading /></el-icon>
             <span>加载消息中...</span>
           </div>
-          <div v-else-if="taskNotifications.length === 0" class="empty-notifications">暂无任务消息</div>
+          <div v-else-if="taskNotifications.length === 0" class="empty-notifications">
+            暂无任务消息
+          </div>
           <el-scrollbar height="calc(100vh - 200px)" v-else>
             <div
               v-for="item in taskNotifications"
@@ -152,7 +166,12 @@
                 <div class="notification-time">{{ formatTime(item.publishTime) }}</div>
               </div>
               <div class="notification-actions">
-                <el-button type="danger" link size="small" @click.stop="deleteNotification(item.noticeId)">
+                <el-button
+                  type="danger"
+                  link
+                  size="small"
+                  @click.stop="deleteNotification(item.noticeId)"
+                >
                   删除
                 </el-button>
               </div>
@@ -187,12 +206,12 @@ import { logout, getUser, type GetUserResult } from '@/api/user'
 import { ElMessage } from 'element-plus'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
-import { 
-  getNoticeList, 
-  markNoticeAsRead, 
-  markAllNoticesAsRead, 
-  deleteNotice, 
-  type Notice,
+import {
+  getNoticeList,
+  markNoticeAsRead,
+  markAllNoticesAsRead,
+  deleteNotice,
+  type Notice
 } from '@/api/notification'
 
 // 载入相对时间插件
@@ -283,11 +302,19 @@ const notifications = ref<Notice[]>([])
 
 // 按类型过滤通知
 const systemNotifications = computed(() => {
-  return notifications.value.filter(item => getNotificationTypeForBackend(item) === 'info' || getNotificationTypeForBackend(item) === 'warning')
+  return notifications.value.filter(
+    item =>
+      getNotificationTypeForBackend(item) === 'info' ||
+      getNotificationTypeForBackend(item) === 'warning'
+  )
 })
 
 const taskNotifications = computed(() => {
-  return notifications.value.filter(item => getNotificationTypeForBackend(item) === 'task' || getNotificationTypeForBackend(item) === 'success')
+  return notifications.value.filter(
+    item =>
+      getNotificationTypeForBackend(item) === 'task' ||
+      getNotificationTypeForBackend(item) === 'success'
+  )
 })
 
 // 未读消息数量
@@ -304,11 +331,11 @@ const fetchNotifications = async () => {
       console.error('获取通知失败: Token不存在')
       return
     }
-    
+
     const response = await getNoticeList(token)
-    
+
     const responseData = response.data
-    
+
     if (responseData) {
       notifications.value = responseData.data.map((notice: Notice) => {
         return {
@@ -325,16 +352,34 @@ const fetchNotifications = async () => {
   }
 }
 
-const getNotificationTypeForBackend = (notification: Notice): 'info' | 'warning' | 'success' | 'task' => {
+const getNotificationTypeForBackend = (
+  notification: Notice
+): 'info' | 'warning' | 'success' | 'task' => {
   const content = notification.content?.toLowerCase() || ''
   const title = notification.title?.toLowerCase() || ''
-  
-  if (title.includes('警告') || content.includes('警告') || title.includes('warning') || content.includes('warning')) {
+
+  if (
+    title.includes('警告') ||
+    content.includes('警告') ||
+    title.includes('warning') ||
+    content.includes('warning')
+  ) {
     return 'warning'
-  } else if (title.includes('任务') || content.includes('任务') || title.includes('task') || content.includes('task')) {
+  } else if (
+    title.includes('任务') ||
+    content.includes('任务') ||
+    title.includes('task') ||
+    content.includes('task')
+  ) {
     return 'task'
-  } else if (title.includes('成功') || content.includes('成功') || title.includes('完成') || 
-    title.includes('success') || content.includes('success') || content.includes('complete')) {
+  } else if (
+    title.includes('成功') ||
+    content.includes('成功') ||
+    title.includes('完成') ||
+    title.includes('success') ||
+    content.includes('success') ||
+    content.includes('complete')
+  ) {
     return 'success'
   } else {
     return 'info' // 默认类型
@@ -346,14 +391,15 @@ const readNotification = async (notification: Notice) => {
   if (notification.isRead === 0) {
     try {
       const response = await markNoticeAsRead(notification.noticeId)
+      console.log(response, 'response')
       // Axios将响应数据封装在data属性中
       const responseData = response.data
-      
-      if (responseData.code === 200) {
+
+      if (responseData) {
         notification.isRead = 1
         ElMessage.success('已标记为已读')
       } else {
-        ElMessage.error(responseData.msg || '标记已读失败')
+        ElMessage.error('标记已读失败')
       }
     } catch (error) {
       console.error('标记已读失败:', error)
@@ -368,7 +414,7 @@ const markAllAsRead = async () => {
     const response = await markAllNoticesAsRead()
     // Axios将响应数据封装在data属性中
     const responseData = response.data
-    
+
     if (responseData.code === 200) {
       notifications.value.forEach(item => {
         item.isRead = 1
@@ -389,7 +435,7 @@ const deleteNotification = async (noticeId: string) => {
     const response = await deleteNotice(noticeId)
     // Axios将响应数据封装在data属性中
     const responseData = response.data
-    
+
     if (responseData.code === 200) {
       // 从数组中找到并删除这条通知
       const index = notifications.value.findIndex(item => item.noticeId === noticeId)
@@ -434,7 +480,7 @@ onMounted(() => {
 
   // 获取用户信息
   fetchUserInfo()
-  
+
   // 获取通知消息
   fetchNotifications()
 })

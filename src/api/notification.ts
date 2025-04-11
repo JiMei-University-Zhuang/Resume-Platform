@@ -8,7 +8,7 @@ export function getNoticeList(token: string) {
   return request<NoticeResponse>({
     url: '/notice/getNoticeList',
     method: 'get',
-    params: { token } 
+    params: { token }
   })
 }
 
@@ -18,10 +18,10 @@ export function getNoticeList(token: string) {
  * @returns 操作结果
  */
 export function markNoticeAsRead(noticeId: string) {
-  return request<{code: number; msg: string}>({
-    url: '/notice/markAsRead',
-    method: 'post',
-    data: { noticeId }
+  return request<{ code: number; msg: string }>({
+    url: '/notice/setRead',
+    method: 'get',
+    params: { noticeId }
   })
 }
 
@@ -30,9 +30,9 @@ export function markNoticeAsRead(noticeId: string) {
  * @returns 操作结果
  */
 export function markAllNoticesAsRead() {
-  return request<{code: number; msg: string}>({
-    url: '/notice/markAllAsRead',
-    method: 'post'
+  return request<{ code: number; msg: string }>({
+    url: '/notice/setReadAll',
+    method: 'get'
   })
 }
 
@@ -42,7 +42,7 @@ export function markAllNoticesAsRead() {
  * @returns 操作结果
  */
 export function deleteNotice(noticeId: string) {
-  return request<{code: number; msg: string}>({
+  return request<{ code: number; msg: string }>({
     url: '/notice/delete',
     method: 'get',
     params: { noticeId }
@@ -66,4 +66,4 @@ export interface NoticeResponse {
   code: number
   msg: string
   data: Notice[]
-} 
+}
