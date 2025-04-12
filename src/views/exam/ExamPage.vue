@@ -125,16 +125,6 @@
               ></textarea>
               <div v-if="showEssayAnswers" class="essay-answer-container">
                 <div>
-                  我的答案：
-                  <div>
-                    {{
-                      essayAnswers[
-                        questionIndex * (question.expoundingOptionInfos?.length || 1) + subIndex
-                      ]
-                    }}
-                  </div>
-                </div>
-                <div>
                   参考答案：
                   <div><span v-html="formatText(subQuestion.correctAnswer)"></span></div>
                 </div>
