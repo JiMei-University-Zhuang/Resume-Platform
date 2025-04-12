@@ -561,10 +561,7 @@ const handleSendMessage = async () => {
 
   try {
     // 首先检查是否有预定义的回复
-<<<<<<< HEAD
-=======
     console.log('Checking for predefined replies')
->>>>>>> c8346fa7250863ef362aec3501fcfef9213b2d93
     if (
       Object.keys(mockData).some(
         key =>
@@ -578,10 +575,7 @@ const handleSendMessage = async () => {
         Object.keys(mockData).find(key => userMessage.toLowerCase().includes(key.toLowerCase()))
 
       if (bestMatch) {
-<<<<<<< HEAD
-=======
         console.log('Using mock reply for:', bestMatch)
->>>>>>> c8346fa7250863ef362aec3501fcfef9213b2d93
         await streamAiReply(mockData[bestMatch])
         return
       }
