@@ -14,6 +14,7 @@
     "lint-staged": "lint-staged"
   },
   "dependencies": {
+    "@ant-design/icons-vue": "^7.0.1",
     "@element-plus/icons-vue": "^2.3.1",
     "@jiaminghi/data-view": "^2.10.0",
     "@kjgl77/datav-vue3": "1.7.4",
@@ -22,6 +23,7 @@
     "@types/node": "^22.13.1",
     "@vueuse/core": "^12.7.0",
     "animate.css": "^4.1.1",
+    "ant-design-vue": "^3.2.20",
     "axios": "^1.7.9",
     "canvas-confetti": "^1.9.3",
     "cropperjs": "^2.0.0",

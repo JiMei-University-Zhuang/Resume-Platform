@@ -348,8 +348,8 @@ function initConfetti() {
 function triggerConfetti(x: number, y: number, isClick = false) {
   if (!confettiInstance) return
 
-  // 点击触发的特效粒子数量，减少为原来的三分之一
-  const count = isClick ? 10 + Math.floor(Math.random() * 8) : 8 + Math.floor(Math.random() * 12)
+  // 点击触发的特效粒子数量，显著减少
+  const count = isClick ? 3 + Math.floor(Math.random() * 2) : 2 + Math.floor(Math.random() * 2)
 
   // 将坐标转换为相对于窗口大小的比例
   const xRatio = x / window.innerWidth
@@ -357,7 +357,7 @@ function triggerConfetti(x: number, y: number, isClick = false) {
 
   confettiInstance({
     particleCount: count,
-    spread: isClick ? 80 : 45, // 减小扩散范围
+    spread: isClick ? 60 : 30, // 减小扩散范围
     origin: { x: xRatio, y: yRatio },
     colors: ['#5EC8AD', '#409EFF', '#67C23A', '#FFD6A5', '#A0C4FF', '#F56C6C', '#E6A23C'],
     shapes: ['circle', 'square', 'star'], // 增加形状种类

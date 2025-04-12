@@ -24,7 +24,9 @@
             <span class="category-label">首页</span>
           </router-link>
 
+          <!-- 管理员专属功能 - 数据大屏 -->
           <router-link
+            v-if="userStore.userInfo.role === 'ADMIN'"
             to="/datascreen"
             class="category-item"
             :class="{ active: route.path === '/datascreen' }"
@@ -35,6 +37,25 @@
             </div>
             <span class="category-label">数据大屏</span>
           </router-link>
+
+          <!-- 管理员专属功能 - 用户管理 -->
+          <template v-if="userStore.userInfo.role === 'ADMIN'">
+            <div class="category-section">
+              <h3 class="section-title">系统管理</h3>
+            </div>
+
+            <router-link
+              to="/user-management/list"
+              class="category-item"
+              :class="{ active: route.path.startsWith('/user-management') }"
+              @click="navigateTo('/user-management/list')"
+            >
+              <div class="category-icon">
+                <el-icon><User /></el-icon>
+              </div>
+              <span class="category-label">用户管理</span>
+            </router-link>
+          </template>
 
           <div class="category-section">
             <h3 class="section-title">简历模块</h3>
@@ -172,14 +193,28 @@
         >
           <el-icon><HomeFilled /></el-icon>
         </router-link>
-        <router-link
-          to="/datascreen"
-          class="category-icon-collapsed"
-          :class="{ active: route.path === '/datascreen' }"
-          @click="navigateTo('/datascreen')"
-        >
-          <el-icon><DataLine /></el-icon>
-        </router-link>
+
+        <!-- 折叠模式下的管理员专属功能 -->
+        <template v-if="userStore.userInfo.role === 'ADMIN'">
+          <router-link
+            to="/datascreen"
+            class="category-icon-collapsed"
+            :class="{ active: route.path === '/datascreen' }"
+            @click="navigateTo('/datascreen')"
+          >
+            <el-icon><DataLine /></el-icon>
+          </router-link>
+
+          <router-link
+            to="/user-management/list"
+            class="category-icon-collapsed"
+            :class="{ active: route.path.startsWith('/user-management') }"
+            @click="navigateTo('/user-management/list')"
+          >
+            <el-icon><User /></el-icon>
+          </router-link>
+        </template>
+
         <router-link
           to="/chat"
           class="category-icon-collapsed"
@@ -244,15 +279,18 @@ import {
   Compass,
   StarFilled,
   Reading,
-  Collection
+  Collection,
+  User
 } from '@element-plus/icons-vue'
 import { useAppStore } from '@/stores'
+import { useUserStore } from '@/stores/userStore'
 import { useRoute } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { computed } from 'vue'
 
 const route = useRoute()
 const appStore = useAppStore()
+const userStore = useUserStore()
 const { collapsed, isDark } = storeToRefs(appStore)
 
 // 计算属性

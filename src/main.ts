@@ -5,6 +5,13 @@ import 'element-plus/es/components/message-box/style/css'
 import 'element-plus/es/components/notification/style/css'
 import 'element-plus/theme-chalk/dark/css-vars.css'
 import { ElConfigProvider } from 'element-plus'
+
+// Import Ant Design Vue
+import Antd from 'ant-design-vue'
+import 'ant-design-vue/dist/antd.css'
+// Import custom Ant Design Vue CSS fixes
+import '../public/css/antd-fixes.css'
+
 import './style.css'
 import '../public/css/template-enhancements.css'
 import App from './App.vue'
@@ -18,6 +25,9 @@ for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
 }
 
 app.component('ElConfigProvider', ElConfigProvider)
+
+// Use Ant Design Vue
+app.use(Antd)
 
 app.provide('LOCALE', 'zh-cn')
 
