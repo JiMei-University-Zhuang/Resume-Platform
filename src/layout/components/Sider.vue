@@ -247,12 +247,11 @@ import {
   Collection
 } from '@element-plus/icons-vue'
 import { useAppStore } from '@/stores'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { computed } from 'vue'
 
 const route = useRoute()
-const router = useRouter()
 const appStore = useAppStore()
 const { collapsed, isDark } = storeToRefs(appStore)
 
@@ -262,32 +261,28 @@ const menuTextColor = computed(() => (isDark.value ? '#bfcbd9' : '#fff'))
 
 // 优雅地处理导航，确保路由切换时页面总是更新
 const navigateTo = (path: string) => {
-  // 判断是否同路径或同模块内部导航
-  const isSamePath = route.path === path
-  const isSameModule =
-    (path.startsWith('/resume') && route.path.startsWith('/resume')) ||
-    (path.startsWith('/career-planning') && route.path.startsWith('/career-planning')) ||
-    (path.startsWith('/exam') && route.path.startsWith('/exam'))
-
-  // 只有在相同路径或相同模块内导航时特殊处理
-  if (isSamePath || isSameModule) {
+  // 判断是否完全相同的路径（精确匹配）
+  const isExactSamePath = route.path === path
+  
+  // 只有在完全相同的路径时才强制刷新
+  // 同一模块下的不同路径不需要强制刷新
+  if (isExactSamePath) {
     // 触发全局事件告知布局组件需要刷新
     if (typeof window !== 'undefined') {
-      // 简单直接的方法 - 使用标准事件API
       const event = document.createEvent('Event')
       event.initEvent('force-route-refresh', true, true)
       window.dispatchEvent(event)
     }
-
-    // 使用 router.replace 强制导航
-    router.replace({
-      path,
-      query: {
-        ...route.query, // 保留现有查询参数
-        _r: Date.now().toString() // 添加时间戳强制更新
-      }
-    })
   }
+  
+  // 不再添加时间戳查询参数，除非确定在完全相同的路径上需要强制刷新特定内容
+  // router.replace({
+  //   path,
+  //   query: {
+  //     ...route.query,
+  //     _r: Date.now().toString()
+  //   }
+  // })
 }
 
 defineExpose({

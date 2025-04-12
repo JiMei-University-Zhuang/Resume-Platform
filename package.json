@@ -58,8 +58,12 @@
     "lint-staged": "^15.4.3",
     "prettier": "^3.5.0",
     "sass": "^1.85.1",
+    "terser": "^5.39.0",
     "typescript": "~5.7.2",
+    "unplugin-auto-import": "^19.1.2",
+    "unplugin-vue-components": "^28.4.1",
     "vite": "^6.1.0",
+    "vite-plugin-imagemin": "^0.6.1",
     "vue-tsc": "^2.2.0"
   },
   "lint-staged": {
