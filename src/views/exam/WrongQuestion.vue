@@ -15,9 +15,11 @@
       <div v-if="recordCount > 0">
         <select
           v-model="selectedRecordId"
+          @click="handleSelectClick"
           @change="selectedRecordId && fetchWrongQuestionsByRecordId(selectedRecordId)"
           style="padding: 20px"
         >
+          <option :value="null">{{ selectDisplayText }}</option>
           <option v-for="recordId in recordIds" :value="recordId">答题记录 {{ recordId }}</option>
         </select>
         <div v-if="selectedRecordId">
@@ -43,7 +45,9 @@
               </div>
               <p
                 class="question-content"
-                v-html="selectedWrongQuestions[currentQuestionIndex].questionContent"
+                v-html="
+                  `&ensp;&ensp;${selectedWrongQuestions[currentQuestionIndex].questionContent}`
+                "
               ></p>
               <div
                 v-if="
@@ -99,6 +103,12 @@
                     selectedWrongQuestions[currentQuestionIndex].referenceAnswer
                   }}</span>
                 </p>
+                <p class="answer-container">
+                  你的答案:
+                  <span class="user-answer">{{
+                    selectedWrongQuestions[currentQuestionIndex].userAnswer
+                  }}</span>
+                </p>
               </div>
               <div
                 v-if="selectedWrongQuestions[currentQuestionIndex].questions"
@@ -137,7 +147,7 @@
           <!-- 题数选择区域 -->
           <div class="question-number-select">
             <button
-              v-for="(index, num) in selectedWrongQuestions.length"
+              v-for="(_index, num) in selectedWrongQuestions.length"
               :key="num"
               :class="{ 'question-number-btn': true, active: currentQuestionIndex === num }"
               @click="showQuestion(num)"
@@ -190,6 +200,7 @@ let userId: number
 const selectedRecordId = ref<number | null>(null)
 const selectedWrongQuestions = ref<WrongQuestion[]>([]) // 存储选择的那次记录中的错题数据
 const currentQuestionIndex = ref(0) // 当前展示的题目索引
+const selectDisplayText = ref('请选择你要选择的试卷')
 // 切换题目展示的函数
 const showQuestion = (num: number) => {
   currentQuestionIndex.value = num
@@ -316,7 +327,14 @@ const fetchWrongQuestionsByRecordId = async (recordId: number) => {
 const getOptionLetter = (index: number): string => {
   return String.fromCharCode(65 + index)
 }
-
+// 监听下拉框是否被触碰，这里通过监听点击事件实现
+const handleSelectClick = () => {
+  if (recordIds.value.length > 0 && selectedRecordId.value === null) {
+    selectedRecordId.value = recordIds.value[0]
+    selectDisplayText.value = `答题记录 ${recordIds.value[0]}`
+    fetchWrongQuestionsByRecordId(selectedRecordId.value)
+  }
+}
 onMounted(async () => {
   try {
     await fetchUserId()
@@ -339,7 +357,7 @@ onMounted(async () => {
   padding: 0;
   margin: 0;
   box-sizing: border-box;
-  font-family: Arial, sans-serif; /* 设置统一字体 */
+  font-family: Arial, sans-serif;
 }
 ul {
   list-style: none;
@@ -348,7 +366,7 @@ ul {
   max-width: 900px;
   margin: 0 auto;
   padding: 30px 20px;
-  background-color: #f4f4f4; /* 设置背景颜色 */
+  background-color: #f4f4f4;
 }
 
 /* 页面标题样式 */
@@ -365,11 +383,11 @@ ul {
 }
 
 .page-title {
-  font-size: 32px; /* 增大标题字体大小 */
+  font-size: 32px;
   margin: 0 0 12px 0;
   display: flex;
   align-items: center;
-  justify-content: center; /* 图标和文字居中 */
+  justify-content: center;
   gap: 12px;
 }
 
@@ -378,11 +396,11 @@ ul {
 }
 
 .page-description {
-  font-size: 18px; /* 增大描述字体大小 */
+  font-size: 18px;
   margin: 0;
   opacity: 0.9;
   max-width: 800px;
-  line-height: 1.6; /* 增加行高 */
+  line-height: 1.6;
 }
 
 /* 错题卡片样式 */
