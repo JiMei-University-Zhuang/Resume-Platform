@@ -14,7 +14,7 @@ var apiBaseUrl = isLocal ? 'http://8.130.75.193:8081' : 'https://view.yinhenx.cn
 // https://vite.dev/config/
 export default defineConfig({
     // 设置为空字符串或相对路径'.'，以允许使用相对路径部署
-    base: process.env.BASE_PATH || '/',
+    base: process.env.BASE_PATH || './',
     plugins: [
         vue(),
         // 自动导入Element Plus组件
@@ -90,13 +90,31 @@ export default defineConfig({
                 },
                 secure: false
             },
-            '/api': {
+            // 其他API - 保留/api前缀
+            '^/api/(?!auth|chat)': {
                 target: apiBaseUrl,
                 changeOrigin: true,
-                rewrite: function (path) {
-                    return path.replace(/^\/api/, '');
-                },
-                secure: false
+                rewrite: function (path) { return path; },
+                secure: false,
+                configure: function (proxy, options) {
+                    proxy.on('proxyReq', function (proxyReq, req, res) {
+                        console.log('其他API请求:', req.method, req.url, '->', options.target + proxyReq.path);
+                    });
+                    proxy.on('proxyRes', function (proxyRes, req, res) {
+                        console.log('其他API响应:', proxyRes.statusCode, req.url);
+                        // 添加CORS头
+                        res.setHeader('Access-Control-Allow-Origin', '*');
+                        res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE');
+                        res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, token');
+                        res.setHeader('Access-Control-Allow-Credentials', 'true');
+                        if (req.method === 'OPTIONS') {
+                            res.statusCode = 200;
+                        }
+                    });
+                    proxy.on('error', function (err, req, res) {
+                        console.error('其他API代理错误:', err);
+                    });
+                }
             }
         }
     },

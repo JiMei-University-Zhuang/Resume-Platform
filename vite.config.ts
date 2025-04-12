@@ -17,7 +17,7 @@ const apiBaseUrl = isLocal ? 'http://8.130.75.193:8081' : 'https://view.yinhenx.
 // https://vite.dev/config/
 export default defineConfig({
   // 设置为空字符串或相对路径'.'，以允许使用相对路径部署
-  base: process.env.BASE_PATH || '/',
+  base: process.env.BASE_PATH || './',
   plugins: [
     vue(),
     // 自动导入Element Plus组件
