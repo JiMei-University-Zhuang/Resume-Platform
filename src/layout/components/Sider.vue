@@ -263,7 +263,6 @@ const menuTextColor = computed(() => (isDark.value ? '#bfcbd9' : '#fff'))
 const navigateTo = (path: string) => {
   // 判断是否完全相同的路径（精确匹配）
   const isExactSamePath = route.path === path
-  
   // 只有在完全相同的路径时才强制刷新
   // 同一模块下的不同路径不需要强制刷新
   if (isExactSamePath) {
@@ -274,7 +273,6 @@ const navigateTo = (path: string) => {
       window.dispatchEvent(event)
     }
   }
-  
   // 不再添加时间戳查询参数，除非确定在完全相同的路径上需要强制刷新特定内容
   // router.replace({
   //   path,
