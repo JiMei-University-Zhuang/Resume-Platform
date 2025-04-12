@@ -7,7 +7,7 @@
           <div class="hexagon"></div>
           <div class="hexagon"></div>
         </div>
-        <h1>AI管理平台</h1>
+        <h1>智航Career AI拼命加载中</h1>
         <div class="loading-text">
           <span>System</span>
           <span class="dots">
