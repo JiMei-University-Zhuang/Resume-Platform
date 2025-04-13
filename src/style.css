@@ -9,3 +9,30 @@ body {
   margin: 0;
   padding: 0;
 }
+
+.ant-popover,
+.ant-select-dropdown,
+.ant-dropdown,
+.ant-tooltip {
+  pointer-events: initial !important;
+}
+
+.ant-select-dropdown {
+  z-index: 2000 !important;
+}
+
+.ant-modal-mask,
+.ant-modal-wrap {
+  z-index: 2001 !important;
+}
+
+[class^='ant-'] {
+  box-sizing: border-box;
+}
+
+button.ant-btn {
+  appearance: auto;
+  -webkit-appearance: auto;
+  background-color: initial;
+  background-image: initial;
+}

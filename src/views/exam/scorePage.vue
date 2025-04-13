@@ -1,7 +1,7 @@
 <template>
   <div class="history-score-page">
     <div class="header-container">
-      <h1 class="page-title">我的分数</h1>
+      <h1 class="page-title">历史分数</h1>
       <div class="filter-container" style="width: 150px">
         <el-select v-model="selectedType" placeholder="选择类型">
           <el-option label="全部" value=""></el-option>
@@ -126,57 +126,112 @@ main()
 </script>
 
 <style scoped>
+/* 整体页面样式 */
 .history-score-page {
-  padding: 20px;
-  max-width: 800px;
-  margin: 0 auto;
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 2rem auto;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 1.5rem;
+  background-color: #f9fafb;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
 }
 
+/* 鼠标悬停时整体页面效果 */
+.history-score-page:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* 标题容器样式 */
 .header-container {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 1rem;
 }
 
+/* 页面标题样式 */
 .page-title {
   margin: 0;
-  font-size: 28px;
-  color: #303133;
+  font-size: 2.25rem;
+  color: #1f2937;
+  font-weight: 700;
+  letter-spacing: -0.025em;
 }
 
+/* 分页样式 */
 .pagination-style {
   margin-left: auto;
+  margin-top: 1rem;
 }
 
+/* 分页按钮悬停和聚焦效果 */
+.pagination-style .el-pagination__item:hover,
+.pagination-style .el-pagination__item:focus {
+  color: #007bff;
+}
+
+/* 成绩卡片样式 */
 .score-card {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
+  border-radius: 0.5rem;
   overflow: hidden;
+  background-color: #ffffff;
+  transition: all 0.3s ease;
 }
 
+/* 鼠标悬停时成绩卡片效果 */
+.score-card:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* 表格样式 */
 .score-table {
   width: 100%;
+  border-collapse: collapse;
 }
 
 .score-table thead {
-  background-color: #f4f4f4;
-  color: #303133;
+  background-color: #007bff;
+  color: #ffffff;
+  font-weight: 500;
 }
 
 .score-table tbody {
-  background-color: #fff;
+  background-color: #ffffff;
 }
 
+.score-table th,
+.score-table td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+/* 表格行悬停效果 */
+.score-table tbody tr:hover {
+  background-color: #f3f4f6;
+}
+
+/* 筛选容器样式 */
 .filter-container {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 0.75rem;
 }
 
-.search-input {
-  flex: 1;
+/* 选择框样式 */
+.filter-container .el-select {
+  width: 100%;
 }
-</style>
+
+/* 选择框悬停和聚焦效果 */
+.filter-container .el-select:hover .el-input__inner,
+.filter-container .el-select:focus .el-input__inner {
+  border-color: #007bff;
+}
+</style>    

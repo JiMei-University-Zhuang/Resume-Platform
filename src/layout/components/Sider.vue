@@ -24,7 +24,9 @@
             <span class="category-label">首页</span>
           </router-link>
 
+          <!-- 管理员专属功能 - 数据大屏 -->
           <router-link
+            v-if="userStore.userInfo.role === 'ADMIN'"
             to="/datascreen"
             class="category-item"
             :class="{ active: route.path === '/datascreen' }"
@@ -40,41 +42,27 @@
               <h3 class="section-title">简历模块</h3>
             </div>
 
-            <router-link
-              to="/resume/create"
-              class="category-item"
-              :class="{ active: route.path.startsWith('/resume/create') }"
-              @click="navigateTo('/resume/create')"
-            >
-              <div class="category-icon">
-                <el-icon><Document /></el-icon>
-              </div>
-              <span class="category-label">创建简历</span>
-            </router-link>
+          <!-- 管理员专属功能 - 用户管理 -->
+          <template v-if="userStore.userInfo.role === 'ADMIN'">
+            <div class="category-section">
+              <h3 class="section-title">系统管理</h3>
+            </div>
 
             <router-link
-              to="/resume/templates"
+              to="/user-management/list"
               class="category-item"
-              :class="{ active: route.path === '/resume/templates' }"
-              @click="navigateTo('/resume/templates')"
+              :class="{ active: route.path.startsWith('/user-management') }"
+              @click="navigateTo('/user-management/list')"
             >
               <div class="category-icon">
-                <el-icon><CopyDocument /></el-icon>
+                <el-icon><User /></el-icon>
               </div>
-              <span class="category-label">简历模板</span>
+              <span class="category-label">用户管理</span>
             </router-link>
+          </template>
 
-            <router-link
-              to="/resume/analysis"
-              class="category-item"
-              :class="{ active: route.path === '/resume/analysis' }"
-              @click="navigateTo('/resume/analysis')"
-            >
-              <div class="category-icon">
-                <el-icon><DataAnalysis /></el-icon>
-              </div>
-              <span class="category-label">简历分析</span>
-            </router-link>
+          <div class="category-section">
+            <h3 class="section-title">简历模块</h3>
           </div>
 
           <div class="category-exam">
@@ -179,14 +167,28 @@
         >
           <el-icon><HomeFilled /></el-icon>
         </router-link>
-        <router-link
-          to="/datascreen"
-          class="category-icon-collapsed"
-          :class="{ active: route.path === '/datascreen' }"
-          @click="navigateTo('/datascreen')"
-        >
-          <el-icon><DataLine /></el-icon>
-        </router-link>
+
+        <!-- 折叠模式下的管理员专属功能 -->
+        <template v-if="userStore.userInfo.role === 'ADMIN'">
+          <router-link
+            to="/datascreen"
+            class="category-icon-collapsed"
+            :class="{ active: route.path === '/datascreen' }"
+            @click="navigateTo('/datascreen')"
+          >
+            <el-icon><DataLine /></el-icon>
+          </router-link>
+
+          <router-link
+            to="/user-management/list"
+            class="category-icon-collapsed"
+            :class="{ active: route.path.startsWith('/user-management') }"
+            @click="navigateTo('/user-management/list')"
+          >
+            <el-icon><User /></el-icon>
+          </router-link>
+        </template>
+
         <router-link
           to="/chat"
           class="category-icon-collapsed"
@@ -234,6 +236,7 @@
           <el-icon><Reading /></el-icon>
         </router-link>
       </div>
+      </div>
     </el-scrollbar>
   </aside>
 </template>
@@ -251,16 +254,18 @@ import {
   Compass,
   StarFilled,
   Reading,
-  Collection
+  Collection,
+  User
 } from '@element-plus/icons-vue'
 import { useAppStore } from '@/stores'
-import { useRoute, useRouter } from 'vue-router'
+import { useUserStore } from '@/stores/userStore'
+import { useRoute } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { computed } from 'vue'
 
 const route = useRoute()
-const router = useRouter()
 const appStore = useAppStore()
+const userStore = useUserStore()
 const { collapsed, isDark } = storeToRefs(appStore)
 
 // 计算属性
@@ -269,32 +274,26 @@ const menuTextColor = computed(() => (isDark.value ? '#bfcbd9' : '#fff'))
 
 // 优雅地处理导航，确保路由切换时页面总是更新
 const navigateTo = (path: string) => {
-  // 判断是否同路径或同模块内部导航
-  const isSamePath = route.path === path
-  const isSameModule =
-    (path.startsWith('/resume') && route.path.startsWith('/resume')) ||
-    (path.startsWith('/career-planning') && route.path.startsWith('/career-planning')) ||
-    (path.startsWith('/exam') && route.path.startsWith('/exam'))
-
-  // 只有在相同路径或相同模块内导航时特殊处理
-  if (isSamePath || isSameModule) {
+  // 判断是否完全相同的路径（精确匹配）
+  const isExactSamePath = route.path === path
+  // 只有在完全相同的路径时才强制刷新
+  // 同一模块下的不同路径不需要强制刷新
+  if (isExactSamePath) {
     // 触发全局事件告知布局组件需要刷新
     if (typeof window !== 'undefined') {
-      // 简单直接的方法 - 使用标准事件API
       const event = document.createEvent('Event')
       event.initEvent('force-route-refresh', true, true)
       window.dispatchEvent(event)
     }
-
-    // 使用 router.replace 强制导航
-    router.replace({
-      path,
-      query: {
-        ...route.query, // 保留现有查询参数
-        _r: Date.now().toString() // 添加时间戳强制更新
-      }
-    })
   }
+  // 不再添加时间戳查询参数，除非确定在完全相同的路径上需要强制刷新特定内容
+  // router.replace({
+  //   path,
+  //   query: {
+  //     ...route.query,
+  //     _r: Date.now().toString()
+  //   }
+  // })
 }
 
 defineExpose({

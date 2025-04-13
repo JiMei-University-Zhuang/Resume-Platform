@@ -560,8 +560,12 @@ const handleSendMessage = async () => {
   isTyping.value = true
 
   try {
+<<<<<<< HEAD
     // 首先检查是否有预定义的回复
     console.log('Checking for predefined replies')
+=======
+    // 检查是否有预定义的回复
+>>>>>>> dev/dsy
     if (
       Object.keys(mockData).some(
         key =>
@@ -575,7 +579,6 @@ const handleSendMessage = async () => {
         Object.keys(mockData).find(key => userMessage.toLowerCase().includes(key.toLowerCase()))
 
       if (bestMatch) {
-        console.log('Using mock reply for:', bestMatch)
         await streamAiReply(mockData[bestMatch])
         return
       }

@@ -252,8 +252,8 @@ function initClickCanvas() {
       y,
       radius: 0,
       color: colors[Math.floor(Math.random() * colors.length)],
-      alpha: 0.8,
-      maxRadius: 80 + Math.random() * 40 // 最大半径在80-120之间
+      alpha: 0.6, // 降低初始透明度
+      maxRadius: 60 + Math.random() * 20 // 最大半径缩小到60-80之间
     })
   }
 
@@ -348,8 +348,8 @@ function initConfetti() {
 function triggerConfetti(x: number, y: number, isClick = false) {
   if (!confettiInstance) return
 
-  // 点击触发的特效粒子更多
-  const count = isClick ? 30 + Math.floor(Math.random() * 20) : 8 + Math.floor(Math.random() * 12)
+  // 点击触发的特效粒子数量，显著减少
+  const count = isClick ? 3 + Math.floor(Math.random() * 2) : 2 + Math.floor(Math.random() * 2)
 
   // 将坐标转换为相对于窗口大小的比例
   const xRatio = x / window.innerWidth
@@ -357,14 +357,14 @@ function triggerConfetti(x: number, y: number, isClick = false) {
 
   confettiInstance({
     particleCount: count,
-    spread: isClick ? 120 : 65, // 点击时扩散范围更大
+    spread: isClick ? 60 : 30, // 减小扩散范围
     origin: { x: xRatio, y: yRatio },
     colors: ['#5EC8AD', '#409EFF', '#67C23A', '#FFD6A5', '#A0C4FF', '#F56C6C', '#E6A23C'],
     shapes: ['circle', 'square', 'star'], // 增加形状种类
     zIndex: 100,
-    scalar: isClick ? 1.2 : 0.6, // 点击时粒子尺寸更大
-    gravity: isClick ? 1.2 : 1, // 点击时重力更大，下落更快
-    ticks: isClick ? 200 : 100 // 点击时持续时间更长
+    scalar: isClick ? 1.0 : 0.6, // 微调粒子尺寸
+    gravity: isClick ? 1.5 : 1.2, // 增大重力，加快下落速度
+    ticks: isClick ? 130 : 80 // 减少持续时间
   })
 }
 

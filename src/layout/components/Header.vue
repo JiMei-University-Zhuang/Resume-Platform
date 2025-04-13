@@ -594,7 +594,7 @@ onUnmounted(() => {
 
 .el-breadcrumb {
   font-size: 14px;
-  line-height: 64px;
+  line-height: 59px;
 }
 
 /* 消息通知样式 */

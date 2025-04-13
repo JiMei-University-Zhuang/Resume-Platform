@@ -1,0 +1,146 @@
+/* Ant Design Vue fixes for Element Plus co-existence */
+
+/* Button styles */
+.ant-btn {
+  line-height: 1.5715;
+  position: relative;
+  display: inline-block;
+  font-weight: 400;
+  white-space: nowrap;
+  text-align: center;
+  background-image: none;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+  user-select: none;
+  touch-action: manipulation;
+  height: auto;
+  padding: 4px 15px;
+  font-size: 14px;
+  border-radius: 2px;
+  color: rgba(0, 0, 0, 0.85);
+  background: #fff;
+  border-color: #d9d9d9;
+}
+
+.ant-btn-primary {
+  color: #fff;
+  background: #1890ff;
+  border-color: #1890ff;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.12);
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.045);
+}
+
+.ant-btn-primary:hover,
+.ant-btn-primary:focus {
+  color: #fff;
+  background: #40a9ff;
+  border-color: #40a9ff;
+}
+
+.ant-btn-primary:active {
+  color: #fff;
+  background: #096dd9;
+  border-color: #096dd9;
+}
+
+/* Form styles */
+.ant-form-item {
+  margin-bottom: 24px;
+  vertical-align: top;
+  position: relative; 
+}
+
+/* Table styles */
+.ant-table {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  color: rgba(0, 0, 0, 0.85);
+  font-variant: tabular-nums;
+  line-height: 1.5715;
+  list-style: none;
+  font-feature-settings: 'tnum';
+  position: relative;
+  font-size: 14px;
+  background: #fff;
+  border-radius: 2px;
+}
+
+/* Card styles */
+.ant-card {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  color: rgba(0, 0, 0, 0.85);
+  font-size: 14px;
+  font-variant: tabular-nums;
+  line-height: 1.5715;
+  list-style: none;
+  font-feature-settings: 'tnum';
+  position: relative;
+  background: #fff;
+  border-radius: 2px;
+  transition: all 0.3s;
+}
+
+/* Input styles */
+.ant-input {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-variant: tabular-nums;
+  list-style: none;
+  font-feature-settings: 'tnum';
+  position: relative;
+  display: inline-block;
+  width: 100%;
+  min-width: 0;
+  padding: 4px 11px;
+  color: rgba(0, 0, 0, 0.85);
+  font-size: 14px;
+  line-height: 1.5715;
+  background-color: #fff;
+  background-image: none;
+  border: 1px solid #d9d9d9;
+  border-radius: 2px;
+  transition: all 0.3s;
+}
+
+/* Fix for modal and popup z-indexes */
+.ant-modal, .ant-drawer, .ant-popover, .ant-tooltip, .ant-select-dropdown, .ant-dropdown {
+  z-index: 1050 !important;
+}
+
+/* Typography */
+.ant-typography {
+  color: rgba(0, 0, 0, 0.85);
+  overflow-wrap: break-word;
+}
+
+/* Dark mode styles */
+html.dark .ant-btn {
+  background: #1f1f1f;
+  border-color: #434343;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+html.dark .ant-card, 
+html.dark .ant-table {
+  background: #1f1f1f;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+html.dark .ant-input {
+  background-color: #1f1f1f;
+  border-color: #434343;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+html.dark .ant-select-dropdown {
+  background-color: #1f1f1f;
+}
+
+html.dark .ant-modal-content {
+  background-color: #1f1f1f;
+} 
