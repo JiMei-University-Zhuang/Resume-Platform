@@ -37,10 +37,6 @@
             </div>
             <span class="category-label">数据大屏</span>
           </router-link>
-          <div class="category-note">
-            <div class="category-section">
-              <h3 class="section-title">简历模块</h3>
-            </div>
 
           <!-- 管理员专属功能 - 用户管理 -->
           <template v-if="userStore.userInfo.role === 'ADMIN'">
@@ -64,7 +60,41 @@
           <div class="category-section">
             <h3 class="section-title">简历模块</h3>
           </div>
+          <router-link
+            to="/resume/create"
+            class="category-item"
+            :class="{ active: route.path.startsWith('/resume/create') }"
+            @click="navigateTo('/resume/create')"
+          >
+            <div class="category-icon">
+              <el-icon><Document /></el-icon>
+            </div>
+            <span class="category-label">创建简历</span>
+          </router-link>
 
+          <router-link
+            to="/resume/templates"
+            class="category-item"
+            :class="{ active: route.path === '/resume/templates' }"
+            @click="navigateTo('/resume/templates')"
+          >
+            <div class="category-icon">
+              <el-icon><CopyDocument /></el-icon>
+            </div>
+            <span class="category-label">简历模板</span>
+          </router-link>
+
+          <router-link
+            to="/resume/analysis"
+            class="category-item"
+            :class="{ active: route.path === '/resume/analysis' }"
+            @click="navigateTo('/resume/analysis')"
+          >
+            <div class="category-icon">
+              <el-icon><DataAnalysis /></el-icon>
+            </div>
+            <span class="category-label">简历分析</span>
+          </router-link>
           <div class="category-exam">
             <div class="category-section">
               <h3 class="section-title">考试中心</h3>
@@ -235,7 +265,6 @@
         >
           <el-icon><Reading /></el-icon>
         </router-link>
-      </div>
       </div>
     </el-scrollbar>
   </aside>

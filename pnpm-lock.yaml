@@ -1477,8 +1477,6 @@ packages:
   dompurify@3.2.4:
     resolution: {integrity: sha512-ysFSFEDVduQpyhzAob/kkuJjf5zWkZD8/A9ywSp1byueyuCfHamrCBa14/Oc2iiB0e51B+NpxSl5gmzn+Ms/mg==}
 
-  driver.js@1.3.5:
-    resolution: {integrity: sha512-exkp49hXuujvTOZ3zYgySWRlEAa8/3nA8glYjtuZjmkTdsQITXivBsW1ytyhKQx3WkeYaovlnvVcLbtTaN86kA==}
   domutils@2.8.0:
     resolution: {integrity: sha512-w96Cjofp72M5IIhpjgobBimYEfoPjx1Vx0BSX9P30WBdZW2WIKU0T1Bd0kz2eNZ9ikjKgHbEyKx8BB6H1L3h3A==}
 
@@ -1489,6 +1487,9 @@ packages:
   download@7.1.0:
     resolution: {integrity: sha512-xqnBTVd/E+GxJVrX5/eUJiLYjCGPwMpdL+jGhGU57BvtcA7wwhtHVbXBeUk51kOpW3S7Jn3BQbN9Q1R1Km2qDQ==}
     engines: {node: '>=6'}
+
+  driver.js@1.3.5:
+    resolution: {integrity: sha512-exkp49hXuujvTOZ3zYgySWRlEAa8/3nA8glYjtuZjmkTdsQITXivBsW1ytyhKQx3WkeYaovlnvVcLbtTaN86kA==}
 
   dunder-proto@1.0.1:
     resolution: {integrity: sha512-KIN/nDJBQRcXw0MLVhZE9iQHmG68qAVIBg9CqmUYjmQIhgij9U5MFvrqkUL5FbtyyzZuOeOt0zdeRe4UY7ct+A==}
@@ -4873,7 +4874,6 @@ snapshots:
       '@types/trusted-types': 2.0.7
     optional: true
 
-  driver.js@1.3.5: {}
   domutils@2.8.0:
     dependencies:
       dom-serializer: 1.4.1
@@ -4908,6 +4908,8 @@ snapshots:
       make-dir: 1.3.0
       p-event: 2.3.1
       pify: 3.0.0
+
+  driver.js@1.3.5: {}
 
   dunder-proto@1.0.1:
     dependencies:

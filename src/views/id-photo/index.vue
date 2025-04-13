@@ -266,7 +266,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed } from 'vue'
+import { ref, reactive, computed, onMounted, nextTick } from 'vue'
 import {
   UploadFilled,
   Download,
@@ -276,6 +276,8 @@ import {
   Check,
   Right
 } from '@element-plus/icons-vue'
+import { driver } from 'driver.js'
+import 'driver.js/dist/driver.css'
 import type { UploadFile } from 'element-plus'
 import { ElMessage } from 'element-plus'
 import { uploadIdPhoto } from '@/api/id-photo'
@@ -300,6 +302,77 @@ const generatedPhotoUrl = ref<string>('')
 const selectedFile = ref<File | null>(null)
 const drawerVisible = ref<boolean>(false)
 const activeSettingsTab = ref<string>('specs')
+
+// 配置引导步骤
+const driverObj = driver({
+  showProgress: true,
+  steps: [
+    {
+      element: '.upload-area',
+      popover: {
+        title: '上传照片',
+        description: '点击或拖拽上传您的照片，建议使用正面免冠照片',
+        side: 'left',
+        align: 'start'
+      }
+    },
+    {
+      element: '.settings-section',
+      popover: {
+        title: '照片设置',
+        description: '在这里可以调整照片规格、背景颜色等基本设置',
+        side: 'right',
+        align: 'start'
+      }
+    },
+    {
+      element: '.size-select',
+      popover: {
+        title: '选择规格',
+        description: '根据您的需求选择合适的证件照规格，包括常用证件照、签证照等',
+        side: 'right',
+        align: 'start'
+      }
+    },
+    {
+      element: '.color-selection',
+      popover: {
+        title: '背景颜色',
+        description: '选择符合要求的证件照背景颜色，可以使用预设颜色或自定义颜色',
+        side: 'right',
+        align: 'start'
+      }
+    },
+    {
+      element: '.generate-btn',
+      popover: {
+        title: '生成证件照',
+        description: '点击生成按钮，AI将自动处理照片并生成标准证件照',
+        side: 'bottom',
+        align: 'start'
+      }
+    },
+    { 
+      popover: { 
+        title: '开始制作', 
+        description: '现在，让我们开始制作您的证件照吧！' 
+      } 
+    }
+  ]
+})
+
+// 在组件挂载后启动导览
+onMounted(() => {
+  const hasSeenIdPhotoGuide = localStorage.getItem('hasSeenIdPhotoGuide')
+  if (!hasSeenIdPhotoGuide) {
+    nextTick(() => {
+      setTimeout(() => {
+        driverObj.drive()
+        localStorage.setItem('hasSeenIdPhotoGuide', 'true')
+      }, 500)
+    })
+  }
+})
 
 const presetColors = ref<PresetColor[]>([
   { label: '白色', value: '#FFFFFF' },
