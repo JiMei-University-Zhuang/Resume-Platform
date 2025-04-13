@@ -560,7 +560,7 @@ const handleSendMessage = async () => {
   isTyping.value = true
 
   try {
-    // 首先检查是否有预定义的回复
+    // 检查是否有预定义的回复
     if (
       Object.keys(mockData).some(
         key =>
