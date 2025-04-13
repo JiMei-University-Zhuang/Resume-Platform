@@ -387,11 +387,11 @@ const driverObj = driver({
         align: 'start'
       }
     },
-    { 
-      popover: { 
-        title: '开始规划', 
-        description: '现在，让我们开始规划你的职业发展之路吧！' 
-      } 
+    {
+      popover: {
+        title: '开始规划',
+        description: '现在，让我们开始规划你的职业发展之路吧！'
+      }
     }
   ]
 })

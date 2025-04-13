@@ -330,7 +330,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted ,nextTick} from 'vue'
+import { ref, onMounted, onUnmounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import MouseEffects from '@/components/MouseEffects/index.vue'
 import { driver } from 'driver.js'
@@ -437,140 +437,138 @@ const updateSmartTips = async () => {
 const driverObj = driver({
   showProgress: true,
   steps: [
-  {
-    
-    popover: {
-      title: '欢迎使用智航 CareerAI',
-      description: '这是一个AI驱动的职业生涯规划平台，让我们来了解一下主要功能吧！',
-    }
-  },
-  {
-    element: '.hero-section',
-    popover: {
-      title: '首页欢迎区',
-      description: '这里展示了平台的核心价值，您可以快速开始职业规划或了解更多功能。',
-      side: 'bottom',
+    {
+      popover: {
+        title: '欢迎使用智航 CareerAI',
+        description: '这是一个AI驱动的职业生涯规划平台，让我们来了解一下主要功能吧！'
+      }
+    },
+    {
+      element: '.hero-section',
+      popover: {
+        title: '首页欢迎区',
+        description: '这里展示了平台的核心价值，您可以快速开始职业规划或了解更多功能。',
+        side: 'bottom',
         align: 'start'
-    }
-  },
-  {
-    element: '.sidebar',
-    popover: {
-      title: '侧边导航栏',
-      description: '这里包含了平台所有功能的快捷入口，让我们来看看具体有哪些功能。',
-      side: 'right',
+      }
+    },
+    {
+      element: '.sidebar',
+      popover: {
+        title: '侧边导航栏',
+        description: '这里包含了平台所有功能的快捷入口，让我们来看看具体有哪些功能。',
+        side: 'right',
         align: 'start'
-    }
-  },
-  {
-    element: '.sidebar .category-item:nth-child(1)',
-    popover: {
-      title: '首页',
-      description: '返回平台首页，查看平台概览和最新动态。',
-      side: 'right',
+      }
+    },
+    {
+      element: '.sidebar .category-item:nth-child(1)',
+      popover: {
+        title: '首页',
+        description: '返回平台首页，查看平台概览和最新动态。',
+        side: 'right',
         align: 'start'
-    }
-  },
-  {
-    element: '.sidebar .category-item:nth-child(2)',
-    popover: {
-      title: '数据大屏',
-      description: '查看平台数据统计和可视化展示。',
-      side: 'right',
+      }
+    },
+    {
+      element: '.sidebar .category-item:nth-child(2)',
+      popover: {
+        title: '数据大屏',
+        description: '查看平台数据统计和可视化展示。',
+        side: 'right',
         align: 'start'
-    }
-  },
-  {
-    element: '.sidebar .category-note',
-    popover: {
-      title: '创建简历',
-      description: '使用AI辅助创建专业简历，提升求职竞争力。',
-      side: 'right',
+      }
+    },
+    {
+      element: '.sidebar .category-note',
+      popover: {
+        title: '创建简历',
+        description: '使用AI辅助创建专业简历，提升求职竞争力。',
+        side: 'right',
         align: 'start'
-    }
-  },
-  {
-    element: '.sidebar .category-exam',
-    popover: {
-      title: '考试中心',
-      description: '提供公务员考试、考研等备考资源和AI辅导。',
-     side: 'bottom',
+      }
+    },
+    {
+      element: '.sidebar .category-exam',
+      popover: {
+        title: '考试中心',
+        description: '提供公务员考试、考研等备考资源和AI辅导。',
+        side: 'bottom',
         align: 'start'
-    }
-  },
-  {
-    element: '.sidebar .category-AI',
-    popover: {
-      title: 'AI助手',
-      description: '随时随地与AI职业顾问交流，解答您的职场困惑。',
-      side: 'bottom',
+      }
+    },
+    {
+      element: '.sidebar .category-AI',
+      popover: {
+        title: 'AI助手',
+        description: '随时随地与AI职业顾问交流，解答您的职场困惑。',
+        side: 'bottom',
         align: 'start'
-    }
-  },
-  {
-    element: '.sidebar .category-job',
-    popover: {
-      title: '职业规划',
-      description: '获取个性化的职业发展路径和推荐。',
-      side: 'bottom',
+      }
+    },
+    {
+      element: '.sidebar .category-job',
+      popover: {
+        title: '职业规划',
+        description: '获取个性化的职业发展路径和推荐。',
+        side: 'bottom',
         align: 'start'
-    }
-  },
-  {
-    element: '.header',
-    popover: {
-      title: '顶部导航栏',
-      description: '这里包含了一些快捷功能和个人设置。',
-      side: 'bottom',
+      }
+    },
+    {
+      element: '.header',
+      popover: {
+        title: '顶部导航栏',
+        description: '这里包含了一些快捷功能和个人设置。',
+        side: 'bottom',
         align: 'start'
-    }
-  },
-  {
-    element: '.header .trigger',
-    popover: {
-      title: '侧栏切换',
-      description: '点击可以展开或收起侧边导航栏，让界面更简洁。',
-      side: 'bottom',
+      }
+    },
+    {
+      element: '.header .trigger',
+      popover: {
+        title: '侧栏切换',
+        description: '点击可以展开或收起侧边导航栏，让界面更简洁。',
+        side: 'bottom',
         align: 'start'
-    }
-  },
-  {
-    element: '.header-right .header-item:nth-child(1)',
-    popover: {
-      title: '全屏切换',
-      description: '点击可以切换全屏模式，获得更好的浏览体验。',
-     side: 'bottom',
+      }
+    },
+    {
+      element: '.header-right .header-item:nth-child(1)',
+      popover: {
+        title: '全屏切换',
+        description: '点击可以切换全屏模式，获得更好的浏览体验。',
+        side: 'bottom',
         align: 'start'
-    }
-  },
-  {
-    element: '.header-right .header-item:nth-child(3)',
-    popover: {
-      title: '消息通知',
-      description: '查看系统通知和任务提醒，不错过任何重要信息。',
-      side: 'bottom',
+      }
+    },
+    {
+      element: '.header-right .header-item:nth-child(3)',
+      popover: {
+        title: '消息通知',
+        description: '查看系统通知和任务提醒，不错过任何重要信息。',
+        side: 'bottom',
         align: 'start'
-    }
-  },
-  {
-    element: '.header-right .user-info',
-    popover: {
-      title: '用户中心',
-      description: '查看个人信息和账户设置，也可以在这里退出登录。',
-       side: 'bottom',
+      }
+    },
+    {
+      element: '.header-right .user-info',
+      popover: {
+        title: '用户中心',
+        description: '查看个人信息和账户设置，也可以在这里退出登录。',
+        side: 'bottom',
         align: 'start'
+      }
+    },
+    {
+      element: '.get-started-btn',
+      popover: {
+        title: '开始使用',
+        description: '现在，您可以开始使用智航 CareerAI 规划您的职业生涯了！'
+      }
     }
-  },
-  {
-    element: '.get-started-btn',
-    popover: {
-      title: '开始使用',
-      description: '现在，您可以开始使用智航 CareerAI 规划您的职业生涯了！'
-    }
-  }
-]
+  ]
 })
-
 
 // 在组件挂载后启动导览
 onMounted(() => {
@@ -603,7 +601,7 @@ onMounted(async () => {
   })
 
   initRobotParticles()
-  
+
   // 初始化引导
   initTourGuide()
 })

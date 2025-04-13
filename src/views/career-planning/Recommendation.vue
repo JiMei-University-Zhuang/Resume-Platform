@@ -392,11 +392,11 @@ const driverObj = driver({
         align: 'start'
       }
     },
-    { 
-      popover: { 
-        title: '开始探索', 
-        description: '现在，让我们开始寻找适合您的理想职位吧！' 
-      } 
+    {
+      popover: {
+        title: '开始探索',
+        description: '现在，让我们开始寻找适合您的理想职位吧！'
+      }
     }
   ]
 })
@@ -405,7 +405,7 @@ const driverObj = driver({
 onMounted(async () => {
   try {
     commonPositions.value = await getCommonPositions()
-    
+
     // 检查是否首次访问
     const hasSeenRecommendationGuide = localStorage.getItem('hasSeenRecommendationGuide')
     if (!hasSeenRecommendationGuide) {
