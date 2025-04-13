@@ -1,7 +1,7 @@
 <template>
   <div class="civil-service">
     <div class="card-header">
-      <h1 class="welcome-title">欢迎来到考公中心</h1>
+      <h1 class="welcome-title">欢迎来到考公中心11</h1>
       <div class="countdown-container">
         <h2
           class="countdown-title"
