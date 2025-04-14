@@ -405,66 +405,6 @@ const sendEmailCaptcha = async () => {
   }
 }
 
-// 发送注册验证码方法（中文提示版）
-// const sendRegisterEmailCaptcha = async () => {
-//   if (countdown.register > 0 || isSendingRegisterCaptcha.value) return
-//   try {
-//     isSendingRegisterCaptcha.value = true
-//     const isValid = await registerFormRef.value
-//       .validate(['password'])
-//       .then(() => true)
-//       .catch((error: ValidateError) => {
-//         if (!error.fields) {
-//           ElMessage.warning('请正确填写所有必填项')
-//           return false
-//         }
-//         const invalidFields = error.fields
-//         const firstErrorKey = Object.keys(invalidFields)[0]
-//         // 获取中文错误提示
-//         const errorMessage = invalidFields[firstErrorKey][0].message
-//         // 显示中文提示
-//         ElMessage.warning(`请检查输入：${errorMessage}`)
-//         // 滚动到错误项
-//         const errorElement = document.querySelector(`[prop="${firstErrorKey}"]`)
-//         errorElement?.scrollIntoView({
-//           behavior: 'smooth',
-//           block: 'center'
-//         })
-//         return false
-//       })
-
-//     if (!isValid) return
-
-//     // 发送验证码请求
-//     sendingCaptcha.value = true
-//     const response = await sendRegisterEmailCaptchaValue({
-//       email: registerForm.email
-//     })
-
-//     if (response.data.code === 200) {
-//       ElMessage.success('验证码发送成功')
-//       startCountdown('register')
-//     } else {
-//       ElMessage.error(response.data.message || '验证码发送失败，请重试')
-//     }
-//   } catch (error: unknown) {
-//     let errorMessage = '验证码发送失败'
-//     if (error instanceof Error) {
-//       errorMessage = error.message
-//     }
-//     if (typeof error === 'object' && error !== null && 'response' in error) {
-//       const axiosError = error as { response?: { data?: { message?: string } } }
-//       if (axiosError.response?.data?.message) {
-//         errorMessage += `：${axiosError.response.data.message}`
-//       }
-//     }
-//     ElMessage.error(errorMessage)
-//   } finally {
-//     sendingCaptcha.value = false
-//     isSendingRegisterCaptcha.value = false
-//   }
-// }
-
 const sendRegisterEmailCaptcha = async () => {
   if (countdown.register > 0 || isSendingRegisterCaptcha.value) return
   try {
