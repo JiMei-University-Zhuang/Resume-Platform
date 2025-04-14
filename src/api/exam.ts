@@ -28,13 +28,15 @@ export interface ExamData {
 
 export interface ScoresaveData {
   userId: number
-  score: number
-  type: '练习' | '考试'
+  userScore: number
+  totalScore: number
+  type: '公务员练习' | '公务员考试' | '研究生练习' | '研究生考试'
+  questionInfo: string
 }
 
 export interface ScoregetData {
   userId: number
-  type: '练习' | '考试'
+  type: '公务员' | '研究生'
   examName?: string
   subject?: string
   totalScore?: number
