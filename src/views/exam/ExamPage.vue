@@ -95,7 +95,12 @@
               </div>
             </div>
           </div>
-          <el-button type="primary" @click="handleSubmit">提交试卷</el-button>
+          <div class="button-group">
+            <el-button type="primary" @click="handleSubmit" v-if="!showReference"
+              >提交答案</el-button
+            >
+            <el-button type="success" @click="returnToHome" v-else>返回主页</el-button>
+          </div>
         </div>
       </template>
       <template v-else>
@@ -133,7 +138,11 @@
               </div>
             </div>
           </div>
-          <el-button type="primary" @click="submitRealExam">提交答案</el-button>
+
+          <el-button type="primary" @click="submitRealExam" v-if="!showReference"
+            >提交答案</el-button
+          >
+          <el-button type="success" @click="returnToHome" v-else>返回主页</el-button>
         </div>
       </template>
     </div>
@@ -157,6 +166,7 @@ import passimg2 from '@/assets/images/exam_imgs/pass2.png'
 import failimg1 from '@/assets/images/exam_imgs/failpass1.png'
 import failimg2 from '@/assets/images/exam_imgs/failpass2.png'
 import { useExamStore } from '@/stores/examStore'
+import router from '@/router'
 
 // 定义题目接口
 interface Question {
@@ -179,6 +189,7 @@ interface Question {
 
 const route = useRoute()
 const examStore = useExamStore()
+const showReference = ref(false)
 const subject = ref(route.query.subject as string)
 const count = ref(parseInt(route.query.count as string, 10))
 const questions = ref<Question[]>([])
@@ -247,6 +258,7 @@ const handleSubmit = async () => {
   } catch (error) {
     console.log('用户取消提交')
   }
+  showReference.value = true
 }
 const submitExam = async () => {
   if (!userId) {
@@ -389,6 +401,7 @@ const submitRealExam = async () => {
   showEssayAnswers.value = true
   isExamInProgress.value = false
   saveScoreAndWrongQuestions()
+  showReference.value = true
 }
 
 const analyzeQuestion = (index: number) => {
@@ -411,13 +424,12 @@ const saveScoreAndWrongQuestions = async () => {
     type: route.query.type === 'exam' ? '考试' : '练习',
     records: wrongQuestions
   }
-
   try {
-    const response = await saveWrongQuestion(wrongQuestionData)
-    // console.log('保存错题成功44444:', response.data)
-  } catch (error) {
-    console.error('保存错题失败:', error)
-  }
+    await saveWrongQuestion(wrongQuestionData)
+  } catch (error) {}
+}
+const returnToHome = () => {
+  router.push('/exam')
 }
 
 onMounted(async () => {
@@ -440,10 +452,12 @@ onMounted(async () => {
     }, 1000)
   }
   examStore.setExamStatus(true)
+  console.log('Setting exam status to true')
 })
 onUnmounted(() => {
   examStore.setExamStatus(false)
   saveScoreAndWrongQuestions()
+  console.log('Setting exam status to false')
 })
 </script>
 

@@ -8,6 +8,7 @@ export const useExamStore = defineStore('exam', {
   actions: {
     setExamStatus(status: boolean) {
       this.isInExam = status
+      console.log(`Setting exam status to: ${status}`)
     }
   }
 })
