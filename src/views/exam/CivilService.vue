@@ -331,7 +331,7 @@ onMounted(() => {
 }
 
 .countdown-container {
-  background: linear-gradient(145deg, #99D7EB 0%, #6DC1DC 100%);
+  background: linear-gradient(145deg, #99d7eb 0%, #6dc1dc 100%);
   border-radius: 12px;
   padding: 10px 20px;
   box-shadow: 0 6px 20px rgba(206, 83, 83, 0.08);

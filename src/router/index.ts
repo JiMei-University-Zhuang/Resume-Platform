@@ -21,6 +21,7 @@ const routes: RouteRecordRaw[] = [
     component: () => import('../views/datascreen/index.vue'),
     meta: {
       title: '数据大屏',
+      i18n: 'breadcrumb.dataScreen',
       icon: 'DataLine',
       roles: ['admin', 'ADMIN']
     }
@@ -32,7 +33,11 @@ const routes: RouteRecordRaw[] = [
       {
         path: 'dashboard',
         name: 'Dashboard',
-        component: () => import('../views/dashboard/index.vue')
+        component: () => import('../views/dashboard/index.vue'),
+        meta: {
+          title: '控制台',
+          i18n: 'breadcrumb.dashboard'
+        }
       },
       {
         path: 'user-management',
@@ -40,6 +45,7 @@ const routes: RouteRecordRaw[] = [
         redirect: '/user-management/list',
         meta: {
           title: '用户管理',
+          i18n: 'breadcrumb.userManagement',
           icon: 'User',
           roles: ['ADMIN']
         },
@@ -50,6 +56,7 @@ const routes: RouteRecordRaw[] = [
             component: () => import('@/views/user-management/UserList.vue'),
             meta: {
               title: '用户列表',
+              i18n: 'breadcrumb.userList',
               roles: ['ADMIN']
             }
           },
@@ -59,6 +66,7 @@ const routes: RouteRecordRaw[] = [
             component: () => import('@/views/user-management/UserForm.vue'),
             meta: {
               title: '添加用户',
+              i18n: 'breadcrumb.userAdd',
               roles: ['ADMIN']
             }
           },
@@ -68,6 +76,7 @@ const routes: RouteRecordRaw[] = [
             component: () => import('@/views/user-management/UserForm.vue'),
             meta: {
               title: '编辑用户',
+              i18n: 'breadcrumb.userEdit',
               roles: ['ADMIN']
             }
           }
@@ -98,6 +107,7 @@ const routes: RouteRecordRaw[] = [
         component: () => import('../views/chat/AIChat.vue'),
         meta: {
           title: 'AI助手',
+          i18n: 'breadcrumb.aiAssistant',
           icon: 'ChatDotRound'
         }
       },
@@ -107,6 +117,7 @@ const routes: RouteRecordRaw[] = [
         component: () => import('../views/chat/ChatHistory.vue'),
         meta: {
           title: '聊天历史',
+          i18n: 'breadcrumb.chatHistory',
           icon: 'ChatDotRound'
         }
       },
@@ -116,6 +127,7 @@ const routes: RouteRecordRaw[] = [
         redirect: '/resume/create',
         meta: {
           title: 'AI简历中心',
+          i18n: 'breadcrumb.resumeModule',
           icon: 'Document'
         },
         children: [
@@ -123,25 +135,37 @@ const routes: RouteRecordRaw[] = [
             path: 'create/:template?',
             name: 'ResumeCreate',
             component: () => import('@/views/resume/Create.vue'),
-            meta: { title: '创建简历' }
+            meta: {
+              title: '创建简历',
+              i18n: 'breadcrumb.resumeCreate'
+            }
           },
           {
             path: 'templates',
             name: 'ResumeTemplates',
             component: () => import('@/views/resume/Templates.vue'),
-            meta: { title: '简历模板' }
+            meta: {
+              title: '简历模板',
+              i18n: 'breadcrumb.resumeTemplates'
+            }
           },
           {
             path: 'analysis',
             name: 'ResumeAnalysis',
             component: () => import('@/views/resume/Analysis.vue'),
-            meta: { title: '简历分析' }
+            meta: {
+              title: '简历分析',
+              i18n: 'breadcrumb.resumeAnalysis'
+            }
           },
           {
             path: 'insights',
             name: 'ResumeInsights',
             component: () => import('@/views/resume/Insights.vue'),
-            meta: { title: '行业洞察' }
+            meta: {
+              title: '行业洞察',
+              i18n: 'breadcrumb.resumeInsights'
+            }
           }
         ]
       },
@@ -151,6 +175,7 @@ const routes: RouteRecordRaw[] = [
         component: () => import('@/views/id-photo/index.vue'),
         meta: {
           title: 'AI证件照',
+          i18n: 'breadcrumb.aiIDPhoto',
           icon: 'Camera'
         }
       },
@@ -160,6 +185,7 @@ const routes: RouteRecordRaw[] = [
         redirect: '/career-planning/analysis',
         meta: {
           title: 'AI职业规划',
+          i18n: 'breadcrumb.careerPlanning',
           icon: 'Compass'
         },
         children: [
@@ -167,13 +193,19 @@ const routes: RouteRecordRaw[] = [
             path: 'roadmap',
             name: 'CareerRoadmap',
             component: () => import('@/views/career-planning/Roadmap.vue'),
-            meta: { title: '发展规划' }
+            meta: {
+              title: '发展规划',
+              i18n: 'breadcrumb.developmentPlan'
+            }
           },
           {
             path: 'recommendation',
             name: 'CareerRecommendation',
             component: () => import('@/views/career-planning/Recommendation.vue'),
-            meta: { title: '职业推荐' }
+            meta: {
+              title: '职业推荐',
+              i18n: 'breadcrumb.careerRecommendation'
+            }
           }
         ]
       },
@@ -183,6 +215,7 @@ const routes: RouteRecordRaw[] = [
         redirect: '/exam/civil-service',
         meta: {
           title: '考试中心',
+          i18n: 'breadcrumb.examCenter',
           icon: 'Reading'
         },
         children: [
@@ -190,13 +223,19 @@ const routes: RouteRecordRaw[] = [
             path: 'civil-service',
             name: 'CivilService',
             component: () => import('@/views/exam/CivilService.vue'),
-            meta: { title: '公务员考试' }
+            meta: {
+              title: '公务员考试',
+              i18n: 'breadcrumb.civilServiceExam'
+            }
           },
           {
             path: 'postgraduate',
             name: 'Postgraduate',
             component: () => import('@/views/exam/Postgraduate.vue'),
-            meta: { title: '考研备考' }
+            meta: {
+              title: '考研备考',
+              i18n: 'breadcrumb.postgraduatePrep'
+            }
           },
           {
             path: 'scorePage',

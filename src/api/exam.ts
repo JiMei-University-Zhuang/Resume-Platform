@@ -135,6 +135,14 @@ export function getProfessionalExam(examName: string) {
   })
 }
 
+export function getPsychologyExam(examName: string) {
+  return request({
+    url: '/exam/getPsychologyExam',
+    method: 'post',
+    data: { examName }
+  })
+}
+
 export function submitProfessionalExam(data: any) {
   return request({
     url: '/exam/submitProfessionalExam',

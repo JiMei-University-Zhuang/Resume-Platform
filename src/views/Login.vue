@@ -685,7 +685,7 @@ onMounted(() => {
 }
 
 .captcha-button {
-  height: 44px;
+  height: 34px;
 }
 
 :deep(.custom-input .el-input__wrapper) {

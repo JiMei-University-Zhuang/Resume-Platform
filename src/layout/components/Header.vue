@@ -19,7 +19,6 @@
           <Aim v-else />
         </el-icon>
       </div>
-
       <!-- 语言切换 -->
       <div
         class="header-item"
@@ -213,6 +212,7 @@ import {
   deleteNotice,
   type Notice
 } from '@/api/notification'
+import { useLanguage } from '@/composables/useLanguage'
 
 // 载入相对时间插件
 dayjs.extend(relativeTime)
@@ -228,12 +228,8 @@ const userInfo = ref<GetUserResult | null>(null)
 const userAvatar = computed(() => userInfo.value?.avatar)
 const userName = computed(() => userInfo.value?.name || 'Admin')
 
-// 语言切换
-const isEnglish = ref(false)
-const toggleLanguage = () => {
-  isEnglish.value = !isEnglish.value
-  message.success(isEnglish.value ? 'Are you OK?' : '你在搞什么我还没写好')
-}
+// 使用语言组合式函数
+const { isEnglish, toggleLanguage } = useLanguage()
 
 // 全屏切换功能
 const toggleFullScreen = () => {

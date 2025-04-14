@@ -19,6 +19,7 @@ import '../public/css/template-enhancements.css'
 import App from './App.vue'
 import router from './router'
 import { createPinia } from 'pinia'
+import i18n from './i18n'
 
 const app = createApp(App)
 
@@ -31,7 +32,8 @@ for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
 
 app.use(Antd)
 
-app.provide('LOCALE', 'zh-cn')
+app.use(i18n)
+
 app.use(router)
 app.use(createPinia())
 
