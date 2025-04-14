@@ -280,12 +280,12 @@ const submitExam = async () => {
     console.error('保存成绩失败:', error)
   }
   saveScoreAndWrongQuestions()
-  
+
   //结果弹窗
   const isPass = accuracy >= 60
   const title = '本次专项练习成绩'
   const statusText = isPass ? '正确率过六十啦🎉，真棒！' : '继续加油，相信自己一定行'
-  
+
   ElMessageBox({
     message: `
           <div style="text-align: center; padding: 25px 32px;">

@@ -389,6 +389,7 @@ ul {
   align-items: center;
   justify-content: center;
   gap: 12px;
+  color: white;
 }
 
 .page-title .el-icon {

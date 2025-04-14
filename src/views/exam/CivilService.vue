@@ -2,34 +2,27 @@
   <div class="civil-service">
     <div class="card-header">
       <h1 class="welcome-title">欢迎来到考公中心</h1>
+      <div class="header-buttons">
+        <el-button @click="gotoWrongQuestion" class="wrong-question-button">错题回顾</el-button>
+        <el-button @click="gotoHistoryScore" class="history-score-button">历史记录</el-button>
+      </div>
       <div class="countdown-container">
         <h2
           class="countdown-title"
           style="
-            color: #c0392b;
-            text-shadow: 1px 1px 2px rgba(192, 57, 43, 0.1);
-            background: linear-gradient(135deg, #c0392b 0%, #e74c3c 100%);
+            color: white;
+            text-shadow: 1px 1px 2px rgba(138, 187, 234, 0.1);
             -webkit-background-clip: text;
             background-clip: text;
           "
         >
           国考倒计时
         </h2>
-        <p
-          class="days-count"
-          style="
-            height: 40px;
-            display: flex;
-            justify-content: center;
-            align-items: end;
-            font-size: 26px;
-            font-weight: bold;
-          "
-        >
+        <p class="days-count">
           {{ days }}
-          <span class="days-unit" style="font-size: 18px; font-weight: 400">天</span>
+          <span class="days-unit" style="font-size: 18px; font-weight: 400">&nbsp;天</span>
         </p>
-        <p style="color: gray; padding-top: 10px">2025年11月30日 星期日</p>
+        <p style="color: white; padding-top: 10px">2025年11月30日 星期日</p>
       </div>
     </div>
 
@@ -252,6 +245,12 @@ const startExam = () => {
   })
 }
 
+const gotoHistoryScore = () => {
+  router.push({ name: 'scorePage' })
+}
+const gotoWrongQuestion = () => {
+  router.push({ name: 'wrongquestionPage' })
+}
 // 处理 keep-alive 缓存
 onBeforeRouteLeave(() => {
   dialogVisible.value = false
@@ -265,6 +264,26 @@ onMounted(() => {
 </script>
 
 <style scoped>
+.header-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 20px;
+}
+.wrong-question-button,
+.history-score-button {
+  color: white;
+  background: linear-gradient(to right, #1a365d, #3182ce);
+  border: none;
+  border-radius: 8px;
+  padding: 20px 28px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.wrong-question-button:hover,
+.history-score-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px #3182ce;
+}
 .card-body {
   width: 100%;
   display: flex;
@@ -276,14 +295,14 @@ onMounted(() => {
   justify-content: space-between;
   align-items: center;
   position: relative;
-  margin-bottom: 50px;
+  margin-bottom: 10px;
 }
 
 .welcome-title {
   text-align: center;
   margin: 0;
   font-size: 2.5rem;
-  background: linear-gradient(135deg, #2d3436 0%, #636e72 100%);
+  background: linear-gradient(135deg, #1867ce 0%, #636e72 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -307,17 +326,17 @@ onMounted(() => {
   left: 50%;
   width: 120px;
   height: 3px;
-  background: linear-gradient(90deg, transparent, #5ec89c 50%, transparent);
+  background: linear-gradient(90deg, transparent, rgba(45, 52, 54) 50%, transparent);
   transform: translateX(-50%);
 }
 
 .countdown-container {
-  background: linear-gradient(145deg, #fff0f0 0%, #ffe5e5 100%);
+  background: linear-gradient(145deg, #99D7EB 0%, #6DC1DC 100%);
   border-radius: 12px;
-  padding: 0.6rem 1rem;
+  padding: 10px 20px;
   box-shadow: 0 6px 20px rgba(206, 83, 83, 0.08);
   position: absolute;
-  top: 150%;
+  top: 80%;
   right: 8%;
   border: none;
   transform: translateY(-50%);
@@ -370,7 +389,7 @@ onMounted(() => {
   position: absolute;
   right: 2.75rem;
   bottom: 1.5rem;
-  background: linear-gradient(60deg, #5ec89c, #67c23a);
+  background: linear-gradient(to right, #1a365d, #3182ce);
   border: none;
   border-radius: 8px;
   padding: 12px 28px;
@@ -379,7 +398,7 @@ onMounted(() => {
 
 .el-button--primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px #67c23a;
+  box-shadow: 0 5px 15px #3182ce;
 }
 
 .date-info {
@@ -409,7 +428,15 @@ onMounted(() => {
 .days-count {
   position: relative;
   display: inline-block;
-  animation: jump 1.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  /* animation: jump 1.5s cubic-bezier(0.4, 0, 0.2, 1) infinite; */
+  height: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: end;
+  font-size: 26px;
+  font-weight: bold;
+  margin-bottom: 0;
+  color: #214956;
 }
 
 /* 添加数字装饰线 */
@@ -429,7 +456,7 @@ onMounted(() => {
   position: absolute;
   right: 2rem;
   bottom: 1.5rem;
-  background: linear-gradient(135deg, #5ec89c, #67c23a);
+  background: linear-gradient(to right, #1a365d, #3182ce);
   border: none;
   border-radius: 8px;
   padding: 12px 28px;
@@ -439,7 +466,7 @@ onMounted(() => {
 
 .exam-button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px #67c23a;
+  box-shadow: 0 5px 15px #3182ce;
 }
 
 /* 设置项样式 */

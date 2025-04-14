@@ -243,10 +243,12 @@
             </el-button>
           </el-form-item>
 
-          <el-form-item style="display: flex;align-items: center;">
+          <el-form-item style="display: flex; align-items: center">
             <span class="account-tip">
               已有账号？
-              <span type="primary"  :underline="false" class="back-to-login" @click="gotoLogin"> 立即登录 </span>
+              <span type="primary" :underline="false" class="back-to-login" @click="gotoLogin">
+                立即登录
+              </span>
             </span>
           </el-form-item>
         </el-form>
@@ -793,7 +795,7 @@ onMounted(() => {
   text-decoration: none;
 }
 .back-to-login:hover {
- font-weight: 700;
+  font-weight: 700;
 }
 
 :deep(.el-input__wrapper) {

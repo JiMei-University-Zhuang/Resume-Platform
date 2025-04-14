@@ -205,8 +205,8 @@ const routes: RouteRecordRaw[] = [
             meta: { title: '成绩页' }
           },
           {
-            path: 'wrongPage',
-            name: 'wrongPage',
+            path: 'wrongquestionPage',
+            name: 'wrongquestionPage',
             component: () => import('@/views/exam/WrongQuestion.vue'),
             meta: { title: '错题页面' }
           },
