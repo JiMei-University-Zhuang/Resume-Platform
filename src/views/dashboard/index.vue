@@ -431,7 +431,6 @@ const updateSmartTips = async () => {
   ]
 }
 
-
 onMounted(async () => {
   initializeBehaviorData()
   await updateSmartTips()

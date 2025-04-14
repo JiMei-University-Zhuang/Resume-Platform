@@ -198,7 +198,8 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ElMessageBox } from 'element-plus'
+import { message } from 'ant-design-vue'
 import { getPoliticsPaperByName } from '@/api/exam'
 
 const route = useRoute()
@@ -243,13 +244,13 @@ const fetchPaper = async () => {
       loadingPercentage.value = 100
       loading.value = false
     } else {
-      ElMessage.error('获取试卷失败，服务器没有返回数据')
+      message.error('获取试卷失败，服务器没有返回数据')
       clearInterval(loadingTimer)
       loading.value = false
     }
   } catch (error) {
     console.error('获取试卷失败：', error)
-    ElMessage.error('获取试卷失败，请重试')
+    message.error('获取试卷失败，请重试')
     loading.value = false
   }
 }
@@ -362,7 +363,7 @@ const submitAnswers = async () => {
   }
 
   showReference.value = true
-  ElMessage.success('答案已提交')
+  message.success('答案已提交')
 }
 
 // 返回主页

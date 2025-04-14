@@ -149,6 +149,7 @@ import { saveWrongQuestion } from '@/api/errorRecord'
 import { SaveWrongQuestionData, WrongQuestionRecord } from '@/types/errorRecord'
 import { getUser } from '@/api/user'
 import { ElMessageBox } from 'element-plus'
+import { message } from 'ant-design-vue'
 import passimg1 from '@/assets/images/exam_imgs/pass1.jpg'
 import passimg2 from '@/assets/images/exam_imgs/pass2.png'
 import failimg1 from '@/assets/images/exam_imgs/failpass1.png'
@@ -279,10 +280,12 @@ const submitExam = async () => {
     console.error('保存成绩失败:', error)
   }
   saveScoreAndWrongQuestions()
+  
   //结果弹窗
   const isPass = accuracy >= 60
   const title = '本次专项练习成绩'
   const statusText = isPass ? '正确率过六十啦🎉，真棒！' : '继续加油，相信自己一定行'
+  
   ElMessageBox({
     message: `
           <div style="text-align: center; padding: 25px 32px;">
@@ -381,6 +384,7 @@ const analyzeQuestion = (index: number) => {
   essayAnalysisResults.value[index] = ''
   showAnalysis.value[index] = true
   aiAnalysisStatus.value[index] = 0
+  message.info('正在生成AI解析，请稍候...')
   analyzeQuestionSSE(questionId, index)
 }
 

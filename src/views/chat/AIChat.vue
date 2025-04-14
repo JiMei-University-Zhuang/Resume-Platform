@@ -239,11 +239,11 @@ const driverObj = driver({
         align: 'end'
       }
     },
-    { 
-      popover: { 
-        title: '开始对话', 
-        description: '现在，让我们开始智能对话之旅吧！' 
-      } 
+    {
+      popover: {
+        title: '开始对话',
+        description: '现在，让我们开始智能对话之旅吧！'
+      }
     }
   ]
 })
