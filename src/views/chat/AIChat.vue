@@ -151,6 +151,8 @@ import { ref, nextTick, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import MarkdownIt from 'markdown-it'
 import type { Options as MarkdownItOptions } from 'markdown-it'
+import { driver } from 'driver.js'
+import 'driver.js/dist/driver.css'
 import Prism from 'prismjs'
 import type { MockData } from '@/types/chat'
 import { connectAIChatFetch } from '@/api/chat'
@@ -187,6 +189,77 @@ const router = useRouter()
 const selectedModel = ref('qwen-max') // 默认选择千问模型
 const showModelList = ref(false) // 控制模型选择器显示状态
 const selectedTheme = ref('general') // 添加主题选择状态
+
+// 初始化引导对象
+const driverObj = driver({
+  showProgress: true,
+  steps: [
+    {
+      element: '.welcome-message',
+      popover: {
+        title: '欢迎使用',
+        description: '这里是智航AI助手的欢迎界面，为您提供了一些常用的对话建议',
+        side: 'bottom',
+        align: 'start'
+      }
+    },
+    {
+      element: '.model-selector-wrapper',
+      popover: {
+        title: '模型选择',
+        description: '您可以根据需求选择不同的AI模型，每个模型都有其特长领域',
+        side: 'bottom',
+        align: 'start'
+      }
+    },
+    {
+      element: '.theme-selector',
+      popover: {
+        title: '主题选择',
+        description: '选择对话主题可以帮助AI更好地理解您的需求',
+        side: 'bottom',
+        align: 'start'
+      }
+    },
+    {
+      element: '.input-wrapper',
+      popover: {
+        title: '对话输入',
+        description: '在这里输入您的问题，按回车键或点击发送按钮即可开始对话',
+        side: 'top',
+        align: 'start'
+      }
+    },
+    {
+      element: '.actions',
+      popover: {
+        title: '功能按钮',
+        description: '这里提供了新建对话、查看历史记录和清空当前对话等功能',
+        side: 'bottom',
+        align: 'end'
+      }
+    },
+    { 
+      popover: { 
+        title: '开始对话', 
+        description: '现在，让我们开始智能对话之旅吧！' 
+      } 
+    }
+  ]
+})
+
+// 在组件挂载后启动引导
+onMounted(() => {
+  const hasSeenChatGuide = localStorage.getItem('hasSeenChatGuide')
+  if (!hasSeenChatGuide) {
+    nextTick(() => {
+      setTimeout(() => {
+        driverObj.drive()
+        localStorage.setItem('hasSeenChatGuide', 'true')
+      }, 500)
+    })
+  }
+})
 
 // 可用模型列表
 const availableModels = [
@@ -560,8 +633,7 @@ const handleSendMessage = async () => {
   isTyping.value = true
 
   try {
-    // 首先检查是否有预定义的回复
-    console.log('Checking for predefined replies')
+    // 检查是否有预定义的回复
     if (
       Object.keys(mockData).some(
         key =>
@@ -575,7 +647,6 @@ const handleSendMessage = async () => {
         Object.keys(mockData).find(key => userMessage.toLowerCase().includes(key.toLowerCase()))
 
       if (bestMatch) {
-        console.log('Using mock reply for:', bestMatch)
         await streamAiReply(mockData[bestMatch])
         return
       }

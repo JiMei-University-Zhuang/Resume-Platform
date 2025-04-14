@@ -3,6 +3,7 @@ import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
 import { BasicLayout } from '../layout'
 import { ElMessageBox, ElMessage } from 'element-plus'
 import { useExamStore } from '@/stores/examStore'
+import { useUserStore } from '@/stores/userStore'
 
 const routes: RouteRecordRaw[] = [
   {
@@ -21,7 +22,7 @@ const routes: RouteRecordRaw[] = [
     meta: {
       title: '数据大屏',
       icon: 'DataLine',
-      roles: ['admin', 'user']
+      roles: ['admin', 'ADMIN']
     }
   },
   {
@@ -32,6 +33,45 @@ const routes: RouteRecordRaw[] = [
         path: 'dashboard',
         name: 'Dashboard',
         component: () => import('../views/dashboard/index.vue')
+      },
+      {
+        path: 'user-management',
+        name: 'UserManagement',
+        redirect: '/user-management/list',
+        meta: {
+          title: '用户管理',
+          icon: 'User',
+          roles: ['ADMIN']
+        },
+        children: [
+          {
+            path: 'list',
+            name: 'UserList',
+            component: () => import('@/views/user-management/UserList.vue'),
+            meta: {
+              title: '用户列表',
+              roles: ['ADMIN']
+            }
+          },
+          {
+            path: 'add',
+            name: 'UserAdd',
+            component: () => import('@/views/user-management/UserForm.vue'),
+            meta: {
+              title: '添加用户',
+              roles: ['ADMIN']
+            }
+          },
+          {
+            path: 'edit/:id',
+            name: 'UserEdit',
+            component: () => import('@/views/user-management/UserForm.vue'),
+            meta: {
+              title: '编辑用户',
+              roles: ['ADMIN']
+            }
+          }
+        ]
       },
       {
         path: '/error',
@@ -58,8 +98,7 @@ const routes: RouteRecordRaw[] = [
         component: () => import('../views/chat/AIChat.vue'),
         meta: {
           title: 'AI助手',
-          icon: 'ChatDotRound',
-          roles: ['admin', 'user']
+          icon: 'ChatDotRound'
         }
       },
       {
@@ -68,8 +107,7 @@ const routes: RouteRecordRaw[] = [
         component: () => import('../views/chat/ChatHistory.vue'),
         meta: {
           title: '聊天历史',
-          icon: 'ChatDotRound',
-          roles: ['admin', 'user']
+          icon: 'ChatDotRound'
         }
       },
       {
@@ -169,7 +207,7 @@ const routes: RouteRecordRaw[] = [
           {
             path: 'wrongPage',
             name: 'wrongPage',
-            component: () => import('@/views/exam/WrongQuestionRecord.vue'),
+            component: () => import('@/views/exam/WrongQuestion.vue'),
             meta: { title: '错题页面' }
           },
           {
@@ -229,25 +267,41 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   const isAuthenticated = localStorage.getItem('token')
   const examStore = useExamStore()
+  const userStore = useUserStore()
+
+  const requiresRole = to.meta.roles as Array<string> | undefined
 
   if (to.path !== '/login' && !isAuthenticated) {
     ElMessage.error('请先登录~')
     next('/login')
-  } else if (examStore.isInExam && to.path !== from.path) {
-    ElMessageBox.confirm('确定要退出吗？', '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning'
-    })
-      .then(() => {
-        examStore.setExamStatus(false)
-        next()
-      })
-      .catch(() => {
-        next(false)
-      })
+  } else if (requiresRole && requiresRole.length) {
+    if (!requiresRole.includes(userStore.userInfo.role)) {
+      ElMessage.error('您没有权限访问该页面')
+      next('/error/error401')
+      return
+    }
+    checkExamStatus()
   } else {
-    next()
+    checkExamStatus()
+  }
+
+  function checkExamStatus() {
+    if (examStore.isInExam && to.path !== from.path) {
+      ElMessageBox.confirm('确定要退出吗？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      })
+        .then(() => {
+          examStore.setExamStatus(false)
+          next()
+        })
+        .catch(() => {
+          next(false)
+        })
+    } else {
+      next()
+    }
   }
 })
 

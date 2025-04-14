@@ -330,7 +330,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import MouseEffects from '@/components/MouseEffects/index.vue'
 import {
@@ -431,6 +431,7 @@ const updateSmartTips = async () => {
   ]
 }
 
+
 onMounted(async () => {
   initializeBehaviorData()
   await updateSmartTips()
@@ -456,8 +457,8 @@ function initRobotParticles() {
   const container = document.querySelector('.particles-background') as HTMLElement
   if (!container) return
 
-  // 创建粒子
-  const particleCount = 50
+  // 创建粒子 - 减少粒子数量
+  const particleCount = 30 // 从50减少到30
   for (let i = 0; i < particleCount; i++) {
     const particle = document.createElement('div')
     particle.className = 'robot-particle'
@@ -466,14 +467,14 @@ function initRobotParticles() {
     const posX = Math.random() * 100
     const posY = Math.random() * 100
 
-    // 随机大小 (1-4px)
-    const size = Math.random() * 3 + 1
+    // 随机大小 (1-3px) - 减小粒子大小
+    const size = Math.random() * 2 + 1 // 从(1-4px)改为(1-3px)
 
     // 随机动画延迟
     const delay = Math.random() * 5
 
-    // 随机动画持续时间 (5-15s)
-    const duration = 5 + Math.random() * 10
+    // 随机动画持续时间 (7-12s) - 缩短动画时间
+    const duration = 7 + Math.random() * 5 // 从(5-15s)改为(7-12s)
 
     // 设置样式
     particle.style.cssText = `
@@ -483,6 +484,7 @@ function initRobotParticles() {
       height: ${size}px;
       animation-delay: ${delay}s;
       animation-duration: ${duration}s;
+      opacity: 0.5; /* 降低初始透明度 */
     `
 
     container.appendChild(particle)

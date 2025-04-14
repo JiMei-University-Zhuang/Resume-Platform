@@ -48,20 +48,6 @@ export interface Question {
   recordId: number
 }
 
-// 保存错题单个
-export interface WrongQuestionRecord {
-  questionId: number
-  itemId: number | null
-  userAnswer: string
-}
-
-// 保存错题整体
-export interface SaveWrongQuestionData {
-  userId: number
-  type: '练习' | '考试'
-  records: WrongQuestionRecord[]
-}
-
 export interface GetRecordData {
   userId: number
   type: '练习' | '考试'
@@ -107,33 +93,6 @@ export function saveScore(data: ScoresaveData) {
 export function getScore(data: ScoregetData) {
   return request({
     url: '/score/get',
-    method: 'post',
-    data
-  })
-}
-
-//获取错题接口
-export function getWrongQuestion(data: Question) {
-  return request({
-    url: '/record/restore',
-    method: 'post',
-    data
-  })
-}
-
-//保存错题的接口
-export function saveWrongQuestion(data: SaveWrongQuestionData) {
-  return request({
-    url: '/record/save',
-    method: 'post',
-    data
-  })
-}
-
-// 获取错题记录数的接口
-export function getWrongQuestionRecordCount(data: GetRecordData) {
-  return request({
-    url: '/record/getRecord',
     method: 'post',
     data
   })
