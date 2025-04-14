@@ -60,7 +60,6 @@
           <div class="category-section">
             <h3 class="section-title">简历模块</h3>
           </div>
-
           <router-link
             to="/resume/create"
             class="category-item"
@@ -96,90 +95,95 @@
             </div>
             <span class="category-label">简历分析</span>
           </router-link>
+          <div class="category-exam">
+            <div class="category-section">
+              <h3 class="section-title">考试中心</h3>
+            </div>
 
-          <div class="category-section">
-            <h3 class="section-title">考试中心</h3>
+            <!-- 公务员考试 -->
+            <router-link
+              to="/exam/civil-service"
+              class="category-item"
+              :class="{ active: route.path === '/exam/civil-service' }"
+              @click="navigateTo('/exam/civil-service')"
+            >
+              <div class="category-icon">
+                <el-icon><Reading /></el-icon>
+              </div>
+              <span class="category-label">公务员考试</span>
+            </router-link>
+
+            <router-link
+              to="/exam/postgraduate"
+              class="category-item"
+              :class="{ active: route.path === '/exam/postgraduate' }"
+              @click="navigateTo('/exam/postgraduate')"
+            >
+              <div class="category-icon">
+                <el-icon><Collection /></el-icon>
+              </div>
+              <span class="category-label">考研备考</span>
+            </router-link>
           </div>
 
-          <!-- 公务员考试 -->
-          <router-link
-            to="/exam/civil-service"
-            class="category-item"
-            :class="{ active: route.path === '/exam/civil-service' }"
-            @click="navigateTo('/exam/civil-service')"
-          >
-            <div class="category-icon">
-              <el-icon><Reading /></el-icon>
+          <div class="category-AI">
+            <div class="category-section">
+              <h3 class="section-title">AI工具</h3>
             </div>
-            <span class="category-label">公务员考试</span>
-          </router-link>
 
-          <router-link
-            to="/exam/postgraduate"
-            class="category-item"
-            :class="{ active: route.path === '/exam/postgraduate' }"
-            @click="navigateTo('/exam/postgraduate')"
-          >
-            <div class="category-icon">
-              <el-icon><Collection /></el-icon>
-            </div>
-            <span class="category-label">考研备考</span>
-          </router-link>
+            <router-link
+              to="/chat"
+              class="category-item"
+              :class="{ active: route.path === '/chat' }"
+              @click="navigateTo('/chat')"
+            >
+              <div class="category-icon">
+                <el-icon><ChatDotRound /></el-icon>
+              </div>
+              <span class="category-label">AI助手</span>
+            </router-link>
 
-          <div class="category-section">
-            <h3 class="section-title">AI工具</h3>
+            <router-link
+              to="/id-photo"
+              class="category-item"
+              :class="{ active: route.path === '/id-photo' }"
+            >
+              <div class="category-icon">
+                <el-icon><Camera /></el-icon>
+              </div>
+              <span class="category-label">AI证件照</span>
+            </router-link>
           </div>
 
-          <router-link
-            to="/chat"
-            class="category-item"
-            :class="{ active: route.path === '/chat' }"
-            @click="navigateTo('/chat')"
-          >
-            <div class="category-icon">
-              <el-icon><ChatDotRound /></el-icon>
+          <div class="category-job">
+            <div class="category-section">
+              <h3 class="section-title">职业规划</h3>
             </div>
-            <span class="category-label">AI助手</span>
-          </router-link>
 
-          <router-link
-            to="/id-photo"
-            class="category-item"
-            :class="{ active: route.path === '/id-photo' }"
-          >
-            <div class="category-icon">
-              <el-icon><Camera /></el-icon>
-            </div>
-            <span class="category-label">AI证件照</span>
-          </router-link>
+            <router-link
+              to="/career-planning/roadmap"
+              class="category-item"
+              :class="{ active: route.path === '/career-planning/roadmap' }"
+              @click="navigateTo('/career-planning/roadmap')"
+            >
+              <div class="category-icon">
+                <el-icon><Compass /></el-icon>
+              </div>
+              <span class="category-label">发展规划</span>
+            </router-link>
 
-          <div class="category-section">
-            <h3 class="section-title">职业规划</h3>
+            <router-link
+              to="/career-planning/recommendation"
+              class="category-item"
+              :class="{ active: route.path === '/career-planning/recommendation' }"
+              @click="navigateTo('/career-planning/recommendation')"
+            >
+              <div class="category-icon">
+                <el-icon><StarFilled /></el-icon>
+              </div>
+              <span class="category-label">职业推荐</span>
+            </router-link>
           </div>
-
-          <router-link
-            to="/career-planning/roadmap"
-            class="category-item"
-            :class="{ active: route.path === '/career-planning/roadmap' }"
-            @click="navigateTo('/career-planning/roadmap')"
-          >
-            <div class="category-icon">
-              <el-icon><Compass /></el-icon>
-            </div>
-            <span class="category-label">发展规划</span>
-          </router-link>
-
-          <router-link
-            to="/career-planning/recommendation"
-            class="category-item"
-            :class="{ active: route.path === '/career-planning/recommendation' }"
-            @click="navigateTo('/career-planning/recommendation')"
-          >
-            <div class="category-icon">
-              <el-icon><StarFilled /></el-icon>
-            </div>
-            <span class="category-label">职业推荐</span>
-          </router-link>
         </div>
       </div>
 
