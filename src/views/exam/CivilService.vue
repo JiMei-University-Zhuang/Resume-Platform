@@ -159,7 +159,7 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { onBeforeRouteLeave } from 'vue-router'
-import { ElMessage } from 'element-plus'
+import { message } from 'ant-design-vue'
 
 const router = useRouter()
 const dialogVisible = ref(false)
@@ -198,7 +198,7 @@ const showExamDialog = () => {
 
 const startRealExam = async () => {
   if (!selectedExam.value) {
-    ElMessage.error('请选择试卷后再开始考试！')
+    message.error('请选择试卷后再开始考试！')
     return
   }
 
@@ -206,7 +206,7 @@ const startRealExam = async () => {
   const selectedExamItem = examList.find(item => item.value === selectedExam.value)
 
   if (!selectedExamItem) {
-    ElMessage.error('未找到对应的试卷信息，请重试！')
+    message.error('未找到对应的试卷信息，请重试！')
     return
   }
   examDialogVisible.value = false

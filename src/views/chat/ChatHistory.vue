@@ -74,7 +74,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { ElMessage } from 'element-plus'
+import { message } from 'ant-design-vue'
 import { getChatHistory, ChatSession } from '@/api/chat'
 import { Refresh, ChatLineRound } from '@element-plus/icons-vue'
 import { useUserStore } from '@/stores/userStore'
@@ -134,11 +134,11 @@ const fetchHistory = async () => {
         expandedSessions.value = [0]
       }
     } else {
-      ElMessage.error(response.msg || '获取聊天历史失败')
+      message.error(response.msg || '获取聊天历史失败')
     }
   } catch (error) {
     console.error('获取历史对话失败:', error)
-    ElMessage.error('获取聊天历史失败，请稍后重试')
+    message.error('获取聊天历史失败，请稍后重试')
   } finally {
     loading.value = false
   }
