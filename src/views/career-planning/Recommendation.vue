@@ -302,8 +302,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted, nextTick } from 'vue'
 import { ElMessage } from 'element-plus'
+import { driver } from 'driver.js'
+import 'driver.js/dist/driver.css'
 import {
   StarFilled,
   QuestionFilled,
@@ -341,10 +343,79 @@ const searchForm = reactive({
   jobType: ''
 })
 
-// 获取常见职位列表
+// 配置引导步骤
+const driverObj = driver({
+  showProgress: true,
+  steps: [
+    {
+      element: '.page-header',
+      popover: {
+        title: '欢迎使用职业推荐',
+        description: '这里为您提供专业的职业机会探索和推荐服务',
+        side: 'bottom',
+        align: 'start'
+      }
+    },
+    {
+      element: '.search-card',
+      popover: {
+        title: '职位搜索',
+        description: '根据您的专业背景、意向城市和职位类型，为您匹配最适合的职位',
+        side: 'bottom',
+        align: 'start'
+      }
+    },
+    {
+      element: '.recommendation-section',
+      popover: {
+        title: '个性化推荐',
+        description: '基于您的专业背景，系统会智能推荐最匹配的职位，并显示匹配度',
+        side: 'left',
+        align: 'start'
+      }
+    },
+    {
+      element: '.hot-jobs-section',
+      popover: {
+        title: '热门职位',
+        description: '浏览最新的实习和校招职位信息，可以按照不同类别筛选',
+        side: 'left',
+        align: 'start'
+      }
+    },
+    {
+      element: '.recruitment-calendar',
+      popover: {
+        title: '招聘日历',
+        description: '查看近期的校园招聘会和宣讲会信息，不要错过重要的招聘活动',
+        side: 'left',
+        align: 'start'
+      }
+    },
+    {
+      popover: {
+        title: '开始探索',
+        description: '现在，让我们开始寻找适合您的理想职位吧！'
+      }
+    }
+  ]
+})
+
+// 获取常见职位列表并启动引导
 onMounted(async () => {
   try {
     commonPositions.value = await getCommonPositions()
+
+    // 检查是否首次访问
+    const hasSeenRecommendationGuide = localStorage.getItem('hasSeenRecommendationGuide')
+    if (!hasSeenRecommendationGuide) {
+      nextTick(() => {
+        setTimeout(() => {
+          driverObj.drive()
+          localStorage.setItem('hasSeenRecommendationGuide', 'true')
+        }, 500)
+      })
+    }
   } catch (error) {
     ElMessage.error('获取职位列表失败')
   }

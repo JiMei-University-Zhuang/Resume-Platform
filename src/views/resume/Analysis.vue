@@ -94,6 +94,7 @@
         </el-row>
         <div class="action-bar">
           <el-button
+            class="analysis-btn"
             type="primary"
             :icon="TrendCharts"
             size="large"
@@ -327,7 +328,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, nextTick } from 'vue'
 import { ElMessage } from 'element-plus'
 import {
   UploadFilled,
@@ -345,6 +346,8 @@ import {
   DataAnalysis
 } from '@element-plus/icons-vue'
 import type { UploadFile, UploadFiles } from 'element-plus'
+import { driver } from 'driver.js'
+import 'driver.js/dist/driver.css'
 
 // 类型定义
 interface RequirementItem {
@@ -382,6 +385,63 @@ const currentSuggestion = ref<Suggestion | null>(null)
 const selectedJobCategory = ref('')
 const selectedJob = ref<string>('')
 const uploadedFile = ref<File | null>(null)
+
+// 初始化导览对象
+const driverObj = driver({
+  showProgress: true,
+  steps: [
+    {
+      element: '.page-header',
+      popover: {
+        title: '简历匹配分析',
+        description: '这里是简历匹配分析工具，帮助您分析简历与目标岗位的匹配度',
+        side: 'bottom',
+        align: 'start'
+      }
+    },
+    {
+      element: '.upload-section',
+      popover: {
+        title: '上传简历',
+        description: '在这里上传您的简历文件，支持PDF和Word格式',
+        side: 'left',
+        align: 'start'
+      }
+    },
+    {
+      element: '.selection-section',
+      popover: {
+        title: '选择目标岗位',
+        description: '选择您想要应聘的岗位类别和具体职位',
+        side: 'right',
+        align: 'start'
+      }
+    },
+    {
+      element: '.analysis-btn',
+      popover: {
+        title: '开始分析',
+        description: '点击按钮开始分析简历与岗位的匹配度',
+        side: 'bottom',
+        align: 'start'
+      }
+    },
+    { popover: { title: '开始使用', description: '现在，让我们开始分析您的简历吧！' } }
+  ]
+})
+
+// 在组件挂载后启动导览
+onMounted(() => {
+  const hasSeenAnalysisGuide = localStorage.getItem('hasSeenAnalysisGuide')
+  if (!hasSeenAnalysisGuide) {
+    nextTick(() => {
+      setTimeout(() => {
+        driverObj.drive()
+        localStorage.setItem('hasSeenAnalysisGuide', 'true')
+      }, 500)
+    })
+  }
+})
 
 // 岗位数据
 const jobCategories = [

@@ -330,7 +330,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import MouseEffects from '@/components/MouseEffects/index.vue'
 import {
@@ -430,6 +430,7 @@ const updateSmartTips = async () => {
     ...behaviorPredictor.getPatternAnalysis()
   ]
 }
+
 
 onMounted(async () => {
   initializeBehaviorData()
