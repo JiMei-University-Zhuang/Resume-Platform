@@ -21,7 +21,7 @@
             type="primary"
             size="large"
             class="get-started-btn"
-            @click="navigateTo('/career-planning/analysis')"
+            @click="navigateTo('/career-planning/roadmap')"
           >
             开始规划
             <el-icon class="el-icon--right"><ArrowRight /></el-icon>

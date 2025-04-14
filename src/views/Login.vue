@@ -247,7 +247,7 @@
 <script setup lang="ts">
 import { ref, reactive, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { ElMessage } from 'element-plus'
+import { message } from 'ant-design-vue'
 import {
   getCaptcha,
   getCaptchaKey,
@@ -362,7 +362,7 @@ const getCaptchaData = async () => {
       loginForm.captcha_key = captchaKey.value
     }
   } catch (error) {
-    ElMessage.error('获取验证码失败，请刷新重试')
+    message.error('获取验证码失败，请刷新重试')
   }
 }
 
@@ -393,10 +393,10 @@ const sendEmailCaptcha = async () => {
       email: loginFormEmail.email
     })
     if (response.data.code === 200) {
-      ElMessage.success('验证码发送成功')
+      message.success('验证码发送成功')
       startCountdown('email')
     } else {
-      ElMessage.error('验证码发送失败，请重试')
+      message.error('验证码发送失败，请重试')
     }
   } catch (error) {
   } finally {
@@ -480,10 +480,10 @@ const sendRegisterEmailCaptcha = async () => {
     })
 
     if (response.data.code === 200) {
-      ElMessage.success('验证码发送成功')
+      message.success('验证码发送成功')
       startCountdown('register')
     } else {
-      ElMessage.error(response.data.message || '验证码发送失败，请重试')
+      message.error(response.data.message || '验证码发送失败，请重试')
     }
   } catch (error: unknown) {
     let errorMessage = '验证码发送失败'
@@ -496,7 +496,7 @@ const sendRegisterEmailCaptcha = async () => {
         errorMessage += `：${axiosError.response.data.message}`
       }
     }
-    ElMessage.error(errorMessage)
+    message.error(errorMessage)
   } finally {
     sendingCaptcha.value = false
     isSendingRegisterCaptcha.value = false
@@ -540,13 +540,13 @@ const handleLogin = async (formEl: any) => {
         })) as any as LoginResponse
         if (response.data.code === 200 && response.data.data) {
           localStorage.setItem('token', response.data.data)
-          ElMessage.success('登录成功')
+          message.success('登录成功')
           router.push(router.currentRoute.value.query.redirect?.toString() || '/dashboard')
         }
       } catch (error: any) {
         const errorMessage =
           error.response?.data?.message || error.message || '登录失败，请检查用户名和密码'
-        ElMessage.error(errorMessage)
+        message.error(errorMessage)
         refreshCaptcha()
       } finally {
         loading.value = false
@@ -568,7 +568,7 @@ const handleEmailLogin = async (formEl: any) => {
         })) as any as LoginEmailResponse
         if (response.data.code === 200 && response.data.data) {
           localStorage.setItem('token', response.data.data)
-          ElMessage.success('登录成功')
+          message.success('登录成功')
           router.push(router.currentRoute.value.query.redirect?.toString() || '/dashboard')
         }
       } catch (error: any) {
@@ -581,7 +581,7 @@ const handleEmailLogin = async (formEl: any) => {
           } else if (error.response.data.message.includes('账号不存在')) {
             errorMessage = '账号不存在，请注册'
           }
-          ElMessage.error(errorMessage)
+          message.error(errorMessage)
         }
       } finally {
         loading.value = false
@@ -603,7 +603,7 @@ const handleRegister = async () => {
           captchaValue: registerForm.captchaValue
         })
         if (response.data.code === 200) {
-          ElMessage.success('注册成功')
+          message.success('注册成功')
           gotoLogin()
           refreshCaptcha()
           registerForm.username = ''
@@ -613,16 +613,16 @@ const handleRegister = async () => {
         } else {
           const errorMessage = response.data.message || '注册失败，请重试'
           if (errorMessage.includes('账号已经存在')) {
-            ElMessage.warning('该用户名已被注册，请更换用户名重试')
+            message.warning('该用户名已被注册，请更换用户名重试')
           } else if (response.data.code === 500 && errorMessage.includes('邮箱')) {
-            ElMessage.error('请输入正确的邮箱地址')
+            message.error('请输入正确的邮箱地址')
           } else {
-            ElMessage.error(errorMessage)
+            message.error(errorMessage)
           }
         }
       } catch (error: any) {
         const errorMessage = error.response?.data?.message || error.message || '注册失败，请重试'
-        ElMessage.error(errorMessage)
+        message.error(errorMessage)
       } finally {
         loading.value = false
       }

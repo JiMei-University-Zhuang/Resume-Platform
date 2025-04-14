@@ -735,7 +735,7 @@ const analyzing = ref(false)
 const analysisDialogVisible = ref(false)
 const activeCollapse = ref(['1', '2', '3'])
 const aiSuggestions = ref<AISuggestions | null>(null)
-const resumePreview = ref(null)
+const resumePreview = ref<HTMLDivElement | null>(null)
 
 // 根据路由参数加载对应的模板
 const selectTemplate = async (template: string) => {
@@ -751,7 +751,7 @@ const selectTemplate = async (template: string) => {
 
 // 定义模板加载函数
 const loadTemplate = async (templateName?: string) => {
-  const template = templateName || 'muban1' // 使用小写模板名称
+  const template = templateName || 'muban6' // 使用小写模板名称
   try {
     // 安全地加载组件
     const templateKey = template.toLowerCase() // 确保使用小写键名
@@ -766,21 +766,21 @@ const loadTemplate = async (templateName?: string) => {
       }
     } else {
       // 回退到默认模板
-      const fallback = await templateComponents['muban1']()
-      currentTemplate.value = fallback.default
+      const defaultModule = await templateComponents['muban6']()
+      currentTemplate.value = defaultModule.default
 
       // 应用默认模板增强
       await nextTick()
       if (resumePreview.value) {
-        await templateAdapter.enhanceTemplate('muban1', resumePreview.value)
+        await templateAdapter.enhanceTemplate('muban6', resumePreview.value)
       }
     }
   } catch (error) {
     console.error('加载模板失败:', error)
     try {
       // 二次尝试加载默认模板
-      const fallback = await templateComponents['muban1']()
-      currentTemplate.value = fallback.default
+      const defaultFallback = await templateComponents['muban6']()
+      currentTemplate.value = defaultFallback.default
     } catch (err) {
       console.error('无法加载默认模板:', err)
       ElMessage.error('模板加载失败，请刷新页面重试')
@@ -790,7 +790,7 @@ const loadTemplate = async (templateName?: string) => {
 
 // 使用正确的 watch 方法
 watch(
-  () => route.params.template || 'muban1',
+  () => route.params.template || 'muban6',
   newTemplate => {
     loadTemplate(String(newTemplate).toLowerCase()) // 确保转换为小写字符串
   },
@@ -839,6 +839,7 @@ const removeExperience = (index: number) => {
   resumeForm.value.experience.splice(index, 1)
 }
 
+// 完全替换 exportPDF 函数
 const exportPDF = async () => {
   if (!resumePreview.value) return
 
@@ -846,36 +847,116 @@ const exportPDF = async () => {
     ElMessage.info('正在生成PDF，请稍候...')
 
     // 确保模板完全渲染
-    await new Promise(resolve => setTimeout(resolve, 500))
+    await new Promise(resolve => setTimeout(resolve, 1000))
 
-    // 直接使用DOM节点，而不是克隆节点
     const element = resumePreview.value
 
-    // 使用更稳定的配置
+    // 在导出前临时调整预览区域以获得更好的宽度
+    const originalStyle = element.getAttribute('style') || ''
+    // 显式类型转换为HTMLElement，避免Element类型错误
+    const htmlElement = element as HTMLElement
+    htmlElement.style.width = '794px' // A4宽度对应的像素
+    htmlElement.style.maxWidth = 'none'
+    htmlElement.style.margin = '0'
+    htmlElement.style.boxSizing = 'border-box'
+
+    // 使用更高质量的配置进行渲染
     const canvas = await html2canvas(element, {
-      scale: 2, // 提高清晰度
-      useCORS: true, // 允许跨域资源
-      logging: false, // 减少日志输出
-      allowTaint: true, // 允许污染
-      backgroundColor: '#ffffff', // 设置白色背景
-      ignoreElements: element => {
-        // 忽略某些可能导致问题的元素
-        return element.tagName === 'IFRAME' || element.classList.contains('ignore-pdf')
+      scale: 2, // 使用适当的比例，提高清晰度但不过大
+      useCORS: true,
+      logging: false,
+      allowTaint: true,
+      backgroundColor: '#ffffff',
+      ignoreElements: (el) => el.tagName === 'IFRAME' || el.classList.contains('ignore-pdf'),
+      onclone: (doc, clone) => {
+        // 获取克隆后的目标元素
+        const clonedElement = clone.querySelector('.resume-preview')
+        if (clonedElement) {
+          // 对克隆的元素应用宽度样式，确保在PDF中有足够的宽度
+          // 类型转换为HTMLElement
+          const clonedHtmlElement = clonedElement as HTMLElement
+          clonedHtmlElement.style.width = '794px' // A4宽度对应的像素
+          clonedHtmlElement.style.maxWidth = 'none'
+          clonedHtmlElement.style.margin = '0'
+          clonedHtmlElement.style.boxSizing = 'border-box'
+          
+          // 调整内部简历容器样式，确保内容充满宽度
+          const resumeContainer = clonedElement.querySelector('.resume')
+          if (resumeContainer) {
+            // 类型转换为HTMLElement
+            const resumeHtmlContainer = resumeContainer as HTMLElement
+            resumeHtmlContainer.style.width = '100%'
+            resumeHtmlContainer.style.maxWidth = 'none'
+            resumeHtmlContainer.style.boxShadow = 'none'
+            resumeHtmlContainer.style.margin = '0'
+          }
+        }
+
+        // 添加额外样式来优化PDF输出
+        const style = doc.createElement('style')
+        style.innerHTML = `
+          * { -webkit-print-color-adjust: exact !important; }
+          .resume-preview { width: 794px !important; max-width: none !important; margin: 0 !important; }
+          .resume { box-shadow: none !important; margin: 0 !important; max-width: none !important; width: 100% !important; }
+          p, div, span, h1, h2, h3, h4, h5, h6 { 
+            font-family: 'Arial', 'Helvetica', sans-serif !important;
+            color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+          @page { margin: 0; }
+        `
+        doc.head.appendChild(style)
+        return clone
       }
     })
 
-    // 创建PDF
-    const imgData = canvas.toDataURL('image/jpeg', 1.0)
-    const pdf = new jsPDF('p', 'mm', 'a4')
-    const pdfWidth = pdf.internal.pageSize.getWidth()
-    const pdfHeight = pdf.internal.pageSize.getHeight()
+    // 恢复原始样式
+    element.setAttribute('style', originalStyle)
+
+    // 获取canvas尺寸和图像数据
     const imgWidth = canvas.width
     const imgHeight = canvas.height
-    const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight)
-    const imgX = (pdfWidth - imgWidth * ratio) / 2
-    const imgY = 0
+    const imgData = canvas.toDataURL('image/jpeg', 1.0)
 
-    pdf.addImage(imgData, 'JPEG', imgX, imgY, imgWidth * ratio, imgHeight * ratio)
+    // 创建PDF文档 - 使用A4尺寸
+    const pdf = new jsPDF({
+      orientation: 'portrait', // 使用纵向
+      unit: 'mm',
+      format: 'a4'
+    })
+
+    // 获取PDF页面尺寸（以毫米为单位）
+    const pdfWidth = pdf.internal.pageSize.getWidth()
+    const pdfHeight = pdf.internal.pageSize.getHeight()
+
+    // 设置边距，确保内容不会贴边
+    const margin = 5 // 减小边距到5mm
+    const contentWidth = pdfWidth - (margin * 2)
+    const contentHeight = pdfHeight - (margin * 2)
+
+    // 修改缩放比例计算逻辑 - 优先适配宽度，确保充分利用页面宽度
+    const widthRatio = contentWidth / imgWidth
+    const heightRatio = contentHeight / imgHeight
+
+    // 以宽度为主要参考，如果高度会超出，则再以高度为准
+    // 避免重复声明变量
+    let finalScaleRatio = widthRatio
+    if (imgHeight * widthRatio > contentHeight) {
+      finalScaleRatio = heightRatio
+    }
+    
+    // 计算缩放后的尺寸
+    const scaledWidth = imgWidth * finalScaleRatio
+    const scaledHeight = imgHeight * finalScaleRatio
+    
+    // 计算居中位置
+    const xPos = margin + (contentWidth - scaledWidth) / 2
+    const yPos = margin
+
+    // 添加图像到PDF，使用计算好的位置和尺寸
+    pdf.addImage(imgData, 'JPEG', xPos, yPos, scaledWidth, scaledHeight)
+    
+    // 保存PDF
     pdf.save('我的简历.pdf')
 
     ElMessage.success('PDF导出成功！')
@@ -1140,7 +1221,6 @@ const getTemplatePreviewImage = (templateKey: string) => {
 // 获取模板显示名称
 const getTemplateDisplayName = (templateKey: string) => {
   const nameMap: Record<string, string> = {
-    muban1: '清新简约风格',
     muban2: '专业技术风格',
     muban3: '商务精英风格',
     muban4: '创意设计风格',
@@ -1149,7 +1229,11 @@ const getTemplateDisplayName = (templateKey: string) => {
     muban7: '医疗护理风格',
     muban8: '教育培训风格',
     muban9: '工程技术风格',
-    muban10: '金融财务风格'
+    muban10: '金融财务风格',
+    muban11: '现代蓝色风格',
+    muban12: '简约黑白风格',
+    muban13: '清新卡片风格',
+    muban14: '科技紫色风格'
   }
   return nameMap[templateKey.toLowerCase()] || templateKey
 }
@@ -1157,7 +1241,6 @@ const getTemplateDisplayName = (templateKey: string) => {
 // 获取模板风格标签
 const getTemplateStyle = (templateKey: string) => {
   const styleMap: Record<string, string> = {
-    muban1: '简约风格',
     muban2: '技术风格',
     muban3: '商务风格',
     muban4: '创意风格',
@@ -1166,7 +1249,11 @@ const getTemplateStyle = (templateKey: string) => {
     muban7: '医疗风格',
     muban8: '教育风格',
     muban9: '工程风格',
-    muban10: '金融风格'
+    muban10: '金融风格',
+    muban11: '现代风格',
+    muban12: '简约风格',
+    muban13: '清新风格',
+    muban14: '科技风格'
   }
   return styleMap[templateKey.toLowerCase()] || '标准风格'
 }
@@ -1176,7 +1263,7 @@ onMounted(async () => {
   await nextTick()
   // 应用模板增强
   if (resumePreview.value && currentTemplate.value) {
-    const currentTemplateName = route.params.template?.toString() || 'muban1'
+    const currentTemplateName = route.params.template?.toString() || 'muban6'
     await templateAdapter.enhanceTemplate(currentTemplateName, resumePreview.value)
   }
 })

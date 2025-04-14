@@ -203,7 +203,7 @@ import { useRouter } from 'vue-router'
 import { useAppStore } from '@/stores'
 import Breadcrumb from '@/components/Breadcrumb.vue'
 import { logout, getUser, type GetUserResult } from '@/api/user'
-import { ElMessage } from 'element-plus'
+import { message } from 'ant-design-vue'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import {
@@ -232,7 +232,7 @@ const userName = computed(() => userInfo.value?.name || 'Admin')
 const isEnglish = ref(false)
 const toggleLanguage = () => {
   isEnglish.value = !isEnglish.value
-  ElMessage.success(isEnglish.value ? 'Are you OK?' : '你在搞什么我还没写好')
+  message.success(isEnglish.value ? 'Are you OK?' : '你在搞什么我还没写好')
 }
 
 // 全屏切换功能
@@ -275,11 +275,11 @@ const handleLogout = async () => {
   try {
     await logout()
     localStorage.removeItem('token')
-    ElMessage.success('成功退出登录')
+    message.success('成功退出登录')
     router.push('/login')
   } catch (error) {
     console.error('登出失败:', error)
-    ElMessage.error('登出失败，请稍后重试')
+    message.error('登出失败，请稍后重试')
   }
 }
 
@@ -346,7 +346,7 @@ const fetchNotifications = async () => {
     }
   } catch (error) {
     console.error('获取通知失败:', error)
-    ElMessage.error('获取通知失败，请稍后重试')
+    message.error('获取通知失败，请稍后重试')
   } finally {
     isLoadingNotices.value = false
   }
@@ -397,13 +397,13 @@ const readNotification = async (notification: Notice) => {
 
       if (responseData) {
         notification.isRead = 1
-        ElMessage.success('已标记为已读')
+        message.success('已标记为已读')
       } else {
-        ElMessage.error('标记已读失败')
+        message.error('标记已读失败')
       }
     } catch (error) {
       console.error('标记已读失败:', error)
-      ElMessage.error('标记已读失败，请稍后重试')
+      message.error('标记已读失败，请稍后重试')
     }
   }
 }
@@ -419,13 +419,13 @@ const markAllAsRead = async () => {
       notifications.value.forEach(item => {
         item.isRead = 1
       })
-      ElMessage.success('已将全部消息标为已读')
+      message.success('已将全部消息标为已读')
     } else {
-      ElMessage.error(responseData.msg || '标记全部已读失败')
+      message.error(responseData.msg || '标记全部已读失败')
     }
   } catch (error) {
     console.error('标记全部已读失败:', error)
-    ElMessage.error('标记全部已读失败，请稍后重试')
+    message.error('标记全部已读失败，请稍后重试')
   }
 }
 
@@ -441,14 +441,14 @@ const deleteNotification = async (noticeId: string) => {
       const index = notifications.value.findIndex(item => item.noticeId === noticeId)
       if (index !== -1) {
         notifications.value.splice(index, 1)
-        ElMessage.success('消息已删除')
+        message.success('消息已删除')
       }
     } else {
-      ElMessage.error(responseData.msg || '删除消息失败')
+      message.error(responseData.msg || '删除消息失败')
     }
   } catch (error) {
     console.error('删除消息失败:', error)
-    ElMessage.error('删除消息失败，请稍后重试')
+    message.error('删除消息失败，请稍后重试')
   }
 }
 

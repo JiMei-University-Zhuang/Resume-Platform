@@ -5,8 +5,8 @@ import { dirname } from 'path';
 import { fileURLToPath } from 'url';
 import viteImagemin from 'vite-plugin-imagemin';
 import AutoImport from 'unplugin-auto-import/vite';
-import Components from 'unplugin-vue-components/vite';
-import { ElementPlusResolver } from 'unplugin-vue-components/resolvers';
+// import Components from 'unplugin-vue-components/vite';
+// import { ElementPlusResolver } from 'unplugin-vue-components/resolvers';
 var __dirname = dirname(fileURLToPath(import.meta.url));
 // 根据环境确定是否使用IP地址
 var isLocal = process.env.NODE_ENV === 'development';
@@ -17,17 +17,18 @@ export default defineConfig({
     base: process.env.BASE_PATH || './',
     plugins: [
         vue(),
-        // 自动导入Element Plus组件
+        // 自动导入Vue API，但不再自动导入Element Plus
         AutoImport({
-            resolvers: [ElementPlusResolver()],
+            // Removing Element Plus resolver
+            // resolvers: [ElementPlusResolver()],
             imports: ['vue', 'vue-router'],
             dts: 'src/auto-imports.d.ts',
         }),
-        // 按需导入Element Plus组件
-        Components({
-            resolvers: [ElementPlusResolver()],
-            dts: 'src/components.d.ts',
-        }),
+        // 移除按需导入Element Plus组件
+        // Components({
+        //     resolvers: [ElementPlusResolver()],
+        //     dts: 'src/components.d.ts',
+        // }),
         // 图片压缩配置
         viteImagemin({
             gifsicle: {
@@ -109,23 +110,39 @@ export default defineConfig({
                 drop_console: true,
                 drop_debugger: true,
                 pure_funcs: ['console.log']
+            },
+            // 确保不要过度优化变量名，以避免初始化顺序问题
+            mangle: {
+                keep_classnames: true,
+                keep_fnames: true
             }
         },
+        // 调整代码分割策略，防止初始化顺序问题
         rollupOptions: {
             output: {
-                // 根据类型拆分代码
-                manualChunks: {
-                    'element-plus': ['element-plus'],
-                    'echarts': ['echarts'],
-                    'vendor': [
-                        'vue',
-                        'vue-router',
-                        'pinia',
-                        '@vueuse/core',
-                    ]
+                // 不再使用 manualChunks，改为更简单的分块策略
+                manualChunks(id) {
+                    // 将 element-plus 和 ant-design-vue 打包到同一个文件中，避免依赖冲突
+                    if (id.includes('node_modules/element-plus') || 
+                        id.includes('node_modules/@element-plus') ||
+                        id.includes('node_modules/ant-design-vue')) {
+                        return 'ui-libraries';
+                    }
+                    // 基本库打包到 vendor 中
+                    if (id.includes('node_modules')) {
+                        return 'vendor';
+                    }
                 }
             },
-            external: ['element-plus/es/element-plus']
+            // 确保依赖不会被外部化
+            external: []
+        },
+        // 确保文件的正确加载顺序
+        assetsInlineLimit: 4096,
+        // 添加这个选项以减少代码优化引起的问题
+        commonjsOptions: {
+            strictRequires: true,
+            transformMixedEsModules: true
         }
     }
 });
