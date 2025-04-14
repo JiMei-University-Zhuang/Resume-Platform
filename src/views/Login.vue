@@ -133,6 +133,11 @@
                   :disabled="countdown.email > 0 || isSendingEmailCaptcha"
                   @click="sendEmailCaptcha"
                   class="captcha-button"
+                  style="
+                    background-color: #3182ce;
+                    border-color: #3182ce;
+                    box-shadow: 0 2px 0 rgba(0, 0, 0, 0.05);
+                  "
                 >
                   {{ countdown.email > 0 ? `${countdown.email}s后重试` : '获取验证码' }}
                 </el-button>
@@ -217,6 +222,11 @@
               :disabled="countdown.register > 0 || isSendingRegisterCaptcha"
               @click="sendRegisterEmailCaptcha"
               class="captcha-button"
+              style="
+                background-color: rgb(49, 130, 206);
+                border-color: rgb(49, 130, 206);
+                box-shadow: 0 2px 0 rgba(0, 0, 0, 0.05);
+              "
             >
               {{ countdown.register > 0 ? `${countdown.register}s后重试` : '获取验证码' }}
             </el-button>
@@ -233,10 +243,10 @@
             </el-button>
           </el-form-item>
 
-          <el-form-item>
+          <el-form-item style="display: flex;align-items: center;">
             <span class="account-tip">
               已有账号？
-              <el-link type="primary" class="back-to-login" @click="gotoLogin"> 立即登录 </el-link>
+              <span type="primary"  :underline="false" class="back-to-login" @click="gotoLogin"> 立即登录 </span>
             </span>
           </el-form-item>
         </el-form>
@@ -600,14 +610,14 @@ onMounted(() => {
 .login-left {
   flex: 1;
   padding: 40px;
-  color: #1849ea;
+  color: rgb(49, 130, 206);
 }
 
 .platform-title {
   font-size: 48px;
   font-weight: bold;
   margin-bottom: 20px;
-  background: linear-gradient(45deg, #1849ea, #6cf9d3);
+  background: linear-gradient(45deg, rgb(49, 130, 206), #6cf9d3);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -634,7 +644,7 @@ onMounted(() => {
 
 .feature-item i {
   font-size: 24px;
-  color: #1849ea;
+  color: rgb(49, 130, 206);
 }
 
 .login-box,
@@ -693,7 +703,7 @@ onMounted(() => {
 
 :deep(.custom-input .el-input__wrapper.is-focus) {
   background-color: #fff;
-  border-color: #1849ea;
+  border-color: rgb(49, 130, 206);
   box-shadow: 0 0 0 2px rgba(24, 73, 234, 0.1);
 }
 
@@ -725,12 +735,12 @@ onMounted(() => {
 }
 
 :deep(.el-tabs__item.is-active) {
-  color: #1849ea;
+  color: rgb(49, 130, 206);
   font-weight: 500;
 }
 
 :deep(.el-tabs__active-bar) {
-  background-color: #1849ea;
+  background-color: rgb(49, 130, 206);
   height: 3px;
   border-radius: 3px;
 }
@@ -757,8 +767,8 @@ onMounted(() => {
   width: 100%;
   font-size: 16px;
   font-weight: 500;
-  border: 2px solid #1849ea;
-  color: #1849ea;
+  border: 2px solid rgb(49, 130, 206);
+  color: rgb(49, 130, 206);
   border-radius: 12px;
   transition: all 0.3s ease;
   background: transparent;
@@ -776,6 +786,14 @@ onMounted(() => {
 .account-tip {
   position: absolute;
   right: 0;
+  font-size: 16px;
+}
+.back-to-login {
+  color: rgb(49, 130, 206);
+  text-decoration: none;
+}
+.back-to-login:hover {
+ font-weight: 700;
 }
 
 :deep(.el-input__wrapper) {

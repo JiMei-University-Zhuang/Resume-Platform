@@ -447,7 +447,7 @@ import { useRoute } from 'vue-router'
 import html2canvas from 'html2canvas'
 import jsPDF from 'jspdf'
 import dayjs from 'dayjs'
-import { driver } from 'driver.js' 
+import { driver } from 'driver.js'
 import 'driver.js/dist/driver.css'
 
 const driverObj = driver({

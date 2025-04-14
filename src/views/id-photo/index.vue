@@ -352,11 +352,11 @@ const driverObj = driver({
         align: 'start'
       }
     },
-    { 
-      popover: { 
-        title: '开始制作', 
-        description: '现在，让我们开始制作您的证件照吧！' 
-      } 
+    {
+      popover: {
+        title: '开始制作',
+        description: '现在，让我们开始制作您的证件照吧！'
+      }
     }
   ]
 })
