@@ -867,7 +867,7 @@ const exportPDF = async () => {
       logging: false,
       allowTaint: true,
       backgroundColor: '#ffffff',
-      ignoreElements: (el) => el.tagName === 'IFRAME' || el.classList.contains('ignore-pdf'),
+      ignoreElements: el => el.tagName === 'IFRAME' || el.classList.contains('ignore-pdf'),
       onclone: (doc, clone) => {
         // 获取克隆后的目标元素
         const clonedElement = clone.querySelector('.resume-preview')
@@ -879,7 +879,7 @@ const exportPDF = async () => {
           clonedHtmlElement.style.maxWidth = 'none'
           clonedHtmlElement.style.margin = '0'
           clonedHtmlElement.style.boxSizing = 'border-box'
-          
+
           // 调整内部简历容器样式，确保内容充满宽度
           const resumeContainer = clonedElement.querySelector('.resume')
           if (resumeContainer) {
@@ -931,8 +931,8 @@ const exportPDF = async () => {
 
     // 设置边距，确保内容不会贴边
     const margin = 5 // 减小边距到5mm
-    const contentWidth = pdfWidth - (margin * 2)
-    const contentHeight = pdfHeight - (margin * 2)
+    const contentWidth = pdfWidth - margin * 2
+    const contentHeight = pdfHeight - margin * 2
 
     // 修改缩放比例计算逻辑 - 优先适配宽度，确保充分利用页面宽度
     const widthRatio = contentWidth / imgWidth
@@ -944,18 +944,18 @@ const exportPDF = async () => {
     if (imgHeight * widthRatio > contentHeight) {
       finalScaleRatio = heightRatio
     }
-    
+
     // 计算缩放后的尺寸
     const scaledWidth = imgWidth * finalScaleRatio
     const scaledHeight = imgHeight * finalScaleRatio
-    
+
     // 计算居中位置
     const xPos = margin + (contentWidth - scaledWidth) / 2
     const yPos = margin
 
     // 添加图像到PDF，使用计算好的位置和尺寸
     pdf.addImage(imgData, 'JPEG', xPos, yPos, scaledWidth, scaledHeight)
-    
+
     // 保存PDF
     pdf.save('我的简历.pdf')
 

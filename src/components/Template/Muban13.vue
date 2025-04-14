@@ -80,7 +80,9 @@
             <div v-for="(edu, index) in resumeForm.education" :key="index" class="timeline-item">
               <div class="timeline-marker"></div>
               <div class="timeline-content">
-                <div class="timeline-date">{{ formatDate(edu.time[0]) }} - {{ formatDate(edu.time[1]) }}</div>
+                <div class="timeline-date">
+                  {{ formatDate(edu.time[0]) }} - {{ formatDate(edu.time[1]) }}
+                </div>
                 <h3 class="timeline-title">{{ edu.school }}</h3>
                 <div class="timeline-subtitle">{{ edu.major }} - {{ edu.degree }}</div>
               </div>
@@ -94,11 +96,15 @@
             <div v-for="(exp, index) in resumeForm.experience" :key="index" class="timeline-item">
               <div class="timeline-marker"></div>
               <div class="timeline-content">
-                <div class="timeline-date">{{ formatDate(exp.time[0]) }} - {{ formatDate(exp.time[1]) }}</div>
+                <div class="timeline-date">
+                  {{ formatDate(exp.time[0]) }} - {{ formatDate(exp.time[1]) }}
+                </div>
                 <h3 class="timeline-title">{{ exp.company }}</h3>
                 <div class="timeline-subtitle">{{ exp.position }}</div>
                 <ul class="timeline-details">
-                  <li v-for="(item, i) in exp.description.split('\n').filter(l => l)" :key="i">{{ item }}</li>
+                  <li v-for="(item, i) in exp.description.split('\n').filter(l => l)" :key="i">
+                    {{ item }}
+                  </li>
                 </ul>
               </div>
             </div>
@@ -162,11 +168,11 @@ const props = defineProps({
 
 const fileInput = ref<HTMLInputElement | null>(null)
 
-const certifications = computed(() => 
+const certifications = computed(() =>
   props.resumeForm.certifications.split('\n').filter(cert => cert.trim())
 )
 
-const campusExperience = computed(() => 
+const campusExperience = computed(() =>
   props.resumeForm.campusExperience.split('\n').filter(exp => exp.trim())
 )
 
@@ -210,7 +216,7 @@ const getSkillProgress = (index: number) => {
   width: 210mm; /* A4纸宽度 */
   min-height: 297mm; /* A4高度 */
   margin: 0 auto;
-  font-family: "Source Sans Pro", "Microsoft YaHei", sans-serif;
+  font-family: 'Source Sans Pro', 'Microsoft YaHei', sans-serif;
   color: #333;
   background-color: #f9f9f9;
   box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
@@ -500,7 +506,7 @@ const getSkillProgress = (index: number) => {
     box-shadow: none;
     background-color: white;
   }
-  
+
   /* 确保打印颜色正确 */
   * {
     -webkit-print-color-adjust: exact !important;
@@ -508,4 +514,4 @@ const getSkillProgress = (index: number) => {
     color-adjust: exact !important;
   }
 }
-</style> 
+</style>

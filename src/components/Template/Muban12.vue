@@ -6,7 +6,7 @@
         <div class="divider"></div>
         <p>{{ resumeForm.jobTitle }}</p>
       </div>
-      
+
       <div class="photo-section" @click="uploadPhoto">
         <img v-if="resumeForm.photoUrl" :src="resumeForm.photoUrl" alt="个人照片" />
         <input type="file" ref="fileInput" @change="handleFileUpload" accept="image/*" hidden />
@@ -15,7 +15,7 @@
         </div>
       </div>
     </div>
-    
+
     <div class="two-column-section">
       <div class="left-column">
         <section class="resume-section">
@@ -39,7 +39,7 @@
             </div>
           </div>
         </section>
-        
+
         <section class="resume-section">
           <h2>技能专长</h2>
           <div class="skills-list">
@@ -48,7 +48,7 @@
             </div>
           </div>
         </section>
-        
+
         <section class="resume-section">
           <h2>荣誉证书</h2>
           <ul class="simple-list">
@@ -56,7 +56,7 @@
           </ul>
         </section>
       </div>
-      
+
       <div class="right-column">
         <section class="resume-section">
           <h2>自我评价</h2>
@@ -64,33 +64,39 @@
             {{ resumeForm.selfAssessment }}
           </div>
         </section>
-        
+
         <section class="resume-section">
           <h2>教育背景</h2>
           <div v-for="(edu, index) in resumeForm.education" :key="index" class="education-item">
             <div class="edu-header">
               <div class="edu-degree">{{ edu.degree }}</div>
-              <div class="edu-period">{{ formatDate(edu.time[0]) }} - {{ formatDate(edu.time[1]) }}</div>
+              <div class="edu-period">
+                {{ formatDate(edu.time[0]) }} - {{ formatDate(edu.time[1]) }}
+              </div>
             </div>
             <div class="edu-school">{{ edu.school }}</div>
             <div class="edu-major">{{ edu.major }}</div>
           </div>
         </section>
-        
+
         <section class="resume-section">
           <h2>工作经验</h2>
           <div v-for="(exp, index) in resumeForm.experience" :key="index" class="experience-item">
             <div class="exp-header">
               <div class="exp-position">{{ exp.position }}</div>
-              <div class="exp-period">{{ formatDate(exp.time[0]) }} - {{ formatDate(exp.time[1]) }}</div>
+              <div class="exp-period">
+                {{ formatDate(exp.time[0]) }} - {{ formatDate(exp.time[1]) }}
+              </div>
             </div>
             <div class="exp-company">{{ exp.company }}</div>
             <ul class="exp-description">
-              <li v-for="(item, i) in exp.description.split('\n').filter(l => l)" :key="i">{{ item }}</li>
+              <li v-for="(item, i) in exp.description.split('\n').filter(l => l)" :key="i">
+                {{ item }}
+              </li>
             </ul>
           </div>
         </section>
-        
+
         <section class="resume-section">
           <h2>校园经历</h2>
           <ul class="campus-list">
@@ -145,11 +151,11 @@ const props = defineProps({
 
 const fileInput = ref<HTMLInputElement | null>(null)
 
-const certifications = computed(() => 
+const certifications = computed(() =>
   props.resumeForm.certifications.split('\n').filter(cert => cert.trim())
 )
 
-const campusExperience = computed(() => 
+const campusExperience = computed(() =>
   props.resumeForm.campusExperience.split('\n').filter(exp => exp.trim())
 )
 
@@ -334,27 +340,32 @@ const handleFileUpload = (event: Event) => {
   text-align: justify;
 }
 
-.education-item, .experience-item {
+.education-item,
+.experience-item {
   margin-bottom: 20px;
 }
 
-.edu-header, .exp-header {
+.edu-header,
+.exp-header {
   display: flex;
   justify-content: space-between;
   margin-bottom: 5px;
 }
 
-.edu-degree, .exp-position {
+.edu-degree,
+.exp-position {
   font-size: 1.05rem;
   font-weight: 600;
 }
 
-.edu-period, .exp-period {
+.edu-period,
+.exp-period {
   font-size: 0.9rem;
   color: #666;
 }
 
-.edu-school, .exp-company {
+.edu-school,
+.exp-company {
   font-size: 1rem;
   margin-bottom: 5px;
 }
@@ -391,7 +402,7 @@ const handleFileUpload = (event: Event) => {
     box-shadow: none;
     margin: 0;
   }
-  
+
   /* 确保打印颜色正确 */
   * {
     -webkit-print-color-adjust: exact !important;
@@ -399,4 +410,4 @@ const handleFileUpload = (event: Event) => {
     color-adjust: exact !important;
   }
 }
-</style> 
+</style>

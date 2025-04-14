@@ -9,14 +9,14 @@
           <span>上传照片</span>
         </div>
       </div>
-      
+
       <div class="sidebar-name">
         <h1>{{ resumeForm.name }}</h1>
         <div class="title-bar">
           <span>{{ resumeForm.jobTitle }}</span>
         </div>
       </div>
-      
+
       <section class="sidebar-section">
         <h2>
           <span class="icon-contact"></span>
@@ -41,7 +41,7 @@
           </li>
         </ul>
       </section>
-      
+
       <section class="sidebar-section">
         <h2>
           <span class="icon-skills"></span>
@@ -53,7 +53,7 @@
           </div>
         </div>
       </section>
-      
+
       <section class="sidebar-section">
         <h2>
           <span class="icon-certificates"></span>
@@ -64,7 +64,7 @@
         </ul>
       </section>
     </aside>
-    
+
     <main class="resume-main">
       <section class="main-section profile-section">
         <h2>
@@ -75,7 +75,7 @@
           <p>{{ resumeForm.selfAssessment }}</p>
         </div>
       </section>
-      
+
       <section class="main-section">
         <h2>
           <span class="icon-education"></span>
@@ -83,7 +83,9 @@
         </h2>
         <div class="education-timeline">
           <div v-for="(edu, index) in resumeForm.education" :key="index" class="timeline-entry">
-            <div class="time-badge">{{ formatDate(edu.time[0]) }} - {{ formatDate(edu.time[1]) }}</div>
+            <div class="time-badge">
+              {{ formatDate(edu.time[0]) }} - {{ formatDate(edu.time[1]) }}
+            </div>
             <div class="education-content">
               <h3>{{ edu.school }}</h3>
               <div class="education-details">
@@ -94,7 +96,7 @@
           </div>
         </div>
       </section>
-      
+
       <section class="main-section">
         <h2>
           <span class="icon-experience"></span>
@@ -107,17 +109,21 @@
                 <h3>{{ exp.position }}</h3>
                 <div class="company-name">{{ exp.company }}</div>
               </div>
-              <div class="experience-period">{{ formatDate(exp.time[0]) }} - {{ formatDate(exp.time[1]) }}</div>
+              <div class="experience-period">
+                {{ formatDate(exp.time[0]) }} - {{ formatDate(exp.time[1]) }}
+              </div>
             </div>
             <div class="experience-description">
               <ul>
-                <li v-for="(item, i) in exp.description.split('\n').filter(l => l)" :key="i">{{ item }}</li>
+                <li v-for="(item, i) in exp.description.split('\n').filter(l => l)" :key="i">
+                  {{ item }}
+                </li>
               </ul>
             </div>
           </div>
         </div>
       </section>
-      
+
       <section class="main-section">
         <h2>
           <span class="icon-campus"></span>
@@ -176,11 +182,11 @@ const props = defineProps({
 
 const fileInput = ref<HTMLInputElement | null>(null)
 
-const certifications = computed(() => 
+const certifications = computed(() =>
   props.resumeForm.certifications.split('\n').filter(cert => cert.trim())
 )
 
-const campusExperience = computed(() => 
+const campusExperience = computed(() =>
   props.resumeForm.campusExperience.split('\n').filter(exp => exp.trim())
 )
 
@@ -315,7 +321,7 @@ const handleFileUpload = (event: Event) => {
   align-items: center;
 }
 
-.sidebar-section h2 span[class^="icon-"] {
+.sidebar-section h2 span[class^='icon-'] {
   width: 20px;
   height: 20px;
   background-color: white;
@@ -405,7 +411,7 @@ const handleFileUpload = (event: Event) => {
   align-items: center;
 }
 
-.main-section h2 span[class^="icon-"] {
+.main-section h2 span[class^='icon-'] {
   width: 24px;
   height: 24px;
   background-color: #673ab7;
@@ -569,7 +575,7 @@ const handleFileUpload = (event: Event) => {
   .resume {
     box-shadow: none;
   }
-  
+
   /* 确保打印颜色正确 */
   * {
     -webkit-print-color-adjust: exact !important;
@@ -577,4 +583,4 @@ const handleFileUpload = (event: Event) => {
     color-adjust: exact !important;
   }
 }
-</style> 
+</style>

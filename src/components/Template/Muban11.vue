@@ -19,9 +19,7 @@
         </div>
 
         <section class="section">
-          <h2 class="section-title">
-            <i class="section-icon contact-icon"></i>联系方式
-          </h2>
+          <h2 class="section-title"><i class="section-icon contact-icon"></i>联系方式</h2>
           <div class="contact-info">
             <div class="contact-item">
               <i class="contact-icon phone-icon"></i>
@@ -39,9 +37,7 @@
         </section>
 
         <section class="section">
-          <h2 class="section-title">
-            <i class="section-icon skills-icon"></i>专业技能
-          </h2>
+          <h2 class="section-title"><i class="section-icon skills-icon"></i>专业技能</h2>
           <div class="skills-container">
             <div v-for="(skill, index) in resumeForm.skills" :key="index" class="skill-item">
               <div class="skill-name">{{ skill }}</div>
@@ -53,9 +49,7 @@
         </section>
 
         <section class="section">
-          <h2 class="section-title">
-            <i class="section-icon certificate-icon"></i>证书与荣誉
-          </h2>
+          <h2 class="section-title"><i class="section-icon certificate-icon"></i>证书与荣誉</h2>
           <ul class="certificate-list">
             <li v-for="(cert, index) in certificates" :key="index">{{ cert }}</li>
           </ul>
@@ -64,22 +58,20 @@
 
       <div class="right-column">
         <section class="section">
-          <h2 class="section-title">
-            <i class="section-icon profile-icon"></i>个人简介
-          </h2>
+          <h2 class="section-title"><i class="section-icon profile-icon"></i>个人简介</h2>
           <p class="profile-text">{{ resumeForm.selfAssessment }}</p>
         </section>
 
         <section class="section">
-          <h2 class="section-title">
-            <i class="section-icon education-icon"></i>教育背景
-          </h2>
+          <h2 class="section-title"><i class="section-icon education-icon"></i>教育背景</h2>
           <div v-for="(edu, index) in resumeForm.education" :key="index" class="timeline-item">
             <div class="timeline-dot"></div>
             <div class="timeline-content">
               <div class="timeline-header">
                 <span class="timeline-title">{{ edu.school }}</span>
-                <span class="timeline-period">{{ formatDate(edu.time[0]) }} - {{ formatDate(edu.time[1]) }}</span>
+                <span class="timeline-period"
+                  >{{ formatDate(edu.time[0]) }} - {{ formatDate(edu.time[1]) }}</span
+                >
               </div>
               <p class="timeline-subtitle">{{ edu.major }} | {{ edu.degree }}</p>
             </div>
@@ -87,20 +79,22 @@
         </section>
 
         <section class="section">
-          <h2 class="section-title">
-            <i class="section-icon experience-icon"></i>工作经验
-          </h2>
+          <h2 class="section-title"><i class="section-icon experience-icon"></i>工作经验</h2>
           <div v-for="(exp, index) in resumeForm.experience" :key="index" class="timeline-item">
             <div class="timeline-dot"></div>
             <div class="timeline-content">
               <div class="timeline-header">
                 <span class="timeline-title">{{ exp.company }}</span>
-                <span class="timeline-period">{{ formatDate(exp.time[0]) }} - {{ formatDate(exp.time[1]) }}</span>
+                <span class="timeline-period"
+                  >{{ formatDate(exp.time[0]) }} - {{ formatDate(exp.time[1]) }}</span
+                >
               </div>
               <p class="timeline-subtitle">{{ exp.position }}</p>
               <div class="timeline-description">
                 <ul>
-                  <li v-for="(item, i) in exp.description.split('\n').filter(l => l)" :key="i">{{ item }}</li>
+                  <li v-for="(item, i) in exp.description.split('\n').filter(l => l)" :key="i">
+                    {{ item }}
+                  </li>
                 </ul>
               </div>
             </div>
@@ -108,9 +102,7 @@
         </section>
 
         <section class="section">
-          <h2 class="section-title">
-            <i class="section-icon campus-icon"></i>校园经历
-          </h2>
+          <h2 class="section-title"><i class="section-icon campus-icon"></i>校园经历</h2>
           <div class="campus-experience">
             <ul>
               <li v-for="(item, index) in campusExperience" :key="index">{{ item }}</li>
@@ -165,11 +157,11 @@ const props = defineProps({
 
 const fileInput = ref<HTMLInputElement | null>(null)
 
-const certificates = computed(() => 
+const certificates = computed(() =>
   props.resumeForm.certifications.split('\n').filter(cert => cert.trim())
 )
 
-const campusExperience = computed(() => 
+const campusExperience = computed(() =>
   props.resumeForm.campusExperience.split('\n').filter(exp => exp.trim())
 )
 
@@ -198,7 +190,7 @@ const handleFileUpload = (event: Event) => {
 
 // 只用于展示效果的随机技能等级函数
 const getRandomLevel = () => {
-  const levels = ["85%", "90%", "75%", "80%", "95%"]
+  const levels = ['85%', '90%', '75%', '80%', '95%']
   return levels[Math.floor(Math.random() * levels.length)]
 }
 </script>
@@ -208,7 +200,7 @@ const getRandomLevel = () => {
   width: 210mm; /* A4宽度 */
   min-height: 297mm; /* A4高度 */
   margin: 0 auto;
-  font-family: "Roboto", "Helvetica Neue", Arial, sans-serif;
+  font-family: 'Roboto', 'Helvetica Neue', Arial, sans-serif;
   background-color: #fff;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   color: #333;
@@ -467,7 +459,7 @@ const getRandomLevel = () => {
     box-shadow: none;
     margin: 0;
   }
-  
+
   /* 确保打印颜色正确 */
   * {
     -webkit-print-color-adjust: exact !important;
@@ -475,4 +467,4 @@ const getRandomLevel = () => {
     color-adjust: exact !important;
   }
 }
-</style> 
+</style>
