@@ -380,8 +380,10 @@ const answerStatus = computed(() => {
   })
 })
 const analyzeQuestionSSE = (questionId: string, index: number): void => {
-  const apiBaseUrl = import.meta.env.DEV ? 'http://8.130.75.193:8081' : 'https://view.yinhenx.cn'
-  const requestUrl = `${apiBaseUrl}/ai/analysis?questionId=${questionId}`
+  const isDevelopment = import.meta.env.MODE === 'development'
+  const requestUrl = isDevelopment
+    ? `/api/ai/analysis?questionId=${questionId}`
+    : `http://8.130.75.193:8081/ai/analysis?questionId=${questionId}`
 
   const eventSource = new EventSource(requestUrl)
 
