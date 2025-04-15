@@ -380,7 +380,6 @@ const answerStatus = computed(() => {
   })
 })
 const analyzeQuestionSSE = (questionId: string, index: number): void => {
-
   // 获取 token
   const token = localStorage.getItem('token') || ''
 
