@@ -709,7 +709,7 @@ onMounted(() => {
 .captcha-button:disabled {
   background-color: #77a2df;
   border-color: #b3cfea;
-  box-shadow: none; 
+  box-shadow: none;
 }
 :deep(.custom-input .el-input__wrapper) {
   background-color: #f5f7fa;
