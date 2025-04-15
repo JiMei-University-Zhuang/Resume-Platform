@@ -512,7 +512,7 @@ onMounted(() => {
   padding: 12px 28px;
   border-radius: 8px;
   transition: all 0.3s ease;
-  background: linear-gradient(135deg, #5ec89c, #67c23a);
+  background: linear-gradient(to right, #1a365d, #3182ce);
   border: none;
 }
 
@@ -528,9 +528,10 @@ onMounted(() => {
 }
 
 .cancel-btn:hover {
-  color: #5ec89c;
-  border-color: #5ec89c;
-  background-color: #f5fffb;
+  color: #16436c;
+  border-color: #9bcbf8;
+  background-color: #9bcbf8;
+  box-shadow: 0 5px 15px #3182ce;
 }
 
 /* 优化真题卡片样式 */
@@ -553,6 +554,6 @@ onMounted(() => {
 /* 按钮悬停效果 */
 .start-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(94, 200, 156, 0.4);
+  box-shadow: 0 5px 15px #3182ce;
 }
 </style>

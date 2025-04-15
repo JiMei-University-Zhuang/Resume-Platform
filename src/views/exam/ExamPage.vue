@@ -6,7 +6,9 @@
         <span v-if="route.query.type === 'exam'">
           当前试卷：{{ route.query.examName || '未知试卷' }}
         </span>
-        <span v-else> 本次练习科目：{{ subject }}，题目数量：{{ count }} </span>
+        <span v-else>
+          本次练习科目：{{ subject }}，题目数量：{{ count }}，总分：{{ totalScore_pre }}分</span
+        >
       </p>
     </div>
     <div v-if="route.query.type === 'exam'" class="real-exam-badge">
@@ -93,7 +95,12 @@
               </div>
             </div>
           </div>
-          <el-button type="primary" @click="handleSubmit">提交试卷</el-button>
+          <div class="button-group">
+            <el-button type="primary" @click="handleSubmit" v-if="!showReference"
+              >提交答案</el-button
+            >
+            <el-button type="success" @click="returnToHome" v-else>返回主页</el-button>
+          </div>
         </div>
       </template>
       <template v-else>
@@ -131,7 +138,11 @@
               </div>
             </div>
           </div>
-          <el-button type="primary" @click="submitRealExam">提交答案</el-button>
+
+          <el-button type="primary" @click="submitRealExam" v-if="!showReference"
+            >提交答案</el-button
+          >
+          <el-button type="success" @click="returnToHome" v-else>返回主页</el-button>
         </div>
       </template>
     </div>
@@ -155,6 +166,7 @@ import passimg2 from '@/assets/images/exam_imgs/pass2.png'
 import failimg1 from '@/assets/images/exam_imgs/failpass1.png'
 import failimg2 from '@/assets/images/exam_imgs/failpass2.png'
 import { useExamStore } from '@/stores/examStore'
+import router from '@/router'
 
 // 定义题目接口
 interface Question {
@@ -177,12 +189,14 @@ interface Question {
 
 const route = useRoute()
 const examStore = useExamStore()
+const showReference = ref(false)
 const subject = ref(route.query.subject as string)
 const count = ref(parseInt(route.query.count as string, 10))
 const questions = ref<Question[]>([])
 const answers = ref<string[]>([])
 const essayAnswers = ref<string[]>([])
-const totalScore = ref<number>(0)
+const totalScore = ref<number>(0) //答题后的得分
+const totalScore_pre = ref<number>(0) //答题前的总分
 const showCorrectAnswers = ref<boolean>(false)
 const timeLeft = ref(7200)
 const isExamInProgress = ref<boolean>(false)
@@ -210,6 +224,8 @@ const fetchQuestions = async () => {
       const response = await getCSPractice(requestData)
       questions.value = response?.data ? (response.data as unknown as Question[]) : []
     }
+    //计算所有题目总分（答题前）
+    totalScore_pre.value = questions.value.reduce((sum, question) => sum + question.score, 0)
   } catch (error) {
     console.error('获取题目失败：', error)
   }
@@ -242,6 +258,7 @@ const handleSubmit = async () => {
   } catch (error) {
     console.log('用户取消提交')
   }
+  showReference.value = true
 }
 const submitExam = async () => {
   if (!userId) {
@@ -269,8 +286,15 @@ const submitExam = async () => {
   // 调用保存成绩接口
   const scoreData: ScoresaveData = {
     userId,
-    score: totalScore.value,
-    type: route.query.type === 'exam' ? '考试' : '练习'
+    userScore: totalScore.value,
+    totalScore: totalScore_pre.value,
+    type: route.query.type === 'exam' ? '公务员考试' : '公务员练习',
+    questionInfo:
+      route.query.type === 'exam'
+        ? (route.query.examName as string)
+        : subject.value === '行测'
+          ? '行测选择题'
+          : '申论主观题'
   }
 
   try {
@@ -377,6 +401,7 @@ const submitRealExam = async () => {
   showEssayAnswers.value = true
   isExamInProgress.value = false
   saveScoreAndWrongQuestions()
+  showReference.value = true
 }
 
 const analyzeQuestion = (index: number) => {
@@ -399,13 +424,12 @@ const saveScoreAndWrongQuestions = async () => {
     type: route.query.type === 'exam' ? '考试' : '练习',
     records: wrongQuestions
   }
-
   try {
-    const response = await saveWrongQuestion(wrongQuestionData)
-    console.log('保存错题成功44444:', response.data)
-  } catch (error) {
-    console.error('保存错题失败:', error)
-  }
+    await saveWrongQuestion(wrongQuestionData)
+  } catch (error) {}
+}
+const returnToHome = () => {
+  router.push('/exam')
 }
 
 onMounted(async () => {
@@ -428,10 +452,12 @@ onMounted(async () => {
     }, 1000)
   }
   examStore.setExamStatus(true)
+  console.log('Setting exam status to true')
 })
 onUnmounted(() => {
   examStore.setExamStatus(false)
   saveScoreAndWrongQuestions()
+  console.log('Setting exam status to false')
 })
 </script>
 
