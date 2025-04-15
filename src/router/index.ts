@@ -1,7 +1,7 @@
 // src/router/index.ts
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
 import { BasicLayout } from '../layout'
-import { ElMessageBox, ElMessage } from 'element-plus'
+import { message, Modal } from 'ant-design-vue'
 import { useExamStore } from '@/stores/examStore'
 import { useUserStore } from '@/stores/userStore'
 
@@ -311,11 +311,11 @@ router.beforeEach((to, from, next) => {
   const requiresRole = to.meta.roles as Array<string> | undefined
 
   if (to.path !== '/login' && !isAuthenticated) {
-    ElMessage.error('请先登录~')
+    message.error('请先登录~')
     next('/login')
   } else if (requiresRole && requiresRole.length) {
     if (!requiresRole.includes(userStore.userInfo.role)) {
-      ElMessage.error('您没有权限访问该页面')
+      message.error('您没有权限访问该页面')
       next('/error/error401')
       return
     }
@@ -334,18 +334,19 @@ router.beforeEach((to, from, next) => {
       }
 
       // 其他情况：弹出确认对话框
-      ElMessageBox.confirm('确定要退出吗？', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      })
-        .then(() => {
+      Modal.confirm({
+        title: '提示',
+        content: '确定要退出答题页吗？',
+        okText: '确定',
+        cancelText: '取消',
+        onOk: () => {
           examStore.setExamStatus(false)
           next()
-        })
-        .catch(() => {
+        },
+        onCancel: () => {
           next(false)
-        })
+        }
+      })
     } else {
       next()
     }
