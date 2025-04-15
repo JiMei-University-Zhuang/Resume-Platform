@@ -267,9 +267,11 @@ import {
   sendEmailCaptchaValue,
   sendRegisterEmailCaptchaValue,
   register,
-  emailLogin
+  emailLogin,
+  getUser
 } from '@/api/user'
 import { ApiResponse } from '@/api/types'
+import { useUserStore } from '@/stores/userStore'
 
 interface AxiosResponse<T = any> {
   data: T
@@ -477,6 +479,8 @@ watch(isLogin, newVal => {
   }
 })
 
+const userStore = useUserStore()
+
 const handleLogin = async (formEl: any) => {
   if (!formEl) return
 
@@ -492,6 +496,16 @@ const handleLogin = async (formEl: any) => {
         })) as any as LoginResponse
         if (response.data.code === 200 && response.data.data) {
           localStorage.setItem('token', response.data.data)
+
+          try {
+            const userResponse = await getUser()
+            if (userResponse.data) {
+              userStore.setUserInfo(userResponse.data)
+            }
+          } catch (userError) {
+            console.error('获取用户信息失败:', userError)
+          }
+
           message.success('登录成功')
           router.push(router.currentRoute.value.query.redirect?.toString() || '/dashboard')
         }
@@ -520,6 +534,18 @@ const handleEmailLogin = async (formEl: any) => {
         })) as any as LoginEmailResponse
         if (response.data.code === 200 && response.data.data) {
           localStorage.setItem('token', response.data.data)
+
+          // 登录成功后立即获取用户信息并更新用户状态
+          try {
+            const userResponse = await getUser()
+            if (userResponse.data) {
+              // 更新用户信息到 store，包括角色信息
+              userStore.setUserInfo(userResponse.data)
+            }
+          } catch (userError) {
+            console.error('获取用户信息失败:', userError)
+          }
+
           message.success('登录成功')
           router.push(router.currentRoute.value.query.redirect?.toString() || '/dashboard')
         }

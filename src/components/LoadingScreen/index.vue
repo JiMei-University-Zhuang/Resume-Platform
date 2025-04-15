@@ -149,7 +149,7 @@ onBeforeUnmount(() => {
 }
 
 .loading-logo h1::after {
-  content: 'AI管理平台';
+  content: '小助手正在拼命加载中～';
   position: absolute;
   left: 0;
   width: 100%;

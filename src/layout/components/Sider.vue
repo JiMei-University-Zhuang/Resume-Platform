@@ -302,7 +302,6 @@ import { storeToRefs } from 'pinia'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-// Initialize i18n but don't destructure 't' since we use $t in template
 useI18n()
 
 const route = useRoute()
