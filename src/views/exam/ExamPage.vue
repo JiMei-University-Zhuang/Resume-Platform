@@ -380,9 +380,6 @@ const answerStatus = computed(() => {
   })
 })
 const analyzeQuestionSSE = (questionId: string, index: number): void => {
-  // 显示状态更新
-  essayAnalysisResults.value[index] = ''
-  aiAnalysisStatus.value[index] = 0
 
   // 获取 token
   const token = localStorage.getItem('token') || ''
