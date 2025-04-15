@@ -24,12 +24,12 @@ export default defineConfig({
     AutoImport({
       resolvers: [ElementPlusResolver()],
       imports: ['vue', 'vue-router'],
-      dts: 'src/auto-imports.d.ts',
+      dts: 'src/auto-imports.d.ts'
     }),
     // 按需导入Element Plus组件
     Components({
       resolvers: [ElementPlusResolver()],
-      dts: 'src/components.d.ts',
+      dts: 'src/components.d.ts'
     }),
     // 图片压缩配置
     viteImagemin({
@@ -93,6 +93,14 @@ export default defineConfig({
         },
         secure: false
       },
+      '/api/record': {
+        target: apiBaseUrl,
+        changeOrigin: true,
+        rewrite: function (path) {
+          return path.replace(/^\/api/, '')
+        },
+        secure: false
+      },
       // 其他API - 保留/api前缀
       '^/api/(?!auth|chat)': {
         target: apiBaseUrl,
@@ -125,7 +133,7 @@ export default defineConfig({
       }
     }
   },
-  
+
   build: {
     chunkSizeWarningLimit: 1500,
     minify: 'terser',
@@ -141,13 +149,8 @@ export default defineConfig({
         // 根据类型拆分代码
         manualChunks: {
           'element-plus': ['element-plus'],
-          'echarts': ['echarts'],
-          'vendor': [
-            'vue',
-            'vue-router',
-            'pinia',
-            '@vueuse/core',
-          ]
+          echarts: ['echarts'],
+          vendor: ['vue', 'vue-router', 'pinia', '@vueuse/core']
         }
       },
       external: ['element-plus/es/element-plus']

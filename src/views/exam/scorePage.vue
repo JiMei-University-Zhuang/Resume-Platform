@@ -41,7 +41,9 @@ import { ref, computed } from 'vue'
 interface ScoreItem {
   createTime: string
   type: string
-  score: number
+  userScore: number
+  totalScore: number
+  questionInfo: string
   record: number
 }
 
@@ -89,6 +91,7 @@ const main = async () => {
         totalScore: item.totalScore,
         record: item.record
       }))
+      scoreList.value = practiceScoreList
     }
 
     // 按照 createTime 进行升序排序

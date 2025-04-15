@@ -91,7 +91,7 @@ export function saveScore(data: ScoresaveData) {
   })
 }
 
-//获取练习成绩或者考试成绩接口
+//获取成绩
 export function getScore(data: ScoregetData) {
   return request({
     url: '/score/get',

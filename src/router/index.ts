@@ -328,14 +328,12 @@ router.beforeEach((to, from, next) => {
     if (examStore.isInExam && to.path !== from.path) {
       // 特殊处理：如果是从考试页面返回到考试中心主页，则不弹出确认对话框
       if (from.path.includes('/exam/ExamPage') && to.path === '/exam') {
-        console.log('Returning to exam home, no confirmation needed')
         examStore.setExamStatus(false)
         next()
         return
       }
 
       // 其他情况：弹出确认对话框
-      console.log('Navigating away from exam, showing confirmation')
       ElMessageBox.confirm('确定要退出吗？', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
@@ -349,7 +347,6 @@ router.beforeEach((to, from, next) => {
           next(false)
         })
     } else {
-      console.log('No exam in progress or paths are the same, proceeding')
       next()
     }
   }

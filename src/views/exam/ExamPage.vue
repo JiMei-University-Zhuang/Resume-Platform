@@ -273,7 +273,7 @@ const submitExam = async () => {
       wrongQuestions.push({
         questionId: parseInt(question.questionId, 10),
         itemId: null,
-        userAnswer: answers.value[index] || '未作答'
+        userAnswer: answers.value[index] || ''
       })
     }
   })
@@ -298,8 +298,7 @@ const submitExam = async () => {
   }
 
   try {
-    const response = await saveScore(scoreData)
-    console.log('保存成绩成功:', response.data)
+    await saveScore(scoreData)
   } catch (error) {
     console.error('保存成绩失败:', error)
   }
@@ -435,8 +434,7 @@ const returnToHome = () => {
 onMounted(async () => {
   try {
     const response = await getUser()
-    userId = response.data.id
-    // console.log('当前用户ID:', userId)
+    userId = Number(response.data.id)
   } catch (error) {
     console.error('获取用户信息失败:', error)
   }
@@ -452,12 +450,10 @@ onMounted(async () => {
     }, 1000)
   }
   examStore.setExamStatus(true)
-  console.log('Setting exam status to true')
 })
 onUnmounted(() => {
   examStore.setExamStatus(false)
   saveScoreAndWrongQuestions()
-  console.log('Setting exam status to false')
 })
 </script>
 
