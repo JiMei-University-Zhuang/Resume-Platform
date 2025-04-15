@@ -133,11 +133,6 @@
                   :disabled="countdown.email > 0 || isSendingEmailCaptcha"
                   @click="sendEmailCaptcha"
                   class="captcha-button"
-                  style="
-                    background-color: #3182ce;
-                    border-color: #3182ce;
-                    box-shadow: 0 2px 0 rgba(0, 0, 0, 0.05);
-                  "
                 >
                   {{ countdown.email > 0 ? `${countdown.email}s后重试` : '获取验证码' }}
                 </el-button>
@@ -222,11 +217,6 @@
               :disabled="countdown.register > 0 || isSendingRegisterCaptcha"
               @click="sendRegisterEmailCaptcha"
               class="captcha-button"
-              style="
-                background-color: rgb(49, 130, 206);
-                border-color: rgb(49, 130, 206);
-                box-shadow: 0 2px 0 rgba(0, 0, 0, 0.05);
-              "
             >
               {{ countdown.register > 0 ? `${countdown.register}s后重试` : '获取验证码' }}
             </el-button>
@@ -712,8 +702,15 @@ onMounted(() => {
 
 .captcha-button {
   height: 34px;
+  background-color: #3182ce;
+  border-color: #3182ce;
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.05);
 }
-
+.captcha-button:disabled {
+  background-color: #77a2df;
+  border-color: #b3cfea;
+  box-shadow: none; 
+}
 :deep(.custom-input .el-input__wrapper) {
   background-color: #f5f7fa;
   border: 2px solid transparent;
