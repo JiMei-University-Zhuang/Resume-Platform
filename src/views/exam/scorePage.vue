@@ -90,6 +90,7 @@ const main = async () => {
         record: item.record
       }))
     }
+    console.log('practiceScoreList', practiceScoreList)
 
     // 按照 createTime 进行升序排序
     scoreList.value.sort((a, b) => {
