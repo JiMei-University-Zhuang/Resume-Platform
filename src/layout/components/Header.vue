@@ -213,20 +213,22 @@ import {
   type Notice
 } from '@/api/notification'
 import { useLanguage } from '@/composables/useLanguage'
+import { useUserStore } from '@/stores/userStore'
 
 // 载入相对时间插件
 dayjs.extend(relativeTime)
 
 const router = useRouter()
 const appStore = useAppStore()
+const userStore = useUserStore()
 
 // 全屏状态管理
 const isFullScreen = ref(false)
 
 // 用户信息相关
 const userInfo = ref<GetUserResult | null>(null)
-const userAvatar = computed(() => userInfo.value?.avatar)
-const userName = computed(() => userInfo.value?.name || 'Admin')
+const userAvatar = computed(() => userStore.userInfo?.avatar || userInfo.value?.avatar)
+const userName = computed(() => userStore.userInfo?.name || userInfo.value?.name || 'Admin')
 
 // 使用语言组合式函数
 const { isEnglish, toggleLanguage } = useLanguage()
@@ -271,6 +273,9 @@ const handleLogout = async () => {
   try {
     await logout()
     localStorage.removeItem('token')
+    // 清空用户 store，确保角色权限被重置
+    userStore.clearUserInfo()
+
     message.success('成功退出登录')
     router.push('/login')
   } catch (error) {
