@@ -380,38 +380,110 @@ const answerStatus = computed(() => {
   })
 })
 const analyzeQuestionSSE = (questionId: string, index: number): void => {
-  const isDevelopment = import.meta.env.MODE === 'development'
-  const requestUrl = isDevelopment
-    ? `/api/ai/analysis?questionId=${questionId}`
-    : `http://8.130.75.193:8081/ai/analysis?questionId=${questionId}`
+  // 获取 token
+  const token = localStorage.getItem('token') || ''
 
-  const eventSource = new EventSource(requestUrl)
+  const requestUrl = `/api/ai/analysis?questionId=${questionId}`
 
-  eventSource.onopen = function () {}
+  const abortController = new (window as any).AbortController()
 
-  eventSource.onmessage = function (event) {
-    essayAnalysisResults.value[index] += event.data
+  // 请求头设置
+  const headers: Record<string, string> = {
+    Accept: 'text/event-stream',
+    'Content-Type': 'text/event-stream',
+    'Cache-Control': 'no-cache',
+    'X-Requested-With': 'XMLHttpRequest'
   }
 
-  eventSource.onerror = function (_err) {
-    aiAnalysisStatus.value[index] = 500
-    eventSource.close()
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`
+    headers['token'] = token
   }
+
+  fetch(requestUrl, {
+    method: 'GET',
+    headers,
+    signal: abortController.signal,
+    credentials: 'include'
+  })
+    .then(response => {
+      console.log('响应状态码:', response.status)
+      console.log('响应类型:', response.type)
+      console.log('响应头:', [...response.headers.entries()])
+
+      // 处理响应状态
+      if (response.status === 500) {
+        throw new Error('服务器内部错误，请稍后再试')
+      } else if (!response.ok) {
+        throw new Error(`HTTP 错误! 状态: ${response.status}`)
+      }
+
+      // 获取响应数据流
+      const reader = response.body?.getReader()
+      if (!reader) {
+        throw new Error('无法获取响应流')
+      }
+
+      const decoder = new TextDecoder()
+
+      // 递归函数处理数据流
+      const processStream = async () => {
+        try {
+          const { done, value } = await reader.read()
+
+          if (done) {
+            console.log('流数据接收完成')
+            return
+          }
+
+          // 解码并处理数据块
+          const chunk = decoder.decode(value, { stream: true })
+          console.log('接收到数据块:', chunk)
+          const lines = chunk.split('\n')
+
+          for (const line of lines) {
+            if (line.startsWith('data:')) {
+              const data = line.slice(5).trim()
+
+              if (data === '[DONE]') {
+                console.log('收到 [DONE] 标记，解析完成')
+                return
+              }
+
+              // 更新解析结果
+              essayAnalysisResults.value[index] += data
+            }
+          }
+
+          // 继续处理流
+          return processStream()
+        } catch (error) {
+          console.error('处理流数据时出错:', error)
+          throw error
+        }
+      }
+
+      // 开始处理流
+      return processStream()
+    })
+    .catch(error => {
+      console.error('AI 解析请求失败:', error)
+      aiAnalysisStatus.value[index] = 500
+      message.error('AI 解析请求失败: ' + error.message)
+    })
 }
+const analyzeQuestion = (index: number) => {
+  const questionId = questions.value[index].questionId
+  showAnalysis.value[index] = true
+  message.info('正在生成AI解析，请稍候...')
+  analyzeQuestionSSE(questionId, index)
+}
+
 const submitRealExam = async () => {
   showEssayAnswers.value = true
   isExamInProgress.value = false
   saveScoreAndWrongQuestions()
   showReference.value = true
-}
-
-const analyzeQuestion = (index: number) => {
-  const questionId = questions.value[index].questionId
-  essayAnalysisResults.value[index] = ''
-  showAnalysis.value[index] = true
-  aiAnalysisStatus.value[index] = 0
-  message.info('正在生成AI解析，请稍候...')
-  analyzeQuestionSSE(questionId, index)
 }
 
 const saveScoreAndWrongQuestions = async () => {

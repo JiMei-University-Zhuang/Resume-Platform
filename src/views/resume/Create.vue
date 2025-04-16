@@ -442,7 +442,8 @@ import { View, OfficeBuilding, Document, Download, Delete } from '@element-plus/
 import templateAdapter from '@/components/Template/template-adapter'
 
 import { ref, watch, onMounted, nextTick } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ElMessageBox } from 'element-plus'
+import { message } from 'ant-design-vue'
 import { useRoute } from 'vue-router'
 import html2canvas from 'html2canvas'
 import jsPDF from 'jspdf'
@@ -823,7 +824,7 @@ const changeResumeType = (type: string) => {
   resumeForm.value = JSON.parse(
     JSON.stringify(resumeTemplates[type as keyof typeof resumeTemplates])
   )
-  ElMessage.success(`已切换到${resumeTypes.find(item => item.value === type)?.label}`)
+  message.success(`已切换到${resumeTypes.find(item => item.value === type)?.label}`)
 }
 
 const analyzing = ref(false)
@@ -878,7 +879,7 @@ const loadTemplate = async (templateName?: string) => {
       currentTemplate.value = defaultFallback.default
     } catch (err) {
       console.error('无法加载默认模板:', err)
-      ElMessage.error('模板加载失败，请刷新页面重试')
+      message.error('模板加载失败，请刷新页面重试')
     }
   }
 }
@@ -939,7 +940,7 @@ const exportPDF = async () => {
   if (!resumePreview.value) return
 
   try {
-    ElMessage.info('正在生成PDF，请稍候...')
+    message.info('正在生成PDF，请稍候...')
 
     // 确保模板完全渲染
     await new Promise(resolve => setTimeout(resolve, 1000))
@@ -1054,10 +1055,10 @@ const exportPDF = async () => {
     // 保存PDF
     pdf.save('我的简历.pdf')
 
-    ElMessage.success('PDF导出成功！')
+    message.success('PDF导出成功！')
   } catch (error: any) {
     console.error('PDF导出失败:', error)
-    ElMessage.error(`PDF导出失败: ${error.message || '未知错误'}`)
+    message.error(`PDF导出失败: ${error.message || '未知错误'}`)
   }
 }
 
@@ -1111,7 +1112,7 @@ const analyzeResume = async () => {
     }
   } catch (error) {
     console.error('分析失败:', error)
-    ElMessage.error('简历分析失败，请稍后再试')
+    message.error('简历分析失败，请稍后再试')
   } finally {
     analyzing.value = false
   }
@@ -1119,7 +1120,7 @@ const analyzeResume = async () => {
 
 const applyAISuggestions = () => {
   if (!aiSuggestions.value) {
-    ElMessage.warning('没有可用的 AI 建议')
+    message.warning('没有可用的 AI 建议')
     return
   }
 
@@ -1220,7 +1221,7 @@ const applyAISuggestions = () => {
     }
   }
 
-  ElMessage.success('已应用 AI 建议')
+  message.success('已应用 AI 建议')
   analysisDialogVisible.value = false
 }
 
@@ -1243,10 +1244,10 @@ const confirmClearResumeForm = () => {
   })
     .then(() => {
       clearResumeForm()
-      ElMessage.success('简历信息已清空')
+      message.success('简历信息已清空')
     })
     .catch(() => {
-      ElMessage.info('已取消清空操作')
+      message.info('已取消清空操作')
     })
 }
 

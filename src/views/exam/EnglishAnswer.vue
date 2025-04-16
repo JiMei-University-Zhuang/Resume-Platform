@@ -283,6 +283,36 @@
                 <p>Best regards,<br />Li Ming</p>
               </div>
             </div>
+            <div
+              v-if="showAnalysis[`writing-${paperData.writingVO.questionId}`]"
+              class="analysis-container"
+            >
+              <div class="analysis-title">AI 解析结果：</div>
+              <div
+                class="markdown-body analysis-content"
+                v-html="
+                  renderMarkdown(analysisResults[`writing-${paperData.writingVO.questionId}`])
+                "
+              ></div>
+            </div>
+            <div
+              v-if="showReference && !showAnalysis[`writing-${paperData.writingVO.questionId}`]"
+              class="ai-parse-button-container"
+            >
+              <el-button
+                type="primary"
+                @click="analyzeQuestion(paperData.writingVO.questionId, 'writing')"
+                class="ai-parse-button"
+              >
+                AI 解析
+              </el-button>
+              <div
+                v-if="aiAnalysisStatus[`writing-${paperData.writingVO.questionId}`] === 500"
+                class="ai-analysis-status-tooltip"
+              >
+                提示：当前 AI 解析状态为 500，可能存在一些问题，请稍后再试。
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -298,8 +328,24 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ElMessageBox } from 'element-plus'
+import { message } from 'ant-design-vue'
 import { getEnglishExam } from '@/api/exam'
+import { getUser } from '@/api/user'
+import MarkdownIt from 'markdown-it'
+import type { Options as MarkdownItOptions } from 'markdown-it'
+import Prism from 'prismjs'
+import 'prismjs/components/prism-javascript'
+import 'prismjs/components/prism-typescript'
+import 'prismjs/components/prism-python'
+import 'prismjs/components/prism-java'
+import 'prismjs/components/prism-c'
+import 'prismjs/components/prism-cpp'
+import 'prismjs/components/prism-csharp'
+import 'prismjs/components/prism-markup'
+import 'prismjs/components/prism-css'
+import 'prismjs/themes/prism.css'
+import markdownItKatexGpt from 'markdown-it-katex-gpt'
 
 const route = useRoute()
 const router = useRouter()
@@ -318,6 +364,207 @@ const readingAnswers = ref<string[][]>([])
 const matchingAnswers = ref<string[]>([])
 const translationAnswers = ref<string[]>([])
 const writingAnswer = ref('')
+
+// 添加 AI 解析相关数据
+const showAnalysis = ref<{ [key: string]: boolean }>({})
+const analysisResults = ref<{ [key: string]: string }>({})
+const aiAnalysisStatus = ref<{ [key: string]: number }>({})
+let userId: number | null = null
+
+// 初始化 Markdown
+const mdOptions: MarkdownItOptions = {
+  html: true,
+  breaks: true,
+  linkify: true,
+  typographer: true,
+  highlight: (str: string, lang: string) => {
+    if (lang && Prism.languages[lang]) {
+      try {
+        return `<pre class="code-block language-${lang}"><code class="language-${lang}">${Prism.highlight(
+          str,
+          Prism.languages[lang],
+          lang
+        )}</code></pre>`
+      } catch (__) {}
+    }
+    return `<pre class="code-block"><code>${str}</code></pre>`
+  }
+}
+
+const md = new MarkdownIt(mdOptions)
+md.use(markdownItKatexGpt, {
+  delimiters: [
+    { left: '\\[', right: '\\]', display: true },
+    { left: '\\(', right: '\\)', display: false },
+    { left: '$$', right: '$$', display: true },
+    { left: '$', right: '$', display: false }
+  ]
+})
+
+// 将Markdown文本转换为HTML
+const renderMarkdown = (text: string): string => {
+  if (!text) return ''
+
+  // 预处理文本，将特殊格式转换为标准Markdown
+  let processedText = text
+
+  // 处理连续井号的标题格式 (如 ####标题####)
+  processedText = processedText.replace(/^(#{3,})([^#\n]+)(#{3,})$/gm, (_, _hash, titleContent) => {
+    return `# ${titleContent.trim()}`
+  })
+
+  // 处理带空格的标题格式 (如 #### 标题)
+  processedText = processedText.replace(/^(#{3,})\s+([^#\n]+)$/gm, (_, _hash, titleContent) => {
+    return `# ${titleContent.trim()}`
+  })
+
+  // 处理特定的AI解析标题格式
+  processedText = processedText.replace(/^#{3,}\s*题目解析\s*#{0,}$/gim, '# 题目解析')
+  processedText = processedText.replace(
+    /^#{3,}\s*\d+\.\s*考点映射\s*[:-]\s*\*\*核心考点\*\*$/gim,
+    '## 考点映射 - 核心考点'
+  )
+  processedText = processedText.replace(/^#{3,}\s*\d+\.\s*考点映射\s*#{0,}$/gim, '## 考点映射')
+  processedText = processedText.replace(
+    /^#{3,}\s*\d+\.\s*干扰项设计逻辑\s*#{0,}$/gim,
+    '## 干扰项设计逻辑'
+  )
+  processedText = processedText.replace(/^#{3,}\s*\d+\.\s*秒杀技巧\s*#{0,}$/gim, '## 秒杀技巧')
+
+  // 处理数字编号标题 (如 ####1.考点映射)
+  processedText = processedText.replace(/^#{3,}\s*(\d+)\.\s*([^#\n]+)$/gm, (_, _num, content) => {
+    return `## ${content.trim()}`
+  })
+
+  // 处理其他以####开头的标题 (如 ####标题)
+  processedText = processedText.replace(/^#{3,}([^#\s][^#\n]*)$/gm, (_, content) => {
+    return `# ${content.trim()}`
+  })
+
+  // 处理可能的分隔符
+  processedText = processedText.replace(/^-{3,}$/gm, '---')
+
+  return md.render(processedText)
+}
+
+// 初始化 AI 解析数据
+const initializeAnalysisData = () => {
+  if (!paperData.value) return
+
+  // 初始化写作题解析数据
+  if (paperData.value.writingVO) {
+    showAnalysis.value[`writing-${paperData.value.writingVO.questionId}`] = false
+    analysisResults.value[`writing-${paperData.value.writingVO.questionId}`] = ''
+    aiAnalysisStatus.value[`writing-${paperData.value.writingVO.questionId}`] = 0
+  }
+}
+
+// 分析题目 - 使用 SSE (Server-Sent Events) 的方式
+const analyzeQuestionSSE = (questionId: string, questionType: string): void => {
+  // 获取 token
+  const token = localStorage.getItem('token') || ''
+
+  // 使用 userId 构建请求 URL，如果 userId 不存在则不添加参数
+  let requestUrl = `/api/ai/analysis?questionId=${questionId}&subject=english`
+  if (userId !== null) {
+    requestUrl += `&userId=${userId}`
+  }
+
+  const abortController = new (window as any).AbortController()
+
+  // 请求头设置
+  const headers: Record<string, string> = {
+    Accept: 'text/event-stream',
+    'Content-Type': 'text/event-stream',
+    'Cache-Control': 'no-cache',
+    'X-Requested-With': 'XMLHttpRequest'
+  }
+
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`
+    headers['token'] = token
+  }
+
+  fetch(requestUrl, {
+    method: 'GET',
+    headers,
+    signal: abortController.signal,
+    credentials: 'include'
+  })
+    .then(response => {
+      console.log('响应状态码:', response.status)
+      console.log('响应类型:', response.type)
+      console.log('响应头:', [...response.headers.entries()])
+
+      // 处理响应状态
+      if (response.status === 500) {
+        throw new Error('服务器内部错误，请稍后再试')
+      } else if (!response.ok) {
+        throw new Error(`HTTP 错误! 状态: ${response.status}`)
+      }
+
+      // 获取响应数据流
+      const reader = response.body?.getReader()
+      if (!reader) {
+        throw new Error('无法获取响应流')
+      }
+
+      const decoder = new TextDecoder()
+
+      // 递归函数处理数据流
+      const processStream = async () => {
+        try {
+          const { done, value } = await reader.read()
+
+          if (done) {
+            console.log('流数据接收完成')
+            return
+          }
+
+          // 解码并处理数据块
+          const chunk = decoder.decode(value, { stream: true })
+          console.log('接收到数据块:', chunk)
+          const lines = chunk.split('\n')
+
+          for (const line of lines) {
+            if (line.startsWith('data:')) {
+              const data = line.slice(5).trim()
+
+              if (data === '[DONE]') {
+                console.log('收到 [DONE] 标记，解析完成')
+                return
+              }
+
+              // 更新解析结果
+              analysisResults.value[`${questionType}-${questionId}`] += data
+            }
+          }
+
+          // 继续处理流
+          return processStream()
+        } catch (error) {
+          console.error('处理流数据时出错:', error)
+          throw error
+        }
+      }
+
+      // 开始处理流
+      return processStream()
+    })
+    .catch(error => {
+      console.error('AI 解析请求失败:', error)
+      aiAnalysisStatus.value[`${questionType}-${questionId}`] = 500
+      message.error('AI 解析请求失败: ' + error.message)
+    })
+}
+
+// 开始分析题目
+const analyzeQuestion = (questionId: string, questionType: string) => {
+  showAnalysis.value[`${questionType}-${questionId}`] = true
+  analysisResults.value[`${questionType}-${questionId}`] = ''
+  message.info('正在生成AI解析，请稍候...')
+  analyzeQuestionSSE(questionId, questionType)
+}
 
 // 加载试卷数据
 const fetchPaper = async () => {
@@ -340,18 +587,19 @@ const fetchPaper = async () => {
       paperData.value = response.data
       paperTitle.value = examName
       initializeAnswers()
+      initializeAnalysisData() // 初始化AI解析数据
 
       clearInterval(loadingTimer)
       loadingPercentage.value = 100
       loading.value = false
     } else {
-      ElMessage.error('获取试卷失败，服务器没有返回数据')
+      message.error('获取试卷失败，服务器没有返回数据')
       clearInterval(loadingTimer)
       loading.value = false
     }
   } catch (error) {
     console.error('获取试卷失败：', error)
-    ElMessage.error('获取试卷失败，请重试')
+    message.error('获取试卷失败，请重试')
     loading.value = false
   }
 }
@@ -522,7 +770,7 @@ const submitAnswers = async () => {
 
   // 直接显示参考答案，不发送到服务器
   showReference.value = true
-  ElMessage.success('答案已提交')
+  message.success('答案已提交')
 }
 
 // 返回主页
@@ -530,7 +778,15 @@ const returnToHome = () => {
   router.push('/exam/postgraduate')
 }
 
-onMounted(() => {
+onMounted(async () => {
+  // 获取用户信息（为了AI解析功能）
+  try {
+    const response = await getUser()
+    userId = Number(response.data.id)
+  } catch (error) {
+    console.error('获取用户信息失败:', error)
+  }
+
   fetchPaper()
 
   if (isExamMode.value) {
@@ -893,5 +1149,189 @@ onBeforeUnmount(() => {
 
 .translation-answer-area {
   margin: 16px 0;
+}
+
+/* AI 解析相关样式 */
+.analysis-container {
+  margin-top: 16px;
+  padding: 16px;
+  background-color: #f0f7ff;
+  border-radius: 8px;
+  border: 1px solid #d6e4ff;
+  box-shadow: 0 2px 8px rgba(24, 144, 255, 0.1);
+}
+
+.analysis-title {
+  font-weight: 600;
+  color: #1677ff;
+  margin-bottom: 12px;
+}
+
+.analysis-content {
+  white-space: pre-wrap;
+  line-height: 1.6;
+  color: #262626;
+  background-color: transparent;
+  font-family: inherit;
+  font-size: 14px;
+  padding: 0;
+  margin: 0;
+}
+
+.ai-parse-button-container {
+  margin-top: 16px;
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.ai-parse-button {
+  padding: 8px 16px;
+  font-size: 14px;
+}
+
+.ai-analysis-status-tooltip {
+  margin-left: 16px;
+  font-size: 13px;
+  color: #ff4d4f;
+}
+
+/* Markdown样式 */
+.markdown-body {
+  color: #24292e;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  word-wrap: break-word;
+}
+
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3,
+.markdown-body h4,
+.markdown-body h5,
+.markdown-body h6 {
+  margin-top: 24px;
+  margin-bottom: 16px;
+  font-weight: 600;
+  line-height: 1.25;
+  color: #262626;
+}
+
+.markdown-body h1 {
+  font-size: 1.85em;
+  border-bottom: 1px solid #eaecef;
+  padding-bottom: 0.3em;
+}
+
+.markdown-body h2 {
+  font-size: 1.5em;
+  border-bottom: 1px solid #eaecef;
+  padding-bottom: 0.3em;
+}
+
+.markdown-body h3 {
+  font-size: 1.25em;
+}
+
+.markdown-body h4 {
+  font-size: 1em;
+}
+
+.markdown-body code {
+  padding: 0.2em 0.4em;
+  margin: 0;
+  font-size: 85%;
+  background-color: rgba(27, 31, 35, 0.05);
+  border-radius: 3px;
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+}
+
+.markdown-body pre {
+  padding: 16px;
+  overflow: auto;
+  font-size: 85%;
+  line-height: 1.45;
+  background-color: #f6f8fa;
+  border-radius: 3px;
+}
+
+.markdown-body ul,
+.markdown-body ol {
+  padding-left: 2em;
+}
+
+.markdown-body li + li {
+  margin-top: 0.25em;
+}
+
+.markdown-body blockquote {
+  padding: 0 1em;
+  color: #6a737d;
+  border-left: 0.25em solid #dfe2e5;
+  margin: 0 0 16px 0;
+}
+
+.markdown-body blockquote > :first-child {
+  margin-top: 0;
+}
+
+.markdown-body blockquote > :last-child {
+  margin-bottom: 0;
+}
+
+.markdown-body table {
+  display: block;
+  width: 100%;
+  overflow: auto;
+  border-spacing: 0;
+  border-collapse: collapse;
+  margin: 16px 0;
+}
+
+.markdown-body table th,
+.markdown-body table td {
+  padding: 6px 13px;
+  border: 1px solid #dfe2e5;
+}
+
+.markdown-body table tr {
+  background-color: #fff;
+  border-top: 1px solid #c6cbd1;
+}
+
+.markdown-body table tr:nth-child(2n) {
+  background-color: #f6f8fa;
+}
+
+.markdown-body img {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+</style>
+
+<style>
+/* 确保Prism样式在全局生效 */
+.code-block {
+  margin: 16px 0;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.code-block code {
+  display: block;
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+  padding: 16px;
+  overflow-x: auto;
+  line-height: 1.45;
+  background-color: #f6f8fa;
+  font-size: 85%;
+}
+
+/* 数学公式样式 */
+.katex-display {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 8px 0;
 }
 </style>

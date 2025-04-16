@@ -14,11 +14,23 @@ const __dirname = path.dirname(__filename)
 const srcLocalesDir = path.resolve(__dirname, 'src/locales')
 // 目标目录
 const distLocalesDir = path.resolve(__dirname, 'dist/locales')
+// 备份目录 - 用于临时存储公共目录中可能存在的语言文件
+const publicLocalesDir = path.resolve(__dirname, 'public/locales')
 
 // 确保目标目录存在
 if (!fs.existsSync(distLocalesDir)) {
   fs.mkdirSync(distLocalesDir, { recursive: true })
   console.log(`创建目录: ${distLocalesDir}`)
+}
+
+// 简单验证 JSON 文件是否有效
+function isValidJson(jsonContent) {
+  try {
+    JSON.parse(jsonContent)
+    return true
+  } catch (e) {
+    return false
+  }
 }
 
 try {
@@ -55,17 +67,57 @@ try {
             .replace(/`([^`]*)`/g, '"$1"')
           
           try {
-            // 尝试解析为 JSON
-            // 注意：这只是一个简单的转换，可能无法处理所有复杂情况
+            // 尝试解析为 JSON 对象
             const jsonObj = Function(`return ${jsonContent}`)()
-            // 写入 JSON 文件
-            fs.writeFileSync(distJsonFile, JSON.stringify(jsonObj, null, 2), 'utf-8')
-            console.log(`✅ 已生成语言文件: ${jsonFileName}`)
+            // 将对象转换为 JSON 字符串
+            const jsonString = JSON.stringify(jsonObj, null, 2)
+            
+            // 验证生成的 JSON 字符串
+            if (isValidJson(jsonString)) {
+              // 写入 JSON 文件
+              fs.writeFileSync(distJsonFile, jsonString, 'utf-8')
+              console.log(`✅ 已生成语言文件: ${jsonFileName}`)
+            } else {
+              throw new Error('生成的 JSON 字符串无效')
+            }
           } catch (error) {
             console.error(`❌ 处理语言文件失败: ${file}`, error)
-            // 保存原始内容
-            fs.copyFileSync(srcFile, path.join(distLocalesDir, file))
-            console.log(`⚠️ 已复制原始语言文件: ${file}`)
+            
+            // 尝试使用备用方案：复制 public/locales 中的文件
+            const publicJsonFile = path.join(publicLocalesDir, jsonFileName)
+            if (fs.existsSync(publicJsonFile)) {
+              fs.copyFileSync(publicJsonFile, distJsonFile)
+              console.log(`⚠️ 已从 public/locales 复制替代文件: ${jsonFileName}`)
+            } else {
+              // 如果没有备用文件，尝试硬编码基本语言对象
+              if (file === 'en.ts') {
+                const basicEn = {
+                  header: {
+                    language: 'Switch to Chinese',
+                    logout: 'Logout',
+                    profile: 'Profile'
+                  },
+                  sider: {
+                    dashboard: 'Dashboard'
+                  }
+                }
+                fs.writeFileSync(distJsonFile, JSON.stringify(basicEn, null, 2), 'utf-8')
+                console.log(`⚠️ 已创建基本英文语言文件: ${jsonFileName}`)
+              } else if (file === 'zh-cn.ts') {
+                const basicZh = {
+                  header: {
+                    language: '切换为英文',
+                    logout: '退出登录',
+                    profile: '个人信息'
+                  },
+                  sider: {
+                    dashboard: '首页'
+                  }
+                }
+                fs.writeFileSync(distJsonFile, JSON.stringify(basicZh, null, 2), 'utf-8')
+                console.log(`⚠️ 已创建基本中文语言文件: ${jsonFileName}`)
+              }
+            }
           }
         } else {
           console.error(`❌ 在文件 ${file} 中未找到导出对象`)
@@ -78,9 +130,28 @@ try {
     }
   })
   
-  console.log('🎉 国际化资源处理完成！')
+  // 最后步骤：执行验证
+  console.log('🔍 验证生成的语言文件...')
+  const jsonFiles = fs.readdirSync(distLocalesDir).filter(file => file.endsWith('.json'))
+  
+  let allValid = true
+  jsonFiles.forEach(file => {
+    const filePath = path.join(distLocalesDir, file)
+    const content = fs.readFileSync(filePath, 'utf-8')
+    
+    if (isValidJson(content)) {
+      console.log(`✅ 文件有效: ${file}`)
+    } else {
+      console.error(`❌ 文件无效: ${file}`)
+      allValid = false
+    }
+  })
+  
+  if (allValid) {
+    console.log('🎉 所有国际化资源处理完成且有效！')
+  } else {
+    console.error('⚠️ 部分语言文件无效，请检查输出目录')
+  }
 } catch (error) {
   console.error('❌ 处理国际化资源时出错:', error)
-  // 避免使用 process.exit，使用错误码作为返回值
-  // 如果在 Node.js 环境中执行，脚本将自动以非零状态退出
 } 

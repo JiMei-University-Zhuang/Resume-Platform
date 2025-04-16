@@ -329,7 +329,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, nextTick } from 'vue'
-import { ElMessage } from 'element-plus'
+import { message } from 'ant-design-vue'
 import {
   UploadFilled,
   InfoFilled,
@@ -514,7 +514,7 @@ const handleFileChange = (uploadFile: UploadFile, _uploadFiles: UploadFiles) => 
 
 const startAnalysis = async () => {
   if (!canAnalyze.value) {
-    ElMessage.warning('请先上传简历并选择目标岗位')
+    message.warning('请先上传简历并选择目标岗位')
     return
   }
 
@@ -571,7 +571,7 @@ const startAnalysis = async () => {
       }
     }
   } catch (error) {
-    ElMessage.error('分析失败，请重试')
+    message.error('分析失败，请重试')
   } finally {
     analyzing.value = false
   }
@@ -640,12 +640,12 @@ const applySuggestion = (suggestion: Suggestion) => {
 }
 
 const confirmApplySuggestion = () => {
-  ElMessage.success('已应用优化建议，点击导出可获取优化后的简历')
+  message.success('已应用优化建议，点击导出可获取优化后的简历')
   aiDialogVisible.value = false
 }
 
 const applyAllSuggestions = () => {
-  ElMessage.success('已应用全部优化建议，点击导出可获取优化后的简历')
+  message.success('已应用全部优化建议，点击导出可获取优化后的简历')
 }
 </script>
 
