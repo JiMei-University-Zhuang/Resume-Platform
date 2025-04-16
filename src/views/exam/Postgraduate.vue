@@ -9,14 +9,14 @@
             <span></span>
             <span></span>
             <span></span>
-          </div>
+            </div>
           <p class="page-description">提供专业、系统的考研备考资源，助力你的学术梦想</p>
           <div class="title-action">
             <button class="get-started-btn" @click="scrollToContent">
               <span>开始备考</span>
             </button>
-          </div>
-        </div>
+              </div>
+            </div>
       </div>
       <div class="countdown-wrapper">
         <div class="countdown-card">
@@ -92,6 +92,13 @@
                 >
                   <input type="radio" v-model="selectedSubject" value="计算机学科专业课" />
                   <span class="radio-text">计算机学科专业课</span>
+                </label>
+                <label
+                  class="custom-radio"
+                  :class="{ 'radio-checked': selectedSubject === '心理学专业课' }"
+                >
+                  <input type="radio" v-model="selectedSubject" value="心理学专业课" />
+                  <span class="radio-text">心理学专业课</span>
                 </label>
               </div>
             </div>
@@ -181,6 +188,27 @@
                     <span class="radio-text">解答题</span>
                   </label>
                 </div>
+
+                <div
+                  class="radio-group"
+                  v-else-if="selectedSubject === '心理学专业课'"
+                  key="psychology"
+                >
+                  <label
+                    class="custom-radio"
+                    :class="{ 'radio-checked': selectedquestionType === '单选题' }"
+                  >
+                    <input type="radio" v-model="selectedquestionType" value="单选题" />
+                    <span class="radio-text">单选题</span>
+                  </label>
+                  <label
+                    class="custom-radio"
+                    :class="{ 'radio-checked': selectedquestionType === '解答题' }"
+                  >
+                    <input type="radio" v-model="selectedquestionType" value="解答题" />
+                    <span class="radio-text">解答题</span>
+                  </label>
+                </div>
               </transition>
             </div>
 
@@ -250,6 +278,13 @@
               >
                 专业课
               </div>
+              <div
+                class="filter-option"
+                :class="{ active: currentCategory === 'psychology' }"
+                @click="filterCards('psychology')"
+              >
+                心理学
+              </div>
             </div>
           </div>
 
@@ -257,7 +292,7 @@
             <div v-for="paper in filteredPapers" :key="paper.id" class="paper-card">
               <div class="paper-image">
                 <img :src="paper.imageUrl" alt="试卷封面" />
-              </div>
+            </div>
               <div class="paper-info">
                 <h3 class="paper-title">{{ paper.title }}</h3>
                 <p class="paper-description">{{ paper.description }}</p>
@@ -276,7 +311,7 @@
       </transition>
     </div>
 
-    <!-- 考试对话框 -->
+        <!-- 考试对话框 -->
     <transition name="modal">
       <div class="modal-overlay" v-if="isExamDialogVisible" @click="isExamDialogVisible = false">
         <div class="modal-container" @click.stop>
@@ -346,6 +381,8 @@ watch(selectedSubject, newSubject => {
   } else if (newSubject === '思想政治') {
     selectedquestionType.value = '单选题'
   } else if (newSubject === '计算机学科专业课') {
+    selectedquestionType.value = '单选题'
+  } else if (newSubject === '心理学专业课') {
     selectedquestionType.value = '单选题'
   }
 })
@@ -456,6 +493,13 @@ const papers = ref([
     description: '计算机专业核心知识点练习',
     category: 'professional',
     imageUrl: jisuanji1Image
+  },
+  {
+    id: 8,
+    title: '2024年全国硕士研究生招生考试心理学专业基础(347)真题',
+    description: '心理学专业考试真题与详细解析',
+    category: 'psychology',
+    imageUrl: jisuanji1Image
   }
 ])
 
@@ -501,6 +545,15 @@ const startExam = (paperId: number) => {
     // 计算机专业课试卷跳转到professional-answer
     router.push({
       path: '/exam/professional-answer',
+      query: {
+        id: paperId.toString(),
+        type: 'exam'
+      }
+    })
+  } else if (paperCategory === 'psychology') {
+    // 心理学专业课试卷跳转到psychology-answer
+    router.push({
+      path: '/exam/psychology-answer',
       query: {
         id: paperId.toString(),
         type: 'exam'
@@ -808,7 +861,7 @@ const previewPaper = (paperId: number) => {
 @media (max-width: 768px) {
   .page-header {
     flex-direction: column;
-    align-items: center;
+  align-items: center;
     padding: 24px 0;
   }
 

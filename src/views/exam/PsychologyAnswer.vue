@@ -2,9 +2,9 @@
   <div class="exam-page">
     <div class="card-header">
       <h1 class="exam-title">{{ isExamMode ? '考试开始' : '练习开始' }}</h1>
-      <p class="exam-subtitle">计算机专业课试卷: {{ paperTitle }}</p>
+      <p class="exam-subtitle">心理学专业课试卷: {{ paperTitle }}</p>
 
-      <div v-if="isExamMode" class="real-exam-badge">
+      <div v-if="isExamMode" class="real-exam-badge" :class="{ 'time-warning': showTimeWarning }">
         <div class="timer" v-html="formatTime(timeLeft) + '<br>考试剩余时间'"></div>
       </div>
     </div>
@@ -18,44 +18,73 @@
       <div class="progress-container">
         <div class="progress-info">
           <span>答题进度</span>
+          <div class="auto-save-indicator">自动保存已启用</div>
         </div>
         <el-progress :percentage="calculateProgress" :color="progressColor" />
       </div>
 
+      <!-- 题目筛选设置 -->
+      <div class="exam-settings" v-if="!showReference">
+        <div class="setting-controls">
+          <el-checkbox v-model="examSettings.showDifficulty">显示难度</el-checkbox>
+          <el-checkbox v-model="examSettings.filterByDifficulty">按难度筛选</el-checkbox>
+          
+          <el-select 
+            v-model="examSettings.selectedDifficulty" 
+            placeholder="选择难度" 
+            size="small"
+            :disabled="!examSettings.filterByDifficulty"
+          >
+            <el-option label="全部" value="全部"></el-option>
+            <el-option label="简单" value="简单"></el-option>
+            <el-option label="中等" value="中等"></el-option>
+            <el-option label="较难" value="较难"></el-option>
+            <el-option label="困难" value="困难"></el-option>
+          </el-select>
+        </div>
+      </div>
+
       <div class="question-section" v-if="paperData">
         <!-- 单选题部分 -->
-        <div v-if="paperData.choiceVOs && paperData.choiceVOs.length > 0" class="question-category">
+        <div v-if="filteredChoiceQuestions.length > 0" class="question-category">
           <h2 class="category-title">
-            一、单项选择题（每题{{ paperData.choiceVOs[0].score }}分，共{{
-              paperData.choiceVOs.length * paperData.choiceVOs[0].score
+            一、单项选择题（每题{{ filteredChoiceQuestions[0].score }}分，共{{
+              filteredChoiceQuestions.length * filteredChoiceQuestions[0].score
             }}分）
           </h2>
           <div class="question-list">
             <div
-              v-for="(question, questionIndex) in paperData.choiceVOs"
+              v-for="(question, questionIndex) in filteredChoiceQuestions"
               :key="'choice-' + question.questionId"
               class="question-item"
             >
               <div class="question-header">
                 <span class="question-number">{{ questionIndex + 1 }}.</span>
                 <div class="question-content" v-html="question.questionContent"></div>
+                <span 
+                  v-if="examSettings.showDifficulty" 
+                  class="difficulty-tag" 
+                  :class="getDifficultyClass(question.difficulty)"
+                >
+                  {{ question.difficulty }}
+                </span>
               </div>
               <div class="options-container single-choice-options">
                 <el-radio-group
-                  v-model="singleChoiceAnswers[questionIndex]"
+                  v-model="singleChoiceAnswers[paperData.choiceVOs?.findIndex(q => q.questionId === question.questionId) ?? -1]"
                   class="options-group"
                   :disabled="showReference"
                 >
-                  <div class="options-grid options-grid-cs">
+                  <div class="options-grid options-grid-psy">
                     <div
                       v-for="option in ['A', 'B', 'C', 'D']"
                       :key="option"
-                      class="option-item option-item-cs"
+                      class="option-item option-item-psy"
                       :class="{
                         'correct-option': showReference && option === question.correctAnswer,
                         'wrong-option':
                           showReference &&
-                          singleChoiceAnswers[questionIndex] === option &&
+                          singleChoiceAnswers[paperData.choiceVOs?.findIndex(q => q.questionId === question.questionId) ?? -1] === option &&
                           option !== question.correctAnswer
                       }"
                     >
@@ -67,7 +96,7 @@
                           <i class="el-icon-check"></i>
                         </span>
                         <span
-                          v-else-if="singleChoiceAnswers[questionIndex] === option"
+                          v-else-if="singleChoiceAnswers[paperData.choiceVOs?.findIndex(q => q.questionId === question.questionId) ?? -1] === option"
                           class="wrong-icon"
                         >
                           <i class="el-icon-close"></i>
@@ -84,14 +113,19 @@
               <!-- AI 解析结果显示区域 -->
               <div v-if="showAnalysis[`choice-${question.questionId}`]" class="analysis-container">
                 <div class="analysis-title">AI 解析结果：</div>
+                <div v-if="aiAnalysisStatus[`choice-${question.questionId}`] === 1" class="analysis-loading">
+                  <el-progress type="circle" :percentage="0" :indeterminate="true" :width="30"></el-progress>
+                  <span class="loading-text">AI解析生成中...</span>
+                </div>
                 <div
+                  v-else
                   class="markdown-body analysis-content"
                   v-html="renderMarkdown(analysisResults[`choice-${question.questionId}`])"
                 ></div>
               </div>
               <!-- AI 解析按钮 -->
               <div
-                v-if="showReference && !showAnalysis[`choice-${question.questionId}`]"
+                v-if="examSettings.showAIAnalysis && showReference && !showAnalysis[`choice-${question.questionId}`]"
                 class="ai-parse-button-container"
               >
                 <el-button
@@ -113,27 +147,34 @@
         </div>
 
         <!-- 解答题部分 -->
-        <div v-if="paperData.solveVOs && paperData.solveVOs.length > 0" class="question-category">
+        <div v-if="filteredSolveQuestions.length > 0" class="question-category">
           <h2 class="category-title">
-            二、解答题（每题{{ paperData.solveVOs[0].score }}分，共{{
-              paperData.solveVOs.length * paperData.solveVOs[0].score
+            二、解答题（每题{{ filteredSolveQuestions[0].score }}分，共{{
+              filteredSolveQuestions.length * filteredSolveQuestions[0].score
             }}分）
           </h2>
           <div class="question-list">
             <div
-              v-for="(question, questionIndex) in paperData.solveVOs"
+              v-for="(question, questionIndex) in filteredSolveQuestions"
               :key="'solve-' + question.questionId"
               class="question-item"
             >
               <div class="question-header">
                 <span class="question-number">{{ questionIndex + 1 }}.</span>
                 <div class="question-content" v-html="question.questionContent"></div>
+                <span 
+                  v-if="examSettings.showDifficulty" 
+                  class="difficulty-tag" 
+                  :class="getDifficultyClass(question.difficulty)"
+                >
+                  {{ question.difficulty }}
+                </span>
               </div>
               <div class="options-container analysis-options">
                 <div class="analysis-answer-area">
                   <el-input
                     type="textarea"
-                    v-model="analysisAnswers[questionIndex]"
+                    v-model="analysisAnswers[paperData.solveVOs?.findIndex(q => q.questionId === question.questionId) ?? -1]"
                     :rows="8"
                     placeholder="请在此处作答..."
                     :disabled="showReference"
@@ -161,11 +202,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessageBox } from 'element-plus'
 import { message } from 'ant-design-vue'
-import { getProfessionalExam } from '@/api/exam'
+import { getPsychologyExam } from '@/api/exam'
 import { getUser } from '@/api/user'
 import MarkdownIt from 'markdown-it'
 import type { Options as MarkdownItOptions } from 'markdown-it'
@@ -174,19 +215,16 @@ import 'prismjs/components/prism-javascript'
 import 'prismjs/components/prism-typescript'
 import 'prismjs/components/prism-python'
 import 'prismjs/components/prism-java'
-import 'prismjs/components/prism-c'
-import 'prismjs/components/prism-cpp'
-import 'prismjs/components/prism-csharp'
-import 'prismjs/components/prism-markup'
-import 'prismjs/components/prism-css'
 import 'prismjs/themes/prism.css'
 import markdownItKatexGpt from 'markdown-it-katex-gpt'
+import type { ExamPaper, ChoiceQuestion } from '@/types/exam'
+import { AIAnalysisStatus } from '@/types/exam'
 
 const route = useRoute()
 const router = useRouter()
 const isExamMode = computed(() => route.query.type === 'exam')
 const paperTitle = ref('')
-const paperData = ref<any>(null)
+const paperData = ref<ExamPaper | null>(null)
 const loading = ref(true)
 const loadingPercentage = ref(0)
 const showReference = ref(false)
@@ -202,6 +240,26 @@ const showAnalysis = ref<{ [key: string]: boolean }>({})
 const analysisResults = ref<{ [key: string]: string }>({})
 const aiAnalysisStatus = ref<{ [key: string]: number }>({})
 let userId: number | null = null
+
+// 筛选和显示设置
+const examSettings = ref({
+  showDifficulty: true,
+  filterByDifficulty: false,
+  selectedDifficulty: '全部',
+  timeLimit: 7200, // 秒，即2小时
+  showAIAnalysis: true
+})
+
+// 一分钟倒计时警告
+const showTimeWarning = ref(false)
+
+// 监视倒计时，当剩余时间小于1分钟时显示警告
+watch(timeLeft, (newValue) => {
+  if (newValue <= 60 && !showTimeWarning.value) {
+    showTimeWarning.value = true
+    message.warning('考试时间剩余不足1分钟，请抓紧时间！')
+  }
+})
 
 // 初始化 Markdown
 const mdOptions: MarkdownItOptions = {
@@ -279,18 +337,256 @@ const renderMarkdown = (text: string): string => {
   return md.render(processedText)
 }
 
-// 初始化 AI 解析数据
+// 加载试卷数据
+const fetchPaper = async () => {
+  loading.value = true
+  loadingPercentage.value = 0
+
+  try {
+    // 模拟加载进度
+    const loadingTimer = setInterval(() => {
+      loadingPercentage.value += 10
+      if (loadingPercentage.value >= 90) {
+        clearInterval(loadingTimer)
+      }
+    }, 200)
+
+    const examName = '2024年全国硕士研究生招生考试心理学真题'
+    const response = await getPsychologyExam(examName)
+
+    // @ts-ignore
+    if (response.data) {
+      // @ts-ignore
+      paperData.value = response.data
+      paperTitle.value = examName
+      initializeAnswers()
+      initializeAnalysisData() // 添加AI解析数据初始化
+
+      clearInterval(loadingTimer)
+      loadingPercentage.value = 100
+      loading.value = false
+
+      // 根据设置调整时间
+      if (route.query.timeLimit) {
+        const customTimeLimit = Number(route.query.timeLimit)
+        if (!isNaN(customTimeLimit) && customTimeLimit > 0) {
+          timeLeft.value = customTimeLimit * 60 // 转换为秒
+          examSettings.value.timeLimit = customTimeLimit * 60
+        }
+      }
+    } else {
+      message.error('获取试卷失败，服务器没有返回数据')
+      clearInterval(loadingTimer)
+      loading.value = false
+    }
+  } catch (error) {
+    console.error('获取试卷失败：', error)
+    message.error('获取试卷失败，请重试')
+    loading.value = false
+  }
+}
+
+const initializeAnswers = () => {
+  if (!paperData.value) return
+
+  // 初始化单选题答案
+  if (paperData.value.choiceVOs) {
+    singleChoiceAnswers.value = new Array(paperData.value.choiceVOs.length).fill('')
+  }
+
+  // 初始化解答题答案
+  if (paperData.value.solveVOs) {
+    analysisAnswers.value = new Array(paperData.value.solveVOs.length).fill('')
+  }
+}
+
+// 计算答题进度
+const calculateProgress = computed(() => {
+  if (!paperData.value) return 0
+
+  let answered = 0
+  let total = 0
+
+  // 统计单选题
+  if (paperData.value.choiceVOs) {
+    answered += singleChoiceAnswers.value.filter(a => a).length
+    total += paperData.value.choiceVOs.length
+  }
+
+  // 统计解答题
+  if (paperData.value.solveVOs) {
+    answered += analysisAnswers.value.filter(a => a.trim()).length
+    total += paperData.value.solveVOs.length
+  }
+
+  return total > 0 ? Math.floor((answered / total) * 100) : 0
+})
+
+// 进度条颜色
+const progressColor = computed(() => {
+  const progress = calculateProgress.value
+  if (progress < 30) return '#ff4d4f'
+  if (progress < 70) return '#faad14'
+  return '#52c41a'
+})
+
+// 时间格式化
+const formatTime = (seconds: number) => {
+  const h = Math.floor(seconds / 3600)
+  const m = Math.floor((seconds % 3600) / 60)
+  const s = seconds % 60
+  return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`
+}
+
+// 自动保存答案
+const autoSaveAnswers = () => {
+  try {
+    const answerData = {
+      examName: paperTitle.value,
+      singleChoiceAnswers: singleChoiceAnswers.value,
+      analysisAnswers: analysisAnswers.value,
+      timeLeft: timeLeft.value
+    }
+    localStorage.setItem('psychology_exam_progress', JSON.stringify(answerData))
+    console.log('答案已自动保存')
+  } catch (error) {
+    console.error('自动保存答案失败：', error)
+  }
+}
+
+// 恢复已保存的答案
+const loadSavedAnswers = () => {
+  try {
+    const savedData = localStorage.getItem('psychology_exam_progress')
+    if (savedData) {
+      const parsedData = JSON.parse(savedData)
+      if (parsedData.examName === paperTitle.value) {
+        // 恢复答案
+        if (parsedData.singleChoiceAnswers && parsedData.singleChoiceAnswers.length === singleChoiceAnswers.value.length) {
+          singleChoiceAnswers.value = parsedData.singleChoiceAnswers
+        }
+        if (parsedData.analysisAnswers && parsedData.analysisAnswers.length === analysisAnswers.value.length) {
+          analysisAnswers.value = parsedData.analysisAnswers
+        }
+        // 恢复剩余时间（如果剩余时间大于0且少于总时间）
+        if (parsedData.timeLeft && parsedData.timeLeft > 0 && parsedData.timeLeft < examSettings.value.timeLimit) {
+          timeLeft.value = parsedData.timeLeft
+        }
+        message.success('已恢复之前的作答进度')
+        return true
+      }
+    }
+    return false
+  } catch (error) {
+    console.error('恢复保存的答案失败：', error)
+    return false
+  }
+}
+
+const startTimer = () => {
+  // 每30秒自动保存一次答案
+  const autoSaveTimer = window.setInterval(() => {
+    autoSaveAnswers()
+  }, 30000)
+
+  timerId.value = window.setInterval(() => {
+    if (timeLeft.value > 0) {
+      timeLeft.value--
+    } else {
+      clearInterval(timerId.value as number)
+      clearInterval(autoSaveTimer)
+      submitAnswers() // 时间到自动提交
+    }
+  }, 1000)
+}
+
+// 提交答案
+const submitAnswers = async () => {
+  // 检查是否有未完成的题目
+  const totalQuestions =
+    (paperData.value?.choiceVOs?.length || 0) + (paperData.value?.solveVOs?.length || 0)
+
+  const answeredQuestions =
+    singleChoiceAnswers.value.filter(a => a).length +
+    analysisAnswers.value.filter(a => a.trim()).length
+
+  const unansweredCount = totalQuestions - answeredQuestions
+
+  if (unansweredCount > 0) {
+    try {
+      await ElMessageBox.confirm(
+        `您还有 ${unansweredCount} 道题目未完成，确定要提交吗？`,
+        '提交确认',
+        {
+          confirmButtonText: '确认提交',
+          cancelButtonText: '继续作答',
+          type: 'warning'
+        }
+      )
+    } catch (error) {
+      return // 用户选择继续作答
+    }
+  }
+
+  // 直接显示参考答案，不发送到服务器
+  showReference.value = true
+  message.success('答案已提交')
+}
+
+// 返回主页
+const returnToHome = () => {
+  router.push('/exam/postgraduate')
+}
+
+// 根据难度过滤题目
+const filteredChoiceQuestions = computed(() => {
+  if (!paperData.value?.choiceVOs || !examSettings.value.filterByDifficulty || examSettings.value.selectedDifficulty === '全部') {
+    return paperData.value?.choiceVOs || []
+  }
+  
+  return paperData.value.choiceVOs.filter(q => q.difficulty === examSettings.value.selectedDifficulty)
+})
+
+const filteredSolveQuestions = computed(() => {
+  if (!paperData.value?.solveVOs || !examSettings.value.filterByDifficulty || examSettings.value.selectedDifficulty === '全部') {
+    return paperData.value?.solveVOs || []
+  }
+  
+  return paperData.value.solveVOs.filter(q => q.difficulty === examSettings.value.selectedDifficulty)
+})
+
+// 格式化难度标签的样式
+const getDifficultyClass = (difficulty: string): string => {
+  switch (difficulty) {
+    case '简单': return 'easy-difficulty'
+    case '中等': return 'medium-difficulty'
+    case '较难': return 'hard-difficulty'
+    case '困难': return 'very-hard-difficulty'
+    default: return ''
+  }
+}
+
+// 初始化 AI 解析数据 (改进类型定义)
 const initializeAnalysisData = () => {
   if (!paperData.value) return
 
   // 初始化单选题解析数据
   if (paperData.value.choiceVOs) {
-    paperData.value.choiceVOs.forEach((question: any) => {
+    paperData.value.choiceVOs.forEach((question: ChoiceQuestion) => {
       showAnalysis.value[`choice-${question.questionId}`] = false
       analysisResults.value[`choice-${question.questionId}`] = ''
-      aiAnalysisStatus.value[`choice-${question.questionId}`] = 0
+      aiAnalysisStatus.value[`choice-${question.questionId}`] = AIAnalysisStatus.NOT_STARTED
     })
   }
+}
+
+// 开始分析题目 (改进状态控制)
+const analyzeQuestion = (questionId: string, questionType: string) => {
+  showAnalysis.value[`${questionType}-${questionId}`] = true
+  analysisResults.value[`${questionType}-${questionId}`] = ''
+  message.info('正在生成AI解析，请稍候...')
+  aiAnalysisStatus.value[`${questionType}-${questionId}`] = AIAnalysisStatus.LOADING
+  analyzeQuestionSSE(questionId, questionType)
 }
 
 // 分析题目 - 使用 SSE (Server-Sent Events) 的方式
@@ -299,7 +595,7 @@ const analyzeQuestionSSE = (questionId: string, questionType: string): void => {
   const token = localStorage.getItem('token') || ''
 
   // 使用 userId 构建请求 URL，如果 userId 不存在则不添加参数
-  let requestUrl = `/api/ai/analysis?questionId=${questionId}&subject=computer`
+  let requestUrl = `/api/ai/analysis?questionId=${questionId}&subject=psychology`
   if (userId !== null) {
     requestUrl += `&userId=${userId}`
   }
@@ -392,153 +688,6 @@ const analyzeQuestionSSE = (questionId: string, questionType: string): void => {
     })
 }
 
-// 开始分析题目
-const analyzeQuestion = (questionId: string, questionType: string) => {
-  showAnalysis.value[`${questionType}-${questionId}`] = true
-  analysisResults.value[`${questionType}-${questionId}`] = ''
-  message.info('正在生成AI解析，请稍候...')
-  analyzeQuestionSSE(questionId, questionType)
-}
-
-// 加载试卷数据
-const fetchPaper = async () => {
-  loading.value = true
-  loadingPercentage.value = 0
-
-  try {
-    // 模拟加载进度
-    const loadingTimer = setInterval(() => {
-      loadingPercentage.value += 10
-      if (loadingPercentage.value >= 90) {
-        clearInterval(loadingTimer)
-      }
-    }, 200)
-
-    const examName = '2024年全国硕士研究生招生考试计算机学科专业基础(408)真题'
-    const response = await getProfessionalExam(examName)
-
-    if (response.data) {
-      paperData.value = response.data
-      paperTitle.value = examName
-      initializeAnswers()
-      initializeAnalysisData() // 添加AI解析数据初始化
-
-      clearInterval(loadingTimer)
-      loadingPercentage.value = 100
-      loading.value = false
-    } else {
-      message.error('获取试卷失败，服务器没有返回数据')
-      clearInterval(loadingTimer)
-      loading.value = false
-    }
-  } catch (error) {
-    console.error('获取试卷失败：', error)
-    message.error('获取试卷失败，请重试')
-    loading.value = false
-  }
-}
-
-const initializeAnswers = () => {
-  if (!paperData.value) return
-
-  // 初始化单选题答案
-  if (paperData.value.choiceVOs) {
-    singleChoiceAnswers.value = new Array(paperData.value.choiceVOs.length).fill('')
-  }
-
-  // 初始化解答题答案
-  if (paperData.value.solveVOs) {
-    analysisAnswers.value = new Array(paperData.value.solveVOs.length).fill('')
-  }
-}
-
-// 计算答题进度
-const calculateProgress = computed(() => {
-  if (!paperData.value) return 0
-
-  let answered = 0
-  let total = 0
-
-  // 统计单选题
-  if (paperData.value.choiceVOs) {
-    answered += singleChoiceAnswers.value.filter(a => a).length
-    total += paperData.value.choiceVOs.length
-  }
-
-  // 统计解答题
-  if (paperData.value.solveVOs) {
-    answered += analysisAnswers.value.filter(a => a.trim()).length
-    total += paperData.value.solveVOs.length
-  }
-
-  return total > 0 ? Math.floor((answered / total) * 100) : 0
-})
-
-// 进度条颜色
-const progressColor = computed(() => {
-  const progress = calculateProgress.value
-  if (progress < 30) return '#ff4d4f'
-  if (progress < 70) return '#faad14'
-  return '#52c41a'
-})
-
-// 时间格式化
-const formatTime = (seconds: number) => {
-  const h = Math.floor(seconds / 3600)
-  const m = Math.floor((seconds % 3600) / 60)
-  const s = seconds % 60
-  return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`
-}
-
-const startTimer = () => {
-  timerId.value = window.setInterval(() => {
-    if (timeLeft.value > 0) {
-      timeLeft.value--
-    } else {
-      clearInterval(timerId.value as number)
-      submitAnswers() // 时间到自动提交
-    }
-  }, 1000)
-}
-
-// 提交答案
-const submitAnswers = async () => {
-  // 检查是否有未完成的题目
-  const totalQuestions =
-    (paperData.value.choiceVOs?.length || 0) + (paperData.value.solveVOs?.length || 0)
-
-  const answeredQuestions =
-    singleChoiceAnswers.value.filter(a => a).length +
-    analysisAnswers.value.filter(a => a.trim()).length
-
-  const unansweredCount = totalQuestions - answeredQuestions
-
-  if (unansweredCount > 0) {
-    try {
-      await ElMessageBox.confirm(
-        `您还有 ${unansweredCount} 道题目未完成，确定要提交吗？`,
-        '提交确认',
-        {
-          confirmButtonText: '确认提交',
-          cancelButtonText: '继续作答',
-          type: 'warning'
-        }
-      )
-    } catch (error) {
-      return // 用户选择继续作答
-    }
-  }
-
-  // 直接显示参考答案，不发送到服务器
-  showReference.value = true
-  message.success('答案已提交')
-}
-
-// 返回主页
-const returnToHome = () => {
-  router.push('/exam/postgraduate')
-}
-
 onMounted(async () => {
   // 获取用户信息（为了AI解析功能）
   try {
@@ -548,7 +697,12 @@ onMounted(async () => {
     console.error('获取用户信息失败:', error)
   }
 
-  fetchPaper()
+  await fetchPaper()
+  
+  // 加载完数据后，尝试恢复保存的答案
+  if (paperData.value) {
+    loadSavedAnswers()
+  }
 
   if (isExamMode.value) {
     startTimer()
@@ -558,6 +712,10 @@ onMounted(async () => {
 onBeforeUnmount(() => {
   if (timerId.value) {
     clearInterval(timerId.value)
+  }
+  // 退出前保存答案
+  if (!showReference.value) {
+    autoSaveAnswers()
   }
 })
 </script>
@@ -596,13 +754,13 @@ onBeforeUnmount(() => {
 }
 
 .timer {
-  background: linear-gradient(135deg, #fa541c 0%, #ff7a45 100%);
+  background: linear-gradient(135deg, #1677ff 0%, #69b4ff 100%);
   color: white;
   padding: 10px 15px;
   border-radius: 8px;
   font-size: 16px;
   font-weight: 600;
-  box-shadow: 0 4px 12px rgba(250, 84, 28, 0.2);
+  box-shadow: 0 4px 12px rgba(22, 119, 255, 0.2);
   text-align: center;
   line-height: 1.3;
   animation: pulse-light 2s infinite alternate;
@@ -610,10 +768,10 @@ onBeforeUnmount(() => {
 
 @keyframes pulse-light {
   0% {
-    box-shadow: 0 4px 12px rgba(250, 84, 28, 0.2);
+    box-shadow: 0 4px 12px rgba(22, 119, 255, 0.2);
   }
   100% {
-    box-shadow: 0 8px 20px rgba(250, 84, 28, 0.4);
+    box-shadow: 0 8px 20px rgba(22, 119, 255, 0.4);
   }
 }
 
@@ -705,14 +863,14 @@ onBeforeUnmount(() => {
   width: 100%;
 }
 
-.options-grid-cs {
+.options-grid-psy {
   display: grid;
   grid-template-columns: 1fr;
   gap: 12px;
   width: 100%;
 }
 
-.option-item-cs {
+.option-item-psy {
   margin-bottom: 0;
   padding: 12px 16px;
   border-radius: 6px;
@@ -721,18 +879,18 @@ onBeforeUnmount(() => {
   border: 1px solid #f0f0f0;
 }
 
-.option-item-cs:hover {
+.option-item-psy:hover {
   background-color: #f5f5f5;
 }
 
-.option-item-cs .el-radio {
+.option-item-psy .el-radio {
   width: 100%;
   margin-right: 0;
   display: flex;
   align-items: center;
 }
 
-.option-item-cs :deep(.el-radio__label) {
+.option-item-psy :deep(.el-radio__label) {
   white-space: normal;
   line-height: 1.5;
   font-size: 15px;
@@ -763,7 +921,7 @@ onBeforeUnmount(() => {
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  z-index: 2; /* 确保图标在文本和radio上层 */
+  z-index: 2;
 }
 
 .correct-icon {
@@ -774,12 +932,6 @@ onBeforeUnmount(() => {
 .wrong-icon {
   background-color: #ff4d4f;
   color: white;
-}
-
-/* 多选题样式 */
-.multi-choice-options .el-checkbox-group {
-  display: block;
-  width: 100%;
 }
 
 /* 解答题样式 */
@@ -996,6 +1148,88 @@ onBeforeUnmount(() => {
   max-width: 100%;
   box-sizing: border-box;
 }
+
+.difficulty-tag {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  margin-left: 10px;
+  color: #fff;
+}
+
+.easy-difficulty {
+  background-color: #52c41a;
+}
+
+.medium-difficulty {
+  background-color: #1890ff;
+}
+
+.hard-difficulty {
+  background-color: #faad14;
+}
+
+.very-hard-difficulty {
+  background-color: #ff4d4f;
+}
+
+.exam-settings {
+  background-color: #f5f7fa;
+  padding: 12px 16px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+}
+
+.setting-controls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.auto-save-indicator {
+  font-size: 12px;
+  color: #52c41a;
+  margin-left: 12px;
+}
+
+.time-warning {
+  animation: pulse 1s infinite;
+  background-color: rgba(255, 77, 79, 0.8);
+}
+
+.analysis-loading {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 20px 0;
+}
+
+.loading-text {
+  color: #1890ff;
+  font-size: 14px;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* 深色模式适配 */
+:deep(html.dark) .exam-settings {
+  background-color: #1f1f1f;
+}
+
+:deep(html.dark) .auto-save-indicator {
+  color: #73d13d;
+}
 </style>
 
 <style>
@@ -1022,4 +1256,4 @@ onBeforeUnmount(() => {
   overflow-y: hidden;
   padding: 8px 0;
 }
-</style>
+</style> 
