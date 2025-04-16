@@ -200,7 +200,7 @@
           </div>
         </div>
 
-        <!-- 分析题部分 -->
+        <!-- 分析题部分 - 恢复分析题，但移除AI解析功能 -->
         <div
           v-if="paperData.analysisVOs && paperData.analysisVOs.length > 0"
           class="question-category"
@@ -235,36 +235,6 @@
                   class="reference-content"
                   v-html="question.referenceAnswer.replace(/\n/g, '<br>')"
                 ></div>
-              </div>
-              <!-- AI 解析结果显示区域 -->
-              <div
-                v-if="showAnalysis[`analysis-${question.questionId}`]"
-                class="analysis-container"
-              >
-                <div class="analysis-title">AI 解析结果：</div>
-                <div
-                  class="markdown-body analysis-content"
-                  v-html="renderMarkdown(analysisResults[`analysis-${question.questionId}`])"
-                ></div>
-              </div>
-              <!-- AI 解析按钮 -->
-              <div
-                v-if="showReference && !showAnalysis[`analysis-${question.questionId}`]"
-                class="ai-parse-button-container"
-              >
-                <el-button
-                  type="primary"
-                  @click="analyzeQuestion(question.questionId, 'analysis')"
-                  class="ai-parse-button"
-                >
-                  AI 解析
-                </el-button>
-                <div
-                  v-if="aiAnalysisStatus[`analysis-${question.questionId}`] === 500"
-                  class="ai-analysis-status-tooltip"
-                >
-                  提示：当前 AI 解析状态为 500，可能存在一些问题，请稍后再试。
-                </div>
               </div>
             </div>
           </div>
@@ -491,14 +461,6 @@ const initializeAnalysisData = () => {
     analysisResults.value[`multi-${question.questionId}`] = ''
     aiAnalysisStatus.value[`multi-${question.questionId}`] = 0
   })
-
-  // 初始化分析题解析数据
-  const analysisQuestions = paper.analysisVOs || []
-  analysisQuestions.forEach((question: AnalysisQuestion) => {
-    showAnalysis.value[`analysis-${question.questionId}`] = false
-    analysisResults.value[`analysis-${question.questionId}`] = ''
-    aiAnalysisStatus.value[`analysis-${question.questionId}`] = 0
-  })
 }
 
 const initializeAnswers = () => {
@@ -531,6 +493,11 @@ const analyzeQuestionSSE = (questionId: string, questionType: string): void => {
   let requestUrl = `/api/ai/analysis?questionId=${questionId}`
   if (userId !== null) {
     requestUrl += `&userId=${userId}`
+  }
+
+  // 如果是整个部分的分析，添加额外参数
+  if (questionId === 'analysis-section') {
+    requestUrl += '&section=analysis'
   }
 
   const abortController = new (window as any).AbortController()
@@ -621,7 +588,15 @@ const analyzeQuestionSSE = (questionId: string, questionType: string): void => {
     })
 }
 
-// 开始分析题目
+// 分析整个部分的题目
+const analyzeQuestionSection = (sectionId: string) => {
+  showAnalysis.value[sectionId] = true
+  analysisResults.value[sectionId] = ''
+  message.info('正在生成AI解析，请稍候...')
+  analyzeQuestionSSE(sectionId, 'section')
+}
+
+// 开始分析题目（单独题目）
 const analyzeQuestion = (questionId: string, questionType: string) => {
   showAnalysis.value[`${questionType}-${questionId}`] = true
   analysisResults.value[`${questionType}-${questionId}`] = ''
@@ -772,7 +747,9 @@ defineExpose({
   submitAnswers,
   returnToHome,
   analyzeQuestion,
-  renderMarkdown
+  analyzeQuestionSection,
+  renderMarkdown,
+  formatTime
 })
 </script>
 
@@ -1202,6 +1179,31 @@ defineExpose({
 .markdown-body img {
   max-width: 100%;
   box-sizing: border-box;
+}
+
+/* 新增整体分析题AI解析样式 */
+.section-ai-analysis {
+  margin-bottom: 24px;
+  padding: 16px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border: 1px dashed #d9d9d9;
+}
+
+.section-button {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 0;
+}
+
+.section-ai-button {
+  padding: 10px 24px;
+  font-size: 15px;
+}
+
+.section-analysis {
+  margin-top: 16px;
+  background-color: #f0f7ff;
 }
 </style>
 
