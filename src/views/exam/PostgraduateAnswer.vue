@@ -553,7 +553,8 @@
 import { ref, onMounted, onBeforeUnmount, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { getGSPractice } from '@/api/exam'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ElMessageBox } from 'element-plus'
+import { message } from 'ant-design-vue'
 import { Check, Close, InfoFilled, Warning, DocumentChecked } from '@element-plus/icons-vue'
 
 // 定义题目接口
@@ -732,8 +733,7 @@ const fetchQuestions = async () => {
   try {
     const isRealExam = route.query.type === 'exam'
     if (isRealExam) {
-      // 暂未实现真题接口
-      ElMessage.warning('研究生真题功能正在开发中')
+      message.warning('研究生真题功能正在开发中')
     } else {
       const requestData = {
         subject: subject.value,
@@ -763,7 +763,7 @@ const fetchQuestions = async () => {
       }, 300)
     }
   } catch (error) {
-    ElMessage.error('获取题目失败，请重试')
+    message.error('获取题目失败，请重试')
     console.error('获取题目失败：', error)
   }
 }
@@ -941,7 +941,7 @@ const submitAnswers = async () => {
     }
   }
 
-  ElMessage.success('答案已提交！')
+  message.success('答案已提交！')
   showReference.value = true // 显示参考答案
 }
 

@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 
 const route = useRoute()
 const router = useRouter()
+useI18n()
 
 const breadcrumbs = ref<any[]>([])
 
@@ -37,9 +39,9 @@ const handleLink = (item: any) => {
 
 <template>
   <el-breadcrumb separator="/">
-    <el-breadcrumb-item :to="{ path: '/dashboard' }" style="cursor: pointer"
-      >首页</el-breadcrumb-item
-    >
+    <el-breadcrumb-item :to="{ path: '/dashboard' }" style="cursor: pointer">{{
+      $t('breadcrumb.home')
+    }}</el-breadcrumb-item>
     <el-breadcrumb-item
       v-for="item in breadcrumbs"
       :key="item.path"
@@ -47,7 +49,7 @@ const handleLink = (item: any) => {
       @click="handleLink(item)"
       style="cursor: pointer"
     >
-      {{ item.meta.title }}
+      {{ item.meta.i18n ? $t(item.meta.i18n) : item.meta.title }}
     </el-breadcrumb-item>
   </el-breadcrumb>
 </template>

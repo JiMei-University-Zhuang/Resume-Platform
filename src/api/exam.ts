@@ -28,13 +28,15 @@ export interface ExamData {
 
 export interface ScoresaveData {
   userId: number
-  score: number
-  type: '练习' | '考试'
+  userScore: number
+  totalScore: number
+  type: '公务员练习' | '公务员考试' | '研究生练习' | '研究生考试'
+  questionInfo: string
 }
 
 export interface ScoregetData {
   userId: number
-  type: '练习' | '考试'
+  type: '公务员' | '研究生'
   examName?: string
   subject?: string
   totalScore?: number
@@ -89,7 +91,7 @@ export function saveScore(data: ScoresaveData) {
   })
 }
 
-//获取练习成绩或者考试成绩接口
+//获取成绩
 export function getScore(data: ScoregetData) {
   return request({
     url: '/score/get',
@@ -135,9 +137,53 @@ export function getProfessionalExam(examName: string) {
   })
 }
 
-export function submitProfessionalExam(data: any) {
+/**
+ * 获取心理学专业课试卷
+ * @param examName 试卷名称
+ * @param retryCount 重试次数，默认为2
+ * @returns Promise
+ */
+export function getPsychologyExam(examName: string, retryCount = 2) {
+  return new Promise((resolve, reject) => {
+    const fetchData = async (currentRetry = 0) => {
+      try {
+        const response = await request({
+          url: '/exam/getPsychologyExam',
+          method: 'post',
+          data: { examName }
+        })
+        resolve(response)
+      } catch (error: any) {
+        // 如果是网络错误或服务器错误，且还有重试次数，则重试
+        if (
+          (error.response?.status >= 500 || error.code === 'ECONNABORTED') &&
+          currentRetry < retryCount
+        ) {
+          console.log(`获取心理学试卷失败，准备第${currentRetry + 1}次重试...`)
+          // 指数退避策略，增加重试间隔
+          const retryDelay = Math.min(1000 * 2 ** currentRetry, 5000)
+
+          setTimeout(() => {
+            fetchData(currentRetry + 1)
+          }, retryDelay)
+        } else {
+          reject(error)
+        }
+      }
+    }
+
+    fetchData()
+  })
+}
+
+/**
+ * 提交心理学考试答案
+ * @param data 考试答案数据
+ * @returns Promise
+ */
+export function submitPsychologyExam(data: any) {
   return request({
-    url: '/exam/submitProfessionalExam',
+    url: '/exam/submitPsychologyExam',
     method: 'post',
     data
   })

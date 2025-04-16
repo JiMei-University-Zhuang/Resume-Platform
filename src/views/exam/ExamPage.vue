@@ -6,7 +6,9 @@
         <span v-if="route.query.type === 'exam'">
           当前试卷：{{ route.query.examName || '未知试卷' }}
         </span>
-        <span v-else> 本次练习科目：{{ subject }}，题目数量：{{ count }} </span>
+        <span v-else>
+          本次练习科目：{{ subject }}，题目数量：{{ count }}，总分：{{ totalScore_pre }}分</span
+        >
       </p>
     </div>
     <div v-if="route.query.type === 'exam'" class="real-exam-badge">
@@ -93,7 +95,12 @@
               </div>
             </div>
           </div>
-          <el-button type="primary" @click="handleSubmit">提交试卷</el-button>
+          <div class="button-group">
+            <el-button type="primary" @click="handleSubmit" v-if="!showReference"
+              >提交答案</el-button
+            >
+            <el-button type="success" @click="returnToHome" v-else>返回主页</el-button>
+          </div>
         </div>
       </template>
       <template v-else>
@@ -131,7 +138,11 @@
               </div>
             </div>
           </div>
-          <el-button type="primary" @click="submitRealExam">提交答案</el-button>
+
+          <el-button type="primary" @click="submitRealExam" v-if="!showReference"
+            >提交答案</el-button
+          >
+          <el-button type="success" @click="returnToHome" v-else>返回主页</el-button>
         </div>
       </template>
     </div>
@@ -149,11 +160,13 @@ import { saveWrongQuestion } from '@/api/errorRecord'
 import { SaveWrongQuestionData, WrongQuestionRecord } from '@/types/errorRecord'
 import { getUser } from '@/api/user'
 import { ElMessageBox } from 'element-plus'
+import { message } from 'ant-design-vue'
 import passimg1 from '@/assets/images/exam_imgs/pass1.jpg'
 import passimg2 from '@/assets/images/exam_imgs/pass2.png'
 import failimg1 from '@/assets/images/exam_imgs/failpass1.png'
 import failimg2 from '@/assets/images/exam_imgs/failpass2.png'
 import { useExamStore } from '@/stores/examStore'
+import router from '@/router'
 
 // 定义题目接口
 interface Question {
@@ -176,12 +189,14 @@ interface Question {
 
 const route = useRoute()
 const examStore = useExamStore()
+const showReference = ref(false)
 const subject = ref(route.query.subject as string)
 const count = ref(parseInt(route.query.count as string, 10))
 const questions = ref<Question[]>([])
 const answers = ref<string[]>([])
 const essayAnswers = ref<string[]>([])
-const totalScore = ref<number>(0)
+const totalScore = ref<number>(0) //答题后的得分
+const totalScore_pre = ref<number>(0) //答题前的总分
 const showCorrectAnswers = ref<boolean>(false)
 const timeLeft = ref(7200)
 const isExamInProgress = ref<boolean>(false)
@@ -209,6 +224,8 @@ const fetchQuestions = async () => {
       const response = await getCSPractice(requestData)
       questions.value = response?.data ? (response.data as unknown as Question[]) : []
     }
+    //计算所有题目总分（答题前）
+    totalScore_pre.value = questions.value.reduce((sum, question) => sum + question.score, 0)
   } catch (error) {
     console.error('获取题目失败：', error)
   }
@@ -241,6 +258,7 @@ const handleSubmit = async () => {
   } catch (error) {
     console.log('用户取消提交')
   }
+  showReference.value = true
 }
 const submitExam = async () => {
   if (!userId) {
@@ -255,7 +273,7 @@ const submitExam = async () => {
       wrongQuestions.push({
         questionId: parseInt(question.questionId, 10),
         itemId: null,
-        userAnswer: answers.value[index] || '未作答'
+        userAnswer: answers.value[index] || ''
       })
     }
   })
@@ -268,21 +286,29 @@ const submitExam = async () => {
   // 调用保存成绩接口
   const scoreData: ScoresaveData = {
     userId,
-    score: totalScore.value,
-    type: route.query.type === 'exam' ? '考试' : '练习'
+    userScore: totalScore.value,
+    totalScore: totalScore_pre.value,
+    type: route.query.type === 'exam' ? '公务员考试' : '公务员练习',
+    questionInfo:
+      route.query.type === 'exam'
+        ? (route.query.examName as string)
+        : subject.value === '行测'
+          ? '行测选择题'
+          : '申论主观题'
   }
 
   try {
-    const response = await saveScore(scoreData)
-    console.log('保存成绩成功:', response.data)
+    await saveScore(scoreData)
   } catch (error) {
     console.error('保存成绩失败:', error)
   }
   saveScoreAndWrongQuestions()
+
   //结果弹窗
   const isPass = accuracy >= 60
   const title = '本次专项练习成绩'
   const statusText = isPass ? '正确率过六十啦🎉，真棒！' : '继续加油，相信自己一定行'
+
   ElMessageBox({
     message: `
           <div style="text-align: center; padding: 25px 32px;">
@@ -354,34 +380,110 @@ const answerStatus = computed(() => {
   })
 })
 const analyzeQuestionSSE = (questionId: string, index: number): void => {
-  const apiBaseUrl = import.meta.env.DEV ? 'http://8.130.75.193:8081' : 'https://view.yinhenx.cn'
-  const requestUrl = `${apiBaseUrl}/ai/analysis?questionId=${questionId}`
+  // 获取 token
+  const token = localStorage.getItem('token') || ''
 
-  const eventSource = new EventSource(requestUrl)
+  const requestUrl = `/api/ai/analysis?questionId=${questionId}`
 
-  eventSource.onopen = function () {}
+  const abortController = new (window as any).AbortController()
 
-  eventSource.onmessage = function (event) {
-    essayAnalysisResults.value[index] += event.data
+  // 请求头设置
+  const headers: Record<string, string> = {
+    Accept: 'text/event-stream',
+    'Content-Type': 'text/event-stream',
+    'Cache-Control': 'no-cache',
+    'X-Requested-With': 'XMLHttpRequest'
   }
 
-  eventSource.onerror = function (_err) {
-    aiAnalysisStatus.value[index] = 500
-    eventSource.close()
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`
+    headers['token'] = token
   }
+
+  fetch(requestUrl, {
+    method: 'GET',
+    headers,
+    signal: abortController.signal,
+    credentials: 'include'
+  })
+    .then(response => {
+      console.log('响应状态码:', response.status)
+      console.log('响应类型:', response.type)
+      console.log('响应头:', [...response.headers.entries()])
+
+      // 处理响应状态
+      if (response.status === 500) {
+        throw new Error('服务器内部错误，请稍后再试')
+      } else if (!response.ok) {
+        throw new Error(`HTTP 错误! 状态: ${response.status}`)
+      }
+
+      // 获取响应数据流
+      const reader = response.body?.getReader()
+      if (!reader) {
+        throw new Error('无法获取响应流')
+      }
+
+      const decoder = new TextDecoder()
+
+      // 递归函数处理数据流
+      const processStream = async () => {
+        try {
+          const { done, value } = await reader.read()
+
+          if (done) {
+            console.log('流数据接收完成')
+            return
+          }
+
+          // 解码并处理数据块
+          const chunk = decoder.decode(value, { stream: true })
+          console.log('接收到数据块:', chunk)
+          const lines = chunk.split('\n')
+
+          for (const line of lines) {
+            if (line.startsWith('data:')) {
+              const data = line.slice(5).trim()
+
+              if (data === '[DONE]') {
+                console.log('收到 [DONE] 标记，解析完成')
+                return
+              }
+
+              // 更新解析结果
+              essayAnalysisResults.value[index] += data
+            }
+          }
+
+          // 继续处理流
+          return processStream()
+        } catch (error) {
+          console.error('处理流数据时出错:', error)
+          throw error
+        }
+      }
+
+      // 开始处理流
+      return processStream()
+    })
+    .catch(error => {
+      console.error('AI 解析请求失败:', error)
+      aiAnalysisStatus.value[index] = 500
+      message.error('AI 解析请求失败: ' + error.message)
+    })
 }
+const analyzeQuestion = (index: number) => {
+  const questionId = questions.value[index].questionId
+  showAnalysis.value[index] = true
+  message.info('正在生成AI解析，请稍候...')
+  analyzeQuestionSSE(questionId, index)
+}
+
 const submitRealExam = async () => {
   showEssayAnswers.value = true
   isExamInProgress.value = false
   saveScoreAndWrongQuestions()
-}
-
-const analyzeQuestion = (index: number) => {
-  const questionId = questions.value[index].questionId
-  essayAnalysisResults.value[index] = ''
-  showAnalysis.value[index] = true
-  aiAnalysisStatus.value[index] = 0
-  analyzeQuestionSSE(questionId, index)
+  showReference.value = true
 }
 
 const saveScoreAndWrongQuestions = async () => {
@@ -395,20 +497,18 @@ const saveScoreAndWrongQuestions = async () => {
     type: route.query.type === 'exam' ? '考试' : '练习',
     records: wrongQuestions
   }
-
   try {
-    const response = await saveWrongQuestion(wrongQuestionData)
-    console.log('保存错题成功44444:', response.data)
-  } catch (error) {
-    console.error('保存错题失败:', error)
-  }
+    await saveWrongQuestion(wrongQuestionData)
+  } catch (error) {}
+}
+const returnToHome = () => {
+  router.push('/exam')
 }
 
 onMounted(async () => {
   try {
     const response = await getUser()
-    userId = response.data.id
-    // console.log('当前用户ID:', userId)
+    userId = Number(response.data.id)
   } catch (error) {
     console.error('获取用户信息失败:', error)
   }

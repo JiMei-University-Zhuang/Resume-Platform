@@ -21,12 +21,12 @@ export default defineConfig({
         AutoImport({
             resolvers: [ElementPlusResolver()],
             imports: ['vue', 'vue-router'],
-            dts: 'src/auto-imports.d.ts',
+            dts: 'src/auto-imports.d.ts'
         }),
         // 按需导入Element Plus组件
         Components({
             resolvers: [ElementPlusResolver()],
-            dts: 'src/components.d.ts',
+            dts: 'src/components.d.ts'
         }),
         // 图片压缩配置
         viteImagemin({
@@ -90,14 +90,39 @@ export default defineConfig({
                 },
                 secure: false
             },
-            // 其他API - 保留/api前缀
-            '^/api': {
+            '/api/record': {
                 target: apiBaseUrl,
                 changeOrigin: true,
                 rewrite: function (path) {
                     return path.replace(/^\/api/, '');
                 },
+                secure: false
+            },
+            // 其他API - 保留/api前缀
+            '^/api/(?!auth|chat)': {
+                target: apiBaseUrl,
+                changeOrigin: true,
+                rewrite: function (path) { return path; },
                 secure: false,
+                configure: function (proxy, options) {
+                    proxy.on('proxyReq', function (proxyReq, req, res) {
+                        console.log('其他API请求:', req.method, req.url, '->', options.target + proxyReq.path);
+                    });
+                    proxy.on('proxyRes', function (proxyRes, req, res) {
+                        console.log('其他API响应:', proxyRes.statusCode, req.url);
+                        // 添加CORS头
+                        res.setHeader('Access-Control-Allow-Origin', '*');
+                        res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE');
+                        res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, token');
+                        res.setHeader('Access-Control-Allow-Credentials', 'true');
+                        if (req.method === 'OPTIONS') {
+                            res.statusCode = 200;
+                        }
+                    });
+                    proxy.on('error', function (err, req, res) {
+                        console.error('其他API代理错误:', err);
+                    });
+                }
             }
         }
     },
@@ -116,13 +141,8 @@ export default defineConfig({
                 // 根据类型拆分代码
                 manualChunks: {
                     'element-plus': ['element-plus'],
-                    'echarts': ['echarts'],
-                    'vendor': [
-                        'vue',
-                        'vue-router',
-                        'pinia',
-                        '@vueuse/core',
-                    ]
+                    echarts: ['echarts'],
+                    vendor: ['vue', 'vue-router', 'pinia', '@vueuse/core']
                 }
             },
             external: ['element-plus/es/element-plus']

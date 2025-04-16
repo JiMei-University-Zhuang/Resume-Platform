@@ -233,10 +233,12 @@
             </el-button>
           </el-form-item>
 
-          <el-form-item>
+          <el-form-item style="display: flex; align-items: center">
             <span class="account-tip">
               已有账号？
-              <el-link type="primary" class="back-to-login" @click="gotoLogin"> 立即登录 </el-link>
+              <span type="primary" :underline="false" class="back-to-login" @click="gotoLogin">
+                立即登录
+              </span>
             </span>
           </el-form-item>
         </el-form>
@@ -247,7 +249,7 @@
 <script setup lang="ts">
 import { ref, reactive, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { ElMessage } from 'element-plus'
+import { message } from 'ant-design-vue'
 import {
   getCaptcha,
   getCaptchaKey,
@@ -255,9 +257,11 @@ import {
   sendEmailCaptchaValue,
   sendRegisterEmailCaptchaValue,
   register,
-  emailLogin
+  emailLogin,
+  getUser
 } from '@/api/user'
 import { ApiResponse } from '@/api/types'
+import { useUserStore } from '@/stores/userStore'
 
 interface AxiosResponse<T = any> {
   data: T
@@ -362,7 +366,7 @@ const getCaptchaData = async () => {
       loginForm.captcha_key = captchaKey.value
     }
   } catch (error) {
-    ElMessage.error('获取验证码失败，请刷新重试')
+    message.error('获取验证码失败，请刷新重试')
   }
 }
 
@@ -393,10 +397,10 @@ const sendEmailCaptcha = async () => {
       email: loginFormEmail.email
     })
     if (response.data.code === 200) {
-      ElMessage.success('验证码发送成功')
+      message.success('验证码发送成功')
       startCountdown('email')
     } else {
-      ElMessage.error('验证码发送失败，请重试')
+      message.error('验证码发送失败，请重试')
     }
   } catch (error) {
   } finally {
@@ -404,66 +408,6 @@ const sendEmailCaptcha = async () => {
     isSendingEmailCaptcha.value = false
   }
 }
-
-// 发送注册验证码方法（中文提示版）
-// const sendRegisterEmailCaptcha = async () => {
-//   if (countdown.register > 0 || isSendingRegisterCaptcha.value) return
-//   try {
-//     isSendingRegisterCaptcha.value = true
-//     const isValid = await registerFormRef.value
-//       .validate(['password'])
-//       .then(() => true)
-//       .catch((error: ValidateError) => {
-//         if (!error.fields) {
-//           ElMessage.warning('请正确填写所有必填项')
-//           return false
-//         }
-//         const invalidFields = error.fields
-//         const firstErrorKey = Object.keys(invalidFields)[0]
-//         // 获取中文错误提示
-//         const errorMessage = invalidFields[firstErrorKey][0].message
-//         // 显示中文提示
-//         ElMessage.warning(`请检查输入：${errorMessage}`)
-//         // 滚动到错误项
-//         const errorElement = document.querySelector(`[prop="${firstErrorKey}"]`)
-//         errorElement?.scrollIntoView({
-//           behavior: 'smooth',
-//           block: 'center'
-//         })
-//         return false
-//       })
-
-//     if (!isValid) return
-
-//     // 发送验证码请求
-//     sendingCaptcha.value = true
-//     const response = await sendRegisterEmailCaptchaValue({
-//       email: registerForm.email
-//     })
-
-//     if (response.data.code === 200) {
-//       ElMessage.success('验证码发送成功')
-//       startCountdown('register')
-//     } else {
-//       ElMessage.error(response.data.message || '验证码发送失败，请重试')
-//     }
-//   } catch (error: unknown) {
-//     let errorMessage = '验证码发送失败'
-//     if (error instanceof Error) {
-//       errorMessage = error.message
-//     }
-//     if (typeof error === 'object' && error !== null && 'response' in error) {
-//       const axiosError = error as { response?: { data?: { message?: string } } }
-//       if (axiosError.response?.data?.message) {
-//         errorMessage += `：${axiosError.response.data.message}`
-//       }
-//     }
-//     ElMessage.error(errorMessage)
-//   } finally {
-//     sendingCaptcha.value = false
-//     isSendingRegisterCaptcha.value = false
-//   }
-// }
 
 const sendRegisterEmailCaptcha = async () => {
   if (countdown.register > 0 || isSendingRegisterCaptcha.value) return
@@ -480,10 +424,10 @@ const sendRegisterEmailCaptcha = async () => {
     })
 
     if (response.data.code === 200) {
-      ElMessage.success('验证码发送成功')
+      message.success('验证码发送成功')
       startCountdown('register')
     } else {
-      ElMessage.error(response.data.message || '验证码发送失败，请重试')
+      message.error(response.data.message || '验证码发送失败，请重试')
     }
   } catch (error: unknown) {
     let errorMessage = '验证码发送失败'
@@ -496,7 +440,7 @@ const sendRegisterEmailCaptcha = async () => {
         errorMessage += `：${axiosError.response.data.message}`
       }
     }
-    ElMessage.error(errorMessage)
+    message.error(errorMessage)
   } finally {
     sendingCaptcha.value = false
     isSendingRegisterCaptcha.value = false
@@ -525,6 +469,8 @@ watch(isLogin, newVal => {
   }
 })
 
+const userStore = useUserStore()
+
 const handleLogin = async (formEl: any) => {
   if (!formEl) return
 
@@ -540,13 +486,23 @@ const handleLogin = async (formEl: any) => {
         })) as any as LoginResponse
         if (response.data.code === 200 && response.data.data) {
           localStorage.setItem('token', response.data.data)
-          ElMessage.success('登录成功')
+
+          try {
+            const userResponse = await getUser()
+            if (userResponse.data) {
+              userStore.setUserInfo(userResponse.data)
+            }
+          } catch (userError) {
+            console.error('获取用户信息失败:', userError)
+          }
+
+          message.success('登录成功')
           router.push(router.currentRoute.value.query.redirect?.toString() || '/dashboard')
         }
       } catch (error: any) {
         const errorMessage =
           error.response?.data?.message || error.message || '登录失败，请检查用户名和密码'
-        ElMessage.error(errorMessage)
+        message.error(errorMessage)
         refreshCaptcha()
       } finally {
         loading.value = false
@@ -568,7 +524,19 @@ const handleEmailLogin = async (formEl: any) => {
         })) as any as LoginEmailResponse
         if (response.data.code === 200 && response.data.data) {
           localStorage.setItem('token', response.data.data)
-          ElMessage.success('登录成功')
+
+          // 登录成功后立即获取用户信息并更新用户状态
+          try {
+            const userResponse = await getUser()
+            if (userResponse.data) {
+              // 更新用户信息到 store，包括角色信息
+              userStore.setUserInfo(userResponse.data)
+            }
+          } catch (userError) {
+            console.error('获取用户信息失败:', userError)
+          }
+
+          message.success('登录成功')
           router.push(router.currentRoute.value.query.redirect?.toString() || '/dashboard')
         }
       } catch (error: any) {
@@ -581,7 +549,7 @@ const handleEmailLogin = async (formEl: any) => {
           } else if (error.response.data.message.includes('账号不存在')) {
             errorMessage = '账号不存在，请注册'
           }
-          ElMessage.error(errorMessage)
+          message.error(errorMessage)
         }
       } finally {
         loading.value = false
@@ -603,7 +571,7 @@ const handleRegister = async () => {
           captchaValue: registerForm.captchaValue
         })
         if (response.data.code === 200) {
-          ElMessage.success('注册成功')
+          message.success('注册成功')
           gotoLogin()
           refreshCaptcha()
           registerForm.username = ''
@@ -613,16 +581,16 @@ const handleRegister = async () => {
         } else {
           const errorMessage = response.data.message || '注册失败，请重试'
           if (errorMessage.includes('账号已经存在')) {
-            ElMessage.warning('该用户名已被注册，请更换用户名重试')
+            message.warning('该用户名已被注册，请更换用户名重试')
           } else if (response.data.code === 500 && errorMessage.includes('邮箱')) {
-            ElMessage.error('请输入正确的邮箱地址')
+            message.error('请输入正确的邮箱地址')
           } else {
-            ElMessage.error(errorMessage)
+            message.error(errorMessage)
           }
         }
       } catch (error: any) {
         const errorMessage = error.response?.data?.message || error.message || '注册失败，请重试'
-        ElMessage.error(errorMessage)
+        message.error(errorMessage)
       } finally {
         loading.value = false
       }
@@ -660,14 +628,14 @@ onMounted(() => {
 .login-left {
   flex: 1;
   padding: 40px;
-  color: #1849ea;
+  color: rgb(49, 130, 206);
 }
 
 .platform-title {
   font-size: 48px;
   font-weight: bold;
   margin-bottom: 20px;
-  background: linear-gradient(45deg, #1849ea, #6cf9d3);
+  background: linear-gradient(45deg, rgb(49, 130, 206), #6cf9d3);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -694,7 +662,7 @@ onMounted(() => {
 
 .feature-item i {
   font-size: 24px;
-  color: #1849ea;
+  color: rgb(49, 130, 206);
 }
 
 .login-box,
@@ -733,9 +701,16 @@ onMounted(() => {
 }
 
 .captcha-button {
-  height: 44px;
+  height: 34px;
+  background-color: #3182ce;
+  border-color: #3182ce;
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.05);
 }
-
+.captcha-button:disabled {
+  background-color: #77a2df;
+  border-color: #b3cfea;
+  box-shadow: none;
+}
 :deep(.custom-input .el-input__wrapper) {
   background-color: #f5f7fa;
   border: 2px solid transparent;
@@ -753,7 +728,7 @@ onMounted(() => {
 
 :deep(.custom-input .el-input__wrapper.is-focus) {
   background-color: #fff;
-  border-color: #1849ea;
+  border-color: rgb(49, 130, 206);
   box-shadow: 0 0 0 2px rgba(24, 73, 234, 0.1);
 }
 
@@ -785,12 +760,12 @@ onMounted(() => {
 }
 
 :deep(.el-tabs__item.is-active) {
-  color: #1849ea;
+  color: rgb(49, 130, 206);
   font-weight: 500;
 }
 
 :deep(.el-tabs__active-bar) {
-  background-color: #1849ea;
+  background-color: rgb(49, 130, 206);
   height: 3px;
   border-radius: 3px;
 }
@@ -817,8 +792,8 @@ onMounted(() => {
   width: 100%;
   font-size: 16px;
   font-weight: 500;
-  border: 2px solid #1849ea;
-  color: #1849ea;
+  border: 2px solid rgb(49, 130, 206);
+  color: rgb(49, 130, 206);
   border-radius: 12px;
   transition: all 0.3s ease;
   background: transparent;
@@ -836,6 +811,14 @@ onMounted(() => {
 .account-tip {
   position: absolute;
   right: 0;
+  font-size: 16px;
+}
+.back-to-login {
+  color: rgb(49, 130, 206);
+  text-decoration: none;
+}
+.back-to-login:hover {
+  font-weight: 700;
 }
 
 :deep(.el-input__wrapper) {

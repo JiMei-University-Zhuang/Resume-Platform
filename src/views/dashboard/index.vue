@@ -12,22 +12,22 @@
       </div>
       <div class="welcome-content">
         <div class="platform-logo">
-          <span class="logo-text">智航 CareerAI</span>
+          <span class="logo-text">{{ $t('dashboard.careerPlatform') }}</span>
         </div>
-        <h1 class="welcome-title">AI驱动的职业生涯规划平台</h1>
-        <p class="welcome-subtitle">利用人工智能技术，定制你的专属职业发展方案</p>
+        <h1 class="welcome-title">{{ $t('dashboard.intelligentPlanning') }}</h1>
+        <p class="welcome-subtitle">{{ $t('dashboard.platformDescription') }}</p>
         <div class="hero-actions">
           <el-button
             type="primary"
             size="large"
             class="get-started-btn"
-            @click="navigateTo('/career-planning/analysis')"
+            @click="navigateTo('/career-planning/roadmap')"
           >
-            开始规划
+            {{ $t('dashboard.startPlanning') }}
             <el-icon class="el-icon--right"><ArrowRight /></el-icon>
           </el-button>
           <el-button type="default" size="large" class="learn-more-btn" @click="scrollToFeatures">
-            了解更多
+            {{ $t('dashboard.learnMore') }}
             <el-icon class="el-icon--right"><ArrowDown /></el-icon>
           </el-button>
         </div>
@@ -36,7 +36,7 @@
 
     <!-- 主要功能卡片区域 -->
     <div class="features-section">
-      <h2 class="section-title">我们能帮你什么</h2>
+      <h2 class="section-title">{{ $t('dashboard.whatWeCanHelp') }}</h2>
 
       <el-row :gutter="24">
         <!-- 职业分析卡片 -->
@@ -50,14 +50,14 @@
               <div class="card-icon">
                 <el-icon><Aim /></el-icon>
               </div>
-              <h3 class="card-title">职业分析</h3>
+              <h3 class="card-title">{{ $t('dashboard.careerAnalysis') }}</h3>
               <p class="card-description">
-                根据你的技能、学历、兴趣和经验，AI分析最适合你的职业方向
+                {{ $t('dashboard.careerAnalysisDesc') }}
               </p>
             </div>
             <div class="card-action">
               <el-button text
-                >开始分析 <el-icon><ArrowRight /></el-icon
+                >{{ $t('dashboard.startAnalysis') }} <el-icon><ArrowRight /></el-icon
               ></el-button>
             </div>
           </el-card>
@@ -74,12 +74,12 @@
               <div class="card-icon">
                 <el-icon><Guide /></el-icon>
               </div>
-              <h3 class="card-title">发展规划</h3>
-              <p class="card-description">打造个性化的职业发展路径，清晰规划每一步成长目标</p>
+              <h3 class="card-title">{{ $t('dashboard.developmentPlan') }}</h3>
+              <p class="card-description">{{ $t('dashboard.developmentPlanDesc') }}</p>
             </div>
             <div class="card-action">
               <el-button text
-                >查看路径 <el-icon><ArrowRight /></el-icon
+                >{{ $t('dashboard.viewPath') }} <el-icon><ArrowRight /></el-icon
               ></el-button>
             </div>
           </el-card>
@@ -96,12 +96,12 @@
               <div class="card-icon">
                 <el-icon><StarFilled /></el-icon>
               </div>
-              <h3 class="card-title">职业推荐</h3>
-              <p class="card-description">发掘隐藏的职业机会，推荐最适合你的工作和行业</p>
+              <h3 class="card-title">{{ $t('dashboard.careerRecommendation') }}</h3>
+              <p class="card-description">{{ $t('dashboard.careerRecommendationDesc') }}</p>
             </div>
             <div class="card-action">
               <el-button text
-                >获取推荐 <el-icon><ArrowRight /></el-icon
+                >{{ $t('dashboard.getRecommendation') }} <el-icon><ArrowRight /></el-icon
               ></el-button>
             </div>
           </el-card>
@@ -111,7 +111,7 @@
 
     <!-- 平台数据统计 -->
     <div class="stats-section">
-      <h2 class="section-title">平台数据</h2>
+      <h2 class="section-title">{{ $t('dashboard.platformData') }}</h2>
       <el-row :gutter="24">
         <el-col :xs="24" :sm="12" :md="8">
           <div class="stat-card">
@@ -120,7 +120,7 @@
             </div>
             <div class="stat-info">
               <h3 class="stat-value">25,000+</h3>
-              <p class="stat-label">用户已完成职业规划</p>
+              <p class="stat-label">{{ $t('dashboard.usersCompleted') }}</p>
             </div>
           </div>
         </el-col>
@@ -132,7 +132,7 @@
             </div>
             <div class="stat-info">
               <h3 class="stat-value">500+</h3>
-              <p class="stat-label">覆盖职业类型</p>
+              <p class="stat-label">{{ $t('dashboard.careerTypesCount') }}</p>
             </div>
           </div>
         </el-col>
@@ -144,7 +144,7 @@
             </div>
             <div class="stat-info">
               <h3 class="stat-value">98%</h3>
-              <p class="stat-label">用户满意度</p>
+              <p class="stat-label">{{ $t('dashboard.userSatisfaction') }}</p>
             </div>
           </div>
         </el-col>
@@ -153,15 +153,15 @@
 
     <!-- 平台优势区域 -->
     <div class="advantages-section">
-      <h2 class="section-title">智航优势</h2>
+      <h2 class="section-title">{{ $t('dashboard.platformAdvantages') }}</h2>
       <div class="advantages-container">
         <div class="advantage-card">
           <div class="advantage-icon">
             <el-icon><Cpu /></el-icon>
           </div>
-          <h3 class="advantage-title">AI智能分析</h3>
+          <h3 class="advantage-title">{{ $t('dashboard.aiAnalysis') }}</h3>
           <p class="advantage-description">
-            采用先进的人工智能算法，根据个人特质与市场需求，提供精准的职业方向建议
+            {{ $t('dashboard.aiAnalysisDesc') }}
           </p>
         </div>
 
@@ -169,9 +169,9 @@
           <div class="advantage-icon">
             <el-icon><DataAnalysis /></el-icon>
           </div>
-          <h3 class="advantage-title">行业数据支持</h3>
+          <h3 class="advantage-title">{{ $t('dashboard.industryData') }}</h3>
           <p class="advantage-description">
-            基于海量职业数据分析，为你提供最新的行业趋势和职业发展前景
+            {{ $t('dashboard.industryDataDesc') }}
           </p>
         </div>
 
@@ -179,9 +179,9 @@
           <div class="advantage-icon">
             <el-icon><UserFilled /></el-icon>
           </div>
-          <h3 class="advantage-title">个性化定制</h3>
+          <h3 class="advantage-title">{{ $t('dashboard.personalization') }}</h3>
           <p class="advantage-description">
-            根据个人兴趣、能力和目标，量身定制专属职业发展路径和提升建议
+            {{ $t('dashboard.personalizationDesc') }}
           </p>
         </div>
 
@@ -189,9 +189,9 @@
           <div class="advantage-icon">
             <el-icon><SetUp /></el-icon>
           </div>
-          <h3 class="advantage-title">全方位服务</h3>
+          <h3 class="advantage-title">{{ $t('dashboard.comprehensiveService') }}</h3>
           <p class="advantage-description">
-            从职业定位、能力提升到考试备考，提供一站式职业发展解决方案
+            {{ $t('dashboard.comprehensiveServiceDesc') }}
           </p>
         </div>
 
@@ -199,9 +199,9 @@
           <div class="advantage-icon">
             <el-icon><DocumentChecked /></el-icon>
           </div>
-          <h3 class="advantage-title">简历优化</h3>
+          <h3 class="advantage-title">{{ $t('dashboard.resumeOptimization') }}</h3>
           <p class="advantage-description">
-            智能分析简历内容，提供针对性的优化建议，提升求职竞争力
+            {{ $t('dashboard.resumeOptimizationDesc') }}
           </p>
         </div>
 
@@ -209,15 +209,15 @@
           <div class="advantage-icon">
             <el-icon><Promotion /></el-icon>
           </div>
-          <h3 class="advantage-title">持续学习</h3>
-          <p class="advantage-description">提供专业技能提升资源和学习路径，助力职场持续成长</p>
+          <h3 class="advantage-title">{{ $t('dashboard.continuousLearning') }}</h3>
+          <p class="advantage-description">{{ $t('dashboard.continuousLearningDesc') }}</p>
         </div>
       </div>
     </div>
 
     <!-- 其他功能展示 -->
     <div class="additional-features">
-      <h2 class="section-title">更多功能</h2>
+      <h2 class="section-title">{{ $t('dashboard.moreFeatures') }}</h2>
 
       <el-row :gutter="24">
         <!-- AI聊天 -->
@@ -228,10 +228,10 @@
                 <el-icon><ChatDotRound /></el-icon>
               </div>
               <div class="additional-info">
-                <h3 class="additional-title">AI职业顾问</h3>
-                <p class="additional-description">随时随地与AI职业顾问交流，解答你的职场困惑</p>
+                <h3 class="additional-title">{{ $t('dashboard.aiCareerAdvisor') }}</h3>
+                <p class="additional-description">{{ $t('dashboard.aiCareerAdvisorDesc') }}</p>
                 <el-button text
-                  >开始对话 <el-icon><ArrowRight /></el-icon
+                  >{{ $t('dashboard.startChat') }} <el-icon><ArrowRight /></el-icon
                 ></el-button>
               </div>
             </div>
@@ -250,10 +250,10 @@
                 <el-icon><Reading /></el-icon>
               </div>
               <div class="additional-info">
-                <h3 class="additional-title">考试中心</h3>
-                <p class="additional-description">考公考研备考资源，助力你的升学就业之路</p>
+                <h3 class="additional-title">{{ $t('dashboard.examCenter') }}</h3>
+                <p class="additional-description">{{ $t('dashboard.examCenterDesc') }}</p>
                 <el-button text
-                  >进入中心 <el-icon><ArrowRight /></el-icon
+                  >{{ $t('dashboard.enterCenter') }} <el-icon><ArrowRight /></el-icon
                 ></el-button>
               </div>
             </div>
@@ -268,7 +268,7 @@
         <div class="card-header">
           <span class="header-title">
             <el-icon><Service /></el-icon>
-            智能助手提示
+            {{ $t('dashboard.smartAssistantTips') }}
           </span>
           <el-button type="text" @click="showSmartTips = false">
             <el-icon><Close /></el-icon>
@@ -330,8 +330,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, nextTick } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import MouseEffects from '@/components/MouseEffects/index.vue'
 import {
   Aim,
@@ -353,6 +354,9 @@ import {
   InfoFilled,
   Promotion
 } from '@element-plus/icons-vue'
+
+// 初始化国际化
+useI18n()
 
 // 创建路由实例
 const router = useRouter()
@@ -430,7 +434,6 @@ const updateSmartTips = async () => {
     ...behaviorPredictor.getPatternAnalysis()
   ]
 }
-
 
 onMounted(async () => {
   initializeBehaviorData()

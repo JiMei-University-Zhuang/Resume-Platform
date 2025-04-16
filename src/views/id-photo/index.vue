@@ -279,7 +279,7 @@ import {
 import { driver } from 'driver.js'
 import 'driver.js/dist/driver.css'
 import type { UploadFile } from 'element-plus'
-import { ElMessage } from 'element-plus'
+import { message } from 'ant-design-vue'
 import { uploadIdPhoto } from '@/api/id-photo'
 
 interface PhotoSettings {
@@ -352,11 +352,11 @@ const driverObj = driver({
         align: 'start'
       }
     },
-    { 
-      popover: { 
-        title: '开始制作', 
-        description: '现在，让我们开始制作您的证件照吧！' 
-      } 
+    {
+      popover: {
+        title: '开始制作',
+        description: '现在，让我们开始制作您的证件照吧！'
+      }
     }
   ]
 })
@@ -435,19 +435,19 @@ const filterStyle = computed(() => {
 
 const handlePhotoChange = (file: UploadFile) => {
   if (!file.raw) {
-    ElMessage.error('文件上传失败')
+    message.error('文件上传失败')
     return
   }
 
   const isImage = file.raw.type.startsWith('image/')
   if (!isImage) {
-    ElMessage.error('只能上传图片文件!')
+    message.error('只能上传图片文件!')
     return
   }
 
   const isLt5M = file.size! / 1024 / 1024 < 5
   if (!isLt5M) {
-    ElMessage.error('图片大小不能超过5MB!')
+    message.error('图片大小不能超过5MB!')
     return
   }
 
@@ -472,7 +472,7 @@ const resetImage = () => {
 
 const generatePhoto = async () => {
   if (!selectedFile.value) {
-    ElMessage.warning('请先上传照片')
+    message.warning('请先上传照片')
     return
   }
 
@@ -498,13 +498,13 @@ const generatePhoto = async () => {
         : `data:image/png;base64,${response.data.image}`
 
       generatedPhotoUrl.value = base64Data
-      ElMessage.success('证件照生成成功')
+      message.success('证件照生成成功')
     } else {
       throw new Error('未返回有效的图片数据')
     }
   } catch (error) {
     console.error('生成证件照失败:', error)
-    ElMessage.error('生成证件照失败，请重试')
+    message.error('生成证件照失败，请重试')
   } finally {
     generating.value = false
   }
@@ -512,7 +512,7 @@ const generatePhoto = async () => {
 
 const downloadPhoto = () => {
   if (!generatedPhotoUrl.value) {
-    ElMessage.warning('请先生成证件照')
+    message.warning('请先生成证件照')
     return
   }
 
@@ -525,10 +525,10 @@ const downloadPhoto = () => {
     link.click()
     document.body.removeChild(link)
 
-    ElMessage.success('下载成功')
+    message.success('下载成功')
   } catch (error) {
     console.error('下载失败:', error)
-    ElMessage.error('下载失败，请重试')
+    message.error('下载失败，请重试')
   }
 }
 

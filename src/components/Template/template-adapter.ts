@@ -20,7 +20,11 @@ const templateClasses: TemplateClass = {
   muban7: 'medical-style',
   muban8: 'education-style',
   muban9: 'engineering-style',
-  muban10: 'finance-style'
+  muban10: 'finance-style',
+  muban11: 'modern-blue-resume',
+  muban12: 'minimal-bw-resume',
+  muban13: 'fresh-card-resume',
+  muban14: 'tech-professional-resume'
 }
 
 /**
@@ -52,6 +56,18 @@ export const enhanceTemplate = async (templateKey: string, element: HTMLElement)
       break
     case 'muban4':
       enhanceMuban4(element)
+      break
+    case 'muban11':
+      enhanceMuban11(element)
+      break
+    case 'muban12':
+      enhanceMuban12(element)
+      break
+    case 'muban13':
+      enhanceMuban13(element)
+      break
+    case 'muban14':
+      enhanceMuban14(element)
       break
     default:
       // 通用增强
@@ -177,6 +193,80 @@ const ensureContactInfoInline = (element: HTMLElement): void => {
         }
       })
     }
+  })
+}
+
+/**
+ * 增强Muban11模板 - 现代蓝色模板
+ */
+const enhanceMuban11 = (element: HTMLElement): void => {
+  // 确保卡片式布局中的标题保持一致样式
+  const sectionTitles = element.querySelectorAll('.section-title')
+  sectionTitles.forEach(title => {
+    title.classList.add('modern-section-title')
+  })
+
+  // 确保技能项正确显示
+  const skillItems = element.querySelectorAll('.skill-item')
+  skillItems.forEach(item => {
+    item.classList.add('modern-skill-item')
+  })
+}
+
+/**
+ * 增强Muban12模板 - 简约黑白模板
+ */
+const enhanceMuban12 = (element: HTMLElement): void => {
+  // 为技能标签添加一致的间距
+  const skillTags = element.querySelectorAll('.skill-tag')
+  skillTags.forEach(tag => {
+    tag.classList.add('minimal-skill-tag')
+  })
+
+  // 增强标题分割线效果
+  const sectionTitles = element.querySelectorAll('.resume-section h2')
+  sectionTitles.forEach(title => {
+    title.classList.add('minimal-section-title')
+  })
+}
+
+/**
+ * 增强Muban13模板 - 清新卡片模板
+ */
+const enhanceMuban13 = (element: HTMLElement): void => {
+  // 优化卡片阴影效果
+  const cards = element.querySelectorAll('.card')
+  cards.forEach(card => {
+    card.classList.add('enhanced-card')
+  })
+
+  // 确保时间线元素对齐
+  const timelineItems = element.querySelectorAll('.timeline-item')
+  timelineItems.forEach(item => {
+    item.classList.add('aligned-timeline-item')
+  })
+}
+
+/**
+ * 增强Muban14模板 - 专业技术模板
+ */
+const enhanceMuban14 = (element: HTMLElement): void => {
+  // 优化侧边栏渐变效果
+  const sidebar = element.querySelector('.resume-sidebar')
+  if (sidebar) {
+    sidebar.classList.add('enhanced-sidebar')
+  }
+
+  // 增强技能胶囊效果
+  const skillPills = element.querySelectorAll('.skill-pill')
+  skillPills.forEach(pill => {
+    pill.classList.add('tech-skill-pill')
+  })
+
+  // 增强时间线可视效果
+  const timelineEntries = element.querySelectorAll('.timeline-entry, .experience-item')
+  timelineEntries.forEach(entry => {
+    entry.classList.add('enhanced-timeline-entry')
   })
 }
 

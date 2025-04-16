@@ -5,8 +5,8 @@
       <div class="filter-container" style="width: 150px">
         <el-select v-model="selectedType" placeholder="选择类型">
           <el-option label="全部" value=""></el-option>
-          <el-option label="练习" value="练习"></el-option>
-          <el-option label="考试" value="考试"></el-option>
+          <el-option label="公务员练习" value="公务员练习"></el-option>
+          <el-option label="公务员考试" value="公务员考试"></el-option>
         </el-select>
       </div>
     </div>
@@ -14,7 +14,9 @@
       <el-table :data="currentPageFilteredScoreList" border stripe class="score-table">
         <el-table-column prop="createTime" label="考试时间"></el-table-column>
         <el-table-column prop="type" label="类型"></el-table-column>
-        <el-table-column prop="score" label="考试分数"></el-table-column>
+        <el-table-column prop="questionInfo" label="题型或试卷名"></el-table-column>
+        <el-table-column prop="totalScore" label="卷面总分"></el-table-column>
+        <el-table-column prop="userScore" label="考试分数"></el-table-column>
         <el-table-column prop="record" label="记录次数"></el-table-column>
       </el-table>
     </el-card>
@@ -39,7 +41,9 @@ import { ref, computed } from 'vue'
 interface ScoreItem {
   createTime: string
   type: string
-  score: number
+  userScore: number
+  totalScore: number
+  questionInfo: string
   record: number
 }
 
@@ -72,11 +76,9 @@ const main = async () => {
   try {
     const userResponse = await getUser()
     const userId = userResponse.data.id
-
-    // 第一次请求，获取练习成绩
     const practiceRequestData = {
       userId,
-      type: '练习'
+      type: '公务员'
     } as ScoregetData
     const practiceResponse = await getScore(practiceRequestData)
     let practiceScoreList: ScoreItem[] = []
@@ -84,29 +86,14 @@ const main = async () => {
       practiceScoreList = practiceResponse.data.map((item: any) => ({
         createTime: item.createTime,
         type: item.type,
-        score: item.score,
+        questionInfo: item.questionInfo,
+        userScore: item.userScore,
+        totalScore: item.totalScore,
         record: item.record
       }))
+      scoreList.value = practiceScoreList
     }
 
-    // 第二次请求，获取考试成绩
-    const examRequestData = {
-      userId,
-      type: '考试'
-    } as ScoregetData
-    const examResponse = await getScore(examRequestData)
-    let examScoreList: ScoreItem[] = []
-    if (examResponse.data) {
-      examScoreList = examResponse.data.map((item: any) => ({
-        createTime: item.createTime,
-        type: item.type,
-        score: item.score,
-        record: item.record
-      }))
-    }
-
-    // 合并练习成绩和考试成绩
-    scoreList.value = [...practiceScoreList, ...examScoreList]
     // 按照 createTime 进行升序排序
     scoreList.value.sort((a, b) => {
       const timeA = new Date(a.createTime)

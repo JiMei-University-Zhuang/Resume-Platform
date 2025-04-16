@@ -1,5 +1,5 @@
 import axios, { InternalAxiosRequestConfig, AxiosResponse } from 'axios'
-import { ElMessage } from 'element-plus'
+import { message } from 'ant-design-vue'
 
 // 根据环境确定baseURL
 const getBaseURL = () => {
@@ -43,10 +43,10 @@ service.interceptors.response.use(
   },
   error => {
     const { response } = error
-    let message = '请求失败'
+    let msg = '请求失败'
 
     if (response && response.data) {
-      message = response.data.message
+      msg = response.data.message
     }
 
     switch (response?.status) {
@@ -54,14 +54,14 @@ service.interceptors.response.use(
         // 未授权，跳转到登录页
         globalThis.localStorage.removeItem('token')
         globalThis.location.href = '/login'
-        message = '请重新登录'
+        msg = '请重新登录'
         break
       case 403:
-        message = '没有权限访问'
+        msg = '没有权限访问'
         break
     }
 
-    ElMessage.error(message)
+    message.error(msg)
     return Promise.reject(error)
   }
 )
