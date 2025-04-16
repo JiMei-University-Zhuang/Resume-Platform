@@ -151,26 +151,29 @@ export function getPsychologyExam(examName: string, retryCount = 2) {
           url: '/exam/getPsychologyExam',
           method: 'post',
           data: { examName }
-        });
-        resolve(response);
+        })
+        resolve(response)
       } catch (error: any) {
         // 如果是网络错误或服务器错误，且还有重试次数，则重试
-        if ((error.response?.status >= 500 || error.code === 'ECONNABORTED') && currentRetry < retryCount) {
-          console.log(`获取心理学试卷失败，准备第${currentRetry + 1}次重试...`);
+        if (
+          (error.response?.status >= 500 || error.code === 'ECONNABORTED') &&
+          currentRetry < retryCount
+        ) {
+          console.log(`获取心理学试卷失败，准备第${currentRetry + 1}次重试...`)
           // 指数退避策略，增加重试间隔
-          const retryDelay = Math.min(1000 * (2 ** currentRetry), 5000);
-          
+          const retryDelay = Math.min(1000 * 2 ** currentRetry, 5000)
+
           setTimeout(() => {
-            fetchData(currentRetry + 1);
-          }, retryDelay);
+            fetchData(currentRetry + 1)
+          }, retryDelay)
         } else {
-          reject(error);
+          reject(error)
         }
       }
-    };
+    }
 
-    fetchData();
-  });
+    fetchData()
+  })
 }
 
 /**
@@ -183,5 +186,5 @@ export function submitPsychologyExam(data: any) {
     url: '/exam/submitPsychologyExam',
     method: 'post',
     data
-  });
+  })
 }

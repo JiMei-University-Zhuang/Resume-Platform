@@ -28,10 +28,10 @@
         <div class="setting-controls">
           <el-checkbox v-model="examSettings.showDifficulty">显示难度</el-checkbox>
           <el-checkbox v-model="examSettings.filterByDifficulty">按难度筛选</el-checkbox>
-          
-          <el-select 
-            v-model="examSettings.selectedDifficulty" 
-            placeholder="选择难度" 
+
+          <el-select
+            v-model="examSettings.selectedDifficulty"
+            placeholder="选择难度"
             size="small"
             :disabled="!examSettings.filterByDifficulty"
           >
@@ -61,9 +61,9 @@
               <div class="question-header">
                 <span class="question-number">{{ questionIndex + 1 }}.</span>
                 <div class="question-content" v-html="question.questionContent"></div>
-                <span 
-                  v-if="examSettings.showDifficulty" 
-                  class="difficulty-tag" 
+                <span
+                  v-if="examSettings.showDifficulty"
+                  class="difficulty-tag"
                   :class="getDifficultyClass(question.difficulty)"
                 >
                   {{ question.difficulty }}
@@ -71,7 +71,12 @@
               </div>
               <div class="options-container single-choice-options">
                 <el-radio-group
-                  v-model="singleChoiceAnswers[paperData.choiceVOs?.findIndex(q => q.questionId === question.questionId) ?? -1]"
+                  v-model="
+                    singleChoiceAnswers[
+                      paperData.choiceVOs?.findIndex(q => q.questionId === question.questionId) ??
+                        -1
+                    ]
+                  "
                   class="options-group"
                   :disabled="showReference"
                 >
@@ -84,7 +89,11 @@
                         'correct-option': showReference && option === question.correctAnswer,
                         'wrong-option':
                           showReference &&
-                          singleChoiceAnswers[paperData.choiceVOs?.findIndex(q => q.questionId === question.questionId) ?? -1] === option &&
+                          singleChoiceAnswers[
+                            paperData.choiceVOs?.findIndex(
+                              q => q.questionId === question.questionId
+                            ) ?? -1
+                          ] === option &&
                           option !== question.correctAnswer
                       }"
                     >
@@ -96,7 +105,13 @@
                           <i class="el-icon-check"></i>
                         </span>
                         <span
-                          v-else-if="singleChoiceAnswers[paperData.choiceVOs?.findIndex(q => q.questionId === question.questionId) ?? -1] === option"
+                          v-else-if="
+                            singleChoiceAnswers[
+                              paperData.choiceVOs?.findIndex(
+                                q => q.questionId === question.questionId
+                              ) ?? -1
+                            ] === option
+                          "
                           class="wrong-icon"
                         >
                           <i class="el-icon-close"></i>
@@ -113,8 +128,16 @@
               <!-- AI 解析结果显示区域 -->
               <div v-if="showAnalysis[`choice-${question.questionId}`]" class="analysis-container">
                 <div class="analysis-title">AI 解析结果：</div>
-                <div v-if="aiAnalysisStatus[`choice-${question.questionId}`] === 1" class="analysis-loading">
-                  <el-progress type="circle" :percentage="0" :indeterminate="true" :width="30"></el-progress>
+                <div
+                  v-if="aiAnalysisStatus[`choice-${question.questionId}`] === 1"
+                  class="analysis-loading"
+                >
+                  <el-progress
+                    type="circle"
+                    :percentage="0"
+                    :indeterminate="true"
+                    :width="30"
+                  ></el-progress>
                   <span class="loading-text">AI解析生成中...</span>
                 </div>
                 <div
@@ -125,7 +148,11 @@
               </div>
               <!-- AI 解析按钮 -->
               <div
-                v-if="examSettings.showAIAnalysis && showReference && !showAnalysis[`choice-${question.questionId}`]"
+                v-if="
+                  examSettings.showAIAnalysis &&
+                  showReference &&
+                  !showAnalysis[`choice-${question.questionId}`]
+                "
                 class="ai-parse-button-container"
               >
                 <el-button
@@ -162,9 +189,9 @@
               <div class="question-header">
                 <span class="question-number">{{ questionIndex + 1 }}.</span>
                 <div class="question-content" v-html="question.questionContent"></div>
-                <span 
-                  v-if="examSettings.showDifficulty" 
-                  class="difficulty-tag" 
+                <span
+                  v-if="examSettings.showDifficulty"
+                  class="difficulty-tag"
                   :class="getDifficultyClass(question.difficulty)"
                 >
                   {{ question.difficulty }}
@@ -174,7 +201,12 @@
                 <div class="analysis-answer-area">
                   <el-input
                     type="textarea"
-                    v-model="analysisAnswers[paperData.solveVOs?.findIndex(q => q.questionId === question.questionId) ?? -1]"
+                    v-model="
+                      analysisAnswers[
+                        paperData.solveVOs?.findIndex(q => q.questionId === question.questionId) ??
+                          -1
+                      ]
+                    "
                     :rows="8"
                     placeholder="请在此处作答..."
                     :disabled="showReference"
@@ -254,7 +286,7 @@ const examSettings = ref({
 const showTimeWarning = ref(false)
 
 // 监视倒计时，当剩余时间小于1分钟时显示警告
-watch(timeLeft, (newValue) => {
+watch(timeLeft, newValue => {
   if (newValue <= 60 && !showTimeWarning.value) {
     showTimeWarning.value = true
     message.warning('考试时间剩余不足1分钟，请抓紧时间！')
@@ -462,14 +494,24 @@ const loadSavedAnswers = () => {
       const parsedData = JSON.parse(savedData)
       if (parsedData.examName === paperTitle.value) {
         // 恢复答案
-        if (parsedData.singleChoiceAnswers && parsedData.singleChoiceAnswers.length === singleChoiceAnswers.value.length) {
+        if (
+          parsedData.singleChoiceAnswers &&
+          parsedData.singleChoiceAnswers.length === singleChoiceAnswers.value.length
+        ) {
           singleChoiceAnswers.value = parsedData.singleChoiceAnswers
         }
-        if (parsedData.analysisAnswers && parsedData.analysisAnswers.length === analysisAnswers.value.length) {
+        if (
+          parsedData.analysisAnswers &&
+          parsedData.analysisAnswers.length === analysisAnswers.value.length
+        ) {
           analysisAnswers.value = parsedData.analysisAnswers
         }
         // 恢复剩余时间（如果剩余时间大于0且少于总时间）
-        if (parsedData.timeLeft && parsedData.timeLeft > 0 && parsedData.timeLeft < examSettings.value.timeLimit) {
+        if (
+          parsedData.timeLeft &&
+          parsedData.timeLeft > 0 &&
+          parsedData.timeLeft < examSettings.value.timeLimit
+        ) {
           timeLeft.value = parsedData.timeLeft
         }
         message.success('已恢复之前的作答进度')
@@ -540,29 +582,46 @@ const returnToHome = () => {
 
 // 根据难度过滤题目
 const filteredChoiceQuestions = computed(() => {
-  if (!paperData.value?.choiceVOs || !examSettings.value.filterByDifficulty || examSettings.value.selectedDifficulty === '全部') {
+  if (
+    !paperData.value?.choiceVOs ||
+    !examSettings.value.filterByDifficulty ||
+    examSettings.value.selectedDifficulty === '全部'
+  ) {
     return paperData.value?.choiceVOs || []
   }
-  
-  return paperData.value.choiceVOs.filter(q => q.difficulty === examSettings.value.selectedDifficulty)
+
+  return paperData.value.choiceVOs.filter(
+    q => q.difficulty === examSettings.value.selectedDifficulty
+  )
 })
 
 const filteredSolveQuestions = computed(() => {
-  if (!paperData.value?.solveVOs || !examSettings.value.filterByDifficulty || examSettings.value.selectedDifficulty === '全部') {
+  if (
+    !paperData.value?.solveVOs ||
+    !examSettings.value.filterByDifficulty ||
+    examSettings.value.selectedDifficulty === '全部'
+  ) {
     return paperData.value?.solveVOs || []
   }
-  
-  return paperData.value.solveVOs.filter(q => q.difficulty === examSettings.value.selectedDifficulty)
+
+  return paperData.value.solveVOs.filter(
+    q => q.difficulty === examSettings.value.selectedDifficulty
+  )
 })
 
 // 格式化难度标签的样式
 const getDifficultyClass = (difficulty: string): string => {
   switch (difficulty) {
-    case '简单': return 'easy-difficulty'
-    case '中等': return 'medium-difficulty'
-    case '较难': return 'hard-difficulty'
-    case '困难': return 'very-hard-difficulty'
-    default: return ''
+    case '简单':
+      return 'easy-difficulty'
+    case '中等':
+      return 'medium-difficulty'
+    case '较难':
+      return 'hard-difficulty'
+    case '困难':
+      return 'very-hard-difficulty'
+    default:
+      return ''
   }
 }
 
@@ -698,7 +757,7 @@ onMounted(async () => {
   }
 
   await fetchPaper()
-  
+
   // 加载完数据后，尝试恢复保存的答案
   if (paperData.value) {
     loadSavedAnswers()
@@ -1256,4 +1315,4 @@ onBeforeUnmount(() => {
   overflow-y: hidden;
   padding: 8px 0;
 }
-</style> 
+</style>
