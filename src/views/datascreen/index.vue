@@ -37,8 +37,9 @@
         <BorderBox8 class="panel-item">
           <div class="panel-header">
             <h3>日活跃用户</h3>
+            <Decoration1 style="width: 40px; height: 25px; margin-left: 5px">实时监控</Decoration1>
           </div>
-          <div class="chart-container" v-if="mounted">
+          <div class="chart-container active-users-container" v-if="mounted">
             <ActiveRingChart :config="activeRingConfig" />
           </div>
         </BorderBox8>
@@ -58,6 +59,7 @@
         <BorderBox7 class="panel-item center-top">
           <div class="panel-header center">
             <h3>核心指标</h3>
+            <!-- <Decoration11 style="width:150px; height:30px;">核心指标</Decoration11> -->
           </div>
           <div class="data-overview">
             <div class="overview-item" v-for="(item, index) in overviewData" :key="index">
@@ -82,6 +84,7 @@
         <BorderBox8 class="panel-item">
           <div class="panel-header">
             <h3>用户地域分布</h3>
+            <Decoration6 style="width: 100px; height: 30px" />
           </div>
           <div class="chart-container" v-if="mounted">
             <ScrollBoard :config="regionConfig" />
@@ -91,8 +94,11 @@
         <BorderBox8 class="panel-item">
           <div class="panel-header">
             <h3>简历制作量</h3>
+            <Decoration1 style="width: 100px; height: 25px; margin-left: 10px"
+              >实时数据</Decoration1
+            >
           </div>
-          <div class="chart-container" v-if="mounted">
+          <div class="chart-container resume-container" v-if="mounted">
             <WaterLevelPond :config="resumeConfig" />
           </div>
         </BorderBox8>
@@ -112,6 +118,8 @@ import {
   BorderBox12,
   Decoration5,
   Decoration10,
+  Decoration1,
+  Decoration6,
   ActiveRingChart,
   CapsuleChart,
   DigitalFlop,
@@ -168,20 +176,28 @@ const returnHome = () => {
 
 // 自动刷新数据的定时器
 let dataRefreshTimer: number | null = null
+// 折线图数据的单独定时器
+let lineChartRefreshTimer: number | null = null
 
 // 核心指标数据
 const overviewData = ref([
   {
     label: '总用户数',
-    value: 15862,
+    value: 662,
     unit: '人',
     config: {
-      number: [15862],
+      number: [662],
       content: '{nt}',
       style: {
-        fontSize: 36,
-        fill: '#58a1ff'
-      }
+        fontSize: 48,
+        fill: '#58a1ff',
+        fontWeight: 'bold',
+        textShadow: '0 0 10px rgba(88, 161, 255, 0.8)'
+      },
+      toFixed: 0,
+      rowGap: 0,
+      animationCurve: 'easeOutCubic',
+      animationFrame: 50
     }
   },
   {
@@ -189,51 +205,56 @@ const overviewData = ref([
     value: 7843,
     unit: '份',
     config: {
-      number: [7843],
+      number: [243],
       content: '{nt}',
       style: {
-        fontSize: 36,
-        fill: '#58a1ff'
-      }
+        fontSize: 48,
+        fill: '#00baff',
+        fontWeight: 'bold',
+        textShadow: '0 0 10px rgba(0, 186, 255, 0.8)'
+      },
+      toFixed: 0,
+      rowGap: 0,
+      animationCurve: 'easeOutCubic',
+      animationFrame: 50
     }
   },
   {
     label: '简历生成量',
-    value: 5621,
+    value: 621,
     unit: '份',
     config: {
-      number: [5621],
+      number: [621],
       content: '{nt}',
       style: {
-        fontSize: 36,
-        fill: '#58a1ff'
-      }
-    }
-  },
-  {
-    label: '就业成功率',
-    value: 82,
-    unit: '%',
-    config: {
-      number: [82],
-      content: '{nt}%',
-      style: {
-        fontSize: 36,
-        fill: '#58a1ff'
-      }
+        fontSize: 48,
+        fill: '#3de7c9',
+        fontWeight: 'bold',
+        textShadow: '0 0 10px rgba(61, 231, 201, 0.8)'
+      },
+      toFixed: 0,
+      rowGap: 0,
+      animationCurve: 'easeOutCubic',
+      animationFrame: 50
     }
   },
   {
     label: 'AI对话次数',
-    value: 12756,
+    value: 756,
     unit: '次',
     config: {
-      number: [12756],
+      number: [756],
       content: '{nt}',
       style: {
-        fontSize: 36,
-        fill: '#58a1ff'
-      }
+        fontSize: 48,
+        fill: '#e062ae',
+        fontWeight: 'bold',
+        textShadow: '0 0 10px rgba(224, 98, 174, 0.8)'
+      },
+      toFixed: 0,
+      rowGap: 0,
+      animationCurve: 'easeOutCubic',
+      animationFrame: 50
     }
   }
 ])
@@ -254,8 +275,10 @@ const activeRingConfig = reactive({
   ],
   color: ['#00baff', '#3de7c9'],
   digitalFlopStyle: {
-    fontSize: 20
-  }
+    fontSize: 24,
+    fill: '#3de7c9'
+  },
+  lineWidth: 5
 })
 
 // 用户年龄分布配置
@@ -491,15 +514,104 @@ const resizeLineChart = () => {
 // 更新折线图数据
 const updateLineChart = () => {
   if (lineChart) {
+    // 创建一个轻微变化的数据，模拟实时数据流
+    const currentPlanningData = [...examLineConfig.series[0].data]
+    const currentChatData = [...examLineConfig.series[1].data]
+    
+    // 移除第一个数据点并在末尾添加新的随机数据点
+    currentPlanningData.shift()
+    currentChatData.shift()
+    
+    // 基于最后一个值添加一个相对平滑的新值（避免大幅波动）
+    const lastPlanningValue = currentPlanningData[currentPlanningData.length - 1]
+    const lastChatValue = currentChatData[currentChatData.length - 1]
+    
+    // 在上一个值的基础上增减一个小的随机量（保持在合理范围内）
+    const newPlanningValue = Math.max(20, Math.min(100, lastPlanningValue + (Math.random() - 0.5) * 15))
+    const newChatValue = Math.max(30, Math.min(100, lastChatValue + (Math.random() - 0.5) * 15))
+    
+    currentPlanningData.push(newPlanningValue)
+    currentChatData.push(newChatValue)
+    
+    // 更新图表配置
+    examLineConfig.series[0].data = currentPlanningData
+    examLineConfig.series[1].data = currentChatData
+    
+    // 更新x轴数据（时间轴前进）
+    const currentTimeData = [...examLineConfig.xAxis.data]
+    currentTimeData.shift()
+    
+    // 获取最后一个时间并增加2小时
+    const lastTime = currentTimeData[currentTimeData.length - 1]
+    const [hours] = lastTime.split(':').map(Number)
+    const newHours = (hours + 2) % 24
+    const newTime = `${newHours.toString().padStart(2, '0')}:00`
+    currentTimeData.push(newTime)
+    
+    examLineConfig.xAxis.data = currentTimeData
+    
+    // 应用新数据到图表 - 添加动画效果强调时间轴更新
     lineChart.setOption({
+      xAxis: {
+        data: examLineConfig.xAxis.data,
+        axisLabel: {
+          color: (_value: string, index: number) => {
+            // 最新的时间点显示为高亮颜色
+            return index === 9 ? '#ffeb3b' : '#7EB9FF'
+          },
+          fontWeight: (_value: string, index: number) => {
+            // 最新的时间点显示为粗体
+            return index === 9 ? 'bold' : 'normal'
+          },
+          fontSize: (_value: string, index: number) => {
+            // 最新的时间点字体稍大
+            return index === 9 ? 14 : 12
+          }
+        }
+      },
       series: [
         {
-          data: examLineConfig.series[0].data
+          data: examLineConfig.series[0].data,
+          markPoint: {
+            symbol: 'circle',
+            symbolSize: 10,
+            data: [
+              { type: 'max', name: '最大值' },
+              { 
+                coord: [9, currentPlanningData[9]], 
+                name: '最新点',
+                itemStyle: {
+                  color: '#00BAFF',
+                  borderColor: '#fff',
+                  borderWidth: 2
+                }
+              }
+            ]
+          }
         },
         {
-          data: examLineConfig.series[1].data
+          data: examLineConfig.series[1].data,
+          markPoint: {
+            symbol: 'circle',
+            symbolSize: 10,
+            data: [
+              { type: 'max', name: '最大值' },
+              { 
+                coord: [9, currentChatData[9]], 
+                name: '最新点',
+                itemStyle: {
+                  color: '#3DE7C9',
+                  borderColor: '#fff',
+                  borderWidth: 2
+                }
+              }
+            ]
+          }
         }
-      ]
+      ],
+      animation: true,
+      animationDuration: 1000,
+      animationEasing: 'cubicOut'
     })
   }
 }
@@ -516,27 +628,24 @@ watch(
 // 模拟数据刷新函数
 const refreshData = () => {
   // 更新总用户数
-  overviewData.value[0].value = Math.floor(15000 + Math.random() * 2000)
+  overviewData.value[0].value = Math.floor(500 + Math.random() * 200)
   overviewData.value[0].config.number = [overviewData.value[0].value]
 
   // 更新职业规划完成数
-  overviewData.value[1].value = Math.floor(7500 + Math.random() * 1000)
+  overviewData.value[1].value = Math.floor(250 + Math.random() * 100)
   overviewData.value[1].config.number = [overviewData.value[1].value]
 
   // 更新简历生成量
-  overviewData.value[2].value = Math.floor(5000 + Math.random() * 1000)
+  overviewData.value[2].value = Math.floor(2000 + Math.random() * 300)
   overviewData.value[2].config.number = [overviewData.value[2].value]
 
-  // 更新就业成功率
-  overviewData.value[3].value = Math.floor(75 + Math.random() * 15)
-  overviewData.value[3].config.number = [overviewData.value[3].value]
-
   // 更新AI对话次数
-  overviewData.value[4].value = Math.floor(12000 + Math.random() * 1500)
-  overviewData.value[4].config.number = [overviewData.value[4].value]
+  overviewData.value[3].value = Math.floor(750 + Math.random() * 150)
+  overviewData.value[3].config.number = [overviewData.value[3].value]
 
   // 更新日活跃用户环图数据
   const newUserPercent = Math.floor(30 + Math.random() * 10)
+  
   activeRingConfig.data = [
     {
       name: '新用户',
@@ -548,16 +657,13 @@ const refreshData = () => {
     }
   ]
 
-  // 更新每日折线图数据
-  const newPlanningData = Array(10)
+  // 完全随机化折线图数据
+  examLineConfig.series[0].data = Array(10)
     .fill(0)
     .map(() => Math.floor(20 + Math.random() * 80))
-  const newChatData = Array(10)
+  examLineConfig.series[1].data = Array(10)
     .fill(0)
     .map(() => Math.floor(30 + Math.random() * 70))
-
-  examLineConfig.series[0].data = newPlanningData
-  examLineConfig.series[1].data = newChatData
 
   // 更新用户年龄分布数据
   ageDistributionConfig.data = [
@@ -612,6 +718,11 @@ onMounted(async () => {
 
       // 初始刷新一次数据
       refreshData()
+      
+      // 设置折线图数据动态更新定时器 - 每2.5秒更新一次
+      lineChartRefreshTimer = window.setInterval(() => {
+        updateLineChart()
+      }, 2500)
     } catch (error) {
       console.error('初始化图表错误:', error)
     }
@@ -634,6 +745,12 @@ onUnmounted(() => {
   if (dataRefreshTimer) {
     clearInterval(dataRefreshTimer)
     dataRefreshTimer = null
+  }
+  
+  // 清除折线图更新定时器
+  if (lineChartRefreshTimer) {
+    clearInterval(lineChartRefreshTimer)
+    lineChartRefreshTimer = null
   }
 
   // 销毁图表实例
@@ -812,6 +929,11 @@ onUnmounted(() => {
         justify-content: space-between;
         margin-bottom: 10px;
         padding: 0 15px;
+        font-size: 18px;
+        font-weight: normal;
+        margin: 0;
+        color: #0ff;
+        text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
 
         h3 {
           font-size: 18px;
@@ -823,20 +945,24 @@ onUnmounted(() => {
 
         &.center {
           justify-content: center;
+          gap: 15px;
         }
       }
 
       .chart-container {
         height: calc(100% - 50px);
         width: 100%;
-        position: relative; /* 为绝对定位的子元素提供参考 */
+        position: relative;
         display: flex;
         justify-content: center;
         align-items: center;
 
-        & > div {
-          width: 100%;
-          height: 100%;
+        &.active-users-container {
+          padding: 10px;
+        }
+
+        &.resume-container {
+          padding-bottom: 10px;
         }
 
         /* 确保DataV组件能够正确充满容器 */
@@ -857,7 +983,8 @@ onUnmounted(() => {
       display: flex;
       justify-content: space-around;
       align-items: center;
-      height: calc(100% - 50px);
+      height: calc(100% - 60px);
+      padding: 10px 0;
 
       .overview-item {
         text-align: center;
@@ -865,11 +992,38 @@ onUnmounted(() => {
         flex-direction: column;
         align-items: center;
         justify-content: center;
+        position: relative;
+        background: rgba(4, 21, 66, 0.7);
+        border-radius: 4px;
+        box-shadow: 0 0 20px rgba(0, 178, 255, 0.15);
+        padding: 10px 5px;
+        width: 22%;
+        height: 85%;
+        transition: all 0.4s;
+        border: 1px solid rgba(32, 89, 162, 0.2);
+
+        &:hover {
+          transform: translateY(-5px);
+          box-shadow: 0 5px 15px rgba(0, 195, 255, 0.3);
+          border: 1px solid rgba(32, 89, 162, 0.5);
+        }
+
+        &::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 2px;
+          background: linear-gradient(to right, transparent, rgba(0, 198, 255, 0.5), transparent);
+        }
 
         .data-label {
-          font-size: 16px;
-          color: #7eb9ff;
-          margin-top: 10px;
+          font-size: 14px;
+          color: rgba(126, 185, 255, 0.85);
+          margin-top: 20px;
+          font-weight: 500;
+          letter-spacing: 1px;
         }
       }
     }
@@ -880,8 +1034,13 @@ onUnmounted(() => {
   :deep(.dv-border-box-8),
   :deep(.dv-border-box-12),
   :deep(.dv-decoration-5),
-  :deep(.dv-decoration-10) {
+  :deep(.dv-decoration-10),
+  :deep(.dv-decoration-1) {
     width: 100% !important;
+    height: 100% !important;
+  }
+  :deep(.dv-decoration-1) {
+    width: 30% !important;
     height: 100% !important;
   }
 
