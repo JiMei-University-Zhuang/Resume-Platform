@@ -189,7 +189,7 @@ const toggleFullScreen = () => {
 
 // 返回主页
 const returnHome = () => {
-  window.location.href = '/'
+  window.location.href = '/dashboard'
 }
 
 // 自动刷新数据的定时器

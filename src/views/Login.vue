@@ -299,7 +299,6 @@ const validatePassword = (_rule: any, value: string, callback: any) => {
   }
 }
 
-
 //登录表单
 const loginForm = reactive({
   username: '',
