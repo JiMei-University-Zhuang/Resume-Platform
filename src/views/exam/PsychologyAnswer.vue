@@ -108,7 +108,10 @@
               <div v-if="showAnalysis[`choice-${question.questionId}`]" class="analysis-container">
                 <div class="analysis-title">AI 解析结果：</div>
                 <div
-                  v-if="aiAnalysisStatus[`choice-${question.questionId}`] === 1 && !analysisResults[`choice-${question.questionId}`]"
+                  v-if="
+                    aiAnalysisStatus[`choice-${question.questionId}`] === 1 &&
+                    !analysisResults[`choice-${question.questionId}`]
+                  "
                   class="analysis-loading"
                 >
                   <el-progress
@@ -119,24 +122,34 @@
                   ></el-progress>
                   <span class="loading-text">AI解析生成中...</span>
                 </div>
-                <div v-else-if="aiAnalysisStatus[`choice-${question.questionId}`] === 4"
+                <div
+                  v-else-if="aiAnalysisStatus[`choice-${question.questionId}`] === 4"
                   class="analysis-empty"
                 >
                   <span>暂无解析结果，请稍后再试。</span>
                 </div>
-                <div v-else-if="aiAnalysisStatus[`choice-${question.questionId}`] === 3"
+                <div
+                  v-else-if="aiAnalysisStatus[`choice-${question.questionId}`] === 3"
                   class="analysis-error"
                 >
                   <span>解析请求失败，请稍后重试。</span>
-                  <el-button size="small" type="primary" @click="retryAnalysis(question.questionId, 'choice')" class="retry-button">
+                  <el-button
+                    size="small"
+                    type="primary"
+                    @click="retryAnalysis(question.questionId, 'choice')"
+                    class="retry-button"
+                  >
                     重试
                   </el-button>
                 </div>
-                <div v-else
-                  class="markdown-body analysis-content"
-                >
-                  <div v-html="renderMarkdown(analysisResults[`choice-${question.questionId}`] || '')"></div>
-                  <div v-if="aiAnalysisStatus[`choice-${question.questionId}`] === 1" class="analysis-streaming-indicator">
+                <div v-else class="markdown-body analysis-content">
+                  <div
+                    v-html="renderMarkdown(analysisResults[`choice-${question.questionId}`] || '')"
+                  ></div>
+                  <div
+                    v-if="aiAnalysisStatus[`choice-${question.questionId}`] === 1"
+                    class="analysis-streaming-indicator"
+                  >
                     <span class="loading-dot"></span>
                     <span class="loading-dot"></span>
                     <span class="loading-dot"></span>
@@ -326,18 +339,27 @@ const renderMarkdown = (text: string): string => {
 
   let processedText = text
 
-  processedText = processedText.replace(/^(#{1,6})([^#\n]+)(#{1,6})$/gm, (_, hash, titleContent) => {
-    return `${hash} ${titleContent.trim()}`
-  })
+  processedText = processedText.replace(
+    /^(#{1,6})([^#\n]+)(#{1,6})$/gm,
+    (_, hash, titleContent) => {
+      return `${hash} ${titleContent.trim()}`
+    }
+  )
 
   processedText = processedText.replace(/^(#{3,})\s+([^#\n]+)$/gm, (_, hash, titleContent) => {
     return `${hash.substring(0, 2)} ${titleContent.trim()}`
   })
 
   processedText = processedText.replace(/^#{3,}\s*题目解析\s*#{0,}$/gim, '# 题目解析')
-  processedText = processedText.replace(/^#{3,}\s*\d+\.\s*考点映射\s*[:-]\s*\*\*核心考点\*\*$/gim, '## 考点映射 - 核心考点')
+  processedText = processedText.replace(
+    /^#{3,}\s*\d+\.\s*考点映射\s*[:-]\s*\*\*核心考点\*\*$/gim,
+    '## 考点映射 - 核心考点'
+  )
   processedText = processedText.replace(/^#{3,}\s*\d+\.\s*考点映射\s*#{0,}$/gim, '## 考点映射')
-  processedText = processedText.replace(/^#{3,}\s*\d+\.\s*干扰项设计逻辑\s*#{0,}$/gim, '## 干扰项设计逻辑')
+  processedText = processedText.replace(
+    /^#{3,}\s*\d+\.\s*干扰项设计逻辑\s*#{0,}$/gim,
+    '## 干扰项设计逻辑'
+  )
   processedText = processedText.replace(/^#{3,}\s*\d+\.\s*秒杀技巧\s*#{0,}$/gim, '## 秒杀技巧')
 
   processedText = processedText.replace(/^#{3,}\s*(\d+)\.\s*([^#\n]+)$/gm, (_, num, content) => {
@@ -366,7 +388,7 @@ const fetchPaper = async () => {
     }, 200)
 
     const examName = '2024年全国硕士研究生招生考试心理学真题'
-    const response = await getPsychologyExam(examName) as { data: ExamPaper }
+    const response = (await getPsychologyExam(examName)) as { data: ExamPaper }
 
     if (response.data) {
       paperData.value = response.data
@@ -450,8 +472,7 @@ const autoSaveAnswers = () => {
       timeLeft: timeLeft.value
     }
     localStorage.setItem('psychology_exam_progress', JSON.stringify(answerData))
-  } catch (error) {
-  }
+  } catch (error) {}
 }
 
 const loadSavedAnswers = () => {
@@ -532,7 +553,7 @@ const submitAnswers = async () => {
 
   showReference.value = true
   message.success('答案已提交')
-  
+
   initializeAnalysisData()
 }
 
@@ -585,11 +606,9 @@ const getDifficultyClass = (difficulty: string): string => {
 
 const initializeAnalysisData = () => {
   if (!paperData.value) return
-  
-  const allQuestions = [
-    ...(paperData.value.choiceVOs || [])
-  ]
-  
+
+  const allQuestions = [...(paperData.value.choiceVOs || [])]
+
   allQuestions.forEach((question: any) => {
     const questionType = getQuestionType(question)
     const key = `${questionType}-${question.questionId}`
@@ -607,7 +626,7 @@ const getQuestionType = (question: any): string => {
 
 const analyzeQuestionSSE = (questionId: string, questionType: string): void => {
   aiAnalysisStatus.value[`${questionType}-${questionId}`] = ANALYSIS_STATUS.LOADING
-  
+
   if (!userId.value) {
     message.warning('无法获取用户ID，AI解析可能无法正常工作')
   }
@@ -618,26 +637,28 @@ const analyzeQuestionSSE = (questionId: string, questionType: string): void => {
   }
 
   analysisResults.value[`${questionType}-${questionId}`] = ''
-  
+
   try {
     const eventSource = new EventSource(requestUrl)
-    
+
     eventSource.onopen = () => {
       // Connection opened
     }
-    
+
     eventSource.onerror = () => {
       aiAnalysisStatus.value[`${questionType}-${questionId}`] = ANALYSIS_STATUS.ERROR
       message.error('AI解析连接失败，请稍后重试')
       eventSource.close()
     }
-    
-    eventSource.onmessage = (event) => {
+
+    eventSource.onmessage = event => {
       if (event.data === '[DONE]') {
         eventSource.close()
-        
-        if (!analysisResults.value[`${questionType}-${questionId}`] || 
-            analysisResults.value[`${questionType}-${questionId}`].trim() === '') {
+
+        if (
+          !analysisResults.value[`${questionType}-${questionId}`] ||
+          analysisResults.value[`${questionType}-${questionId}`].trim() === ''
+        ) {
           aiAnalysisStatus.value[`${questionType}-${questionId}`] = ANALYSIS_STATUS.EMPTY
         } else {
           aiAnalysisStatus.value[`${questionType}-${questionId}`] = ANALYSIS_STATUS.SUCCESS
@@ -645,23 +666,25 @@ const analyzeQuestionSSE = (questionId: string, questionType: string): void => {
         }
         return
       }
-      
+
       const key = `${questionType}-${questionId}`
       const currentText = analysisResults.value[key] || ''
       const newText = currentText + event.data
-      
+
       analysisResults.value[key] = newText
-      
+
       const newResults = { ...analysisResults.value }
       analysisResults.value = newResults
     }
-    
+
     setTimeout(() => {
       if (aiAnalysisStatus.value[`${questionType}-${questionId}`] === ANALYSIS_STATUS.LOADING) {
         eventSource.close()
-        
-        if (analysisResults.value[`${questionType}-${questionId}`] && 
-            analysisResults.value[`${questionType}-${questionId}`].trim() !== '') {
+
+        if (
+          analysisResults.value[`${questionType}-${questionId}`] &&
+          analysisResults.value[`${questionType}-${questionId}`].trim() !== ''
+        ) {
           aiAnalysisStatus.value[`${questionType}-${questionId}`] = ANALYSIS_STATUS.SUCCESS
         } else {
           aiAnalysisStatus.value[`${questionType}-${questionId}`] = ANALYSIS_STATUS.ERROR
@@ -669,7 +692,6 @@ const analyzeQuestionSSE = (questionId: string, questionType: string): void => {
         }
       }
     }, 30000)
-    
   } catch (error) {
     aiAnalysisStatus.value[`${questionType}-${questionId}`] = ANALYSIS_STATUS.ERROR
     message.error('AI 解析请求失败：' + (error instanceof Error ? error.message : String(error)))
@@ -678,7 +700,7 @@ const analyzeQuestionSSE = (questionId: string, questionType: string): void => {
 
 const analyzeQuestion = (questionId: string, questionType: string) => {
   showAnalysis.value[`${questionType}-${questionId}`] = true
-  
+
   message.info('正在生成AI解析，请稍候...')
 
   try {
@@ -694,10 +716,9 @@ const retryAnalysis = (questionId: string, questionType: string) => {
   analyzeQuestion(questionId, questionType)
 }
 
-
 onMounted(async () => {
   try {
-    const response = await getUser() as { data: { id: number } }
+    const response = (await getUser()) as { data: { id: number } }
     userId.value = Number(response.data.id)
   } catch (error) {
     // Error handling
@@ -1298,7 +1319,8 @@ onBeforeUnmount(() => {
 }
 
 @keyframes dot-pulse {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(0.6);
     opacity: 0.6;
   }
