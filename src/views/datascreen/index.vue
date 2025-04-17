@@ -40,7 +40,24 @@
             <Decoration1 style="width: 40px; height: 25px; margin-left: 5px">实时监控</Decoration1>
           </div>
           <div class="chart-container active-users-container" v-if="mounted">
-            <ActiveRingChart :config="activeRingConfig" />
+            <div class="active-users-grid">
+              <div class="grid-item">
+                <div class="chart-title">今日访问人数</div>
+                <DigitalFlop :config="activeUserCountConfig" />
+              </div>
+              <div class="grid-item">
+                <div class="chart-title" style="margin-bottom: 35px !important">用户类型占比</div>
+                <ActiveRingChart :config="activeRingConfig" />
+              </div>
+              <div class="grid-item">
+                <div class="chart-title">访问趋势</div>
+                <div ref="miniLineChartRef" class="mini-chart"></div>
+              </div>
+              <div class="grid-item">
+                <div class="chart-title">活跃时段</div>
+                <div ref="hourlyBarChartRef" class="mini-chart"></div>
+              </div>
+            </div>
           </div>
         </BorderBox8>
 
@@ -87,13 +104,13 @@
             <Decoration6 style="width: 100px; height: 30px" />
           </div>
           <div class="chart-container" v-if="mounted">
-            <ScrollBoard :config="regionConfig" />
+            <ScrollBoard :config="regionConfig" style="" />
           </div>
         </BorderBox8>
 
         <BorderBox8 class="panel-item">
           <div class="panel-header">
-            <h3>简历制作量</h3>
+            <h3>简历优化率</h3>
             <Decoration1 style="width: 100px; height: 25px; margin-left: 10px"
               >实时数据</Decoration1
             >
@@ -108,7 +125,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, onUnmounted, reactive, nextTick, watch } from 'vue'
+import { ref, onMounted, onUnmounted, reactive, nextTick } from 'vue'
 import { useEventListener } from '@vueuse/core'
 import { gsap } from 'gsap'
 
@@ -129,7 +146,7 @@ import {
 
 // 引入 echarts
 import * as echarts from 'echarts/core'
-import { LineChart } from 'echarts/charts'
+import { LineChart, BarChart } from 'echarts/charts'
 import {
   TitleComponent,
   TooltipComponent,
@@ -145,6 +162,7 @@ echarts.use([
   GridComponent,
   LegendComponent,
   LineChart,
+  BarChart,
   CanvasRenderer
 ])
 
@@ -178,6 +196,9 @@ const returnHome = () => {
 let dataRefreshTimer: number | null = null
 // 折线图数据的单独定时器
 let lineChartRefreshTimer: number | null = null
+// 日活跃用户小图表实例
+let miniLineChart: echarts.ECharts | null = null
+let hourlyBarChart: echarts.ECharts | null = null
 
 // 核心指标数据
 const overviewData = ref([
@@ -259,10 +280,26 @@ const overviewData = ref([
   }
 ])
 
+// 今日访问人数数字翻牌器配置
+const activeUserCountConfig = reactive({
+  number: [328],
+  content: '{nt}',
+  style: {
+    fontSize: 40,
+    fill: '#3de7c9',
+    fontWeight: 'bold',
+    textShadow: '0 0 8px rgba(61, 231, 201, 0.8)'
+  },
+  toFixed: 0,
+  rowGap: 0,
+  animationCurve: 'easeOutCubic',
+  animationFrame: 50
+})
+
 // 日活跃用户环图配置
 const activeRingConfig = reactive({
-  radius: '40%',
-  activeRadius: '45%',
+  radius: '55%',
+  activeRadius: '60%',
   data: [
     {
       name: '新用户',
@@ -275,10 +312,157 @@ const activeRingConfig = reactive({
   ],
   color: ['#00baff', '#3de7c9'],
   digitalFlopStyle: {
-    fontSize: 24,
-    fill: '#3de7c9'
+    fontSize: 14,
+    fill: '#3de7c9',
+    textAlign: 'center'
   },
   lineWidth: 5
+})
+
+// 访问趋势小图配置
+const miniLineChartConfig = reactive({
+  grid: {
+    top: 10,
+    right: 10,
+    bottom: 10,
+    left: 10,
+    containLabel: true
+  },
+  xAxis: {
+    type: 'category',
+    data: ['00', '04', '08', '12', '16', '20'],
+    axisLine: {
+      show: false
+    },
+    axisTick: {
+      show: false
+    },
+    axisLabel: {
+      color: '#7EB9FF',
+      fontSize: 10
+    }
+  },
+  yAxis: {
+    type: 'value',
+    splitLine: {
+      show: false
+    },
+    axisLine: {
+      show: false
+    },
+    axisTick: {
+      show: false
+    },
+    axisLabel: {
+      show: false
+    }
+  },
+  series: [
+    {
+      type: 'line',
+      data: [35, 20, 45, 75, 55, 40],
+      smooth: true,
+      symbol: 'none',
+      lineStyle: {
+        color: '#3de7c9',
+        width: 3
+      },
+      areaStyle: {
+        color: {
+          type: 'linear',
+          x: 0,
+          y: 0,
+          x2: 0,
+          y2: 1,
+          colorStops: [
+            { offset: 0, color: 'rgba(61, 231, 201, 0.3)' },
+            { offset: 1, color: 'rgba(61, 231, 201, 0)' }
+          ]
+        }
+      },
+      emphasis: {
+        focus: 'series'
+      }
+    }
+  ],
+  animation: true
+})
+
+// 活跃时段小图配置
+const hourlyBarChartConfig = reactive({
+  grid: {
+    top: 10,
+    right: 15,
+    bottom: 10,
+    left: 15,
+    containLabel: true
+  },
+  xAxis: {
+    type: 'category',
+    data: ['早晨', '上午', '下午', '晚上'],
+    axisLine: {
+      show: false
+    },
+    axisTick: {
+      show: false
+    },
+    axisLabel: {
+      color: '#7EB9FF',
+      fontSize: 11
+    }
+  },
+  yAxis: {
+    type: 'value',
+    splitLine: {
+      show: false
+    },
+    axisLine: {
+      show: false
+    },
+    axisTick: {
+      show: false
+    },
+    axisLabel: {
+      show: false
+    }
+  },
+  series: [
+    {
+      type: 'bar',
+      data: [25, 55, 70, 45],
+      barWidth: 10,
+      itemStyle: {
+        color: {
+          type: 'linear',
+          x: 0,
+          y: 0,
+          x2: 0,
+          y2: 1,
+          colorStops: [
+            { offset: 0, color: '#00baff' },
+            { offset: 1, color: '#3de7c9' }
+          ]
+        },
+        borderRadius: [3, 3, 0, 0]
+      },
+      emphasis: {
+        itemStyle: {
+          color: {
+            type: 'linear',
+            x: 0,
+            y: 0,
+            x2: 0,
+            y2: 1,
+            colorStops: [
+              { offset: 0, color: '#3de7c9' },
+              { offset: 1, color: '#00baff' }
+            ]
+          }
+        }
+      }
+    }
+  ],
+  animation: true
 })
 
 // 用户年龄分布配置
@@ -619,14 +803,67 @@ const updateLineChart = () => {
   }
 }
 
-// 监听配置变化
-watch(
-  () => [examLineConfig.series[0].data, examLineConfig.series[1].data],
-  () => {
-    updateLineChart()
-  },
-  { deep: true }
-)
+// 初始化所有图表
+const initAllCharts = () => {
+  // 初始化主折线图
+  initLineChart()
+
+  // 初始化访问趋势小折线图
+  if (miniLineChartRef.value) {
+    miniLineChart = echarts.init(miniLineChartRef.value)
+    miniLineChart.setOption(miniLineChartConfig)
+  }
+
+  // 初始化活跃时段柱状图
+  if (hourlyBarChartRef.value) {
+    hourlyBarChart = echarts.init(hourlyBarChartRef.value)
+    hourlyBarChart.setOption(hourlyBarChartConfig)
+  }
+}
+
+// 更新所有小图表
+const updateMiniCharts = () => {
+  // 更新访问趋势
+  if (miniLineChart) {
+    const newData = Array(6)
+      .fill(0)
+      .map(() => Math.floor(15 + Math.random() * 65))
+
+    miniLineChartConfig.series[0].data = newData
+
+    miniLineChart.setOption({
+      series: [
+        {
+          data: newData
+        }
+      ]
+    })
+  }
+
+  // 更新活跃时段
+  if (hourlyBarChart) {
+    const newData = [
+      Math.floor(15 + Math.random() * 35),
+      Math.floor(40 + Math.random() * 30),
+      Math.floor(50 + Math.random() * 30),
+      Math.floor(30 + Math.random() * 30)
+    ]
+
+    hourlyBarChartConfig.series[0].data = newData
+
+    hourlyBarChart.setOption({
+      series: [
+        {
+          data: newData
+        }
+      ]
+    })
+  }
+
+  // 更新今日访问人数数据
+  const newUserCount = Math.floor(250 + Math.random() * 150)
+  activeUserCountConfig.number = [newUserCount]
+}
 
 // 模拟数据刷新函数
 const refreshData = () => {
@@ -659,6 +896,9 @@ const refreshData = () => {
       value: 100 - newUserPercent
     }
   ]
+
+  // 更新所有小图表
+  updateMiniCharts()
 
   // 完全随机化折线图数据
   examLineConfig.series[0].data = Array(10)
@@ -713,8 +953,8 @@ onMounted(async () => {
   // 延迟执行动画效果
   setTimeout(async () => {
     try {
-      // 初始化折线图
-      initLineChart()
+      // 初始化所有图表
+      initAllCharts()
 
       // 执行进入动画
       initEnterAnimation()
@@ -725,6 +965,7 @@ onMounted(async () => {
       // 设置折线图数据动态更新定时器 - 每2.5秒更新一次
       lineChartRefreshTimer = window.setInterval(() => {
         updateLineChart()
+        updateMiniCharts() // 同时更新小图表
       }, 2500)
     } catch (error) {
       console.error('初始化图表错误:', error)
@@ -761,7 +1002,22 @@ onUnmounted(() => {
     lineChart.dispose()
     lineChart = null
   }
+
+  // 销毁小图表实例
+  if (miniLineChart) {
+    miniLineChart.dispose()
+    miniLineChart = null
+  }
+
+  if (hourlyBarChart) {
+    hourlyBarChart.dispose()
+    hourlyBarChart = null
+  }
 })
+
+// 添加小图表的DOM引用
+const miniLineChartRef = ref(null)
+const hourlyBarChartRef = ref(null)
 </script>
 
 <style lang="scss" scoped>
@@ -962,6 +1218,74 @@ onUnmounted(() => {
 
         &.active-users-container {
           padding: 10px;
+
+          .active-users-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            gap: 10px;
+            width: 100%;
+            height: 100%;
+
+            .grid-item {
+              position: relative;
+              background: rgba(6, 30, 93, 0.3);
+              border-radius: 4px;
+              border: 1px solid rgba(0, 150, 199, 0.2);
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              justify-content: center;
+              overflow: hidden;
+
+              &::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 2px;
+                background: linear-gradient(
+                  to right,
+                  transparent,
+                  rgba(0, 198, 255, 0.5),
+                  transparent
+                );
+              }
+
+              .chart-title {
+                position: absolute;
+                top: 5px;
+                left: 0;
+                width: 100%;
+                text-align: center;
+                font-size: 12px;
+                color: rgba(126, 185, 255, 0.9);
+                z-index: 5;
+              }
+
+              .mini-chart {
+                width: 100%;
+                height: 100%;
+                padding-top: 20px;
+              }
+              &:nth-child(1) {
+                padding-top: 12px;
+
+                .dv-active-ring-chart {
+                  margin-top: 10px;
+                }
+              }
+
+              &:nth-child(2) {
+                padding-top: 12px;
+
+                .dv-active-ring-chart {
+                  margin-top: 10px;
+                }
+              }
+            }
+          }
         }
 
         &.resume-container {
