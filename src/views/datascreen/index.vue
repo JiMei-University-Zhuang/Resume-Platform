@@ -517,39 +517,42 @@ const updateLineChart = () => {
     // 创建一个轻微变化的数据，模拟实时数据流
     const currentPlanningData = [...examLineConfig.series[0].data]
     const currentChatData = [...examLineConfig.series[1].data]
-    
+
     // 移除第一个数据点并在末尾添加新的随机数据点
     currentPlanningData.shift()
     currentChatData.shift()
-    
+
     // 基于最后一个值添加一个相对平滑的新值（避免大幅波动）
     const lastPlanningValue = currentPlanningData[currentPlanningData.length - 1]
     const lastChatValue = currentChatData[currentChatData.length - 1]
-    
+
     // 在上一个值的基础上增减一个小的随机量（保持在合理范围内）
-    const newPlanningValue = Math.max(20, Math.min(100, lastPlanningValue + (Math.random() - 0.5) * 15))
+    const newPlanningValue = Math.max(
+      20,
+      Math.min(100, lastPlanningValue + (Math.random() - 0.5) * 15)
+    )
     const newChatValue = Math.max(30, Math.min(100, lastChatValue + (Math.random() - 0.5) * 15))
-    
+
     currentPlanningData.push(newPlanningValue)
     currentChatData.push(newChatValue)
-    
+
     // 更新图表配置
     examLineConfig.series[0].data = currentPlanningData
     examLineConfig.series[1].data = currentChatData
-    
+
     // 更新x轴数据（时间轴前进）
     const currentTimeData = [...examLineConfig.xAxis.data]
     currentTimeData.shift()
-    
+
     // 获取最后一个时间并增加2小时
     const lastTime = currentTimeData[currentTimeData.length - 1]
     const [hours] = lastTime.split(':').map(Number)
     const newHours = (hours + 2) % 24
     const newTime = `${newHours.toString().padStart(2, '0')}:00`
     currentTimeData.push(newTime)
-    
+
     examLineConfig.xAxis.data = currentTimeData
-    
+
     // 应用新数据到图表 - 添加动画效果强调时间轴更新
     lineChart.setOption({
       xAxis: {
@@ -577,8 +580,8 @@ const updateLineChart = () => {
             symbolSize: 10,
             data: [
               { type: 'max', name: '最大值' },
-              { 
-                coord: [9, currentPlanningData[9]], 
+              {
+                coord: [9, currentPlanningData[9]],
                 name: '最新点',
                 itemStyle: {
                   color: '#00BAFF',
@@ -596,8 +599,8 @@ const updateLineChart = () => {
             symbolSize: 10,
             data: [
               { type: 'max', name: '最大值' },
-              { 
-                coord: [9, currentChatData[9]], 
+              {
+                coord: [9, currentChatData[9]],
                 name: '最新点',
                 itemStyle: {
                   color: '#3DE7C9',
@@ -645,7 +648,7 @@ const refreshData = () => {
 
   // 更新日活跃用户环图数据
   const newUserPercent = Math.floor(30 + Math.random() * 10)
-  
+
   activeRingConfig.data = [
     {
       name: '新用户',
@@ -718,7 +721,7 @@ onMounted(async () => {
 
       // 初始刷新一次数据
       refreshData()
-      
+
       // 设置折线图数据动态更新定时器 - 每2.5秒更新一次
       lineChartRefreshTimer = window.setInterval(() => {
         updateLineChart()
@@ -746,7 +749,7 @@ onUnmounted(() => {
     clearInterval(dataRefreshTimer)
     dataRefreshTimer = null
   }
-  
+
   // 清除折线图更新定时器
   if (lineChartRefreshTimer) {
     clearInterval(lineChartRefreshTimer)

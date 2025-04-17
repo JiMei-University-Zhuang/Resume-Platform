@@ -142,7 +142,6 @@
           >
           <el-button type="success" @click="returnToHome" v-else>返回主页</el-button>
         </div>
-        
       </template>
     </div>
     <div v-else>
