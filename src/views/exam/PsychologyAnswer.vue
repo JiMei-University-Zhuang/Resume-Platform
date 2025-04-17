@@ -493,7 +493,6 @@ const loadSavedAnswers = () => {
         ) {
           timeLeft.value = parsedData.timeLeft
         }
-        message.success('已恢复之前的作答进度')
         return true
       }
     }

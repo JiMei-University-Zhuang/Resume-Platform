@@ -192,7 +192,7 @@ export function getHistoryExam(examName: string, retryCount = 2) {
           (error.response?.status >= 500 || error.code === 'ECONNABORTED') &&
           currentRetry < retryCount
         ) {
-          console.log(`获取心理学试卷失败，准备第${currentRetry + 1}次重试...`)
+          console.log(`获取历史学试卷失败，准备第${currentRetry + 1}次重试...`)
           // 指数退避策略，增加重试间隔
           const retryDelay = Math.min(1000 * 2 ** currentRetry, 5000)
 

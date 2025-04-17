@@ -101,6 +101,12 @@
                 >
                   AI 解析
                 </el-button>
+                <span
+                  v-if="aiAnalysisStatus[`choice-${question.questionId}`] === 500"
+                  class="ai-analysis-status-tooltip"
+                >
+                  解析请求失败，已使用备用数据
+                </span>
               </div>
             </div>
           </div>
@@ -264,6 +270,8 @@ import 'prismjs/components/prism-python'
 import 'prismjs/components/prism-java'
 import 'prismjs/themes/prism.css'
 import markdownItKatexGpt from 'markdown-it-katex-gpt'
+import { getHistoryExam } from '@/api/exam' // 导入真实API函数
+import { getUser } from '@/api/user' // 导入获取用户信息的API
 
 const route = useRoute()
 const router = useRouter()
@@ -275,6 +283,8 @@ const loadingPercentage = ref(0)
 const showReference = ref(false)
 const timeLeft = ref(7200) // 2小时，单位为秒
 const timerId = ref<number | null>(null)
+// 添加一个请求状态标志，防止重复请求
+const isRequestPending = ref(false)
 
 // 答案相关数据
 const singleChoiceAnswers = ref<string[]>([])
@@ -340,24 +350,102 @@ const initializeAnalysisData = () => {
 }
 
 // 开始分析题目
+const analyzeQuestionSSE = (questionId: string, questionType: string): void => {
+  if (!userId.value) {
+    message.warning('无法获取用户ID，AI解析可能无法正常工作')
+  }
+
+  // 构建请求URL，增加用户ID参数
+  let requestUrl = `/api/ai/analysis?questionId=${questionId}&subject=history`
+  if (userId.value) {
+    requestUrl += `&userId=${userId.value}`
+  }
+
+  fetch(requestUrl)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`)
+      }
+
+      const reader = response.body?.getReader()
+      if (!reader) {
+        throw new Error('无法获取响应正文')
+      }
+
+      // 处理流数据
+      const processStream = async () => {
+        try {
+          while (true) {
+            const { done, value } = await reader.read()
+
+            if (done) {
+              message.success('AI解析完成')
+              break
+            }
+
+            // 解码获取的数据
+            const textDecoder = new TextDecoder()
+            const text = textDecoder.decode(value)
+
+            // 处理SSE消息
+            const lines = text.split('\n')
+            for (const line of lines) {
+              if (line.startsWith('data:')) {
+                const data = line.substring(5).trim()
+                if (data === '[DONE]') {
+                  message.success('AI解析完成')
+                  break
+                }
+
+                // 累加结果
+                analysisResults.value[`${questionType}-${questionId}`] += data
+              }
+            }
+          }
+        } catch (error) {
+          console.error('处理流数据时出错:', error)
+          throw error
+        }
+      }
+
+      // 开始处理流
+      return processStream()
+    })
+    .catch(error => {
+      console.error('AI 解析请求失败:', error)
+      aiAnalysisStatus.value[`${questionType}-${questionId}`] = 500
+      message.error('AI 解析请求失败，使用本地备用解析')
+
+      // 如果API调用失败，使用本地备用数据
+      analysisResults.value[`${questionType}-${questionId}`] = getRandomAnalysis()
+    })
+}
+
+// 开始分析题目
 const analyzeQuestion = (questionId: string, questionType: string) => {
   showAnalysis.value[`${questionType}-${questionId}`] = true
-
-  // 这里使用模拟的解析数据，实际项目中应该调用API
-  // 在实际API调用时，会使用userId作为参数
-  console.log(`使用userId: ${userId.value}进行AI分析`)
-
-  setTimeout(() => {
-    if (questionType === 'choice') {
-      analysisResults.value[`${questionType}-${questionId}`] = getRandomAnalysis()
-    }
-  }, 1000)
+  analysisResults.value[`${questionType}-${questionId}`] = ''
 
   message.info('正在生成AI解析，请稍候...')
+
+  // 尝试使用SSE API进行分析
+  try {
+    analyzeQuestionSSE(questionId, questionType)
+  } catch (error) {
+    console.error('AI解析失败，使用本地解析:', error)
+    // 回退到本地解析
+    setTimeout(() => {
+      analysisResults.value[`${questionType}-${questionId}`] = getRandomAnalysis()
+    }, 1000)
+  }
 }
 
 // 加载试卷数据
 const fetchPaper = async () => {
+  // 如果已经有请求在进行中，则不重复请求
+  if (isRequestPending.value) return
+
+  isRequestPending.value = true
   loading.value = true
   loadingPercentage.value = 0
 
@@ -370,22 +458,43 @@ const fetchPaper = async () => {
       }
     }, 200)
 
-    // 模拟API调用，使用Mock数据
-    setTimeout(() => {
-      const mockData = getMockHistoryExamData()
-      paperData.value = mockData
+    // 使用真实API调用替换mock数据
+    try {
+      const examName = '2024年全国硕士研究生招生考试历史学真题'
+      console.log('开始请求历史学试卷数据...')
+      // 直接使用类型断言，避免TypeScript错误
+      const response: { data: any } = (await getHistoryExam(examName)) as any
+
+      if (response.data) {
+        paperData.value = response.data
+        paperTitle.value = examName
+        initializeAnswers()
+        initializeAnalysisData()
+
+        message.success('试卷加载成功')
+      } else {
+        throw new Error('获取试卷数据失败')
+      }
+    } catch (error) {
+      console.error('获取试卷失败：', error)
+      message.error('获取试卷失败，正在使用备用数据')
+
+      // 如果API调用失败，回退到使用mock数据
+      paperData.value = getMockHistoryExamData()
       paperTitle.value = '2023年全国硕士研究生招生考试历史学专业基础真题'
       initializeAnswers()
       initializeAnalysisData()
+    }
 
-      clearInterval(loadingTimer)
-      loadingPercentage.value = 100
-      loading.value = false
-    }, 1500)
+    clearInterval(loadingTimer)
+    loadingPercentage.value = 100
+    loading.value = false
   } catch (error) {
     console.error('获取试卷失败：', error)
     message.error('获取试卷失败，请重试')
     loading.value = false
+  } finally {
+    isRequestPending.value = false
   }
 }
 
@@ -646,8 +755,13 @@ const getRandomAnalysis = () => {
 }
 
 onMounted(async () => {
-  // 获取用户信息（这里模拟）
-  userId.value = 1001
+  // 获取用户信息（为了AI解析功能）
+  try {
+    const response = await getUser()
+    userId.value = Number(response.data.id)
+  } catch (error) {
+    console.error('获取用户信息失败:', error)
+  }
 
   fetchPaper()
 
