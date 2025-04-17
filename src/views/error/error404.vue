@@ -1,11 +1,10 @@
 <template>
   <div class="error-container">
-    <div class="error-content">
-      <img src="@/assets/vue.svg" alt="404" class="error-image" />
-      <h1>😞 页面未找到</h1>
-      <p>抱歉，您访问的页面不存在或已被移除。</p>
-      <el-button type="primary" class="home-button" @click="goHome">返回首页</el-button>
-    </div>
+    <a-result status="404" title="404" sub-title="抱歉，您访问的页面不存在或已被移除">
+      <template #extra>
+        <a-button type="primary" @click="goHome" class="primary-btn">返回首页</a-button>
+      </template>
+    </a-result>
   </div>
 </template>
 
@@ -15,7 +14,20 @@ import { useRouter } from 'vue-router'
 const router = useRouter()
 
 const goHome = () => {
-  router.push({ name: 'Dashboard' })
+  console.log('点击返回首页按钮')
+  // 尝试不同的导航方式
+  try {
+    router.push({ name: 'Dashboard' }).catch(() => {
+      router.push({ path: '/' }).catch(() => {
+        // 如果都失败，尝试直接通过window.location导航
+        window.location.href = '/'
+      })
+    })
+  } catch (error) {
+    console.error('导航错误:', error)
+    // 备用导航方法
+    window.location.href = '/'
+  }
 }
 </script>
 
@@ -25,76 +37,72 @@ const goHome = () => {
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
-  text-align: center;
-}
-
-.error-content {
+  background-color: #f0f2f5;
   position: relative;
-  z-index: 1;
-  background: rgba(255, 255, 255, 0.9);
-  padding: 40px;
-  border-radius: 12px;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-  animation: fadeIn 1s ease-in-out;
+  z-index: 1000;
 }
 
-.error-image {
-  width: 150px;
-  margin-bottom: 20px;
-  animation: bounce 2s infinite;
-}
-
-.error-content h1 {
-  font-size: 2.5rem;
-  margin-bottom: 15px;
-  color: #e74c3c;
-}
-
-.error-content p {
-  font-size: 1.1rem;
-  margin-bottom: 25px;
-  color: #555;
-}
-
-.home-button {
+:deep(.ant-result) {
   position: relative;
-  z-index: 1;
-  font-size: 16px !important;
-  padding: 12px 24px !important;
-  border-radius: 25px !important;
-  font-weight: bold;
-  transition: transform 0.3s ease !important;
+  z-index: 1001;
 }
 
-.home-button:hover {
-  transform: translateY(-2px);
+:deep(.ant-result-extra) {
+  position: relative;
+  z-index: 1002;
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
+:deep(.ant-result-image) {
+  margin-bottom: 24px;
 }
 
-@keyframes bounce {
-  0%,
-  20%,
-  50%,
-  80%,
-  100% {
-    transform: translateY(0);
-  }
-  40% {
-    transform: translateY(-10px);
-  }
-  60% {
-    transform: translateY(-5px);
-  }
+:deep(.ant-result-title) {
+  color: #1890ff;
+  font-size: 72px;
+  font-weight: 600;
+}
+
+:deep(.ant-result-subtitle) {
+  color: rgba(0, 0, 0, 0.45);
+  font-size: 20px;
+  margin-top: 16px;
+}
+
+:deep(.ant-result-extra) {
+  margin-top: 32px;
+}
+
+/* 强制应用按钮样式 */
+:deep(.ant-btn) {
+  height: 40px;
+  padding: 0 20px;
+  font-size: 16px;
+  border-radius: 4px;
+  position: relative;
+  z-index: 1003;
+}
+
+:deep(.ant-btn-primary),
+.primary-btn {
+  background-color: #1890ff !important;
+  border-color: #1890ff !important;
+  color: #fff !important;
+  position: relative;
+  z-index: 1003;
+}
+
+:deep(.ant-btn-primary:hover),
+.primary-btn:hover {
+  background-color: #40a9ff !important;
+  border-color: #40a9ff !important;
+}
+
+/* 暗色模式支持 */
+html.dark .error-container {
+  background-color: #1f1f1f;
+}
+
+html.dark :deep(.ant-result-subtitle) {
+  color: rgba(255, 255, 255, 0.45);
 }
 </style>

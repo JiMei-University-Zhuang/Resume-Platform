@@ -1,105 +1,159 @@
 <template>
   <div class="error-container">
-    <div class="error-content">
-      <img src="@/assets/vue.svg" alt="401" class="error-image" />
-      <h1>🔒 未授权访问</h1>
-      <p>抱歉，您没有访问此页面的权限。</p>
-      <div class="button-group">
-        <router-link to="/" class="home-button">返回首页</router-link>
-        <router-link to="/login" class="login-button">前往登录</router-link>
-      </div>
-    </div>
+    <a-result
+      status="403"
+      title="401"
+      sub-title="抱歉，您没有访问此页面的权限"
+    >
+      <template #extra>
+        <a-space>
+          <a-button type="primary" @click="goHome" class="primary-btn">返回首页</a-button>
+          <a-button @click="goToLogin" class="default-btn">重新登录</a-button>
+        </a-space>
+      </template>
+      <template #icon>
+        <lock-outlined class="custom-icon" />
+      </template>
+    </a-result>
   </div>
 </template>
 
-<script setup lang="ts" name="Error401"></script>
+<script setup lang="ts" name="Error401">
+import { useRouter } from 'vue-router'
+import { LockOutlined } from '@ant-design/icons-vue'
+
+const router = useRouter()
+
+const goHome = () => {
+  console.log('点击返回首页按钮')
+  // 尝试不同的导航方式
+  try {
+    router.push({ name: 'Dashboard' }).catch(() => {
+      router.push({ path: '/' }).catch(() => {
+        // 如果都失败，尝试直接通过window.location导航
+        window.location.href = '/'
+      })
+    })
+  } catch (error) {
+    console.error('导航错误:', error)
+    // 备用导航方法
+    window.location.href = '/'
+  }
+}
+
+const goToLogin = () => {
+  console.log('点击重新登录按钮')
+  // 尝试不同的导航方式
+  try {
+    router.push({ name: 'Login' }).catch(() => {
+      router.push({ path: '/login' }).catch(() => {
+        // 如果都失败，尝试直接通过window.location导航
+        window.location.href = '/login'
+      })
+    })
+  } catch (error) {
+    console.error('导航错误:', error)
+    // 备用导航方法
+    window.location.href = '/login'
+  }
+}
+</script>
 
 <style scoped>
 .error-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 80vh;
-  background: linear-gradient(135deg, #d4fc79 0%, #96e6a1 100%);
-  text-align: center;
+  height: 100vh;
+  background-color: #f0f2f5;
+  position: relative;
+  z-index: 1000;
 }
 
-.error-content {
-  background: rgba(255, 255, 255, 0.95);
-  padding: 40px;
-  border-radius: 12px;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-  animation: fadeIn 1s ease-in-out;
+:deep(.ant-result) {
+  position: relative;
+  z-index: 1001;
 }
 
-.error-image {
-  width: 150px;
-  margin-bottom: 20px;
-  animation: bounce 2s infinite;
+:deep(.ant-result-extra) {
+  position: relative;
+  z-index: 1002;
 }
 
-.error-content h1 {
-  font-size: 2.5rem;
-  margin-bottom: 15px;
-  color: #e67e22;
+.custom-icon {
+  font-size: 72px;
+  color: #ff4d4f;
 }
 
-.error-content p {
-  font-size: 1.1rem;
-  margin-bottom: 25px;
-  color: #555;
+:deep(.ant-result-title) {
+  color: #ff4d4f;
+  font-size: 72px;
+  font-weight: 600;
 }
 
-.button-group {
-  display: flex;
-  justify-content: center;
-  gap: 20px;
+:deep(.ant-result-subtitle) {
+  color: rgba(0, 0, 0, 0.45);
+  font-size: 20px;
+  margin-top: 16px;
 }
 
-.home-button,
-.login-button {
-  display: inline-block;
-  padding: 12px 24px;
-  background-color: #3498db;
-  color: white;
-  border-radius: 25px;
-  text-decoration: none;
-  font-weight: bold;
-  transition:
-    background-color 0.3s ease,
-    transform 0.3s ease;
+:deep(.ant-result-extra) {
+  margin-top: 32px;
 }
 
-.home-button:hover,
-.login-button:hover {
-  background-color: #2980b9;
-  transform: translateY(-2px);
+/* 强制应用按钮样式 */
+:deep(.ant-btn),
+.default-btn,
+.primary-btn {
+  height: 40px;
+  padding: 0 20px;
+  font-size: 16px;
+  border-radius: 4px;
+  position: relative;
+  z-index: 1003;
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
+:deep(.ant-btn-primary),
+.primary-btn {
+  background-color: #1890ff !important;
+  border-color: #1890ff !important;
+  color: #fff !important;
+  position: relative;
+  z-index: 1003;
 }
 
-@keyframes bounce {
-  0%,
-  20%,
-  50%,
-  80%,
-  100% {
-    transform: translateY(0);
-  }
-  40% {
-    transform: translateY(-10px);
-  }
-  60% {
-    transform: translateY(-5px);
-  }
+:deep(.ant-btn-primary:hover),
+.primary-btn:hover {
+  background-color: #40a9ff !important;
+  border-color: #40a9ff !important;
+}
+
+:deep(.ant-btn-default),
+.default-btn {
+  background-color: #fff !important;
+  border-color: #d9d9d9 !important;
+  color: rgba(0, 0, 0, 0.85) !important;
+  position: relative;
+  z-index: 1003;
+}
+
+:deep(.ant-btn-default:hover),
+.default-btn:hover {
+  color: #40a9ff !important;
+  border-color: #40a9ff !important;
+}
+
+/* 暗色模式支持 */
+html.dark .error-container {
+  background-color: #1f1f1f;
+}
+
+html.dark :deep(.ant-result-subtitle) {
+  color: rgba(255, 255, 255, 0.45);
+}
+
+html.dark .default-btn {
+  background-color: #1f1f1f !important;
+  color: rgba(255, 255, 255, 0.85) !important;
 }
 </style>

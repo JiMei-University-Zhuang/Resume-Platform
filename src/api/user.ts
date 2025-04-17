@@ -1,4 +1,5 @@
 import request from '@/utils/request'
+import type { IUserPageResponse, IUserQueryParams, IUser } from '@/types/user'
 
 export interface LoginParams {
   username: string
@@ -30,6 +31,45 @@ export interface LoginResult {
     }
   }
 }
+
+// 获取用户列表
+export function getUserList(data: IUserQueryParams) {
+  return request<IUserPageResponse>({
+    url: '/user/getList',
+    method: 'post',
+    data
+  })
+}
+
+// 添加用户
+export function addUser(data: Omit<IUser, 'id' | 'createTime'>) {
+  return request<IUser>({
+    url: '/user/add',
+    method: 'post',
+    data
+  })
+}
+
+// 编辑用户
+export function editUser(data: IUser) {
+  return request({
+    url: '/user/edit',
+    method: 'post',
+    data
+  })
+}
+
+//删除用户
+export function removeUser(id: string) {
+  return request({
+    url: '/user/remove',
+    method: 'post',
+    data: {
+      id
+    }
+  })
+}
+
 //账号密码登录
 export const login = (data: LoginParams): Promise<LoginResult> => {
   return request({
@@ -123,5 +163,14 @@ export function getUser() {
     headers: {
       Authorization: `${localStorage.getItem('token')}`
     }
+  })
+}
+
+// 获取指定ID的用户信息
+export function getUserById(id: string) {
+  return request<IUser>({
+    url: '/user/getById',
+    method: 'post',
+    data: { id }
   })
 }
