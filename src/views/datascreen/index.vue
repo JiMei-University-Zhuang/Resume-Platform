@@ -46,7 +46,7 @@
                 <DigitalFlop :config="activeUserCountConfig" />
               </div>
               <div class="grid-item">
-                <div class="chart-title" style="margin-bottom: 35px !important;">用户类型占比</div>
+                <div class="chart-title" style="margin-bottom: 35px !important">用户类型占比</div>
                 <ActiveRingChart :config="activeRingConfig" />
               </div>
               <div class="grid-item">
@@ -807,13 +807,13 @@ const updateLineChart = () => {
 const initAllCharts = () => {
   // 初始化主折线图
   initLineChart()
-  
+
   // 初始化访问趋势小折线图
   if (miniLineChartRef.value) {
     miniLineChart = echarts.init(miniLineChartRef.value)
     miniLineChart.setOption(miniLineChartConfig)
   }
-  
+
   // 初始化活跃时段柱状图
   if (hourlyBarChartRef.value) {
     hourlyBarChart = echarts.init(hourlyBarChartRef.value)
@@ -828,9 +828,9 @@ const updateMiniCharts = () => {
     const newData = Array(6)
       .fill(0)
       .map(() => Math.floor(15 + Math.random() * 65))
-    
+
     miniLineChartConfig.series[0].data = newData
-    
+
     miniLineChart.setOption({
       series: [
         {
@@ -839,7 +839,7 @@ const updateMiniCharts = () => {
       ]
     })
   }
-  
+
   // 更新活跃时段
   if (hourlyBarChart) {
     const newData = [
@@ -848,9 +848,9 @@ const updateMiniCharts = () => {
       Math.floor(50 + Math.random() * 30),
       Math.floor(30 + Math.random() * 30)
     ]
-    
+
     hourlyBarChartConfig.series[0].data = newData
-    
+
     hourlyBarChart.setOption({
       series: [
         {
@@ -859,7 +859,7 @@ const updateMiniCharts = () => {
       ]
     })
   }
-  
+
   // 更新今日访问人数数据
   const newUserCount = Math.floor(250 + Math.random() * 150)
   activeUserCountConfig.number = [newUserCount]
@@ -885,7 +885,7 @@ const refreshData = () => {
 
   // 更新日活跃用户环图数据
   const newUserPercent = Math.floor(30 + Math.random() * 10)
-  
+
   activeRingConfig.data = [
     {
       name: '新用户',
@@ -896,7 +896,7 @@ const refreshData = () => {
       value: 100 - newUserPercent
     }
   ]
-  
+
   // 更新所有小图表
   updateMiniCharts()
 
@@ -1002,13 +1002,13 @@ onUnmounted(() => {
     lineChart.dispose()
     lineChart = null
   }
-  
+
   // 销毁小图表实例
   if (miniLineChart) {
     miniLineChart.dispose()
     miniLineChart = null
   }
-  
+
   if (hourlyBarChart) {
     hourlyBarChart.dispose()
     hourlyBarChart = null
@@ -1218,7 +1218,7 @@ const hourlyBarChartRef = ref(null)
 
         &.active-users-container {
           padding: 10px;
-          
+
           .active-users-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -1226,7 +1226,7 @@ const hourlyBarChartRef = ref(null)
             gap: 10px;
             width: 100%;
             height: 100%;
-            
+
             .grid-item {
               position: relative;
               background: rgba(6, 30, 93, 0.3);
@@ -1237,7 +1237,7 @@ const hourlyBarChartRef = ref(null)
               align-items: center;
               justify-content: center;
               overflow: hidden;
-              
+
               &::before {
                 content: '';
                 position: absolute;
@@ -1245,9 +1245,14 @@ const hourlyBarChartRef = ref(null)
                 left: 0;
                 right: 0;
                 height: 2px;
-                background: linear-gradient(to right, transparent, rgba(0, 198, 255, 0.5), transparent);
+                background: linear-gradient(
+                  to right,
+                  transparent,
+                  rgba(0, 198, 255, 0.5),
+                  transparent
+                );
               }
-              
+
               .chart-title {
                 position: absolute;
                 top: 5px;
@@ -1258,7 +1263,7 @@ const hourlyBarChartRef = ref(null)
                 color: rgba(126, 185, 255, 0.9);
                 z-index: 5;
               }
-              
+
               .mini-chart {
                 width: 100%;
                 height: 100%;
@@ -1266,15 +1271,15 @@ const hourlyBarChartRef = ref(null)
               }
               &:nth-child(1) {
                 padding-top: 12px;
-                
+
                 .dv-active-ring-chart {
                   margin-top: 10px;
                 }
               }
-              
+
               &:nth-child(2) {
                 padding-top: 12px;
-                
+
                 .dv-active-ring-chart {
                   margin-top: 10px;
                 }
