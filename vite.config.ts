@@ -26,49 +26,50 @@ const copyLocalesPlugin = () => {
         const srcDir = path.resolve(__dirname, 'src/locales')
         // 目标目录 (dist/locales)
         const destDir = path.resolve(__dirname, 'dist/locales')
-        
+
         // 确保目标目录存在
         if (!fs.existsSync(destDir)) {
           fs.mkdirSync(destDir, { recursive: true })
         }
-        
+
         // 读取源目录中的所有TS文件
         const files = fs.readdirSync(srcDir)
-        
+
         // 处理每个文件
         for (const file of files) {
           if (file.endsWith('.ts')) {
             // 源文件路径
             const srcFile = path.join(srcDir, file)
-            
+
             // 读取TS文件内容
             const content = fs.readFileSync(srcFile, 'utf-8')
-            
+
             // 简单地提取对象内容 (这是一个简化的实现，可能需要使用AST解析器处理更复杂的情况)
             const match = content.match(/export\s+default\s+({[\s\S]*})/)
-            
+
             if (match && match[1]) {
               // 提取语言对象部分
               const langObject = match[1]
-              
+
               // 输出JSON文件名
               const jsonFile = path.join(destDir, file.replace('.ts', '.json'))
-              
+
               // 尝试将对象字符串转换为JSON
               try {
                 // 将对象字符串转换为实际对象
                 // 注意：在实际生产中使用eval并不是最佳实践，但这里为了简单处理
-                const objStr = langObject.replace(/(\w+):/g, '"$1":')
-                                          .replace(/,\s*}/g, '}')
-                                          .replace(/'/g, '"')
+                const objStr = langObject
+                  .replace(/(\w+):/g, '"$1":')
+                  .replace(/,\s*}/g, '}')
+                  .replace(/'/g, '"')
                 const obj = JSON.parse(objStr)
-                
+
                 // 写入JSON文件
                 fs.writeFileSync(jsonFile, JSON.stringify(obj, null, 2), 'utf-8')
                 console.log(`✅ 成功将 ${file} 转换并复制到 ${jsonFile}`)
               } catch (err) {
                 console.error(`❌ 转换 ${file} 时出错:`, err)
-                
+
                 // 备用方案：直接使用 require 加载对象
                 try {
                   if (file === 'en.ts') {
@@ -92,16 +93,16 @@ const copyLocalesPlugin = () => {
                   }
                 } catch (backupErr) {
                   console.error(`❌ 备用方案也失败:`, backupErr)
-                  
+
                   // 最终备用方案：手动复制已知内容
                   if (file === 'en.ts') {
                     fs.copyFileSync(
-                      path.resolve(__dirname, 'src/locales/en.json'), 
+                      path.resolve(__dirname, 'src/locales/en.json'),
                       path.join(destDir, 'en.json')
                     )
                   } else if (file === 'zh-cn.ts') {
                     fs.copyFileSync(
-                      path.resolve(__dirname, 'src/locales/zh-cn.json'), 
+                      path.resolve(__dirname, 'src/locales/zh-cn.json'),
                       path.join(destDir, 'zh-cn.json')
                     )
                   }
@@ -110,7 +111,7 @@ const copyLocalesPlugin = () => {
             }
           }
         }
-        
+
         console.log('✅ 语言文件复制完成')
       } catch (err) {
         console.error('❌ 复制语言文件失败:', err)
@@ -209,8 +210,8 @@ export default defineConfig({
         },
         secure: false
       },
-       // 其他API - 保留/api前缀
-       '^/api': {
+      // 其他API - 保留/api前缀
+      '^/api': {
         target: apiBaseUrl,
         changeOrigin: true,
         rewrite: function (path) {
@@ -231,8 +232,8 @@ export default defineConfig({
         pure_funcs: ['console.log']
       }
     },
-     // 调整代码分割策略，防止初始化顺序问题
-     rollupOptions: {
+    // 调整代码分割策略，防止初始化顺序问题
+    rollupOptions: {
       output: {
         // 不再使用 manualChunks，改为更简单的分块策略
         manualChunks(id) {
@@ -245,8 +246,7 @@ export default defineConfig({
             return 'ui-libraries'
           }
           // 确保 vue-i18n 被正确打包
-          if (id.includes('node_modules/vue-i18n') || 
-              id.includes('node_modules/@intlify')) {
+          if (id.includes('node_modules/vue-i18n') || id.includes('node_modules/@intlify')) {
             return 'i18n-vendor'
           }
           // 基本库打包到 vendor 中
