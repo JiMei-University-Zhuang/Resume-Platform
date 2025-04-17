@@ -494,13 +494,6 @@ onMounted(() => {
 // 模拟试卷数据
 const papers = ref([
   {
-    id: 1,
-    title: '2024年考研数学一模拟试卷',
-    description: '适合数学与应用数学、计算数学等学科专业的考生备考',
-    category: 'math',
-    imageUrl: zhengzhi1Image
-  },
-  {
     id: 2,
     title: '计算机学科 数据结构专题',
     description: '涵盖树、图、排序算法等重点考察内容',
@@ -526,13 +519,6 @@ const papers = ref([
     title: '2024年考研政治真题',
     description: '历年真题解析及答题技巧',
     category: 'politics',
-    imageUrl: zhengzhi1Image
-  },
-  {
-    id: 7,
-    title: '计算机网络与操作系统',
-    description: '计算机专业核心知识点练习',
-    category: 'professional',
     imageUrl: zhengzhi1Image
   },
   {
