@@ -51,6 +51,28 @@
 
         <a-row :gutter="24">
           <a-col :span="12">
+            <!-- 性别 -->
+            <a-form-item label="性别" name="sex">
+              <a-radio-group v-model:value="userForm.sex">
+                <a-radio :value="1">男</a-radio>
+                <a-radio :value="0">女</a-radio>
+                <a-radio :value="2">保密</a-radio>
+              </a-radio-group>
+            </a-form-item>
+          </a-col>
+          <a-col :span="12">
+            <!-- 状态 -->
+            <a-form-item label="状态" name="enabled">
+              <a-radio-group v-model:value="userForm.enabled">
+                <a-radio :value="1">启用</a-radio>
+                <a-radio :value="0">禁用</a-radio>
+              </a-radio-group>
+            </a-form-item>
+          </a-col>
+        </a-row>
+
+        <a-row :gutter="24">
+          <a-col :span="12">
             <!-- 密码 -->
             <a-form-item
               label="密码"
@@ -119,6 +141,8 @@ import { ref, reactive, onMounted, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { message } from 'ant-design-vue'
 import { ArrowLeftOutlined } from '@ant-design/icons-vue'
+import { editUser, getUserList } from '@/api/user'
+import type { IUserQueryParams } from '@/types/user'
 
 // 表单引用
 const formRef = ref()
@@ -143,6 +167,8 @@ const userForm = reactive({
   email: '',
   telephone: '',
   role: 'USER',
+  sex: 0, // 默认性别值
+  enabled: 1, // 默认启用状态
   createTime: ''
 })
 
@@ -157,32 +183,47 @@ const rules = {
     { required: true, message: '请输入邮箱', trigger: 'blur' },
     { type: 'email', message: '请输入正确的邮箱地址', trigger: 'blur' }
   ],
-  role: [{ required: true, message: '请选择角色', trigger: 'change' }]
+  role: [{ required: true, message: '请选择角色', trigger: 'change' }],
+  sex: [{ required: true, message: '请选择性别', trigger: 'change' }],
+  enabled: [{ required: true, message: '请选择状态', trigger: 'change' }]
 }
 
 // 获取用户信息
 const fetchUserInfo = (id: string) => {
   loading.value = true
 
-  // 模拟API调用
-  setTimeout(() => {
-    // 在实际应用中，这里应该是真实的API调用
-    const mockUser = {
-      id: id,
-      username: 'user' + id,
-      password: '',
-      name: '用户' + id,
-      avatar: 'https://avatars.githubusercontent.com/u/1000000' + id,
-      email: 'user' + id + '@example.com',
-      telephone: '1380013800' + id,
-      role: 'USER',
-      createTime: '2025-04-01 10:00:00'
-    }
+  // 由于没有根据ID查找的接口，我们使用getUserList并从结果中查找目标用户
+  const params: IUserQueryParams = {
+    pageNum: 1,
+    pageSize: 100 // 设置较大的页面大小，确保能获取到目标用户
+  }
 
-    // 填充表单
-    Object.assign(userForm, mockUser)
-    loading.value = false
-  }, 500)
+  // 尝试通过URL中的用户信息进行更精确的查询
+  const userInfo = router.currentRoute.value.query
+  if (userInfo && userInfo.username) {
+    params.username = userInfo.username as string
+  }
+
+  getUserList(params)
+    .then(res => {
+      // 从返回的用户列表中筛选ID匹配的用户
+      const targetUser = res.data.records.find(user => user.id === id)
+
+      if (targetUser) {
+        // 找到目标用户，填充表单
+        Object.assign(userForm, targetUser)
+        console.log('获取用户数据成功:', targetUser)
+      } else {
+        // 没有找到目标用户
+        message.error(`未找到ID为 ${id} 的用户数据`)
+      }
+    })
+    .catch(error => {
+      message.error(`获取用户信息失败: ${error.message || '未知错误'}`)
+    })
+    .finally(() => {
+      loading.value = false
+    })
 }
 
 // 提交表单
@@ -192,13 +233,39 @@ const submitForm = () => {
     .then(() => {
       loading.value = true
 
-      // 模拟API调用
-      setTimeout(() => {
-        // 在实际应用中，这里应该是真实的API调用
-        loading.value = false
-        message.success(`用户 ${userForm.username} ${isEdit.value ? '更新' : '创建'}成功！`)
-        goBack()
-      }, 800)
+      // 如果密码为空，并且是编辑模式，则不提交密码字段
+      const submitData = { ...userForm }
+      if (isEdit.value && !submitData.password) {
+        // 直接从对象中删除密码属性，而不是设置为undefined或空字符串
+        const { password, ...dataWithoutPassword } = submitData
+        // 调用真实的API更新用户
+        editUser(dataWithoutPassword)
+          .then(() => {
+            message.success(`用户 ${userForm.username} 更新成功！`)
+            goBack()
+          })
+          .catch(error => {
+            message.error(`更新用户失败: ${error.message || '未知错误'}`)
+          })
+          .finally(() => {
+            loading.value = false
+          })
+      } else {
+        // 密码不为空或者是新增用户，提交所有数据
+        editUser(submitData)
+          .then(() => {
+            message.success(`用户 ${userForm.username} ${isEdit.value ? '更新' : '创建'}成功！`)
+            goBack()
+          })
+          .catch(error => {
+            message.error(
+              `${isEdit.value ? '更新' : '创建'}用户失败: ${error.message || '未知错误'}`
+            )
+          })
+          .finally(() => {
+            loading.value = false
+          })
+      }
     })
     .catch((errorInfo: any) => {
       console.error('表单验证错误:', errorInfo)

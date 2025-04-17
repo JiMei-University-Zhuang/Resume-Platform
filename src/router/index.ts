@@ -284,6 +284,12 @@ const routes: RouteRecordRaw[] = [
             name: 'EnglishAnswer',
             component: () => import('@/views/exam/EnglishAnswer.vue'),
             meta: { title: '英语答题' }
+          },
+          {
+            path: 'history-answer',
+            name: 'HistoryAnswer',
+            component: () => import('@/views/exam/HistoryAnswer.vue'),
+            meta: { title: '历史学专业课答题' }
           }
         ]
       }

@@ -159,7 +159,38 @@ export function getPsychologyExam(examName: string, retryCount = 2) {
           (error.response?.status >= 500 || error.code === 'ECONNABORTED') &&
           currentRetry < retryCount
         ) {
-          console.log(`获取心理学试卷失败，准备第${currentRetry + 1}次重试...`)
+          // 指数退避策略，增加重试间隔
+          const retryDelay = Math.min(1000 * 2 ** currentRetry, 5000)
+
+          setTimeout(() => {
+            fetchData(currentRetry + 1)
+          }, retryDelay)
+        } else {
+          reject(error)
+        }
+      }
+    }
+
+    fetchData()
+  })
+}
+
+export function getHistoryExam(examName: string, retryCount = 2) {
+  return new Promise((resolve, reject) => {
+    const fetchData = async (currentRetry = 0) => {
+      try {
+        const response = await request({
+          url: '/exam/getHistoryExam',
+          method: 'post',
+          data: { examName }
+        })
+        resolve(response)
+      } catch (error: any) {
+        // 如果是网络错误或服务器错误，且还有重试次数，则重试
+        if (
+          (error.response?.status >= 500 || error.code === 'ECONNABORTED') &&
+          currentRetry < retryCount
+        ) {
           // 指数退避策略，增加重试间隔
           const retryDelay = Math.min(1000 * 2 ** currentRetry, 5000)
 
