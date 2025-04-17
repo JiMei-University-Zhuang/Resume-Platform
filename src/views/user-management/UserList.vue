@@ -22,6 +22,7 @@
             placeholder="请选择角色"
             style="width: 150px"
             allow-clear
+            @change="handleRoleChange"
           >
             <a-select-option value="ADMIN">管理员</a-select-option>
             <a-select-option value="USER">普通用户</a-select-option>
@@ -40,6 +41,27 @@
           </a-space>
         </a-form-item>
       </a-form>
+
+      <!-- 筛选条件标签 -->
+      <div v-if="hasActiveFilters" class="filter-tags">
+        <span class="filter-label">筛选条件:</span>
+        <a-space>
+          <a-tag v-if="searchForm.username" closable @close="clearUsernameFilter" color="blue">
+            <template #icon><user-outlined /></template>
+            用户名: {{ searchForm.username }}
+          </a-tag>
+          <a-tag
+            v-if="searchForm.role"
+            closable
+            @close="clearRoleFilter"
+            :color="getRoleTagColor(searchForm.role)"
+          >
+            <template #icon><team-outlined /></template>
+            角色: {{ getRoleDisplayName(searchForm.role) }}
+          </a-tag>
+          <a-button type="link" @click="resetSearch" size="small"> 清除全部 </a-button>
+        </a-space>
+      </div>
 
       <!-- 用户列表表格 -->
       <a-table
@@ -83,6 +105,16 @@
               </a-popconfirm>
             </a-space>
           </template>
+        </template>
+
+        <!-- 空状态展示 -->
+        <template #emptyText>
+          <div class="empty-wrapper">
+            <inbox-outlined style="font-size: 48px; color: #bfbfbf" />
+            <p v-if="hasActiveFilters">没有符合筛选条件的用户</p>
+            <p v-else>暂无用户数据</p>
+            <a-button v-if="hasActiveFilters" @click="resetSearch">清除筛选条件</a-button>
+          </div>
         </template>
       </a-table>
 
@@ -149,6 +181,28 @@
 
         <a-row :gutter="24">
           <a-col :span="12">
+            <!-- 性别 -->
+            <a-form-item label="性别" name="sex">
+              <a-radio-group v-model:value="addUserForm.sex">
+                <a-radio :value="1">男</a-radio>
+                <a-radio :value="0">女</a-radio>
+                <a-radio :value="2">保密</a-radio>
+              </a-radio-group>
+            </a-form-item>
+          </a-col>
+          <a-col :span="12">
+            <!-- 状态 -->
+            <a-form-item label="状态" name="enabled">
+              <a-radio-group v-model:value="addUserForm.enabled">
+                <a-radio :value="1">启用</a-radio>
+                <a-radio :value="0">禁用</a-radio>
+              </a-radio-group>
+            </a-form-item>
+          </a-col>
+        </a-row>
+
+        <a-row :gutter="24">
+          <a-col :span="12">
             <!-- 密码 -->
             <a-form-item
               label="密码"
@@ -207,7 +261,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { message } from 'ant-design-vue'
 import {
@@ -215,8 +269,13 @@ import {
   SearchOutlined,
   RedoOutlined,
   EditOutlined,
-  DeleteOutlined
+  DeleteOutlined,
+  UserOutlined,
+  TeamOutlined,
+  InboxOutlined
 } from '@ant-design/icons-vue'
+import { getUserList, addUser, removeUser } from '@/api/user'
+import type { IUserQueryParams, IUser } from '@/types/user'
 
 // 表格列定义
 const columns = [
@@ -260,7 +319,12 @@ const columns = [
     title: '角色',
     dataIndex: 'role',
     key: 'role',
-    width: 100
+    width: 100,
+    filters: [
+      { text: '管理员', value: 'ADMIN' },
+      { text: '普通用户', value: 'USER' }
+    ],
+    onFilter: (value: string, record: User) => record.role === value
   },
   {
     title: '创建时间',
@@ -276,18 +340,9 @@ const columns = [
   }
 ]
 
-// 模拟的用户列表数据
-interface User {
-  id: string
-  username: string
-  password?: string
-  name: string
-  avatar: string
-  email: string
-  telephone?: string
-  enabled: number
-  role: string
-  createTime: string
+// 用户列表数据
+interface User extends IUser {
+  avatar: string // 确保头像字段存在并必选
 }
 
 const router = useRouter()
@@ -341,7 +396,9 @@ const addUserForm = reactive({
   avatar: '',
   email: '',
   telephone: '',
-  role: 'USER'
+  role: 'USER',
+  sex: 0, // 默认性别值
+  enabled: 1 // 默认启用状态
 })
 
 // 用户表单验证规则
@@ -355,7 +412,9 @@ const userFormRules = {
     { required: true, message: '请输入邮箱', trigger: 'blur' },
     { type: 'email', message: '请输入正确的邮箱地址', trigger: 'blur' }
   ],
-  role: [{ required: true, message: '请选择角色', trigger: 'change' }]
+  role: [{ required: true, message: '请选择角色', trigger: 'change' }],
+  sex: [{ required: true, message: '请选择性别', trigger: 'change' }],
+  enabled: [{ required: true, message: '请选择状态', trigger: 'change' }]
 }
 
 // 添加用户
@@ -376,15 +435,20 @@ const handleAddUserSubmit = () => {
     .then(() => {
       submitting.value = true
 
-      // 模拟API调用
-      setTimeout(() => {
-        // 在实际应用中，这里应该是真实的API调用
-        submitting.value = false
-        message.success(`用户 ${addUserForm.username} 创建成功！`)
-        addUserModalVisible.value = false
-        addFormRef.value.resetFields()
-        fetchUserList() // 重新加载数据
-      }, 800)
+      // 使用真实API添加用户
+      addUser(addUserForm)
+        .then(() => {
+          message.success(`用户 ${addUserForm.username} 创建成功！`)
+          addUserModalVisible.value = false
+          addFormRef.value.resetFields()
+          fetchUserList() // 重新加载数据
+        })
+        .catch(error => {
+          message.error(`创建用户失败: ${error.message || '未知错误'}`)
+        })
+        .finally(() => {
+          submitting.value = false
+        })
     })
     .catch((errorInfo: any) => {
       console.error('表单验证错误:', errorInfo)
@@ -393,106 +457,111 @@ const handleAddUserSubmit = () => {
 
 // 编辑用户
 const handleEditUser = (user: User) => {
-  router.push(`/user-management/edit/${user.id}`)
+  router.push({
+    path: `/user-management/edit/${user.id}`,
+    query: {
+      username: user.username
+    }
+  })
 }
 
 // 删除用户
 const handleDeleteUser = (user: User) => {
-  // 这里应该调用删除用户的API
-  // 模拟删除成功
-  setTimeout(() => {
-    message.success(`用户 "${user.username}" 已删除`)
-    fetchUserList() // 重新加载数据
-  }, 500)
+  loading.value = true
+
+  // 处理可能的undefined情况
+  const userId = user.id || ''
+
+  // 使用真实API删除用户
+  removeUser(userId)
+    .then(() => {
+      message.success(`用户 "${user.username}" 已删除`)
+      fetchUserList() // 重新加载数据
+    })
+    .catch(error => {
+      message.error(`删除用户失败: ${error.message || '未知错误'}`)
+      loading.value = false
+    })
+}
+
+// 判断是否有激活的筛选条件
+const hasActiveFilters = computed(() => {
+  return !!searchForm.username || !!searchForm.role
+})
+
+// 获取角色显示名称
+const getRoleDisplayName = (role: string): string => {
+  return role === 'ADMIN' ? '管理员' : '普通用户'
+}
+
+// 获取角色标签颜色
+const getRoleTagColor = (role: string): string => {
+  return role === 'ADMIN' ? 'green' : 'blue'
+}
+
+// 角色变更处理
+const handleRoleChange = () => {
+  // 如果需要立即触发搜索，取消下面的注释
+  // handleSearch()
+}
+
+// 清除用户名筛选
+const clearUsernameFilter = () => {
+  searchForm.username = ''
+  handleSearch()
+}
+
+// 清除角色筛选
+const clearRoleFilter = () => {
+  searchForm.role = undefined
+  handleSearch()
 }
 
 // 获取用户列表数据
 const fetchUserList = () => {
   loading.value = true
 
-  // 模拟API调用
-  setTimeout(() => {
-    // 这里应该是真实的API调用
-    // 模拟数据生成
-    const mockUsers: User[] = [
-      {
-        id: '1',
-        username: 'admin',
-        name: '管理员',
-        avatar: 'https://369.taiyanyouxi.com/avatar/20250403003749.png',
-        email: 'admin@example.com',
-        telephone: '13800138000',
-        enabled: 1,
-        role: 'ADMIN',
-        createTime: '2025-04-01 10:00:00'
-      },
-      {
-        id: '2',
-        username: 'user1',
-        name: '张三',
-        avatar: 'https://avatars.githubusercontent.com/u/10000000',
-        email: 'user1@example.com',
-        telephone: '13800138001',
-        enabled: 1,
-        role: 'USER',
-        createTime: '2025-04-02 11:30:00'
-      },
-      {
-        id: '3',
-        username: 'user2',
-        name: '李四',
-        avatar: 'https://avatars.githubusercontent.com/u/10000001',
-        email: 'user2@example.com',
-        telephone: '13800138002',
-        enabled: 0,
-        role: 'USER',
-        createTime: '2025-04-03 09:15:00'
-      },
-      {
-        id: '4',
-        username: 'user3',
-        name: '王五',
-        avatar: 'https://avatars.githubusercontent.com/u/10000002',
-        email: 'user3@example.com',
-        telephone: '13800138003',
-        enabled: 1,
-        role: 'USER',
-        createTime: '2025-04-04 14:20:00'
-      },
-      {
-        id: '5',
-        username: 'user4',
-        name: '赵六',
-        avatar: 'https://avatars.githubusercontent.com/u/10000003',
-        email: 'user4@example.com',
-        telephone: '13800138004',
-        enabled: 1,
-        role: 'USER',
-        createTime: '2025-04-05 16:45:00'
+  // 构建查询参数
+  const queryParams: IUserQueryParams = {
+    pageNum: currentPage.value,
+    pageSize: pageSize.value,
+    username: searchForm.username || undefined,
+    role: searchForm.role // 确保传递角色参数
+  }
+
+  // 使用真实API获取用户列表
+  getUserList(queryParams)
+    .then(res => {
+      let filteredRecords = res.data.records
+
+      // 前端再次过滤以确保角色筛选生效
+      if (searchForm.role) {
+        filteredRecords = filteredRecords.filter(user => user.role === searchForm.role)
       }
-    ]
 
-    // 根据搜索条件筛选
-    let filteredUsers = mockUsers
+      // 使用类型断言解决类型不匹配问题
+      userList.value = filteredRecords as User[]
 
-    if (searchForm.username) {
-      filteredUsers = filteredUsers.filter(user =>
-        user.username.toLowerCase().includes(searchForm.username.toLowerCase())
-      )
-    }
+      // 更新总数以反映过滤后的实际数量
+      if (searchForm.role && filteredRecords.length !== res.data.records.length) {
+        total.value = filteredRecords.length
+      } else {
+        total.value = res.data.total
+      }
 
-    if (searchForm.role) {
-      filteredUsers = filteredUsers.filter(user => user.role === searchForm.role)
-    }
-
-    // 模拟分页
-    total.value = filteredUsers.length
-    const start = (currentPage.value - 1) * pageSize.value
-    const end = start + pageSize.value
-    userList.value = filteredUsers.slice(start, end)
-
-    loading.value = false
-  }, 500)
+      // 如果没有数据且有筛选条件
+      if (filteredRecords.length === 0 && (!!searchForm.username || !!searchForm.role)) {
+        message.info('没有符合筛选条件的用户数据')
+      }
+    })
+    .catch(error => {
+      message.error(`获取用户列表失败: ${error.message || '未知错误'}`)
+      userList.value = []
+      total.value = 0
+    })
+    .finally(() => {
+      loading.value = false
+    })
 }
 
 onMounted(() => {
@@ -636,5 +705,39 @@ html.dark .preview-label {
   .ant-form-item {
     margin-bottom: 16px;
   }
+}
+
+.filter-tags {
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.filter-label {
+  margin-right: 8px;
+  color: rgba(0, 0, 0, 0.45);
+  font-size: 14px;
+}
+
+.empty-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 0;
+}
+
+.empty-wrapper p {
+  margin: 16px 0;
+  color: rgba(0, 0, 0, 0.45);
+}
+
+html.dark .filter-label {
+  color: rgba(255, 255, 255, 0.45);
+}
+
+html.dark .empty-wrapper p {
+  color: rgba(255, 255, 255, 0.45);
 }
 </style>

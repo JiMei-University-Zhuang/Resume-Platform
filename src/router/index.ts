@@ -274,10 +274,22 @@ const routes: RouteRecordRaw[] = [
             meta: { title: '计算机专业课答题' }
           },
           {
+            path: 'psychology-answer',
+            name: 'PsychologyAnswer',
+            component: () => import('@/views/exam/PsychologyAnswer.vue'),
+            meta: { title: '心理学专业课答题' }
+          },
+          {
             path: 'english-answer',
             name: 'EnglishAnswer',
             component: () => import('@/views/exam/EnglishAnswer.vue'),
             meta: { title: '英语答题' }
+          },
+          {
+            path: 'history-answer',
+            name: 'HistoryAnswer',
+            component: () => import('@/views/exam/HistoryAnswer.vue'),
+            meta: { title: '历史学专业课答题' }
           }
         ]
       }

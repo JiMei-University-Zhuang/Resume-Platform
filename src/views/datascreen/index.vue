@@ -1,12 +1,19 @@
 <template>
   <div class="data-screen-container">
-    <!-- 全屏控制 -->
-    <div class="fullscreen-control" @click="toggleFullScreen">
-      <i :class="isFullscreen ? 'el-icon-close' : 'el-icon-full-screen'"></i>
+    <!-- 全屏控制和返回主页按钮 -->
+    <div class="screen-controls">
+      <div class="control-button fullscreen-control" @click="toggleFullScreen">
+        <el-icon size="24">
+          <FullScreen v-if="!isFullscreen" />
+          <Close v-else />
+        </el-icon>
+      </div>
+      <div class="control-button home-control" @click="returnHome">
+        <el-icon size="24"><HomeFilled /></el-icon>
+      </div>
     </div>
 
     <!-- 头部 -->
-    <Decoration10 class="header-decoration" />
     <header class="header">
       <div class="header-left">
         <Decoration5 style="width: 200px; height: 60px" />
@@ -20,6 +27,8 @@
         <Decoration5 style="width: 200px; height: 60px" :reverse="true" />
       </div>
     </header>
+    
+    <Decoration10 class="header-decoration" />
 
     <!-- 主体内容 -->
     <main class="main-content">
@@ -97,7 +106,6 @@ import { ref, onMounted, onUnmounted, reactive, nextTick, watch } from 'vue'
 import { useEventListener } from '@vueuse/core'
 import { gsap } from 'gsap'
 
-// 确保正确引入DataV组件，使用正确的大写命名
 import {
   BorderBox7,
   BorderBox8,
@@ -151,6 +159,11 @@ const toggleFullScreen = () => {
       isFullscreen.value = false
     }
   }
+}
+
+// 返回主页
+const returnHome = () => {
+  window.location.href = '/'
 }
 
 // 自动刷新数据的定时器
@@ -275,22 +288,27 @@ const ageDistributionConfig = reactive({
 
 // 用户地域分布配置
 const regionConfig = reactive({
-  header: ['城市', '职业规划数', '简历生成数', '就业成功率'],
+  header: ['城市', '规划数', '简历数', '投递率'],
   data: [
-    ['北京', '1,245', '986', '85%'],
-    ['上海', '1,087', '876', '82%'],
-    ['广州', '854', '721', '78%'],
-    ['深圳', '832', '687', '80%'],
-    ['杭州', '587', '491', '75%'],
-    ['成都', '476', '365', '72%'],
-    ['武汉', '465', '343', '70%'],
-    ['南京', '354', '302', '68%'],
-    ['西安', '343', '274', '65%'],
-    ['重庆', '332', '287', '62%']
+    ['<span style="color:#37a2da;">北京</span>', '1,245', '986', '<span style="color:#67e0e3;">85%</span>'],
+    ['<span style="color:#32c5e9;">上海</span>', '1,087', '876', '<span style="color:#9fe6b8;">82%</span>'],
+    ['<span style="color:#ffdb5c;">广州</span>', '854', '721', '<span style="color:#ff9f7f;">78%</span>'],
+    ['<span style="color:#fb7293;">深圳</span>', '832', '687', '<span style="color:#e062ae;">80%</span>'],
+    ['杭州', '<span style="color:#37a2da;">587</span>', '491', '75%'],
+    ['成都', '<span style="color:#32c5e9;">476</span>', '365', '72%'],
+    ['武汉', '<span style="color:#ffdb5c;">465</span>', '343', '70%'],
+    ['南京', '354', '<span style="color:#fb7293;">302</span>', '68%'],
+    ['西安', '343', '<span style="color:#e062ae;">274</span>', '65%'],
+    ['重庆', '332', '<span style="color:#e7bcf3;">287</span>', '62%']
   ],
   index: true,
-  columnWidth: [80],
-  align: ['center']
+  columnWidth: [60, 65, 65, 65],  // 进一步调整列宽
+  align: ['center', 'center', 'center', 'center'], // 所有列居中对齐
+  headerBGC: 'rgba(0, 80, 179, 0.6)', // 增加表头背景色明显度
+  headerHeight: 45, // 增加表头高度
+  oddRowBGC: 'rgba(0, 72, 179, 0.1)', // 奇数行背景色
+  evenRowBGC: 'rgba(0, 72, 179, 0.2)', // 偶数行背景色
+  waitTime: 2000 // 每页停留3秒
 })
 
 // 每日答题量折线图配置
@@ -656,13 +674,43 @@ onUnmounted(() => {
     }
   }
 
+  // 返回主页按钮
+  .home-control {
+    position: absolute;
+    top: 20px;
+    right: 70px;
+    width: 40px;
+    height: 40px;
+    background: rgba(0, 30, 60, 0.7);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 100;
+    border: 1px solid rgba(0, 198, 255, 0.4);
+    box-shadow: 0 0 10px rgba(0, 198, 255, 0.3);
+    transition: all 0.3s;
+
+    &:hover {
+      background: rgba(0, 40, 80, 0.9);
+      transform: scale(1.1);
+    }
+
+    i {
+      font-size: 20px;
+      color: #0ff;
+    }
+  }
+
   // 头部装饰
   .header-decoration {
     position: absolute;
-    top: 0;
+    top: 40px; /* 调整到header高度位置 */
     left: 0;
     width: 100%;
     height: 5px;
+    z-index: 10; /* 确保在其他元素之上 */
   }
 
   // 头部
