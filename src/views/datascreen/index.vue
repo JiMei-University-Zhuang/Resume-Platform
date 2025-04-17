@@ -27,7 +27,7 @@
         <Decoration5 style="width: 200px; height: 60px" :reverse="true" />
       </div>
     </header>
-    
+
     <Decoration10 class="header-decoration" />
 
     <!-- 主体内容 -->
@@ -37,8 +37,9 @@
         <BorderBox8 class="panel-item">
           <div class="panel-header">
             <h3>日活跃用户</h3>
+            <Decoration1 style="width: 40px; height: 25px; margin-left: 5px;">实时监控</Decoration1>
           </div>
-          <div class="chart-container" v-if="mounted">
+          <div class="chart-container active-users-container" v-if="mounted">
             <ActiveRingChart :config="activeRingConfig" />
           </div>
         </BorderBox8>
@@ -58,6 +59,7 @@
         <BorderBox7 class="panel-item center-top">
           <div class="panel-header center">
             <h3>核心指标</h3>
+            <!-- <Decoration11 style="width:150px; height:30px;">核心指标</Decoration11> -->
           </div>
           <div class="data-overview">
             <div class="overview-item" v-for="(item, index) in overviewData" :key="index">
@@ -82,6 +84,7 @@
         <BorderBox8 class="panel-item">
           <div class="panel-header">
             <h3>用户地域分布</h3>
+            <Decoration6 style="width:100px; height:30px;" />
           </div>
           <div class="chart-container" v-if="mounted">
             <ScrollBoard :config="regionConfig" />
@@ -91,8 +94,9 @@
         <BorderBox8 class="panel-item">
           <div class="panel-header">
             <h3>简历制作量</h3>
+            <Decoration1 style="width: 100px; height: 25px; margin-left: 10px;">实时数据</Decoration1>
           </div>
-          <div class="chart-container" v-if="mounted">
+          <div class="chart-container resume-container" v-if="mounted">
             <WaterLevelPond :config="resumeConfig" />
           </div>
         </BorderBox8>
@@ -112,6 +116,9 @@ import {
   BorderBox12,
   Decoration5,
   Decoration10,
+  Decoration1,
+  Decoration6,
+  Decoration11,
   ActiveRingChart,
   CapsuleChart,
   DigitalFlop,
@@ -173,15 +180,21 @@ let dataRefreshTimer: number | null = null
 const overviewData = ref([
   {
     label: '总用户数',
-    value: 15862,
+    value: 662,
     unit: '人',
     config: {
-      number: [15862],
+      number: [662],
       content: '{nt}',
       style: {
-        fontSize: 36,
-        fill: '#58a1ff'
-      }
+        fontSize: 48,
+        fill: '#58a1ff',
+        fontWeight: 'bold',
+        textShadow: '0 0 10px rgba(88, 161, 255, 0.8)'
+      },
+      toFixed: 0,
+      rowGap: 0,
+      animationCurve: 'easeOutCubic',
+      animationFrame: 50
     }
   },
   {
@@ -192,9 +205,15 @@ const overviewData = ref([
       number: [7843],
       content: '{nt}',
       style: {
-        fontSize: 36,
-        fill: '#58a1ff'
-      }
+        fontSize: 48,
+        fill: '#00baff', 
+        fontWeight: 'bold',
+        textShadow: '0 0 10px rgba(0, 186, 255, 0.8)'
+      },
+      toFixed: 0,
+      rowGap: 0,
+      animationCurve: 'easeOutCubic',
+      animationFrame: 50
     }
   },
   {
@@ -205,22 +224,15 @@ const overviewData = ref([
       number: [5621],
       content: '{nt}',
       style: {
-        fontSize: 36,
-        fill: '#58a1ff'
-      }
-    }
-  },
-  {
-    label: '就业成功率',
-    value: 82,
-    unit: '%',
-    config: {
-      number: [82],
-      content: '{nt}%',
-      style: {
-        fontSize: 36,
-        fill: '#58a1ff'
-      }
+        fontSize: 48,
+        fill: '#3de7c9',
+        fontWeight: 'bold',
+        textShadow: '0 0 10px rgba(61, 231, 201, 0.8)'
+      },
+      toFixed: 0,
+      rowGap: 0,
+      animationCurve: 'easeOutCubic',
+      animationFrame: 50
     }
   },
   {
@@ -231,9 +243,15 @@ const overviewData = ref([
       number: [12756],
       content: '{nt}',
       style: {
-        fontSize: 36,
-        fill: '#58a1ff'
-      }
+        fontSize: 48,
+        fill: '#e062ae',
+        fontWeight: 'bold',
+        textShadow: '0 0 10px rgba(224, 98, 174, 0.8)'
+      },
+      toFixed: 0,
+      rowGap: 0,
+      animationCurve: 'easeOutCubic',
+      animationFrame: 50
     }
   }
 ])
@@ -254,8 +272,10 @@ const activeRingConfig = reactive({
   ],
   color: ['#00baff', '#3de7c9'],
   digitalFlopStyle: {
-    fontSize: 20
-  }
+    fontSize: 24,
+    fill: '#3de7c9'
+  },
+  lineWidth: 5
 })
 
 // 用户年龄分布配置
@@ -290,10 +310,30 @@ const ageDistributionConfig = reactive({
 const regionConfig = reactive({
   header: ['城市', '规划数', '简历数', '投递率'],
   data: [
-    ['<span style="color:#37a2da;">北京</span>', '1,245', '986', '<span style="color:#67e0e3;">85%</span>'],
-    ['<span style="color:#32c5e9;">上海</span>', '1,087', '876', '<span style="color:#9fe6b8;">82%</span>'],
-    ['<span style="color:#ffdb5c;">广州</span>', '854', '721', '<span style="color:#ff9f7f;">78%</span>'],
-    ['<span style="color:#fb7293;">深圳</span>', '832', '687', '<span style="color:#e062ae;">80%</span>'],
+    [
+      '<span style="color:#37a2da;">北京</span>',
+      '1,245',
+      '986',
+      '<span style="color:#67e0e3;">85%</span>'
+    ],
+    [
+      '<span style="color:#32c5e9;">上海</span>',
+      '1,087',
+      '876',
+      '<span style="color:#9fe6b8;">82%</span>'
+    ],
+    [
+      '<span style="color:#ffdb5c;">广州</span>',
+      '854',
+      '721',
+      '<span style="color:#ff9f7f;">78%</span>'
+    ],
+    [
+      '<span style="color:#fb7293;">深圳</span>',
+      '832',
+      '687',
+      '<span style="color:#e062ae;">80%</span>'
+    ],
     ['杭州', '<span style="color:#37a2da;">587</span>', '491', '75%'],
     ['成都', '<span style="color:#32c5e9;">476</span>', '365', '72%'],
     ['武汉', '<span style="color:#ffdb5c;">465</span>', '343', '70%'],
@@ -302,7 +342,7 @@ const regionConfig = reactive({
     ['重庆', '332', '<span style="color:#e7bcf3;">287</span>', '62%']
   ],
   index: true,
-  columnWidth: [60, 65, 65, 65],  // 进一步调整列宽
+  columnWidth: [60, 65, 65, 65], // 进一步调整列宽
   align: ['center', 'center', 'center', 'center'], // 所有列居中对齐
   headerBGC: 'rgba(0, 80, 179, 0.6)', // 增加表头背景色明显度
   headerHeight: 45, // 增加表头高度
@@ -496,19 +536,19 @@ watch(
 // 模拟数据刷新函数
 const refreshData = () => {
   // 更新总用户数
-  overviewData.value[0].value = Math.floor(15000 + Math.random() * 2000)
+  overviewData.value[0].value = Math.floor(500 + Math.random() * 200)
   overviewData.value[0].config.number = [overviewData.value[0].value]
 
   // 更新职业规划完成数
-  overviewData.value[1].value = Math.floor(7500 + Math.random() * 1000)
+  overviewData.value[1].value = Math.floor(250 + Math.random() * 100)
   overviewData.value[1].config.number = [overviewData.value[1].value]
 
   // 更新简历生成量
-  overviewData.value[2].value = Math.floor(5000 + Math.random() * 1000)
+  overviewData.value[2].value = Math.floor(2000 + Math.random() * 300)
   overviewData.value[2].config.number = [overviewData.value[2].value]
 
   // 更新就业成功率
-  overviewData.value[3].value = Math.floor(75 + Math.random() * 15)
+  overviewData.value[3].value = Math.floor(750 + Math.random() * 15)
   overviewData.value[3].config.number = [overviewData.value[3].value]
 
   // 更新AI对话次数
@@ -517,6 +557,7 @@ const refreshData = () => {
 
   // 更新日活跃用户环图数据
   const newUserPercent = Math.floor(30 + Math.random() * 10)
+  
   activeRingConfig.data = [
     {
       name: '新用户',
@@ -792,6 +833,11 @@ onUnmounted(() => {
         justify-content: space-between;
         margin-bottom: 10px;
         padding: 0 15px;
+        font-size: 18px;
+        font-weight: normal;
+        margin: 0;
+        color: #0ff;
+        text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
 
         h3 {
           font-size: 18px;
@@ -803,20 +849,24 @@ onUnmounted(() => {
 
         &.center {
           justify-content: center;
+          gap: 15px;
         }
       }
 
       .chart-container {
         height: calc(100% - 50px);
         width: 100%;
-        position: relative; /* 为绝对定位的子元素提供参考 */
+        position: relative;
         display: flex;
         justify-content: center;
         align-items: center;
 
-        & > div {
-          width: 100%;
-          height: 100%;
+        &.active-users-container {
+          padding: 10px;
+        }
+        
+        &.resume-container {
+          padding-bottom: 10px;
         }
 
         /* 确保DataV组件能够正确充满容器 */
@@ -837,7 +887,8 @@ onUnmounted(() => {
       display: flex;
       justify-content: space-around;
       align-items: center;
-      height: calc(100% - 50px);
+      height: calc(100% - 60px);
+      padding: 10px 0;
 
       .overview-item {
         text-align: center;
@@ -845,11 +896,38 @@ onUnmounted(() => {
         flex-direction: column;
         align-items: center;
         justify-content: center;
+        position: relative;
+        background: rgba(4, 21, 66, 0.7);
+        border-radius: 4px;
+        box-shadow: 0 0 20px rgba(0, 178, 255, 0.15);
+        padding: 10px 5px;
+        width: 22%;
+        height: 85%;
+        transition: all 0.4s;
+        border: 1px solid rgba(32, 89, 162, 0.2);
+        
+        &:hover {
+          transform: translateY(-5px);
+          box-shadow: 0 5px 15px rgba(0, 195, 255, 0.3);
+          border: 1px solid rgba(32, 89, 162, 0.5);
+        }
+
+        &::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 2px;
+          background: linear-gradient(to right, transparent, rgba(0, 198, 255, 0.5), transparent);
+        }
 
         .data-label {
-          font-size: 16px;
-          color: #7eb9ff;
-          margin-top: 10px;
+          font-size: 14px;
+          color: rgba(126, 185, 255, 0.85);
+          margin-top: 20px;
+          font-weight: 500;
+          letter-spacing: 1px;
         }
       }
     }
@@ -860,8 +938,13 @@ onUnmounted(() => {
   :deep(.dv-border-box-8),
   :deep(.dv-border-box-12),
   :deep(.dv-decoration-5),
-  :deep(.dv-decoration-10) {
+  :deep(.dv-decoration-10),
+  :deep(.dv-decoration-1) {
     width: 100% !important;
+    height: 100% !important;
+  }
+  :deep(.dv-decoration-1) {
+    width: 30% !important;
     height: 100% !important;
   }
 
