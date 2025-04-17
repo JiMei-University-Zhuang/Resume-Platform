@@ -27,7 +27,7 @@
         <Decoration5 style="width: 200px; height: 60px" :reverse="true" />
       </div>
     </header>
-    
+
     <Decoration10 class="header-decoration" />
 
     <!-- 主体内容 -->
@@ -290,10 +290,30 @@ const ageDistributionConfig = reactive({
 const regionConfig = reactive({
   header: ['城市', '规划数', '简历数', '投递率'],
   data: [
-    ['<span style="color:#37a2da;">北京</span>', '1,245', '986', '<span style="color:#67e0e3;">85%</span>'],
-    ['<span style="color:#32c5e9;">上海</span>', '1,087', '876', '<span style="color:#9fe6b8;">82%</span>'],
-    ['<span style="color:#ffdb5c;">广州</span>', '854', '721', '<span style="color:#ff9f7f;">78%</span>'],
-    ['<span style="color:#fb7293;">深圳</span>', '832', '687', '<span style="color:#e062ae;">80%</span>'],
+    [
+      '<span style="color:#37a2da;">北京</span>',
+      '1,245',
+      '986',
+      '<span style="color:#67e0e3;">85%</span>'
+    ],
+    [
+      '<span style="color:#32c5e9;">上海</span>',
+      '1,087',
+      '876',
+      '<span style="color:#9fe6b8;">82%</span>'
+    ],
+    [
+      '<span style="color:#ffdb5c;">广州</span>',
+      '854',
+      '721',
+      '<span style="color:#ff9f7f;">78%</span>'
+    ],
+    [
+      '<span style="color:#fb7293;">深圳</span>',
+      '832',
+      '687',
+      '<span style="color:#e062ae;">80%</span>'
+    ],
     ['杭州', '<span style="color:#37a2da;">587</span>', '491', '75%'],
     ['成都', '<span style="color:#32c5e9;">476</span>', '365', '72%'],
     ['武汉', '<span style="color:#ffdb5c;">465</span>', '343', '70%'],
@@ -302,7 +322,7 @@ const regionConfig = reactive({
     ['重庆', '332', '<span style="color:#e7bcf3;">287</span>', '62%']
   ],
   index: true,
-  columnWidth: [60, 65, 65, 65],  // 进一步调整列宽
+  columnWidth: [60, 65, 65, 65], // 进一步调整列宽
   align: ['center', 'center', 'center', 'center'], // 所有列居中对齐
   headerBGC: 'rgba(0, 80, 179, 0.6)', // 增加表头背景色明显度
   headerHeight: 45, // 增加表头高度

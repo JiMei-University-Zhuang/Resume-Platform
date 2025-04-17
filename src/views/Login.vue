@@ -299,6 +299,23 @@ const validatePassword = (_rule: any, value: string, callback: any) => {
   }
 }
 
+// 密码验证规则
+const validatePassword = (rule: any, value: string, callback: any) => {
+  // 管理员则跳过提示
+  if (loginForm.username === 'root') {
+    callback()
+    return
+  }
+  const passwordPattern = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,18}$/
+  if (!value) {
+    callback(new Error('请输入密码'))
+  } else if (!passwordPattern.test(value)) {
+    callback(new Error('密码长度在6-18位之间,同时包含字母和数字'))
+  } else {
+    callback()
+  }
+}
+
 //登录表单
 const loginForm = reactive({
   username: '',
@@ -574,10 +591,7 @@ const handleRegister = async () => {
           message.success('注册成功')
           gotoLogin()
           refreshCaptcha()
-          registerForm.username = ''
-          registerForm.password = ''
-          registerForm.email = ''
-          registerForm.captchaValue = ''
+          resetRegisterForm()
         } else {
           const errorMessage = response.data.message || '注册失败，请重试'
           if (errorMessage.includes('账号已经存在')) {
