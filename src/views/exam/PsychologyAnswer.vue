@@ -23,27 +23,6 @@
         <el-progress :percentage="calculateProgress" :color="progressColor" />
       </div>
 
-      <!-- 题目筛选设置 -->
-      <div class="exam-settings" v-if="!showReference">
-        <div class="setting-controls">
-          <el-checkbox v-model="examSettings.showDifficulty">显示难度</el-checkbox>
-          <el-checkbox v-model="examSettings.filterByDifficulty">按难度筛选</el-checkbox>
-
-          <el-select
-            v-model="examSettings.selectedDifficulty"
-            placeholder="选择难度"
-            size="small"
-            :disabled="!examSettings.filterByDifficulty"
-          >
-            <el-option label="全部" value="全部"></el-option>
-            <el-option label="简单" value="简单"></el-option>
-            <el-option label="中等" value="中等"></el-option>
-            <el-option label="较难" value="较难"></el-option>
-            <el-option label="困难" value="困难"></el-option>
-          </el-select>
-        </div>
-      </div>
-
       <div class="question-section" v-if="paperData">
         <!-- 单选题部分 -->
         <div v-if="filteredChoiceQuestions.length > 0" class="question-category">

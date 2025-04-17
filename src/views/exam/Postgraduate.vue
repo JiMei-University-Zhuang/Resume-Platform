@@ -95,10 +95,17 @@
                 </label>
                 <label
                   class="custom-radio"
-                  :class="{ 'radio-checked': selectedSubject === '心理学专业课' }"
+                  :class="{ 'radio-checked': selectedSubject === '心理学' }"
                 >
-                  <input type="radio" v-model="selectedSubject" value="心理学专业课" />
+                  <input type="radio" v-model="selectedSubject" value="心理学" />
                   <span class="radio-text">心理学专业课</span>
+                </label>
+                <label
+                  class="custom-radio"
+                  :class="{ 'radio-checked': selectedSubject === '历史学' }"
+                >
+                  <input type="radio" v-model="selectedSubject" value="历史学" />
+                  <span class="radio-text">历史学专业课</span>
                 </label>
               </div>
             </div>
@@ -191,7 +198,7 @@
 
                 <div
                   class="radio-group"
-                  v-else-if="selectedSubject === '心理学专业课'"
+                  v-else-if="selectedSubject === '心理学'"
                   key="psychology"
                 >
                   <label
@@ -207,6 +214,41 @@
                   >
                     <input type="radio" v-model="selectedquestionType" value="解答题" />
                     <span class="radio-text">解答题</span>
+                  </label>
+                </div>
+
+                <div
+                  class="radio-group"
+                  v-else-if="selectedSubject === '历史学'"
+                  key="history"
+                >
+                  <label
+                    class="custom-radio"
+                    :class="{ 'radio-checked': selectedquestionType === '单选题' }"
+                  >
+                    <input type="radio" v-model="selectedquestionType" value="单选题" />
+                    <span class="radio-text">单选题</span>
+                  </label>
+                  <label
+                    class="custom-radio"
+                    :class="{ 'radio-checked': selectedquestionType === '多选题' }"
+                  >
+                    <input type="radio" v-model="selectedquestionType" value="多选题" />
+                    <span class="radio-text">多选题</span>
+                  </label>
+                  <label
+                    class="custom-radio"
+                    :class="{ 'radio-checked': selectedquestionType === '简答题' }"
+                  >
+                    <input type="radio" v-model="selectedquestionType" value="简答题" />
+                    <span class="radio-text">简答题</span>
+                  </label>
+                  <label
+                    class="custom-radio"
+                    :class="{ 'radio-checked': selectedquestionType === '论述题' }"
+                  >
+                    <input type="radio" v-model="selectedquestionType" value="论述题" />
+                    <span class="radio-text">论述题</span>
                   </label>
                 </div>
               </transition>
@@ -284,6 +326,13 @@
                 @click="filterCards('psychology')"
               >
                 心理学
+              </div>
+              <div
+                class="filter-option"
+                :class="{ active: currentCategory === 'history' }"
+                @click="filterCards('history')"
+              >
+                历史学
               </div>
             </div>
           </div>
@@ -363,8 +412,6 @@
 import { ref, computed, watch, onMounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import zhengzhi1Image from '@/assets/images/paper_imgs/zhengzhi1.png'
-import jisuanji1Image from '@/assets/images/paper_imgs/jisuanji1.png'
-import yingyuyi1Image from '@/assets/images/paper_imgs/yingyu1.png'
 
 const router = useRouter()
 const activeTab = ref('specialized-practice')
@@ -382,7 +429,9 @@ watch(selectedSubject, newSubject => {
     selectedquestionType.value = '单选题'
   } else if (newSubject === '计算机学科专业课') {
     selectedquestionType.value = '单选题'
-  } else if (newSubject === '心理学专业课') {
+  } else if (newSubject === '心理学') {
+    selectedquestionType.value = '单选题'
+  } else if (newSubject === '历史学') {
     selectedquestionType.value = '单选题'
   }
 })
@@ -437,7 +486,7 @@ const calculateCountdown = () => {
   secondsLeft.value = seconds
 }
 
-// 获取URL参数
+// 启动倒计时
 onMounted(() => {
   calculateCountdown()
   setInterval(calculateCountdown, 1000)
@@ -464,7 +513,7 @@ const papers = ref([
     title: '计算机学科 数据结构专题',
     description: '涵盖树、图、排序算法等重点考察内容',
     category: 'professional',
-    imageUrl: jisuanji1Image
+    imageUrl: zhengzhi1Image
   },
   {
     id: 3,
@@ -475,10 +524,10 @@ const papers = ref([
   },
   {
     id: 5,
-    title: '2024年全国硕士研究生招生考试英语一真题',
-    description: '考研英语一完整真题及答案解析',
+    title: '英语二全真模拟',
+    description: '考研英语阅读理解专项训练',
     category: 'english',
-    imageUrl: yingyuyi1Image
+    imageUrl: zhengzhi1Image
   },
   {
     id: 6,
@@ -492,14 +541,21 @@ const papers = ref([
     title: '计算机网络与操作系统',
     description: '计算机专业核心知识点练习',
     category: 'professional',
-    imageUrl: jisuanji1Image
+    imageUrl: zhengzhi1Image
   },
   {
     id: 8,
     title: '2024年全国硕士研究生招生考试心理学专业基础(347)真题',
     description: '心理学专业考试真题与详细解析',
     category: 'psychology',
-    imageUrl: jisuanji1Image
+    imageUrl: zhengzhi1Image
+  },
+  {
+    id: 9,
+    title: '2023年全国硕士研究生招生考试历史学专业基础真题',
+    description: '历史学专业知识点全面覆盖，含详细解析',
+    category: 'history',
+    imageUrl: zhengzhi1Image
   }
 ])
 
@@ -551,9 +607,18 @@ const startExam = (paperId: number) => {
       }
     })
   } else if (paperCategory === 'psychology') {
-    // 心理学专业课试卷跳转到psychology-answer
+    // 心理学试卷跳转到psychology-answer
     router.push({
       path: '/exam/psychology-answer',
+      query: {
+        id: paperId.toString(),
+        type: 'exam'
+      }
+    })
+  } else if (paperCategory === 'history') {
+    // 历史学试卷跳转到history-answer
+    router.push({
+      path: '/exam/history-answer',
       query: {
         id: paperId.toString(),
         type: 'exam'
@@ -581,6 +646,12 @@ const startExam = (paperId: number) => {
 
 // 开始专项练习
 const startPractice = () => {
+  console.log('开始专项练习', {
+    subject: selectedSubject.value,
+    questionType: selectedquestionType.value,
+    count: selectedCount.value
+  })
+
   router.push({
     path: '/exam/postgraduate-answer',
     query: {
@@ -594,6 +665,8 @@ const startPractice = () => {
 
 // 预览试卷的方法
 const previewPaper = (paperId: number) => {
+  console.log('预览试卷，试卷id：', paperId)
+
   // 查找对应的试卷
   const paper = papers.value.find(p => p.id === paperId)
   if (paper) {

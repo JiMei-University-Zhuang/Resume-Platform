@@ -1,10 +1,6 @@
 <template>
   <div class="error-container">
-    <a-result
-      status="403"
-      title="401"
-      sub-title="抱歉，您没有访问此页面的权限"
-    >
+    <a-result status="403" title="401" sub-title="抱歉，您没有访问此页面的权限">
       <template #extra>
         <a-space>
           <a-button type="primary" @click="goHome" class="primary-btn">返回首页</a-button>
@@ -25,12 +21,9 @@ import { LockOutlined } from '@ant-design/icons-vue'
 const router = useRouter()
 
 const goHome = () => {
-  console.log('点击返回首页按钮')
-  // 尝试不同的导航方式
   try {
     router.push({ name: 'Dashboard' }).catch(() => {
       router.push({ path: '/' }).catch(() => {
-        // 如果都失败，尝试直接通过window.location导航
         window.location.href = '/'
       })
     })
@@ -42,18 +35,14 @@ const goHome = () => {
 }
 
 const goToLogin = () => {
-  console.log('点击重新登录按钮')
-  // 尝试不同的导航方式
   try {
     router.push({ name: 'Login' }).catch(() => {
       router.push({ path: '/login' }).catch(() => {
-        // 如果都失败，尝试直接通过window.location导航
         window.location.href = '/login'
       })
     })
   } catch (error) {
     console.error('导航错误:', error)
-    // 备用导航方法
     window.location.href = '/login'
   }
 }

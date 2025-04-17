@@ -14,18 +14,14 @@ import { useRouter } from 'vue-router'
 const router = useRouter()
 
 const goHome = () => {
-  console.log('点击返回首页按钮')
-  // 尝试不同的导航方式
   try {
     router.push({ name: 'Dashboard' }).catch(() => {
       router.push({ path: '/' }).catch(() => {
-        // 如果都失败，尝试直接通过window.location导航
         window.location.href = '/'
       })
     })
   } catch (error) {
     console.error('导航错误:', error)
-    // 备用导航方法
     window.location.href = '/'
   }
 }
