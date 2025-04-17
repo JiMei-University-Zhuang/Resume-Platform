@@ -164,11 +164,7 @@ import passimg2 from '@/assets/images/exam_imgs/pass2.png'
 import failimg1 from '@/assets/images/exam_imgs/failpass1.png'
 import failimg2 from '@/assets/images/exam_imgs/failpass2.png'
 import { useExamStore } from '@/stores/examStore'
-<<<<<<< Updated upstream
 import router from '@/router'
-=======
-import { analyzeAnswer } from '@/views/exam/sseAnalysis';
->>>>>>> Stashed changes
 
 // 定义题目接口
 interface Question {
