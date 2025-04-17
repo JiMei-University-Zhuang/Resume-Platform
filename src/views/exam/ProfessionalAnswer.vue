@@ -236,20 +236,20 @@ md.use(markdownItKatexGpt, {
 // 将Markdown文本转换为HTML
 const renderMarkdown = (text: string): string => {
   if (!text) return ''
-  
+
   // 预处理文本，将特殊格式转换为标准Markdown
   let processedText = text
-  
+
   // 处理连续井号的标题格式 (如 ####标题####)
   processedText = processedText.replace(/^(#{3,})([^#\n]+)(#{3,})$/gm, (_, _hash, titleContent) => {
     return `# ${titleContent.trim()}`
   })
-  
+
   // 处理带空格的标题格式 (如 #### 标题)
   processedText = processedText.replace(/^(#{3,})\s+([^#\n]+)$/gm, (_, _hash, titleContent) => {
     return `# ${titleContent.trim()}`
   })
-  
+
   // 处理特定的AI解析标题格式
   processedText = processedText.replace(/^#{3,}\s*题目解析\s*#{0,}$/gim, '# 题目解析')
   processedText = processedText.replace(
@@ -262,20 +262,20 @@ const renderMarkdown = (text: string): string => {
     '## 干扰项设计逻辑'
   )
   processedText = processedText.replace(/^#{3,}\s*\d+\.\s*秒杀技巧\s*#{0,}$/gim, '## 秒杀技巧')
-  
+
   // 处理数字编号标题 (如 ####1.考点映射)
   processedText = processedText.replace(/^#{3,}\s*(\d+)\.\s*([^#\n]+)$/gm, (_, _num, content) => {
     return `## ${content.trim()}`
   })
-  
+
   // 处理其他以####开头的标题 (如 ####标题)
   processedText = processedText.replace(/^#{3,}([^#\s][^#\n]*)$/gm, (_, content) => {
     return `# ${content.trim()}`
   })
-  
+
   // 处理可能的分隔符
   processedText = processedText.replace(/^-{3,}$/gm, '---')
-  
+
   return md.render(processedText)
 }
 
