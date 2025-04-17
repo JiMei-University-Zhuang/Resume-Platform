@@ -87,9 +87,7 @@
               v-if="showCorrectAnswers && !showAnalysis[index]"
               class="ai-parse-button-container"
             >
-              <el-button type="primary" @click="analyzeQuestion(index)" class="ai-parse-button">
-                AI 解析
-              </el-button>
+              <button class="neon-ai-parse-button" @click="analyzeQuestion(index)">AI 解析</button>
               <div v-if="aiAnalysisStatus[index] === 500" class="ai-analysis-status-tooltip">
                 提示：当前 AI 解析状态为 500，可能存在一些问题，请稍后再试。
               </div>
@@ -843,5 +841,51 @@ onUnmounted(() => {
   padding: 10px;
   white-space: pre-wrap;
   margin-top: 5px;
+}
+/* AI 解释按钮样式 */
+.neon-ai-parse-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 25px;
+  color: white;
+  font-weight: 600;
+  font-size: 24px;
+  border: none;
+  border-radius: 20px;
+  margin: 40px auto 20px;
+  width: 200px;
+  position: relative;
+  z-index: 1;
+  cursor: pointer;
+  background: linear-gradient(215deg, #c332fb, #00dbde, #c332fb);
+  background-size: 400%;
+}
+.neon-ai-parse-button:hover {
+  animation: neon 8s linear infinite;
+}
+@keyframes neon {
+  from {
+    background-position: 0%;
+  }
+  to {
+    background-position: 400%;
+  }
+}
+.neon-ai-parse-button::before {
+  content: '';
+  position: absolute;
+  inset: -5px;
+  z-index: -1;
+  background: linear-gradient(215deg, #c332fb, #00dbde, #c332fb);
+  background-size: 400%;
+  border-radius: 40px;
+  /* filter: blur(10px); */
+  opacity: 0;
+}
+.neon-ai-parse-button:hover::before {
+  filter: blur(10px);
+  opacity: 1;
+  animation: neon 8s linear infinite;
 }
 </style>

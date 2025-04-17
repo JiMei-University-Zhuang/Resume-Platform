@@ -293,7 +293,7 @@ const validatePassword = (_rule: any, value: string, callback: any) => {
   if (!value) {
     callback(new Error('请输入密码'))
   } else if (!passwordPattern.test(value)) {
-    callback(new Error('密码长度应在6-18位之间,同时包含字母和数字'))
+    callback(new Error('密码长度应为6至18位,同时包含字母和数字'))
   } else {
     callback()
   }
@@ -574,10 +574,6 @@ const handleRegister = async () => {
           message.success('注册成功')
           gotoLogin()
           refreshCaptcha()
-          registerForm.username = ''
-          registerForm.password = ''
-          registerForm.email = ''
-          registerForm.captchaValue = ''
         } else {
           const errorMessage = response.data.message || '注册失败，请重试'
           if (errorMessage.includes('账号已经存在')) {
