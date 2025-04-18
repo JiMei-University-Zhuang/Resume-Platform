@@ -169,7 +169,7 @@ watch(
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background-color: var(--color, #5983ff);
+  /* background-color: var(--color, #5983ff); */
 }
 
 .legend-name {

@@ -506,11 +506,11 @@ const papers = ref([
     imageUrl: zhuanyeke1Image
   },
   {
-    id: 3,
-    title: '2024年全国硕士研究生招生考试计算机学科专业基础(408)真题',
-    description: '包含详细解答及考点分析',
-    category: 'professional',
-    imageUrl: jisuanji1Image
+    id: 6,
+    title: '2024年考研政治真题',
+    description: '历年真题解析及答题技巧',
+    category: 'politics',
+    imageUrl: zhengzhi1Image
   },
   {
     id: 5,
@@ -520,11 +520,11 @@ const papers = ref([
     imageUrl: yingyu1Image
   },
   {
-    id: 6,
-    title: '2024年考研政治真题',
-    description: '历年真题解析及答题技巧',
-    category: 'politics',
-    imageUrl: zhengzhi1Image
+    id: 3,
+    title: '2024年全国硕士研究生招生考试计算机学科专业基础(408)真题',
+    description: '包含详细解答及考点分析',
+    category: 'professional',
+    imageUrl: jisuanji1Image
   },
   {
     id: 8,
@@ -1302,7 +1302,7 @@ const previewPaper = (paperId: number) => {
 .paper-description {
   font-size: 14px;
   color: #8c8c8c;
-  margin-bottom: 16px;
+  margin-bottom: 0;
   line-height: 1.5;
   height: 42px;
   overflow: hidden;
