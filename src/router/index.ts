@@ -27,6 +27,15 @@ const routes: RouteRecordRaw[] = [
     }
   },
   {
+    path: '/career-star-map',
+    name: 'CareerStarMapFull',
+    component: () => import('../views/career-planning/CareerMapFull.vue'),
+    meta: {
+      title: '职业星图',
+      i18n: 'breadcrumb.careerMap'
+    }
+  },
+  {
     path: '/',
     component: BasicLayout,
     children: [
@@ -190,12 +199,21 @@ const routes: RouteRecordRaw[] = [
         },
         children: [
           {
-            path: 'roadmap',
-            name: 'CareerRoadmap',
-            component: () => import('@/views/career-planning/Roadmap.vue'),
+            path: 'map',
+            name: 'CareerMap',
+            component: () => import('@/views/career-planning/CareerMap.vue'),
             meta: {
-              title: '发展规划',
-              i18n: 'breadcrumb.developmentPlan'
+              title: '职业星图',
+              i18n: 'breadcrumb.careerMap'
+            }
+          },
+          {
+            path: 'learning-plan',
+            name: 'LearningPlan',
+            component: () => import('@/views/career-planning/LearningPlan.vue'),
+            meta: {
+              title: '学习计划',
+              i18n: 'breadcrumb.learningPlan'
             }
           },
           {

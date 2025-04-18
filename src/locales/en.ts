@@ -68,7 +68,13 @@ export default {
     aiIDPhoto: 'AI ID Photo',
     careerPlanning: 'Career Planning',
     developmentPlan: 'Development Plan',
-    careerRecommendation: 'Career Recommend'
+    careerRecommendation: 'Career Recommend',
+    careerMap: 'Career Map',
+    learningPlan: 'Learning Plan',
+    careerNode: 'Career Node',
+    careerStarMap: 'Career Star Map',
+    digitalTwin: 'Digital Twin',
+    skillRadar: 'Skill Radar'
   },
   dashboard: {
     welcomeBack: 'Welcome Back',

@@ -68,7 +68,13 @@ export default {
     aiIDPhoto: 'AI证件照',
     careerPlanning: '职业规划',
     developmentPlan: '发展规划',
-    careerRecommendation: '职业推荐'
+    careerRecommendation: '职业推荐',
+    careerMap: '职业星图',
+    learningPlan: '学习路线',
+    careerNode: '职业节点',
+    careerStarMap: '职业星图',
+    digitalTwin: '个人数字孪生',
+    skillRadar: '技能雷达'
   },
   dashboard: {
     welcomeBack: '欢迎回来',
