@@ -361,10 +361,10 @@ const fetchWrongQuestionsByRecordId = async (recordId: number) => {
   }
 }
 
-// 辅助函数，将选项索引转换为字母
-const getOptionLetter = (index: number): string => {
-  return String.fromCharCode(65 + index)
-}
+// // 辅助函数，将选项索引转换为字母
+// const getOptionLetter = (index: number): string => {
+//   return String.fromCharCode(65 + index)
+// }
 
 // 监听下拉框是否被触碰，这里通过监听点击事件实现
 const handleSelectClick = () => {
