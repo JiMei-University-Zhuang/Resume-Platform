@@ -108,7 +108,10 @@
               <div v-if="showAnalysis[`choice-${question.questionId}`]" class="analysis-container">
                 <div class="analysis-title">AI 解析结果：</div>
                 <div
-                  v-if="aiAnalysisStatus[`choice-${question.questionId}`] === 1"
+                  v-if="
+                    aiAnalysisStatus[`choice-${question.questionId}`] === 1 &&
+                    !analysisResults[`choice-${question.questionId}`]
+                  "
                   class="analysis-loading"
                 >
                   <el-progress
@@ -120,10 +123,38 @@
                   <span class="loading-text">AI解析生成中...</span>
                 </div>
                 <div
-                  v-else
-                  class="markdown-body analysis-content"
-                  v-html="renderMarkdown(analysisResults[`choice-${question.questionId}`])"
-                ></div>
+                  v-else-if="aiAnalysisStatus[`choice-${question.questionId}`] === 4"
+                  class="analysis-empty"
+                >
+                  <span>暂无解析结果，请稍后再试。</span>
+                </div>
+                <div
+                  v-else-if="aiAnalysisStatus[`choice-${question.questionId}`] === 3"
+                  class="analysis-error"
+                >
+                  <span>解析请求失败，请稍后重试。</span>
+                  <el-button
+                    size="small"
+                    type="primary"
+                    @click="retryAnalysis(question.questionId, 'choice')"
+                    class="retry-button"
+                  >
+                    重试
+                  </el-button>
+                </div>
+                <div v-else class="markdown-body analysis-content">
+                  <div
+                    v-html="renderMarkdown(analysisResults[`choice-${question.questionId}`] || '')"
+                  ></div>
+                  <div
+                    v-if="aiAnalysisStatus[`choice-${question.questionId}`] === 1"
+                    class="analysis-streaming-indicator"
+                  >
+                    <span class="loading-dot"></span>
+                    <span class="loading-dot"></span>
+                    <span class="loading-dot"></span>
+                  </div>
+                </div>
               </div>
               <!-- AI 解析按钮 -->
               <div
@@ -142,10 +173,10 @@
                   AI 解析
                 </el-button>
                 <div
-                  v-if="aiAnalysisStatus[`choice-${question.questionId}`] === 500"
+                  v-if="aiAnalysisStatus[`choice-${question.questionId}`] === 3"
                   class="ai-analysis-status-tooltip"
                 >
-                  提示：当前 AI 解析状态为 500，可能存在一些问题，请稍后再试。
+                  提示：解析请求失败，请点击"AI 解析"按钮重试。
                 </div>
               </div>
             </div>
@@ -228,8 +259,7 @@ import 'prismjs/components/prism-python'
 import 'prismjs/components/prism-java'
 import 'prismjs/themes/prism.css'
 import markdownItKatexGpt from 'markdown-it-katex-gpt'
-import type { ExamPaper, ChoiceQuestion } from '@/types/exam'
-import { AIAnalysisStatus } from '@/types/exam'
+import type { ExamPaper } from '@/types/exam'
 
 const route = useRoute()
 const router = useRouter()
@@ -239,32 +269,35 @@ const paperData = ref<ExamPaper | null>(null)
 const loading = ref(true)
 const loadingPercentage = ref(0)
 const showReference = ref(false)
-const timeLeft = ref(7200) // 2小时，单位为秒
+const timeLeft = ref(7200)
 const timerId = ref<number | null>(null)
 
-// 答案相关数据
 const singleChoiceAnswers = ref<string[]>([])
 const analysisAnswers = ref<string[]>([])
 
-// AI 解析相关数据
+const ANALYSIS_STATUS = {
+  IDLE: 0,
+  LOADING: 1,
+  SUCCESS: 2,
+  ERROR: 3,
+  EMPTY: 4
+}
+
 const showAnalysis = ref<{ [key: string]: boolean }>({})
 const analysisResults = ref<{ [key: string]: string }>({})
 const aiAnalysisStatus = ref<{ [key: string]: number }>({})
-let userId: number | null = null
+const userId = ref<number | null>(null)
 
-// 筛选和显示设置
 const examSettings = ref({
   showDifficulty: true,
   filterByDifficulty: false,
   selectedDifficulty: '全部',
-  timeLimit: 7200, // 秒，即2小时
+  timeLimit: 7200,
   showAIAnalysis: true
 })
 
-// 一分钟倒计时警告
 const showTimeWarning = ref(false)
 
-// 监视倒计时，当剩余时间小于1分钟时显示警告
 watch(timeLeft, newValue => {
   if (newValue <= 60 && !showTimeWarning.value) {
     showTimeWarning.value = true
@@ -272,7 +305,6 @@ watch(timeLeft, newValue => {
   }
 })
 
-// 初始化 Markdown
 const mdOptions: MarkdownItOptions = {
   html: true,
   breaks: true,
@@ -302,24 +334,22 @@ md.use(markdownItKatexGpt, {
   ]
 })
 
-// 将Markdown文本转换为HTML
 const renderMarkdown = (text: string): string => {
   if (!text) return ''
 
-  // 预处理文本，将特殊格式转换为标准Markdown
   let processedText = text
 
-  // 处理连续井号的标题格式 (如 ####标题####)
-  processedText = processedText.replace(/^(#{3,})([^#\n]+)(#{3,})$/gm, (_, _hash, titleContent) => {
-    return `# ${titleContent.trim()}`
+  processedText = processedText.replace(
+    /^(#{1,6})([^#\n]+)(#{1,6})$/gm,
+    (_, hash, titleContent) => {
+      return `${hash} ${titleContent.trim()}`
+    }
+  )
+
+  processedText = processedText.replace(/^(#{3,})\s+([^#\n]+)$/gm, (_, hash, titleContent) => {
+    return `${hash.substring(0, 2)} ${titleContent.trim()}`
   })
 
-  // 处理带空格的标题格式 (如 #### 标题)
-  processedText = processedText.replace(/^(#{3,})\s+([^#\n]+)$/gm, (_, _hash, titleContent) => {
-    return `# ${titleContent.trim()}`
-  })
-
-  // 处理特定的AI解析标题格式
   processedText = processedText.replace(/^#{3,}\s*题目解析\s*#{0,}$/gim, '# 题目解析')
   processedText = processedText.replace(
     /^#{3,}\s*\d+\.\s*考点映射\s*[:-]\s*\*\*核心考点\*\*$/gim,
@@ -332,29 +362,24 @@ const renderMarkdown = (text: string): string => {
   )
   processedText = processedText.replace(/^#{3,}\s*\d+\.\s*秒杀技巧\s*#{0,}$/gim, '## 秒杀技巧')
 
-  // 处理数字编号标题 (如 ####1.考点映射)
-  processedText = processedText.replace(/^#{3,}\s*(\d+)\.\s*([^#\n]+)$/gm, (_, _num, content) => {
-    return `## ${content.trim()}`
+  processedText = processedText.replace(/^#{3,}\s*(\d+)\.\s*([^#\n]+)$/gm, (_, num, content) => {
+    return `## ${num}. ${content.trim()}`
   })
 
-  // 处理其他以####开头的标题 (如 ####标题)
   processedText = processedText.replace(/^#{3,}([^#\s][^#\n]*)$/gm, (_, content) => {
     return `# ${content.trim()}`
   })
 
-  // 处理可能的分隔符
   processedText = processedText.replace(/^-{3,}$/gm, '---')
 
   return md.render(processedText)
 }
 
-// 加载试卷数据
 const fetchPaper = async () => {
   loading.value = true
   loadingPercentage.value = 0
 
   try {
-    // 模拟加载进度
     const loadingTimer = setInterval(() => {
       loadingPercentage.value += 10
       if (loadingPercentage.value >= 90) {
@@ -363,25 +388,22 @@ const fetchPaper = async () => {
     }, 200)
 
     const examName = '2024年全国硕士研究生招生考试心理学真题'
-    const response = await getPsychologyExam(examName)
+    const response = (await getPsychologyExam(examName)) as { data: ExamPaper }
 
-    // @ts-ignore
     if (response.data) {
-      // @ts-ignore
       paperData.value = response.data
       paperTitle.value = examName
       initializeAnswers()
-      initializeAnalysisData() // 添加AI解析数据初始化
+      initializeAnalysisData()
 
       clearInterval(loadingTimer)
       loadingPercentage.value = 100
       loading.value = false
 
-      // 根据设置调整时间
       if (route.query.timeLimit) {
         const customTimeLimit = Number(route.query.timeLimit)
         if (!isNaN(customTimeLimit) && customTimeLimit > 0) {
-          timeLeft.value = customTimeLimit * 60 // 转换为秒
+          timeLeft.value = customTimeLimit * 60
           examSettings.value.timeLimit = customTimeLimit * 60
         }
       }
@@ -391,7 +413,6 @@ const fetchPaper = async () => {
       loading.value = false
     }
   } catch (error) {
-    console.error('获取试卷失败：', error)
     message.error('获取试卷失败，请重试')
     loading.value = false
   }
@@ -400,31 +421,26 @@ const fetchPaper = async () => {
 const initializeAnswers = () => {
   if (!paperData.value) return
 
-  // 初始化单选题答案
   if (paperData.value.choiceVOs) {
     singleChoiceAnswers.value = new Array(paperData.value.choiceVOs.length).fill('')
   }
 
-  // 初始化解答题答案
   if (paperData.value.solveVOs) {
     analysisAnswers.value = new Array(paperData.value.solveVOs.length).fill('')
   }
 }
 
-// 计算答题进度
 const calculateProgress = computed(() => {
   if (!paperData.value) return 0
 
   let answered = 0
   let total = 0
 
-  // 统计单选题
   if (paperData.value.choiceVOs) {
     answered += singleChoiceAnswers.value.filter(a => a).length
     total += paperData.value.choiceVOs.length
   }
 
-  // 统计解答题
   if (paperData.value.solveVOs) {
     answered += analysisAnswers.value.filter(a => a.trim()).length
     total += paperData.value.solveVOs.length
@@ -433,7 +449,6 @@ const calculateProgress = computed(() => {
   return total > 0 ? Math.floor((answered / total) * 100) : 0
 })
 
-// 进度条颜色
 const progressColor = computed(() => {
   const progress = calculateProgress.value
   if (progress < 30) return '#ff4d4f'
@@ -441,7 +456,6 @@ const progressColor = computed(() => {
   return '#52c41a'
 })
 
-// 时间格式化
 const formatTime = (seconds: number) => {
   const h = Math.floor(seconds / 3600)
   const m = Math.floor((seconds % 3600) / 60)
@@ -449,7 +463,6 @@ const formatTime = (seconds: number) => {
   return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`
 }
 
-// 自动保存答案
 const autoSaveAnswers = () => {
   try {
     const answerData = {
@@ -459,20 +472,15 @@ const autoSaveAnswers = () => {
       timeLeft: timeLeft.value
     }
     localStorage.setItem('psychology_exam_progress', JSON.stringify(answerData))
-    console.log('答案已自动保存')
-  } catch (error) {
-    console.error('自动保存答案失败：', error)
-  }
+  } catch (error) {}
 }
 
-// 恢复已保存的答案
 const loadSavedAnswers = () => {
   try {
     const savedData = localStorage.getItem('psychology_exam_progress')
     if (savedData) {
       const parsedData = JSON.parse(savedData)
       if (parsedData.examName === paperTitle.value) {
-        // 恢复答案
         if (
           parsedData.singleChoiceAnswers &&
           parsedData.singleChoiceAnswers.length === singleChoiceAnswers.value.length
@@ -485,7 +493,6 @@ const loadSavedAnswers = () => {
         ) {
           analysisAnswers.value = parsedData.analysisAnswers
         }
-        // 恢复剩余时间（如果剩余时间大于0且少于总时间）
         if (
           parsedData.timeLeft &&
           parsedData.timeLeft > 0 &&
@@ -498,13 +505,11 @@ const loadSavedAnswers = () => {
     }
     return false
   } catch (error) {
-    console.error('恢复保存的答案失败：', error)
     return false
   }
 }
 
 const startTimer = () => {
-  // 每30秒自动保存一次答案
   const autoSaveTimer = window.setInterval(() => {
     autoSaveAnswers()
   }, 30000)
@@ -515,14 +520,12 @@ const startTimer = () => {
     } else {
       clearInterval(timerId.value as number)
       clearInterval(autoSaveTimer)
-      submitAnswers() // 时间到自动提交
+      submitAnswers()
     }
   }, 1000)
 }
 
-// 提交答案
 const submitAnswers = async () => {
-  // 检查是否有未完成的题目
   const totalQuestions =
     (paperData.value?.choiceVOs?.length || 0) + (paperData.value?.solveVOs?.length || 0)
 
@@ -544,21 +547,20 @@ const submitAnswers = async () => {
         }
       )
     } catch (error) {
-      return // 用户选择继续作答
+      return
     }
   }
 
-  // 直接显示参考答案，不发送到服务器
   showReference.value = true
   message.success('答案已提交')
+
+  initializeAnalysisData()
 }
 
-// 返回主页
 const returnToHome = () => {
   router.push('/exam/postgraduate')
 }
 
-// 根据难度过滤题目
 const filteredChoiceQuestions = computed(() => {
   if (
     !paperData.value?.choiceVOs ||
@@ -587,7 +589,6 @@ const filteredSolveQuestions = computed(() => {
   )
 })
 
-// 格式化难度标签的样式
 const getDifficultyClass = (difficulty: string): string => {
   switch (difficulty) {
     case '简单':
@@ -603,140 +604,128 @@ const getDifficultyClass = (difficulty: string): string => {
   }
 }
 
-// 初始化 AI 解析数据 (改进类型定义)
 const initializeAnalysisData = () => {
   if (!paperData.value) return
 
-  // 初始化单选题解析数据
-  if (paperData.value.choiceVOs) {
-    paperData.value.choiceVOs.forEach((question: ChoiceQuestion) => {
-      showAnalysis.value[`choice-${question.questionId}`] = false
-      analysisResults.value[`choice-${question.questionId}`] = ''
-      aiAnalysisStatus.value[`choice-${question.questionId}`] = AIAnalysisStatus.NOT_STARTED
-    })
-  }
-}
+  const allQuestions = [...(paperData.value.choiceVOs || [])]
 
-// 开始分析题目 (改进状态控制)
-const analyzeQuestion = (questionId: string, questionType: string) => {
-  showAnalysis.value[`${questionType}-${questionId}`] = true
-  analysisResults.value[`${questionType}-${questionId}`] = ''
-  message.info('正在生成AI解析，请稍候...')
-  aiAnalysisStatus.value[`${questionType}-${questionId}`] = AIAnalysisStatus.LOADING
-  analyzeQuestionSSE(questionId, questionType)
-}
-
-// 分析题目 - 使用 SSE (Server-Sent Events) 的方式
-const analyzeQuestionSSE = (questionId: string, questionType: string): void => {
-  // 获取 token
-  const token = localStorage.getItem('token') || ''
-
-  // 使用 userId 构建请求 URL，如果 userId 不存在则不添加参数
-  let requestUrl = `/api/ai/analysis?questionId=${questionId}&subject=psychology`
-  if (userId !== null) {
-    requestUrl += `&userId=${userId}`
-  }
-
-  const abortController = new (window as any).AbortController()
-
-  // 请求头设置
-  const headers: Record<string, string> = {
-    Accept: 'text/event-stream',
-    'Content-Type': 'text/event-stream',
-    'Cache-Control': 'no-cache',
-    'X-Requested-With': 'XMLHttpRequest'
-  }
-
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`
-    headers['token'] = token
-  }
-
-  fetch(requestUrl, {
-    method: 'GET',
-    headers,
-    signal: abortController.signal,
-    credentials: 'include'
+  allQuestions.forEach((question: any) => {
+    const questionType = getQuestionType(question)
+    const key = `${questionType}-${question.questionId}`
+    showAnalysis.value[key] = false
+    analysisResults.value[key] = ''
+    aiAnalysisStatus.value[key] = ANALYSIS_STATUS.IDLE
   })
-    .then(response => {
-      console.log('响应状态码:', response.status)
-      console.log('响应类型:', response.type)
-      console.log('响应头:', [...response.headers.entries()])
+}
 
-      // 处理响应状态
-      if (response.status === 500) {
-        throw new Error('服务器内部错误，请稍后再试')
-      } else if (!response.ok) {
-        throw new Error(`HTTP 错误! 状态: ${response.status}`)
+const getQuestionType = (question: any): string => {
+  if (Object.prototype.hasOwnProperty.call(question, 'optionA')) return 'choice'
+  if (Object.prototype.hasOwnProperty.call(question, 'scaleMin')) return 'scale'
+  return 'shortAnswer'
+}
+
+const analyzeQuestionSSE = (questionId: string, questionType: string): void => {
+  aiAnalysisStatus.value[`${questionType}-${questionId}`] = ANALYSIS_STATUS.LOADING
+
+  if (!userId.value) {
+    message.warning('无法获取用户ID，AI解析可能无法正常工作')
+  }
+
+  let requestUrl = `/api/ai/analysis?questionId=${questionId}&subject=psychology`
+  if (userId.value) {
+    requestUrl += `&userId=${userId.value}`
+  }
+
+  analysisResults.value[`${questionType}-${questionId}`] = ''
+
+  try {
+    const eventSource = new EventSource(requestUrl)
+
+    eventSource.onopen = () => {
+      // Connection opened
+    }
+
+    eventSource.onerror = () => {
+      aiAnalysisStatus.value[`${questionType}-${questionId}`] = ANALYSIS_STATUS.ERROR
+      message.error('AI解析连接失败，请稍后重试')
+      eventSource.close()
+    }
+
+    eventSource.onmessage = event => {
+      if (event.data === '[DONE]') {
+        eventSource.close()
+
+        if (
+          !analysisResults.value[`${questionType}-${questionId}`] ||
+          analysisResults.value[`${questionType}-${questionId}`].trim() === ''
+        ) {
+          aiAnalysisStatus.value[`${questionType}-${questionId}`] = ANALYSIS_STATUS.EMPTY
+        } else {
+          aiAnalysisStatus.value[`${questionType}-${questionId}`] = ANALYSIS_STATUS.SUCCESS
+          message.success('AI解析完成')
+        }
+        return
       }
 
-      // 获取响应数据流
-      const reader = response.body?.getReader()
-      if (!reader) {
-        throw new Error('无法获取响应流')
-      }
+      const key = `${questionType}-${questionId}`
+      const currentText = analysisResults.value[key] || ''
+      const newText = currentText + event.data
 
-      const decoder = new TextDecoder()
+      analysisResults.value[key] = newText
 
-      // 递归函数处理数据流
-      const processStream = async () => {
-        try {
-          const { done, value } = await reader.read()
+      const newResults = { ...analysisResults.value }
+      analysisResults.value = newResults
+    }
 
-          if (done) {
-            console.log('流数据接收完成')
-            return
-          }
+    setTimeout(() => {
+      if (aiAnalysisStatus.value[`${questionType}-${questionId}`] === ANALYSIS_STATUS.LOADING) {
+        eventSource.close()
 
-          // 解码并处理数据块
-          const chunk = decoder.decode(value, { stream: true })
-          console.log('接收到数据块:', chunk)
-          const lines = chunk.split('\n')
-
-          for (const line of lines) {
-            if (line.startsWith('data:')) {
-              const data = line.slice(5).trim()
-
-              if (data === '[DONE]') {
-                console.log('收到 [DONE] 标记，解析完成')
-                return
-              }
-
-              // 更新解析结果
-              analysisResults.value[`${questionType}-${questionId}`] += data
-            }
-          }
-
-          // 继续处理流
-          return processStream()
-        } catch (error) {
-          console.error('处理流数据时出错:', error)
-          throw error
+        if (
+          analysisResults.value[`${questionType}-${questionId}`] &&
+          analysisResults.value[`${questionType}-${questionId}`].trim() !== ''
+        ) {
+          aiAnalysisStatus.value[`${questionType}-${questionId}`] = ANALYSIS_STATUS.SUCCESS
+        } else {
+          aiAnalysisStatus.value[`${questionType}-${questionId}`] = ANALYSIS_STATUS.ERROR
+          message.error('AI解析请求超时')
         }
       }
+    }, 30000)
+  } catch (error) {
+    aiAnalysisStatus.value[`${questionType}-${questionId}`] = ANALYSIS_STATUS.ERROR
+    message.error('AI 解析请求失败：' + (error instanceof Error ? error.message : String(error)))
+  }
+}
 
-      // 开始处理流
-      return processStream()
-    })
-    .catch(error => {
-      console.error('AI 解析请求失败:', error)
-      aiAnalysisStatus.value[`${questionType}-${questionId}`] = 500
-      message.error('AI 解析请求失败: ' + error.message)
-    })
+const analyzeQuestion = (questionId: string, questionType: string) => {
+  showAnalysis.value[`${questionType}-${questionId}`] = true
+
+  message.info('正在生成AI解析，请稍候...')
+
+  try {
+    analyzeQuestionSSE(questionId, questionType)
+  } catch (error) {
+    aiAnalysisStatus.value[`${questionType}-${questionId}`] = ANALYSIS_STATUS.ERROR
+    message.error('AI解析初始化失败: ' + (error instanceof Error ? error.message : String(error)))
+  }
+}
+
+const retryAnalysis = (questionId: string, questionType: string) => {
+  aiAnalysisStatus.value[`${questionType}-${questionId}`] = ANALYSIS_STATUS.IDLE
+  analyzeQuestion(questionId, questionType)
 }
 
 onMounted(async () => {
-  // 获取用户信息（为了AI解析功能）
   try {
-    const response = await getUser()
-    userId = Number(response.data.id)
+    const response = (await getUser()) as { data: { id: number } }
+    userId.value = Number(response.data.id)
   } catch (error) {
-    console.error('获取用户信息失败:', error)
+    // Error handling
   }
 
   await fetchPaper()
 
-  // 加载完数据后，尝试恢复保存的答案
   if (paperData.value) {
     loadSavedAnswers()
   }
@@ -744,13 +733,14 @@ onMounted(async () => {
   if (isExamMode.value) {
     startTimer()
   }
+
+  initializeAnalysisData()
 })
 
 onBeforeUnmount(() => {
   if (timerId.value) {
     clearInterval(timerId.value)
   }
-  // 退出前保存答案
   if (!showReference.value) {
     autoSaveAnswers()
   }
@@ -1088,31 +1078,52 @@ onBeforeUnmount(() => {
 .markdown-body h4,
 .markdown-body h5,
 .markdown-body h6 {
-  margin-top: 24px;
-  margin-bottom: 16px;
+  margin-top: 16px;
+  margin-bottom: 8px;
   font-weight: 600;
   line-height: 1.25;
   color: #262626;
 }
 
 .markdown-body h1 {
-  font-size: 1.85em;
+  font-size: 1.5em;
   border-bottom: 1px solid #eaecef;
-  padding-bottom: 0.3em;
+  padding-bottom: 0.2em;
 }
 
 .markdown-body h2 {
-  font-size: 1.5em;
+  font-size: 1.25em;
   border-bottom: 1px solid #eaecef;
-  padding-bottom: 0.3em;
+  padding-bottom: 0.2em;
 }
 
 .markdown-body h3 {
-  font-size: 1.25em;
+  font-size: 1.1em;
 }
 
 .markdown-body h4 {
   font-size: 1em;
+}
+
+.markdown-body p {
+  margin-top: 0;
+  margin-bottom: 8px;
+}
+
+.markdown-body ul,
+.markdown-body ol {
+  padding-left: 2em;
+  margin-top: 0;
+  margin-bottom: 8px;
+}
+
+.markdown-body li + li {
+  margin-top: 0.1em;
+}
+
+.markdown-body li p {
+  margin-top: 4px;
+  margin-bottom: 4px;
 }
 
 .markdown-body code {
@@ -1131,15 +1142,6 @@ onBeforeUnmount(() => {
   line-height: 1.45;
   background-color: #f6f8fa;
   border-radius: 3px;
-}
-
-.markdown-body ul,
-.markdown-body ol {
-  padding-left: 2em;
-}
-
-.markdown-body li + li {
-  margin-top: 0.25em;
 }
 
 .markdown-body blockquote {
@@ -1266,6 +1268,66 @@ onBeforeUnmount(() => {
 
 :deep(html.dark) .auto-save-indicator {
   color: #73d13d;
+}
+
+.analysis-empty,
+.analysis-error {
+  padding: 16px;
+  text-align: center;
+  color: #8c8c8c;
+  background-color: #f9f9f9;
+  border-radius: 4px;
+  margin-top: 8px;
+  font-size: 14px;
+}
+
+.analysis-error {
+  color: #ff4d4f;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.retry-button {
+  margin-top: 8px;
+  padding: 4px 12px;
+}
+
+.analysis-streaming-indicator {
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+.loading-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin: 0 4px;
+  background-color: #1677ff;
+  border-radius: 50%;
+  animation: dot-pulse 1.5s infinite ease-in-out;
+}
+
+.loading-dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.loading-dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes dot-pulse {
+  0%,
+  100% {
+    transform: scale(0.6);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 </style>
 
