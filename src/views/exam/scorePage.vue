@@ -81,6 +81,7 @@ const main = async () => {
       type: '公务员'
     } as ScoregetData
     const practiceResponse = await getScore(practiceRequestData)
+
     let practiceScoreList: ScoreItem[] = []
     if (practiceResponse.data) {
       practiceScoreList = practiceResponse.data.map((item: any) => ({
