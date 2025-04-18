@@ -404,6 +404,11 @@
 import { ref, computed, watch, onMounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import zhengzhi1Image from '@/assets/images/paper_imgs/zhengzhi1.png'
+import jisuanji1Image from '@/assets/images/paper_imgs/jisuanji2.jpg'
+import yingyu1Image from '@/assets/images/paper_imgs/yingyu1.png'
+import xinli1Image from '@/assets/images/paper_imgs/xinli1.jpg'
+import lishi1Image from '@/assets/images/paper_imgs/lishi1.jpg'
+import zhuanyeke1Image from '@/assets/images/paper_imgs/zhuanyeke1.jpg'
 
 const router = useRouter()
 const activeTab = ref('specialized-practice')
@@ -498,21 +503,21 @@ const papers = ref([
     title: '计算机学科 数据结构专题',
     description: '涵盖树、图、排序算法等重点考察内容',
     category: 'professional',
-    imageUrl: zhengzhi1Image
+    imageUrl: zhuanyeke1Image
   },
   {
     id: 3,
-    title: '2023年专业课真题解析',
+    title: '2024年全国硕士研究生招生考试计算机学科专业基础(408)真题',
     description: '包含详细解答及考点分析',
     category: 'professional',
-    imageUrl: zhengzhi1Image
+    imageUrl: jisuanji1Image
   },
   {
     id: 5,
-    title: '英语二全真模拟',
-    description: '考研英语阅读理解专项训练',
+    title: '2024年全国硕士研究生招生考试英语一真题',
+    description: '考研英语专项训练',
     category: 'english',
-    imageUrl: zhengzhi1Image
+    imageUrl: yingyu1Image
   },
   {
     id: 6,
@@ -526,14 +531,14 @@ const papers = ref([
     title: '2024年全国硕士研究生招生考试心理学专业基础(347)真题',
     description: '心理学专业考试真题与详细解析',
     category: 'psychology',
-    imageUrl: zhengzhi1Image
+    imageUrl: xinli1Image
   },
   {
     id: 9,
     title: '2023年全国硕士研究生招生考试历史学专业基础真题',
     description: '历史学专业知识点全面覆盖，含详细解析',
     category: 'history',
-    imageUrl: zhengzhi1Image
+    imageUrl: lishi1Image
   }
 ])
 

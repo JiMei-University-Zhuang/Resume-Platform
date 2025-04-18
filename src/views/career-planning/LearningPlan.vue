@@ -98,28 +98,28 @@ const learningObjectives = ref([
 
 const learningPath = ref([
   {
-    phase: '阶段1',
+    phase: '1',
     title: '基础夯实',
     duration: '2-3个月',
     skills: ['HTML/CSS', 'JavaScript', '计算机基础'],
     description: '巩固编程基础知识，了解Web开发核心概念'
   },
   {
-    phase: '阶段2',
+    phase: '2',
     title: '框架学习',
     duration: '3-4个月',
     skills: ['Vue.js', 'React', 'Node.js'],
     description: '掌握主流前端框架和基本后端开发技能'
   },
   {
-    phase: '阶段3',
+    phase: '3',
     title: '项目实战',
     duration: '4-6个月',
     skills: ['数据库', 'API设计', '项目架构'],
     description: '通过实际项目应用所学知识，解决实际问题'
   },
   {
-    phase: '阶段4',
+    phase: '4',
     title: '高级提升',
     duration: '持续学习',
     skills: ['性能优化', '设计模式', '微服务'],
