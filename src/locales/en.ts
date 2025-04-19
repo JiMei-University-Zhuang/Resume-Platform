@@ -48,7 +48,8 @@ export default {
     careerPlanning: 'Career Planning',
     developmentPlan: 'Development Plan',
     careerRecommendation: 'Career Recommend',
-    dataScreen: 'Data Dashboard'
+    dataScreen: 'Data Dashboard',
+    learningPlan: 'Learning Plan'
   },
   sider: {
     navigation: 'Navigation',

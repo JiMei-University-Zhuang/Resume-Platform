@@ -1416,7 +1416,7 @@ defineExpose({
   padding: 20px 24px;
   border-radius: 8px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
-  color: white;
+  color: white !important;
 }
 
 .page-title {
@@ -2048,10 +2048,6 @@ defineExpose({
   border-radius: 4px;
   border: 1px solid #d9d9d9;
   transition: all 0.3s;
-}
-
-.resume-type-selector :deep(.el-radio-button:not(:first-child) .el-radio-button__inner) {
-  border-left: 1px solid #d9d9d9;
 }
 
 .resume-type-selector :deep(.el-radio-button__orig-radio:checked + .el-radio-button__inner) {
