@@ -247,7 +247,7 @@ const fetchWrongQuestionRecordCountByType = async () => {
     const response = await getWrongQuestionRecordCount(data)
     if (Array.isArray(response.data) && response.data.length > 0) {
       recordCount.value = response.data.length
-      recordIds.value = response.data.map((item, index) => {
+      recordIds.value = response.data.map((item) => {
         return {
           recordId: item.recordId || 0,
           type: item.type || '未知类型'
