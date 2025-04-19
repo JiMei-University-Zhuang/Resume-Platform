@@ -105,6 +105,23 @@ const userInput = ref('')
 const isTyping = ref(false)
 const messagesContainer = ref<HTMLElement | null>(null)
 
+// 滚动到底部
+const scrollToBottom = async () => {
+  await nextTick()
+  if (messagesContainer.value) {
+    messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
+  }
+}
+
+// 添加助手消息
+const addAssistantMessage = (content: string) => {
+  messages.value.push({
+    role: 'assistant',
+    content
+  })
+  scrollToBottom()
+}
+
 // 根据上下文生成建议问题
 const suggestions = computed(() => {
   if (props.context.career) {
@@ -155,15 +172,6 @@ const sendMessage = async () => {
     isTyping.value = false
     generateResponse(sentMessage)
   }, 1000)
-}
-
-// 添加助手消息
-const addAssistantMessage = (content: string) => {
-  messages.value.push({
-    role: 'assistant',
-    content
-  })
-  scrollToBottom()
 }
 
 // 生成AI回复
@@ -245,14 +253,6 @@ const formatMessage = (text: string): string => {
 const useSuggestion = (suggestion: string) => {
   userInput.value = suggestion
   sendMessage()
-}
-
-// 滚动到底部
-const scrollToBottom = async () => {
-  await nextTick()
-  if (messagesContainer.value) {
-    messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
-  }
 }
 
 // 切换展开/折叠状态
