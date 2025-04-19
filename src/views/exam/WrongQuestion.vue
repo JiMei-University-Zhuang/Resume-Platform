@@ -14,25 +14,20 @@
     <div v-else>
       <div v-if="recordCount > 0">
         <select v-model="selectedType" @change="fetchWrongQuestionRecordCountByType">
-          <option
-            v-for="type in ['公务员练习', '公务员考试', '研究生练习', '研究生考试'].filter(option =>
-              ['公务员练习', '公务员考试', '研究生练习', '研究生考试'].includes(option)
-            )"
-            :value="type"
-          >
-            {{ type }}
-          </option>
+          <option value="公务员">公务员</option>
+          <option value="研究生">研究生</option>
         </select>
         <select
-          v-model="selectedRecordId"
-          @click="handleSelectClick"
-          @change="selectedRecordId && fetchWrongQuestionsByRecordId(selectedRecordId)"
+          v-model="selectedRecordInfo"
+          @change="selectedRecordInfo && fetchWrongQuestionsByRecordId(selectedRecordInfo)"
           style="padding: 20px"
         >
           <option :value="null">{{ selectDisplayText }}</option>
-          <option v-for="recordId in recordIds" :value="recordId">答题记录 {{ recordId }}</option>
+          <option v-for="recordInfo in recordIds" :value="recordInfo">
+            答题记录 {{ recordInfo.recordId }} - 类型: {{ recordInfo.type }}
+          </option>
         </select>
-        <div v-if="selectedRecordId">
+        <div v-if="selectedRecordInfo">
           <!-- 错题卡片展示区域 -->
           <div
             class="wrong-question-card"
@@ -55,9 +50,7 @@
               </div>
               <p
                 class="question-content"
-                v-html="
-                  `&ensp;&ensp;${selectedWrongQuestions[currentQuestionIndex].questionContent}`
-                "
+                v-html="formatText(selectedWrongQuestions[currentQuestionIndex].questionContent)"
               ></p>
               <div
                 v-if="
@@ -131,9 +124,9 @@
                 >
                   <div class="sub-question-info">
                     小题{{ subQuestion.itemId }} :
-                    <span v-html="formatText(subQuestion.itemContent)"></span>
+                   <span v-html="formatText(subQuestion.itemContent.length > 4? subQuestion.itemContent.slice(4) : subQuestion.itemContent)"></span>
                   </div>
-                  <br />
+
                   <span
                     v-for="(_subOption, subOptionIndex) in subQuestion.options"
                     :key="subOptionIndex"
@@ -142,10 +135,10 @@
                   ><br />
                   <div class="sub-question-answerblock">
                     <span class="sub-question-answer answer-container">
-                      你的答案: {{ subQuestion.userAnswer }} </span
-                    ><br />
+                      你的答案: <span v-html="formatText(subQuestion.userAnswer)"></span> </span
+                    >
                     <span class="sub-question-answer answer-container">
-                      正确答案: {{ subQuestion.correctAnswer }}
+                      正确答案:<br> <span v-html="formatText(subQuestion.correctAnswer)"></span>
                     </span>
                   </div>
                   <br />
@@ -170,13 +163,11 @@
     </div>
   </div>
 </template>
-
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { getWrongQuestionRecordCount, getWrongQuestion } from '@/api/errorRecord'
 import { getUser } from '@/api/user'
 import { GetRecordData, Question } from '@/types/errorRecord'
-
 // 定义获取错题的响应数据类型
 interface WrongQuestion {
   questionType: string
@@ -200,17 +191,15 @@ interface WrongQuestion {
     itemScore: number
   }[]
 }
-
 const loading = ref(true)
 const recordCount = ref(0)
-const recordIds = ref<number[]>([])
-let userId: number
-const selectedRecordId = ref<number | null>(null)
-const selectedWrongQuestions = ref<WrongQuestion[]>([]) // 存储选择的那次记录中的错题数据
-const currentQuestionIndex = ref(0) // 当前展示的题目索引
+const recordIds = ref<{ recordId: number; type: string }[]>([])
+const selectedWrongQuestions = ref<WrongQuestion[]>([])
+const currentQuestionIndex = ref(0)
 const selectDisplayText = ref('请选择你要选择的试卷')
-const selectedType = ref<'公务员练习' | '公务员考试' | '研究生练习' | '研究生考试'>('公务员练习')
-
+let userId = Number(localStorage.getItem('userId'))
+const selectedType = ref<'公务员' | '研究生'>('公务员')
+const selectedRecordInfo = ref<{ recordId: number; type: string } | null>(null)
 const formatText = (text: string) => {
   let processedText = text
   processedText = processedText.replace(/\\n/g, '\n')
@@ -222,8 +211,7 @@ const formatText = (text: string) => {
 const showQuestion = (num: number) => {
   currentQuestionIndex.value = num
 }
-
-// 获取用户 ID
+// 获取用户ID
 const fetchUserId = async () => {
   try {
     const response = await getUser()
@@ -236,52 +224,23 @@ const fetchUserId = async () => {
     console.error('获取用户信息失败:', error)
   }
 }
-
-// 根据选择的类型获取错题记录数
 // 根据选择的类型获取错题记录数
 const fetchWrongQuestionRecordCountByType = async () => {
   if (!userId) {
-    console.error('用户 ID 未获取到，无法获取错题记录数')
+    console.error('用户ID未获取到，无法获取错题记录数')
     return
   }
-  let type: '研究生' | '公务员'
-  if (selectedType.value.includes('公务员')) {
-    type = '公务员'
-  } else {
-    type = '研究生'
-  }
-  const data: GetRecordData = { userId, type }
+  const data: GetRecordData = { userId, type: selectedType.value }
   try {
     const response = await getWrongQuestionRecordCount(data)
-    // 检查接口返回数据是否为数组且长度大于0
     if (Array.isArray(response.data) && response.data.length > 0) {
       recordCount.value = response.data.length
-      recordIds.value = response.data.map(item => {
-        if (item.recordId !== undefined) {
-          return item.recordId
-        } else {
-          console.error('获取错题记录数时，recordId未定义')
-          return 0
+      recordIds.value = response.data.map((item, index) => {
+        return {
+          recordId: item.recordId || 0,
+          type: item.type || '未知类型'
         }
       })
-      // 提取接口返回数据中的不同题型
-      const uniqueTypes = Array.from(new Set(response.data.map(item => item.type)))
-      // 清空并重新设置selectedType的可选项
-      const selectOptions = ['公务员练习', '公务员考试', '研究生练习', '研究生考试'].filter(
-        option => uniqueTypes.includes(option)
-      )
-      if (
-        selectOptions.length > 0 &&
-        ['公务员练习', '公务员考试', '研究生练习', '研究生考试'].includes(selectOptions[0])
-      ) {
-        selectedType.value = selectOptions[0] as
-          | '公务员练习'
-          | '公务员考试'
-          | '研究生练习'
-          | '研究生考试'
-      } else {
-        selectedType.value = '公务员练习'
-      }
     } else {
       console.error('获取错题记录数接口返回数据结构异常或无记录')
       recordCount.value = 0
@@ -293,14 +252,15 @@ const fetchWrongQuestionRecordCountByType = async () => {
     recordIds.value = []
   }
 }
-
 // 根据recordId获取那次答题的错题
-const fetchWrongQuestionsByRecordId = async (recordId: number) => {
+const fetchWrongQuestionsByRecordId = async (recordInfo: { recordId: number; type: string }) => {
   if (!userId) {
-    console.error('用户 ID 未获取到，无法获取错题')
+    console.error('用户ID未获取到，无法获取错题')
     return
   }
-  const data: Question = { userId, type: selectedType.value, record: recordId }
+  const recordId = recordInfo.recordId
+  const type = recordInfo.type
+  const data: Question = { userId, type, record: recordId }
   try {
     const response = await getWrongQuestion(data)
     if (Array.isArray(response.data)) {
@@ -360,28 +320,21 @@ const fetchWrongQuestionsByRecordId = async (recordId: number) => {
     loading.value = false
   }
 }
-
-// // 辅助函数，将选项索引转换为字母
-// const getOptionLetter = (index: number): string => {
-//   return String.fromCharCode(65 + index)
+// // 监听下拉框是否被触碰，这里通过监听点击事件实现
+// const handleSelectClick = () => {
+//   if (recordIds.value.length > 0 && selectedRecordId.value === null) {
+//     selectedRecordId.value = recordIds.value[0]
+//     selectDisplayText.value = `答题记录 ${recordIds.value[0]}`
+//     fetchWrongQuestionsByRecordId(selectedRecordId.value)
+//   }
 // }
-
-// 监听下拉框是否被触碰，这里通过监听点击事件实现
-const handleSelectClick = () => {
-  if (recordIds.value.length > 0 && selectedRecordId.value === null) {
-    selectedRecordId.value = recordIds.value[0]
-    selectDisplayText.value = `答题记录 ${recordIds.value[0]}`
-    fetchWrongQuestionsByRecordId(selectedRecordId.value)
-  }
-}
-
 onMounted(async () => {
   try {
     await fetchUserId()
     await fetchWrongQuestionRecordCountByType()
     if (recordIds.value.length > 0) {
-      selectedRecordId.value = recordIds.value[0]
-      await fetchWrongQuestionsByRecordId(selectedRecordId.value)
+      const firstRecordInfo = recordIds.value[0]
+      await fetchWrongQuestionsByRecordId(firstRecordInfo)
     } else {
       loading.value = false
     }
@@ -584,6 +537,8 @@ ul {
   font-size: 18px;
   line-height: 1.6;
   margin-bottom: 4px;
+  background-color: rgb(237, 241, 244);
+  padding: 15px;
 }
 /* 下拉框 */
 select {
