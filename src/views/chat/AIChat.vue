@@ -138,7 +138,9 @@
             <i class="el-icon-s-promotion"></i>
           </button>
         </div>
-        <div class="disclaimer">不同的模型可能会有不同的响应时长，请根据需要选择合适的模型并耐心等待～</div>
+        <div class="disclaimer">
+          不同的模型可能会有不同的响应时长，请根据需要选择合适的模型并耐心等待～
+        </div>
       </div>
     </div>
   </div>

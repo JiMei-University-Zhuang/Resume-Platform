@@ -404,11 +404,11 @@
 import { ref, computed, watch, onMounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import zhengzhi1Image from '@/assets/images/paper_imgs/zhengzhi1.png'
-import jisuanji1Image from '@/assets/images/paper_imgs/jisuanji2.jpg'
-import yingyu1Image from '@/assets/images/paper_imgs/yingyu1.png'
+import jisuanji1Image from '@/assets/images/paper_imgs/jisuanji5.jpg'
+import yingyu1Image from '@/assets/images/paper_imgs/yingyu2.jpg'
 import xinli1Image from '@/assets/images/paper_imgs/xinli1.jpg'
 import lishi1Image from '@/assets/images/paper_imgs/lishi1.jpg'
-import zhuanyeke1Image from '@/assets/images/paper_imgs/zhuanyeke1.jpg'
+import zhuanyeke1Image from '@/assets/images/paper_imgs/jisuanji4.jpg'
 
 const router = useRouter()
 const activeTab = ref('specialized-practice')
