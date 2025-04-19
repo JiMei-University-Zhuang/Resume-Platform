@@ -124,7 +124,15 @@
                 >
                   <div class="sub-question-info">
                     小题{{ subQuestion.itemId }} :
-                   <span v-html="formatText(subQuestion.itemContent.length > 4? subQuestion.itemContent.slice(4) : subQuestion.itemContent)"></span>
+                    <span
+                      v-html="
+                        formatText(
+                          subQuestion.itemContent.length > 4
+                            ? subQuestion.itemContent.slice(4)
+                            : subQuestion.itemContent
+                        )
+                      "
+                    ></span>
                   </div>
 
                   <span
@@ -135,10 +143,11 @@
                   ><br />
                   <div class="sub-question-answerblock">
                     <span class="sub-question-answer answer-container">
-                      你的答案: <span v-html="formatText(subQuestion.userAnswer)"></span> </span
-                    >
+                      你的答案: <span v-html="formatText(subQuestion.userAnswer)"></span>
+                    </span>
                     <span class="sub-question-answer answer-container">
-                      正确答案:<br> <span v-html="formatText(subQuestion.correctAnswer)"></span>
+                      正确答案:<br />
+                      <span v-html="formatText(subQuestion.correctAnswer)"></span>
                     </span>
                   </div>
                   <br />

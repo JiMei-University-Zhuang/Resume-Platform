@@ -67,7 +67,7 @@ export interface RecordInfo {
   createTime: string
 }
 
-export interface Question{
+export interface Question {
   userId?: number
   type?: string
   record?: number
