@@ -91,31 +91,31 @@
                 ><br />
               </div>
               <div
-  v-if="selectedWrongQuestions[currentQuestionIndex]?.questionType === '行测选择题'"
-  class="answer-section"
->
-  <p class="answer-container">
-    正确答案:
-    <span class="correct-answer">{{
-      selectedWrongQuestions[currentQuestionIndex].correctAnswer
-    }}</span>
-  </p>
-  <p
-    v-if="selectedWrongQuestions[currentQuestionIndex].referenceAnswer"
-    class="answer-container"
-  >
-    参考答案:
-    <span class="reference-answer">{{
-      selectedWrongQuestions[currentQuestionIndex].referenceAnswer
-    }}</span>
-  </p>
-  <p class="answer-container">
-    你的答案:
-    <span class="user-answer">{{
-      selectedWrongQuestions[currentQuestionIndex].userAnswer
-    }}</span>
-  </p>
-</div>
+                v-if="selectedWrongQuestions[currentQuestionIndex]?.questionType === '行测选择题'"
+                class="answer-section"
+              >
+                <p class="answer-container">
+                  正确答案:
+                  <span class="correct-answer">{{
+                    selectedWrongQuestions[currentQuestionIndex].correctAnswer
+                  }}</span>
+                </p>
+                <p
+                  v-if="selectedWrongQuestions[currentQuestionIndex].referenceAnswer"
+                  class="answer-container"
+                >
+                  参考答案:
+                  <span class="reference-answer">{{
+                    selectedWrongQuestions[currentQuestionIndex].referenceAnswer
+                  }}</span>
+                </p>
+                <p class="answer-container">
+                  你的答案:
+                  <span class="user-answer">{{
+                    selectedWrongQuestions[currentQuestionIndex].userAnswer
+                  }}</span>
+                </p>
+              </div>
               <div
                 v-if="selectedWrongQuestions[currentQuestionIndex].questions"
                 class="sub-question-section"
