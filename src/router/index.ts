@@ -215,15 +215,6 @@ const routes: RouteRecordRaw[] = [
               title: '学习计划',
               i18n: 'breadcrumb.learningPlan'
             }
-          },
-          {
-            path: 'recommendation',
-            name: 'CareerRecommendation',
-            component: () => import('@/views/career-planning/Recommendation.vue'),
-            meta: {
-              title: '职业推荐',
-              i18n: 'breadcrumb.careerRecommendation'
-            }
           }
         ]
       },

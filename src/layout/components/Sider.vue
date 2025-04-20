@@ -195,18 +195,6 @@
               </div>
               <span class="category-label">{{ t('sider.learningPlan') }}</span>
             </router-link>
-
-            <router-link
-              to="/career-planning/recommendation"
-              class="category-item"
-              :class="{ active: route.path === '/career-planning/recommendation' }"
-              @click="navigateTo('/career-planning/recommendation')"
-            >
-              <div class="category-icon">
-                <el-icon><StarFilled /></el-icon>
-              </div>
-              <span class="category-label">{{ t('sider.careerRecommendation') }}</span>
-            </router-link>
           </div>
         </div>
       </div>
@@ -313,14 +301,6 @@
             >
               {{ t('sider.learningPlan') }}
             </router-link>
-            <router-link
-              to="/career-planning/recommendation"
-              class="dropdown-item"
-              :class="{ active: route.path === '/career-planning/recommendation' }"
-              @click="navigateTo('/career-planning/recommendation')"
-            >
-              {{ t('sider.careerRecommendation') }}
-            </router-link>
           </div>
         </div>
         <router-link
@@ -348,11 +328,10 @@ import {
   CopyDocument,
   DataAnalysis,
   Compass,
-  StarFilled,
+  List,
   Reading,
-  Collection,
   User,
-  List
+  Collection
 } from '@element-plus/icons-vue'
 import { useAppStore } from '@/stores'
 import { useUserStore } from '@/stores/userStore'
