@@ -482,30 +482,6 @@ const analyzeQuestion = (index: number) => {
   analyzeQuestionSSE(questionId, index)
 }
 
-// const submitRealExam = async () => {
-//   showEssayAnswers.value = true
-//   isExamInProgress.value = false
-//   if (!userId) {
-//     console.error('用户 ID 未获取到，无法保存成绩')
-//     return
-//   }
-//   // 调用保存成绩接口
-//   const scoreData: ScoresaveData = {
-//     userId,
-//     userScore: totalScore.value,
-//     totalScore: totalScore_pre.value,
-//     type: route.query.type === 'exam' ? '公务员考试' : '公务员练习',
-//     questionInfo: questionInfo.value
-//   }
-
-//   try {
-//     await saveScore(scoreData)
-//   } catch (error) {
-//     console.error('保存成绩失败:', error)
-//   }
-//   saveScoreAndWrongQuestions()
-//   showReference.value = true
-// }
 const submitRealExam = async () => {
   showEssayAnswers.value = true
   isExamInProgress.value = false
@@ -989,7 +965,6 @@ onUnmounted(() => {
   background: linear-gradient(215deg, #c332fb, #00dbde, #c332fb);
   background-size: 400%;
   border-radius: 40px;
-  /* filter: blur(10px); */
   opacity: 0;
 }
 .neon-ai-parse-button:hover::before {

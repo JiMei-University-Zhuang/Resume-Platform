@@ -1188,6 +1188,43 @@ onBeforeUnmount(() => {
 .ai-parse-button {
   padding: 8px 16px;
   font-size: 14px;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  background: linear-gradient(215deg, #c332fb, #00dbde, #c332fb);
+  background-size: 400%;
+  border: 0;
+  border-radius: 4px;
+  z-index: 1;
+  width: 77px;
+}
+@keyframes neon {
+  from {
+    background-position: 0%;
+  }
+  to {
+    background-position: 400%;
+  }
+}
+.ai-parse-button:hover {
+  animation: neon 8s linear infinite;
+}
+.ai-parse-button::before {
+  width: 87px;
+  content: '';
+  position: absolute;
+  inset: -5px;
+  z-index: -1;
+  background: linear-gradient(215deg, #c332fb, #00dbde, #c332fb);
+  background-size: 400%;
+  border-radius: 40px;
+  opacity: 0;
+}
+.ai-parse-button:hover::before {
+  width: 87px;
+  filter: blur(10px);
+  opacity: 1;
+  animation: neon 8s linear infinite;
 }
 
 .ai-analysis-status-tooltip {
