@@ -16,7 +16,7 @@ const getBaseURL = () => {
 // 创建 axios 实例
 const service = axios.create({
   baseURL: getBaseURL(),
-  timeout: 30000,
+  timeout: 40000,
   headers: {
     'Content-Type': 'application/json'
   }
@@ -61,7 +61,6 @@ service.interceptors.response.use(
         break
     }
 
-    message.error(msg)
     return Promise.reject(error)
   }
 )
