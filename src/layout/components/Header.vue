@@ -204,18 +204,6 @@
         </el-tab-pane>
       </el-tabs>
     </el-drawer>
-
-    <!-- 引导按钮，只在首页显示 -->
-    <el-button
-      v-if="showGuideButton"
-      class="tour-button"
-      type="success"
-      size="small"
-      @click="startTour"
-    >
-      <el-icon><Guide /></el-icon>
-      {{ t('dashboard.guidedTour') }}
-    </el-button>
   </header>
 </template>
 
@@ -233,8 +221,7 @@ import {
   WarningFilled,
   SuccessFilled,
   Calendar,
-  Loading,
-  Guide
+  Loading
 } from '@element-plus/icons-vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAppStore } from '@/stores'
@@ -262,11 +249,6 @@ const router = useRouter()
 const route = useRoute()
 const appStore = useAppStore()
 const userStore = useUserStore()
-
-// 判断是否显示引导按钮
-const showGuideButton = computed(() => {
-  return route.path === '/dashboard' || route.path === '/'
-})
 
 // 全屏状态管理
 const isFullScreen = ref(false)
