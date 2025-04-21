@@ -22,14 +22,14 @@
         <a-row :gutter="24">
           <a-col :span="12">
             <!-- 用户名 -->
-            <a-form-item label="用户名" name="username">
-              <a-input v-model:value="userForm.username" placeholder="请输入用户名" />
+            <a-form-item label="账号" name="username">
+              <a-input v-model:value="userForm.username" placeholder="请输入账号" />
             </a-form-item>
           </a-col>
           <a-col :span="12">
             <!-- 姓名 -->
-            <a-form-item label="姓名" name="name">
-              <a-input v-model:value="userForm.name" placeholder="请输入姓名" />
+            <a-form-item label="昵称" name="name">
+              <a-input v-model:value="userForm.name" placeholder="请输入昵称" />
             </a-form-item>
           </a-col>
         </a-row>

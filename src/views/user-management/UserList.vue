@@ -13,8 +13,8 @@
 
       <!-- 搜索和筛选区域 -->
       <a-form layout="inline" :model="searchForm" class="search-form">
-        <a-form-item label="用户名">
-          <a-input v-model:value="searchForm.username" placeholder="请输入用户名" allow-clear />
+        <a-form-item label="账号">
+          <a-input v-model:value="searchForm.username" placeholder="请输入账号" allow-clear />
         </a-form-item>
         <a-form-item label="角色">
           <a-select
@@ -48,7 +48,7 @@
         <a-space>
           <a-tag v-if="searchForm.username" closable @close="clearUsernameFilter" color="blue">
             <template #icon><user-outlined /></template>
-            用户名: {{ searchForm.username }}
+            账号: {{ searchForm.username }}
           </a-tag>
           <a-tag
             v-if="searchForm.role"
@@ -152,14 +152,14 @@
         <a-row :gutter="24">
           <a-col :span="12">
             <!-- 用户名 -->
-            <a-form-item label="用户名" name="username">
-              <a-input v-model:value="addUserForm.username" placeholder="请输入用户名" />
+            <a-form-item label="账号" name="username">
+              <a-input v-model:value="addUserForm.username" placeholder="请输入账号" />
             </a-form-item>
           </a-col>
           <a-col :span="12">
-            <!-- 姓名 -->
-            <a-form-item label="姓名" name="name">
-              <a-input v-model:value="addUserForm.name" placeholder="请输入姓名" />
+            <!-- 昵称 -->
+            <a-form-item label="昵称" name="name">
+              <a-input v-model:value="addUserForm.name" placeholder="请输入昵称" />
             </a-form-item>
           </a-col>
         </a-row>
@@ -286,13 +286,13 @@ const columns = [
     width: 80
   },
   {
-    title: '用户名',
+    title: '账号',
     dataIndex: 'username',
     key: 'username',
     width: 120
   },
   {
-    title: '姓名',
+    title: '昵称',
     dataIndex: 'name',
     key: 'name',
     width: 120
@@ -404,10 +404,10 @@ const addUserForm = reactive({
 // 用户表单验证规则
 const userFormRules = {
   username: [
-    { required: true, message: '请输入用户名', trigger: 'blur' },
+    { required: true, message: '请输入账号', trigger: 'blur' },
     { min: 3, max: 20, message: '长度在 3 到 20 个字符', trigger: 'blur' }
   ],
-  name: [{ required: true, message: '请输入姓名', trigger: 'blur' }],
+  name: [{ required: true, message: '请输入昵称', trigger: 'blur' }],
   email: [
     { required: true, message: '请输入邮箱', trigger: 'blur' },
     { type: 'email', message: '请输入正确的邮箱地址', trigger: 'blur' }
