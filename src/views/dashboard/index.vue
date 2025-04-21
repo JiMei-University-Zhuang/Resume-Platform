@@ -12,22 +12,27 @@
       </div>
       <div class="welcome-content">
         <div class="platform-logo">
-          <span class="logo-text">{{ $t('dashboard.careerPlatform') }}</span>
+          <span class="logo-text">{{ t('dashboard.careerPlatform') }}</span>
         </div>
-        <h1 class="welcome-title">{{ $t('dashboard.intelligentPlanning') }}</h1>
-        <p class="welcome-subtitle">{{ $t('dashboard.platformDescription') }}</p>
+        <h1 class="welcome-title">{{ t('dashboard.intelligentPlanning') }}</h1>
+        <p class="welcome-subtitle">{{ t('dashboard.platformDescription') }}</p>
         <div class="hero-actions">
           <el-button
             type="primary"
             size="large"
             class="get-started-btn"
-            @click="navigateTo('/career-planning/roadmap')"
+            @click="navigateTo('/career-planning/learning-plan')"
+            id="start-planning-btn"
           >
-            {{ $t('dashboard.startPlanning') }}
+            {{ t('dashboard.startPlanning') }}
             <el-icon class="el-icon--right"><ArrowRight /></el-icon>
           </el-button>
+          <el-button type="success" size="large" class="tour-btn" @click="startTour">
+            <el-icon><Guide /></el-icon>
+            {{ t('dashboard.guidedTour') || '功能引导' }}
+          </el-button>
           <el-button type="default" size="large" class="learn-more-btn" @click="scrollToFeatures">
-            {{ $t('dashboard.learnMore') }}
+            {{ t('dashboard.learnMore') }}
             <el-icon class="el-icon--right"><ArrowDown /></el-icon>
           </el-button>
         </div>
@@ -35,8 +40,8 @@
     </div>
 
     <!-- 主要功能卡片区域 -->
-    <div class="features-section">
-      <h2 class="section-title">{{ $t('dashboard.whatWeCanHelp') }}</h2>
+    <div class="features-section" id="features-section">
+      <h2 class="section-title">{{ t('dashboard.whatWeCanHelp') }}</h2>
 
       <el-row :gutter="24">
         <!-- 职业分析卡片 -->
@@ -45,19 +50,20 @@
             class="feature-card"
             shadow="hover"
             @click="navigateTo('/career-planning/analysis')"
+            id="career-analysis-card"
           >
             <div class="card-content">
               <div class="card-icon">
                 <el-icon><Aim /></el-icon>
               </div>
-              <h3 class="card-title">{{ $t('dashboard.careerAnalysis') }}</h3>
+              <h3 class="card-title">{{ t('dashboard.careerAnalysis') }}</h3>
               <p class="card-description">
-                {{ $t('dashboard.careerAnalysisDesc') }}
+                {{ t('dashboard.careerAnalysisDesc') }}
               </p>
             </div>
             <div class="card-action">
               <el-button text
-                >{{ $t('dashboard.startAnalysis') }} <el-icon><ArrowRight /></el-icon
+                >{{ t('dashboard.startAnalysis') }} <el-icon><ArrowRight /></el-icon
               ></el-button>
             </div>
           </el-card>
@@ -69,17 +75,18 @@
             class="feature-card"
             shadow="hover"
             @click="navigateTo('/career-planning/roadmap')"
+            id="development-plan-card"
           >
             <div class="card-content">
               <div class="card-icon">
                 <el-icon><Guide /></el-icon>
               </div>
-              <h3 class="card-title">{{ $t('dashboard.developmentPlan') }}</h3>
-              <p class="card-description">{{ $t('dashboard.developmentPlanDesc') }}</p>
+              <h3 class="card-title">{{ t('dashboard.developmentPlan') }}</h3>
+              <p class="card-description">{{ t('dashboard.developmentPlanDesc') }}</p>
             </div>
             <div class="card-action">
               <el-button text
-                >{{ $t('dashboard.viewPath') }} <el-icon><ArrowRight /></el-icon
+                >{{ t('dashboard.viewPath') }} <el-icon><ArrowRight /></el-icon
               ></el-button>
             </div>
           </el-card>
@@ -91,17 +98,18 @@
             class="feature-card"
             shadow="hover"
             @click="navigateTo('/career-planning/recommendation')"
+            id="career-recommendation-card"
           >
             <div class="card-content">
               <div class="card-icon">
                 <el-icon><StarFilled /></el-icon>
               </div>
-              <h3 class="card-title">{{ $t('dashboard.careerRecommendation') }}</h3>
-              <p class="card-description">{{ $t('dashboard.careerRecommendationDesc') }}</p>
+              <h3 class="card-title">{{ t('dashboard.careerRecommendation') }}</h3>
+              <p class="card-description">{{ t('dashboard.careerRecommendationDesc') }}</p>
             </div>
             <div class="card-action">
               <el-button text
-                >{{ $t('dashboard.getRecommendation') }} <el-icon><ArrowRight /></el-icon
+                >{{ t('dashboard.getRecommendation') }} <el-icon><ArrowRight /></el-icon
               ></el-button>
             </div>
           </el-card>
@@ -110,8 +118,8 @@
     </div>
 
     <!-- 平台数据统计 -->
-    <div class="stats-section">
-      <h2 class="section-title">{{ $t('dashboard.platformData') }}</h2>
+    <div class="stats-section" id="stats-section">
+      <h2 class="section-title">{{ t('dashboard.platformData') }}</h2>
       <el-row :gutter="24">
         <el-col :xs="24" :sm="12" :md="8">
           <div class="stat-card">
@@ -120,7 +128,7 @@
             </div>
             <div class="stat-info">
               <h3 class="stat-value">25,000+</h3>
-              <p class="stat-label">{{ $t('dashboard.usersCompleted') }}</p>
+              <p class="stat-label">{{ t('dashboard.usersCompleted') }}</p>
             </div>
           </div>
         </el-col>
@@ -132,7 +140,7 @@
             </div>
             <div class="stat-info">
               <h3 class="stat-value">500+</h3>
-              <p class="stat-label">{{ $t('dashboard.careerTypesCount') }}</p>
+              <p class="stat-label">{{ t('dashboard.careerTypesCount') }}</p>
             </div>
           </div>
         </el-col>
@@ -144,7 +152,7 @@
             </div>
             <div class="stat-info">
               <h3 class="stat-value">98%</h3>
-              <p class="stat-label">{{ $t('dashboard.userSatisfaction') }}</p>
+              <p class="stat-label">{{ t('dashboard.userSatisfaction') }}</p>
             </div>
           </div>
         </el-col>
@@ -152,16 +160,16 @@
     </div>
 
     <!-- 平台优势区域 -->
-    <div class="advantages-section">
-      <h2 class="section-title">{{ $t('dashboard.platformAdvantages') }}</h2>
+    <div class="advantages-section" id="advantages-section">
+      <h2 class="section-title">{{ t('dashboard.platformAdvantages') }}</h2>
       <div class="advantages-container">
         <div class="advantage-card">
           <div class="advantage-icon">
             <el-icon><Cpu /></el-icon>
           </div>
-          <h3 class="advantage-title">{{ $t('dashboard.aiAnalysis') }}</h3>
+          <h3 class="advantage-title">{{ t('dashboard.aiAnalysis') }}</h3>
           <p class="advantage-description">
-            {{ $t('dashboard.aiAnalysisDesc') }}
+            {{ t('dashboard.aiAnalysisDesc') }}
           </p>
         </div>
 
@@ -169,9 +177,9 @@
           <div class="advantage-icon">
             <el-icon><DataAnalysis /></el-icon>
           </div>
-          <h3 class="advantage-title">{{ $t('dashboard.industryData') }}</h3>
+          <h3 class="advantage-title">{{ t('dashboard.industryData') }}</h3>
           <p class="advantage-description">
-            {{ $t('dashboard.industryDataDesc') }}
+            {{ t('dashboard.industryDataDesc') }}
           </p>
         </div>
 
@@ -179,9 +187,9 @@
           <div class="advantage-icon">
             <el-icon><UserFilled /></el-icon>
           </div>
-          <h3 class="advantage-title">{{ $t('dashboard.personalization') }}</h3>
+          <h3 class="advantage-title">{{ t('dashboard.personalization') }}</h3>
           <p class="advantage-description">
-            {{ $t('dashboard.personalizationDesc') }}
+            {{ t('dashboard.personalizationDesc') }}
           </p>
         </div>
 
@@ -189,9 +197,9 @@
           <div class="advantage-icon">
             <el-icon><SetUp /></el-icon>
           </div>
-          <h3 class="advantage-title">{{ $t('dashboard.comprehensiveService') }}</h3>
+          <h3 class="advantage-title">{{ t('dashboard.comprehensiveService') }}</h3>
           <p class="advantage-description">
-            {{ $t('dashboard.comprehensiveServiceDesc') }}
+            {{ t('dashboard.comprehensiveServiceDesc') }}
           </p>
         </div>
 
@@ -199,9 +207,9 @@
           <div class="advantage-icon">
             <el-icon><DocumentChecked /></el-icon>
           </div>
-          <h3 class="advantage-title">{{ $t('dashboard.resumeOptimization') }}</h3>
+          <h3 class="advantage-title">{{ t('dashboard.resumeOptimization') }}</h3>
           <p class="advantage-description">
-            {{ $t('dashboard.resumeOptimizationDesc') }}
+            {{ t('dashboard.resumeOptimizationDesc') }}
           </p>
         </div>
 
@@ -209,15 +217,15 @@
           <div class="advantage-icon">
             <el-icon><Promotion /></el-icon>
           </div>
-          <h3 class="advantage-title">{{ $t('dashboard.continuousLearning') }}</h3>
-          <p class="advantage-description">{{ $t('dashboard.continuousLearningDesc') }}</p>
+          <h3 class="advantage-title">{{ t('dashboard.continuousLearning') }}</h3>
+          <p class="advantage-description">{{ t('dashboard.continuousLearningDesc') }}</p>
         </div>
       </div>
     </div>
 
     <!-- 其他功能展示 -->
-    <div class="additional-features">
-      <h2 class="section-title">{{ $t('dashboard.moreFeatures') }}</h2>
+    <div class="additional-features" id="additional-features">
+      <h2 class="section-title">{{ t('dashboard.moreFeatures') }}</h2>
 
       <el-row :gutter="24">
         <!-- AI聊天 -->
@@ -228,10 +236,10 @@
                 <el-icon><ChatDotRound /></el-icon>
               </div>
               <div class="additional-info">
-                <h3 class="additional-title">{{ $t('dashboard.aiCareerAdvisor') }}</h3>
-                <p class="additional-description">{{ $t('dashboard.aiCareerAdvisorDesc') }}</p>
+                <h3 class="additional-title">{{ t('dashboard.aiCareerAdvisor') }}</h3>
+                <p class="additional-description">{{ t('dashboard.aiCareerAdvisorDesc') }}</p>
                 <el-button text
-                  >{{ $t('dashboard.startChat') }} <el-icon><ArrowRight /></el-icon
+                  >{{ t('dashboard.startChat') }} <el-icon><ArrowRight /></el-icon
                 ></el-button>
               </div>
             </div>
@@ -250,10 +258,10 @@
                 <el-icon><Reading /></el-icon>
               </div>
               <div class="additional-info">
-                <h3 class="additional-title">{{ $t('dashboard.examCenter') }}</h3>
-                <p class="additional-description">{{ $t('dashboard.examCenterDesc') }}</p>
+                <h3 class="additional-title">{{ t('dashboard.examCenter') }}</h3>
+                <p class="additional-description">{{ t('dashboard.examCenterDesc') }}</p>
                 <el-button text
-                  >{{ $t('dashboard.enterCenter') }} <el-icon><ArrowRight /></el-icon
+                  >{{ t('dashboard.enterCenter') }} <el-icon><ArrowRight /></el-icon
                 ></el-button>
               </div>
             </div>
@@ -263,12 +271,12 @@
     </div>
 
     <!-- 智能助手提示卡片 -->
-    <el-card v-if="showSmartTips" class="smart-tips-card" shadow="hover">
+    <el-card v-if="showSmartTips" class="smart-tips-card" shadow="hover" id="smart-tips-card">
       <template #header>
         <div class="card-header">
           <span class="header-title">
             <el-icon><Service /></el-icon>
-            {{ $t('dashboard.smartAssistantTips') }}
+            {{ t('dashboard.smartAssistantTips') }}
           </span>
           <el-button type="text" @click="showSmartTips = false">
             <el-icon><Close /></el-icon>
@@ -282,50 +290,6 @@
         </div>
       </div>
     </el-card>
-
-    <!-- 页脚 -->
-    <!-- <footer class="footer">
-      <div class="footer-content">
-        <div class="footer-logo">
-          <span class="logo-text">智航 CareerAI</span>
-          <p class="footer-slogan">智能规划，成就未来</p>
-        </div>
-        <div class="footer-links">
-          <div class="links-group">
-            <h4>关于平台</h4>
-            <ul>
-              <li><a href="#">平台介绍</a></li>
-              <li><a href="#">使用指南</a></li>
-              <li><a href="#">隐私政策</a></li>
-              <li><a href="#">服务条款</a></li>
-            </ul>
-          </div>
-          <div class="links-group">
-            <h4>资源中心</h4>
-            <ul>
-              <li><a href="#">职业百科</a></li>
-              <li><a href="#">行业报告</a></li>
-              <li><a href="#">能力提升</a></li>
-              <li><a href="#">成功案例</a></li>
-            </ul>
-          </div>
-          <div class="links-group">
-            <h4>联系我们</h4>
-            <ul>
-              <li><a href="#">在线客服</a></li>
-              <li><a href="#">反馈建议</a></li>
-              <li><a href="#">合作洽谈</a></li>
-              <li><a href="#">加入我们</a></li>
-            </ul>
-          </div>
-        </div>
-      </div>
-      <div class="footer-bottom">
-        <p class="copyright">
-          © {{ new Date().getFullYear() }} 智航 CareerAI 职业生涯规划平台 版权所有
-        </p>
-      </div>
-    </footer> -->
   </div>
 </template>
 
@@ -334,6 +298,8 @@ import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import MouseEffects from '@/components/MouseEffects/index.vue'
+import { driver } from 'driver.js'
+import 'driver.js/dist/driver.css'
 import {
   Aim,
   Guide,
@@ -356,7 +322,7 @@ import {
 } from '@element-plus/icons-vue'
 
 // 初始化国际化
-useI18n()
+const { t } = useI18n()
 
 // 创建路由实例
 const router = useRouter()
@@ -377,6 +343,51 @@ const scrollToFeatures = () => {
 // 智能提示数据
 const showSmartTips = ref(false)
 const smartTips = ref<string[]>([])
+
+// 初始化 driver.js
+const driverObj = driver({
+  showProgress: true,
+  showButtons: ['next', 'previous', 'close'],
+  steps: [
+    {
+      element: '.el-scrollbar',
+      popover: {
+        title: '侧边导航栏',
+        description: '这里是功能导航区域，您可以通过它快速访问平台的各项功能。',
+        side: 'right',
+        align: 'start'
+      }
+    },
+    {
+      element: '.header',
+      popover: {
+        title: '顶部导航栏',
+        description: '这里提供了产品官网、全屏切换、语言切换、消息通知和用户信息等快捷操作。',
+        side: 'bottom',
+        align: 'center'
+      }
+    },
+    {
+      element: '#features-section',
+      popover: {
+        title: '内容区域',
+        description: '这里展示了平台的核心功能和内容，您可以在这里开始您的职业规划之旅。',
+        side: 'top',
+        align: 'center'
+      }
+    }
+  ],
+  nextBtnText: t('dashboard.tourNextBtn') || '下一步',
+  prevBtnText: t('dashboard.tourPrevBtn') || '上一步',
+  doneBtnText: t('dashboard.tourDoneBtn') || '完成'
+})
+
+// 开始引导之旅
+const startTour = () => {
+  // 确保智能提示卡片显示，以便可以引导到该元素
+  showSmartTips.value = true
+  driverObj.drive()
+}
 
 // 用户行为预测模拟
 class BehaviorPredictor {
@@ -453,6 +464,20 @@ onMounted(async () => {
   })
 
   initRobotParticles()
+
+  // 判断是否是首次访问或者URL参数中有tour=true
+  const shouldStartTour =
+    localStorage.getItem('dashboardTourShown') !== 'true' ||
+    (typeof window !== 'undefined' && window.location.search.includes('tour=true'))
+
+  if (shouldStartTour) {
+    // 稍微延迟一下，确保所有DOM元素已经加载
+    setTimeout(() => {
+      startTour()
+      // 设置标记，避免每次都自动显示引导
+      localStorage.setItem('dashboardTourShown', 'true')
+    }, 1000)
+  }
 })
 
 // 初始化机器人区域的粒子动画
@@ -673,31 +698,78 @@ function initRobotParticles() {
 
 .hero-actions {
   display: flex;
-  gap: 16px;
+  gap: 15px;
+  margin-top: 30px;
+}
+
+.get-started-btn,
+.learn-more-btn,
+.tour-btn {
+  padding: 12px 24px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.get-started-btn:hover,
+.learn-more-btn:hover,
+.tour-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
 }
 
 .get-started-btn {
-  padding: 12px 30px;
-  font-size: 16px;
-  background: linear-gradient(135deg, #5ec89c, #67c23a);
+  background: linear-gradient(90deg, #409eff, #5ac8ff);
   border: none;
-  transition: all 0.3s ease;
 }
 
-.get-started-btn:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 15px rgba(103, 194, 58, 0.3);
+.tour-btn {
+  background: linear-gradient(90deg, #67c23a, #95d475);
+  border: none;
 }
 
-.learn-more-btn {
-  padding: 12px 30px;
-  font-size: 16px;
-  transition: all 0.3s ease;
+/* 修改driver.js默认样式，确保与我们的UI风格一致 */
+:global(.driver-popover) {
+  border-radius: 12px !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15) !important;
 }
 
-.learn-more-btn:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+:global(.driver-popover-title) {
+  font-family: var(--el-font-family) !important;
+  font-weight: 600 !important;
+  font-size: 1.2rem !important;
+  color: #303133 !important;
+}
+
+:global(.driver-popover-description) {
+  font-family: var(--el-font-family) !important;
+  color: #606266 !important;
+  font-size: 1rem !important;
+  line-height: 1.6 !important;
+}
+
+:global(.driver-popover-footer button) {
+  border-radius: 6px !important;
+  padding: 8px 16px !important;
+  font-weight: 500 !important;
+  transition: all 0.3s !important;
+}
+
+:global(.driver-popover-footer .driver-next-btn) {
+  background-color: #409eff !important;
+}
+
+:global(.driver-popover-footer .driver-prev-btn) {
+  color: #606266 !important;
+  background-color: #f2f3f5 !important;
+}
+
+:global(.driver-popover-footer .driver-close-btn) {
+  color: #606266 !important;
+  background-color: #f2f3f5 !important;
 }
 
 /* 功能区域样式 */
