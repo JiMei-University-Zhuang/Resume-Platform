@@ -126,35 +126,6 @@
             </router-link>
           </div>
 
-          <div class="category-AI">
-            <div class="category-section">
-              <h3 class="section-title">{{ t('sider.aiTools') }}</h3>
-            </div>
-
-            <router-link
-              to="/chat"
-              class="category-item"
-              :class="{ active: route.path === '/chat' }"
-              @click="navigateTo('/chat')"
-            >
-              <div class="category-icon">
-                <el-icon><ChatDotRound /></el-icon>
-              </div>
-              <span class="category-label">{{ t('sider.aiAssistant') }}</span>
-            </router-link>
-
-            <router-link
-              to="/id-photo"
-              class="category-item"
-              :class="{ active: route.path === '/id-photo' }"
-            >
-              <div class="category-icon">
-                <el-icon><Camera /></el-icon>
-              </div>
-              <span class="category-label">{{ t('sider.aiIDPhoto') }}</span>
-            </router-link>
-          </div>
-
           <div class="category-job">
             <div class="category-section">
               <h3 class="section-title">{{ t('sider.careerPlanning') }}</h3>
@@ -195,17 +166,34 @@
               </div>
               <span class="category-label">{{ t('sider.learningPlan') }}</span>
             </router-link>
+          </div>
+
+          <div class="category-AI">
+            <div class="category-section">
+              <h3 class="section-title">{{ t('sider.aiTools') }}</h3>
+            </div>
 
             <router-link
-              to="/career-planning/recommendation"
+              to="/chat"
               class="category-item"
-              :class="{ active: route.path === '/career-planning/recommendation' }"
-              @click="navigateTo('/career-planning/recommendation')"
+              :class="{ active: route.path === '/chat' }"
+              @click="navigateTo('/chat')"
             >
               <div class="category-icon">
-                <el-icon><StarFilled /></el-icon>
+                <el-icon><ChatDotRound /></el-icon>
               </div>
-              <span class="category-label">{{ t('sider.careerRecommendation') }}</span>
+              <span class="category-label">{{ t('sider.aiAssistant') }}</span>
+            </router-link>
+
+            <router-link
+              to="/id-photo"
+              class="category-item"
+              :class="{ active: route.path === '/id-photo' }"
+            >
+              <div class="category-icon">
+                <el-icon><Camera /></el-icon>
+              </div>
+              <span class="category-label">{{ t('sider.aiIDPhoto') }}</span>
             </router-link>
           </div>
         </div>
@@ -313,14 +301,6 @@
             >
               {{ t('sider.learningPlan') }}
             </router-link>
-            <router-link
-              to="/career-planning/recommendation"
-              class="dropdown-item"
-              :class="{ active: route.path === '/career-planning/recommendation' }"
-              @click="navigateTo('/career-planning/recommendation')"
-            >
-              {{ t('sider.careerRecommendation') }}
-            </router-link>
           </div>
         </div>
         <router-link
@@ -348,11 +328,10 @@ import {
   CopyDocument,
   DataAnalysis,
   Compass,
-  StarFilled,
+  List,
   Reading,
-  Collection,
   User,
-  List
+  Collection
 } from '@element-plus/icons-vue'
 import { useAppStore } from '@/stores'
 import { useUserStore } from '@/stores/userStore'

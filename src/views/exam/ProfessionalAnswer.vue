@@ -227,15 +227,15 @@ const mdOptions: MarkdownItOptions = {
 
 //用于接收错题的参数
 export interface Question {
-  questionId: string;
-  questionContent: string;
-  score: number;
-  correctAnswer?: string;
-  optionA?: string;
-  optionB?: string;
-  optionC?: string;
-  optionD?: string;
-  referenceAnswer?: string;
+  questionId: string
+  questionContent: string
+  score: number
+  correctAnswer?: string
+  optionA?: string
+  optionB?: string
+  optionC?: string
+  optionD?: string
+  referenceAnswer?: string
 }
 
 const md = new MarkdownIt(mdOptions)

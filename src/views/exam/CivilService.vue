@@ -96,7 +96,7 @@
           </div>
           <img src="@/assets/images/exam_imgs/realexam.jpg" alt="真题模考" />
         </div>
-        <el-button  @click="showExamDialog" class="exam-button">
+        <el-button @click="showExamDialog" class="exam-button">
           <i class="el-icon-document-checked"></i>
           真题模考
         </el-button>

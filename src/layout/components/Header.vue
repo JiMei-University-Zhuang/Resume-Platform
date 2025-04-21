@@ -13,7 +13,12 @@
 
     <div class="header-right">
       <!-- 全屏切换 -->
-      <div class="header-item" @click="toggleFullScreen" title="切换全屏">
+      <div
+        id="header-fullscreen"
+        class="header-item"
+        @click="toggleFullScreen"
+        :title="t('header.fullscreen')"
+      >
         <el-icon :size="18">
           <FullScreen v-if="!isFullScreen" />
           <Aim v-else />
@@ -21,15 +26,21 @@
       </div>
       <!-- 语言切换 -->
       <div
+        id="header-language"
         class="header-item"
         @click="toggleLanguage"
-        :title="isEnglish ? '切换为中文' : 'Switch to English'"
+        :title="isEnglish ? t('header.language') : 'Switch to English'"
       >
         <span class="language-text">{{ isEnglish ? 'EN' : '中' }}</span>
       </div>
 
       <!-- 消息通知 -->
-      <div class="header-item" @click="showNotifications = true" title="消息通知">
+      <div
+        id="header-notification"
+        class="header-item"
+        @click="showNotifications = true"
+        :title="t('header.notifications')"
+      >
         <el-badge :value="unreadCount" :hidden="unreadCount === 0" class="notification-badge">
           <el-icon :size="18">
             <Bell />
@@ -38,14 +49,19 @@
       </div>
 
       <!-- 文档中心 -->
-      <div class="header-item" @click="openDocumentation" title="帮助文档">
+      <div
+        id="header-documentation"
+        class="header-item"
+        @click="openDocumentation"
+        :title="t('header.documentation')"
+      >
         <el-icon :size="18">
           <Document />
         </el-icon>
       </div>
 
       <!-- 用户下拉菜单 -->
-      <el-dropdown>
+      <el-dropdown id="header-user">
         <span class="user-info">
           <el-avatar size="small" :src="userAvatar" />
           <span class="username">{{ userName }}</span>
@@ -53,7 +69,7 @@
         <template #dropdown>
           <el-dropdown-menu>
             <el-dropdown-item @click="handleLogout">
-              <el-icon><SwitchButton /></el-icon>退出登录
+              <el-icon><SwitchButton /></el-icon>{{ t('header.logout') }}
             </el-dropdown-item>
           </el-dropdown-menu>
         </template>
@@ -61,19 +77,28 @@
     </div>
 
     <!-- 消息通知抽屉 -->
-    <el-drawer v-model="showNotifications" title="消息通知" direction="rtl" size="350px">
+    <el-drawer
+      v-model="showNotifications"
+      :title="t('header.notifications')"
+      direction="rtl"
+      size="350px"
+    >
       <div class="notification-header">
-        <span>{{ unreadCount }}条未读消息</span>
-        <el-button type="primary" link @click="markAllAsRead">全部标为已读</el-button>
+        <span>{{ unreadCount }}{{ t('header.unread', { count: unreadCount }) }}</span>
+        <el-button type="primary" link @click="markAllAsRead">{{
+          t('header.markAllRead')
+        }}</el-button>
       </div>
 
       <el-tabs v-model="activeTab" class="notification-tabs">
-        <el-tab-pane label="全部消息" name="all">
+        <el-tab-pane :label="t('header.allMessages')" name="all">
           <div v-if="isLoadingNotices" class="loading-notifications">
             <el-icon class="loading-icon"><Loading /></el-icon>
-            <span>加载消息中...</span>
+            <span>{{ t('header.loading') }}</span>
           </div>
-          <div v-else-if="notifications.length === 0" class="empty-notifications">暂无消息通知</div>
+          <div v-else-if="notifications.length === 0" class="empty-notifications">
+            {{ t('header.empty') }}
+          </div>
           <el-scrollbar height="calc(100vh - 200px)" v-else>
             <div
               v-for="item in notifications"
@@ -86,7 +111,7 @@
                 <el-icon><component :is="getNotificationIcon(item.type)" /></el-icon>
               </div>
               <div class="notification-content">
-                <div class="notification-title">{{ item.title || '系统通知' }}</div>
+                <div class="notification-title">{{ item.title || t('header.systemNotice') }}</div>
                 <div class="notification-desc">{{ item.content }}</div>
                 <div class="notification-time">{{ formatTime(item.publishTime) }}</div>
               </div>
@@ -97,13 +122,13 @@
                   size="small"
                   @click.stop="deleteNotification(item.noticeId)"
                 >
-                  删除
+                  {{ t('header.deleteMessage') }}
                 </el-button>
               </div>
             </div>
           </el-scrollbar>
         </el-tab-pane>
-        <el-tab-pane label="系统消息" name="system">
+        <el-tab-pane :label="t('header.systemMessages')" name="system">
           <div v-if="isLoadingNotices" class="loading-notifications">
             <el-icon class="loading-icon"><Loading /></el-icon>
             <span>加载消息中...</span>
@@ -140,7 +165,7 @@
             </div>
           </el-scrollbar>
         </el-tab-pane>
-        <el-tab-pane label="任务消息" name="task">
+        <el-tab-pane :label="t('header.taskMessages')" name="task">
           <div v-if="isLoadingNotices" class="loading-notifications">
             <el-icon class="loading-icon"><Loading /></el-icon>
             <span>加载消息中...</span>
@@ -198,7 +223,7 @@ import {
   Calendar,
   Loading
 } from '@element-plus/icons-vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { useAppStore } from '@/stores'
 import Breadcrumb from '@/components/Breadcrumb.vue'
 import { logout, getUser, type GetUserResult } from '@/api/user'
@@ -214,11 +239,14 @@ import {
 } from '@/api/notification'
 import { useLanguage } from '@/composables/useLanguage'
 import { useUserStore } from '@/stores/userStore'
+import { useI18n } from 'vue-i18n'
 
 // 载入相对时间插件
 dayjs.extend(relativeTime)
 
+const { t } = useI18n()
 const router = useRouter()
+const route = useRoute()
 const appStore = useAppStore()
 const userStore = useUserStore()
 
@@ -276,11 +304,11 @@ const handleLogout = async () => {
     // 清空用户 store，确保角色权限被重置
     userStore.clearUserInfo()
 
-    message.success('成功退出登录')
+    message.success(t('header.logoutSuccess'))
     router.push('/login')
   } catch (error) {
     console.error('登出失败:', error)
-    message.error('登出失败，请稍后重试')
+    message.error(t('header.logoutFailed'))
   }
 }
 
@@ -398,13 +426,13 @@ const readNotification = async (notification: Notice) => {
 
       if (responseData) {
         notification.isRead = 1
-        message.success('已标记为已读')
+        message.success(t('header.marked'))
       } else {
-        message.error('标记已读失败')
+        message.error(t('header.markFailed'))
       }
     } catch (error) {
       console.error('标记已读失败:', error)
-      message.error('标记已读失败，请稍后重试')
+      message.error(t('header.markFailed'))
     }
   }
 }
@@ -420,13 +448,13 @@ const markAllAsRead = async () => {
       notifications.value.forEach(item => {
         item.isRead = 1
       })
-      message.success('已将全部消息标为已读')
+      message.success(t('header.markAllSuccess'))
     } else {
-      message.error(responseData.msg || '标记全部已读失败')
+      message.error(responseData.msg || t('header.markAllFailed'))
     }
   } catch (error) {
     console.error('标记全部已读失败:', error)
-    message.error('标记全部已读失败，请稍后重试')
+    message.error(t('header.markAllFailed'))
   }
 }
 
@@ -442,14 +470,14 @@ const deleteNotification = async (noticeId: string) => {
       const index = notifications.value.findIndex(item => item.noticeId === noticeId)
       if (index !== -1) {
         notifications.value.splice(index, 1)
-        message.success('消息已删除')
+        message.success(t('header.deleteSuccess'))
       }
     } else {
-      message.error(responseData.msg || '删除消息失败')
+      message.error(responseData.msg || t('header.deleteFailed'))
     }
   } catch (error) {
     console.error('删除消息失败:', error)
-    message.error('删除消息失败，请稍后重试')
+    message.error(t('header.deleteFailed'))
   }
 }
 
@@ -475,9 +503,30 @@ const formatTime = (time: number | string | Date | undefined) => {
   return dayjs(time).fromNow()
 }
 
+// 引导功能实现
+const startTour = () => {
+  // 改为触发全局事件，让dashboard页面的引导启动
+  if (route.path === '/dashboard' || route.path === '/') {
+    // 在dashboard页面上，直接通过URL参数触发引导
+    router.push({
+      path: '/dashboard',
+      query: { ...route.query, tour: 'true' }
+    })
+  } else {
+    // 如果不在dashboard页面，先跳转到dashboard，然后触发引导
+    router.push({
+      path: '/dashboard',
+      query: { tour: 'true' }
+    })
+  }
+}
+
 // 添加和移除全屏变化事件监听
 onMounted(() => {
   document.addEventListener('fullscreenchange', handleFullscreenChange)
+
+  // 添加自定义事件监听器，用于从其他组件触发头部引导
+  window.addEventListener('start-header-tour', startTour)
 
   // 获取用户信息
   fetchUserInfo()
@@ -488,6 +537,7 @@ onMounted(() => {
 
 onUnmounted(() => {
   document.removeEventListener('fullscreenchange', handleFullscreenChange)
+  window.removeEventListener('start-header-tour', startTour)
 })
 </script>
 
@@ -596,6 +646,26 @@ onUnmounted(() => {
 .el-breadcrumb {
   font-size: 14px;
   line-height: 59px;
+}
+
+/* Tour 按钮样式 */
+.tour-button {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1005;
+  padding: 8px 15px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+  background: linear-gradient(90deg, #67c23a, #95d475);
+  border: none;
+}
+
+.tour-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
 }
 
 /* 消息通知样式 */
@@ -723,5 +793,46 @@ onUnmounted(() => {
   to {
     transform: rotate(360deg);
   }
+}
+
+/* 修改driver.js默认样式，确保与我们的UI风格一致 */
+:global(.driver-popover) {
+  border-radius: 12px !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15) !important;
+}
+
+:global(.driver-popover-title) {
+  font-family: var(--el-font-family) !important;
+  font-weight: 600 !important;
+  font-size: 1.2rem !important;
+  color: #303133 !important;
+}
+
+:global(.driver-popover-description) {
+  font-family: var(--el-font-family) !important;
+  color: #606266 !important;
+  font-size: 1rem !important;
+  line-height: 1.6 !important;
+}
+
+:global(.driver-popover-footer button) {
+  border-radius: 6px !important;
+  padding: 8px 16px !important;
+  font-weight: 500 !important;
+  transition: all 0.3s !important;
+}
+
+:global(.driver-popover-footer .driver-next-btn) {
+  background-color: #409eff !important;
+}
+
+:global(.driver-popover-footer .driver-prev-btn) {
+  color: #606266 !important;
+  background-color: #f2f3f5 !important;
+}
+
+:global(.driver-popover-footer .driver-close-btn) {
+  color: #606266 !important;
+  background-color: #f2f3f5 !important;
 }
 </style>

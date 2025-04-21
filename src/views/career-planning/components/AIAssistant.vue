@@ -75,6 +75,15 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, nextTick, onMounted } from 'vue'
+import { connectAIChatFetch } from '@/api/chat'
+import MarkdownIt from 'markdown-it'
+import Prism from 'prismjs'
+import 'prismjs/themes/prism-tomorrow.css'
+import 'prismjs/components/prism-javascript'
+import 'prismjs/components/prism-typescript'
+import 'prismjs/components/prism-python'
+import 'prismjs/components/prism-json'
+import 'prismjs/components/prism-java'
 
 interface Message {
   role: 'assistant' | 'user'
@@ -104,6 +113,21 @@ const messages = ref<Message[]>([
 const userInput = ref('')
 const isTyping = ref(false)
 const messagesContainer = ref<HTMLElement | null>(null)
+
+// 初始化Markdown解析器
+const md: MarkdownIt = new MarkdownIt({
+  html: true,
+  linkify: true,
+  typographer: true,
+  highlight: function (str: string, lang: string): string {
+    if (lang && Prism.languages[lang]) {
+      try {
+        return `<pre class="language-${lang}"><code>${Prism.highlight(str, Prism.languages[lang], lang)}</code></pre>`
+      } catch (e) {}
+    }
+    return `<pre class="language-plaintext"><code>${md.utils.escapeHtml(str)}</code></pre>`
+  }
+})
 
 // 滚动到底部
 const scrollToBottom = async () => {
@@ -167,86 +191,62 @@ const sendMessage = async () => {
   // 显示AI正在输入
   isTyping.value = true
 
-  // 模拟AI思考时间
-  setTimeout(() => {
+  try {
+    // 构建带有职业上下文的消息内容
+    let contextMessage = sentMessage
+
+    // 如果有职业上下文，添加到消息中
+    if (props.context.career) {
+      contextMessage = `[职业规划上下文：用户正在查看"${props.context.career.title}"职业，技能匹配度为${props.context.career.matchScore}%] ${sentMessage}`
+    }
+
+    // 创建空的AI回复
+    messages.value.push({ role: 'assistant', content: '' })
+    const currentIndex = messages.value.length - 1
+
+    // 使用API获取回复
+    await new Promise<boolean>(resolve => {
+      connectAIChatFetch(contextMessage, {
+        model: 'qwen-max', // 可以根据需要选择模型
+        onMessage: async data => {
+          if (messages.value[currentIndex]) {
+            // 将接收到的数据追加到消息内容
+            messages.value[currentIndex].content += data
+
+            // 更新UI
+            await nextTick()
+            scrollToBottom()
+            // 对新添加的代码应用语法高亮
+            Prism.highlightAll()
+          }
+        },
+        onDone: () => {
+          isTyping.value = false
+          resolve(true)
+        },
+        onError: error => {
+          console.error('AI回复出错:', error)
+          if (messages.value[currentIndex]) {
+            messages.value[currentIndex].content += '\n\n> ⚠️ 连接中断，请稍后重试。'
+          }
+          isTyping.value = false
+          resolve(false)
+        },
+        timeout: 30000 // 30秒超时
+      })
+    })
+  } catch (error) {
+    console.error('发送消息失败:', error)
+    addAssistantMessage('很抱歉，我无法连接到服务器。请稍后再试。')
+  } finally {
     isTyping.value = false
-    generateResponse(sentMessage)
-  }, 1000)
-}
-
-// 生成AI回复
-const generateResponse = (userMessage: string) => {
-  // 这里应该调用实际的AI接口
-  // 现在使用模拟响应
-  const career = props.context.career
-
-  let response = ''
-
-  if (userMessage.includes('如何成为') && career) {
-    response = `成为一名${career.title}，建议您遵循以下路径：<br>
-      1. <b>获取相关教育背景</b>：通常需要计算机科学或相关领域的学位<br>
-      2. <b>掌握核心技能</b>：${generateSkillsList()}<br>
-      3. <b>获取实践经验</b>：参与开源项目或实习<br>
-      4. <b>建立专业网络</b>：参加行业会议和社区活动<br>
-      5. <b>持续学习</b>：了解行业最新发展动态`
-  } else if (userMessage.includes('职业前景') && career) {
-    response = `${career.title}的职业前景非常乐观。根据最新行业报告：<br>
-      • 未来5年内该职位需求增长约${Math.floor(Math.random() * 20) + 10}%<br>
-      • 平均起薪约${career.salaryRange.split('-')[0]}，有3-5年经验可达${career.salaryRange.split('-')[1]}<br>
-      • 远程工作机会丰富，工作生活平衡良好<br>
-      • 行业持续创新，职业发展空间广阔`
-  } else if (userMessage.includes('技能') && career) {
-    response = `对于${career.title}岗位，您应重点发展以下技能：<br>
-      ${generateSkillsList()}<br><br>
-      根据您当前的技能情况，建议优先提升：<br>
-      ${generateGapAnalysis()}`
-  } else {
-    response = `感谢您的问题。作为职业规划助手，我可以帮您分析职业路径、技能提升和就业市场趋势。您可以询问特定职业的发展路径、薪资范围或所需技能等。如果您对某个职业有兴趣，可以在右侧的职业星图中选择查看更多详情。`
+    scrollToBottom()
   }
-
-  addAssistantMessage(response)
-}
-
-// 生成技能列表
-const generateSkillsList = () => {
-  const skills = props.context.career?.requiredSkills || []
-  if (skills.length === 0) return '暂无数据'
-
-  return skills
-    .map(
-      (skill: { name: string; requiredLevel: number }) =>
-        `• <b>${skill.name}</b>：${getSkillLevelText(skill.requiredLevel)}`
-    )
-    .join('<br>')
-}
-
-// 生成技能差距分析
-const generateGapAnalysis = () => {
-  const gapAnalysis = props.context.gapAnalysis || []
-  if (gapAnalysis.length === 0) return '您的技能已经很匹配了！'
-
-  return gapAnalysis
-    .slice(0, 3)
-    .map(
-      gap =>
-        `• <b>${gap.skill.name}</b>：当前${getSkillLevelText(gap.currentLevel * 20)}，目标${getSkillLevelText(gap.skill.requiredLevel)}`
-    )
-    .join('<br>')
-}
-
-// 技能等级文字描述
-const getSkillLevelText = (level: number) => {
-  const levelPercent = typeof level === 'number' ? level : 0
-  if (levelPercent >= 80) return '专家级'
-  if (levelPercent >= 60) return '精通'
-  if (levelPercent >= 40) return '熟练'
-  if (levelPercent >= 20) return '中级'
-  return '基础'
 }
 
 // 格式化消息
 const formatMessage = (text: string): string => {
-  return text
+  return md.render(text)
 }
 
 // 使用建议问题
@@ -274,7 +274,7 @@ onMounted(() => {
 .ai-assistant-container {
   position: fixed;
   bottom: 20px;
-  left: 20px;
+  right: 40px;
   width: 350px;
   background: rgba(26, 32, 58, 0.95);
   border-radius: 12px;
@@ -533,5 +533,42 @@ onMounted(() => {
 .message-text :deep(b) {
   color: #5ac8fa;
   font-weight: 600;
+}
+
+/* 添加对Markdown代码块的样式 */
+.message-text :deep(pre) {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 8px;
+  padding: 12px;
+  overflow-x: auto;
+  margin: 10px 0;
+}
+
+.message-text :deep(code) {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+}
+
+.message-text :deep(p) {
+  margin: 8px 0;
+}
+
+.message-text :deep(ul),
+.message-text :deep(ol) {
+  padding-left: 20px;
+  margin: 8px 0;
+}
+
+.message-text :deep(li) {
+  margin: 4px 0;
+}
+
+.message-text :deep(a) {
+  color: #5ac8fa;
+  text-decoration: none;
+}
+
+.message-text :deep(a:hover) {
+  text-decoration: underline;
 }
 </style>
