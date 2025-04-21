@@ -126,35 +126,6 @@
             </router-link>
           </div>
 
-          <div class="category-AI">
-            <div class="category-section">
-              <h3 class="section-title">{{ t('sider.aiTools') }}</h3>
-            </div>
-
-            <router-link
-              to="/chat"
-              class="category-item"
-              :class="{ active: route.path === '/chat' }"
-              @click="navigateTo('/chat')"
-            >
-              <div class="category-icon">
-                <el-icon><ChatDotRound /></el-icon>
-              </div>
-              <span class="category-label">{{ t('sider.aiAssistant') }}</span>
-            </router-link>
-
-            <router-link
-              to="/id-photo"
-              class="category-item"
-              :class="{ active: route.path === '/id-photo' }"
-            >
-              <div class="category-icon">
-                <el-icon><Camera /></el-icon>
-              </div>
-              <span class="category-label">{{ t('sider.aiIDPhoto') }}</span>
-            </router-link>
-          </div>
-
           <div class="category-job">
             <div class="category-section">
               <h3 class="section-title">{{ t('sider.careerPlanning') }}</h3>
@@ -196,6 +167,37 @@
               <span class="category-label">{{ t('sider.learningPlan') }}</span>
             </router-link>
           </div>
+
+          <div class="category-AI">
+            <div class="category-section">
+              <h3 class="section-title">{{ t('sider.aiTools') }}</h3>
+            </div>
+
+            <router-link
+              to="/chat"
+              class="category-item"
+              :class="{ active: route.path === '/chat' }"
+              @click="navigateTo('/chat')"
+            >
+              <div class="category-icon">
+                <el-icon><ChatDotRound /></el-icon>
+              </div>
+              <span class="category-label">{{ t('sider.aiAssistant') }}</span>
+            </router-link>
+
+            <router-link
+              to="/id-photo"
+              class="category-item"
+              :class="{ active: route.path === '/id-photo' }"
+            >
+              <div class="category-icon">
+                <el-icon><Camera /></el-icon>
+              </div>
+              <span class="category-label">{{ t('sider.aiIDPhoto') }}</span>
+            </router-link>
+          </div>
+
+          
         </div>
       </div>
 
