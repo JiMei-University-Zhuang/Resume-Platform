@@ -196,8 +196,6 @@
               <span class="category-label">{{ t('sider.aiIDPhoto') }}</span>
             </router-link>
           </div>
-
-          
         </div>
       </div>
 
