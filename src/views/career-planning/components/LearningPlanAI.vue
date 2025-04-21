@@ -169,7 +169,7 @@ function resetConversation() {
     currentConnection.close()
     currentConnection = null
   }
-  
+
   messages.value = []
   showSuggestions.value = true
 
@@ -202,17 +202,17 @@ function sendMessage(text?: string) {
 
   // 设置typing状态，准备接收AI回复
   isTyping.value = true
-  
+
   // 构建与职业相关的上下文信息
   const careerContext = buildCareerContext()
-  
+
   // 完整的用户消息，包含职业背景上下文
   const fullMessage = `${careerContext}\n\n用户问题: ${message}`
-  
+
   // 使用API获取AI回复
   currentConnection = connectAIChatFetch(fullMessage, {
     model: 'qwen-max', // 使用默认的千问Max模型
-    onMessage: (chunk) => {
+    onMessage: chunk => {
       // 如果是第一个消息块，添加一个新的AI消息
       if (isTyping.value) {
         messages.value.push({ isUser: false, text: chunk })
@@ -224,7 +224,7 @@ function sendMessage(text?: string) {
           lastMessage.text += chunk
         }
       }
-      
+
       // 滚动到底部
       nextTick(() => {
         scrollToBottom()
@@ -233,7 +233,7 @@ function sendMessage(text?: string) {
     onDone: () => {
       // 响应完成
       currentConnection = null
-      
+
       // 是否应该显示建议
       if (messages.value.length >= 4) {
         showSuggestions.value = false
@@ -241,11 +241,11 @@ function sendMessage(text?: string) {
         showSuggestions.value = true
       }
     },
-    onError: (error) => {
+    onError: error => {
       console.error('获取AI回复出错:', error)
       isTyping.value = false
       currentConnection = null
-      
+
       // 如果发生错误，使用本地回退方案
       useLocalFallback(message)
     }
@@ -255,27 +255,27 @@ function sendMessage(text?: string) {
 // 构建与职业相关的上下文信息
 function buildCareerContext() {
   let context = ''
-  
+
   // 添加职业信息
   if (props.careerName) {
     context += `当前选择的职业: ${props.careerName}\n`
   }
-  
+
   // 添加用户技能信息
   if (props.userSkills.length > 0) {
     context += `用户已掌握的技能: ${props.userSkills.join(', ')}\n`
   }
-  
+
   // 添加职业所需技能信息
   if (props.careerSkills.length > 0) {
     context += `该职业所需的技能: ${props.careerSkills.join(', ')}\n`
   }
-  
+
   // 添加技能差距信息
   if (skillGap.value.length > 0) {
     context += `技能差距: ${skillGap.value.join(', ')}\n`
   }
-  
+
   // 添加角色指示
   context += `
 你是一个专业的职业学习规划助手，专门帮助用户规划针对特定职业的学习路径。
@@ -287,7 +287,7 @@ function buildCareerContext() {
 - 行业认证和进阶方向
 请保持专业、具体且实用的建议，避免过于笼统的回答。
 `
-  
+
   return context
 }
 
@@ -295,7 +295,7 @@ function buildCareerContext() {
 function useLocalFallback(userMessage: string) {
   let response = ''
   const career = props.careerName || '这个职业'
-  
+
   // 基于用户的问题生成相应的回答
   if (userMessage.includes('规划学习路径') || userMessage.includes('怎么规划')) {
     response = `对于${career}的学习路径，我建议分为以下几个阶段：
@@ -322,10 +322,10 @@ API连接暂时不可用，这是基础建议。网络恢复后可获得更详�
 
 请稍后再试，或者尝试点击上方的建议问题获取预设回答。当网络恢复后，我可以为您提供更详细和个性化的回答。`
   }
-  
+
   // 添加AI消息
   addAIMessage(response)
-  
+
   // 显示建议
   showSuggestions.value = true
 }

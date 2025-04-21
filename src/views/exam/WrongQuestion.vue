@@ -202,7 +202,38 @@
           </div>
         </div>
       </div>
-      <p v-else>您目前没有错题记录。</p>
+      <div v-else class="empty-state">
+        <div class="empty-illustration">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="180" height="180">
+            <path fill="#e2eef9" d="M128,128h256v256H128Z" />
+            <path fill="#bdd3e7" d="M256,128V384H128V128Z" />
+            <path fill="#fff" d="M384,128V384H256V128Z" />
+            <path fill="#4c6291" d="M117.33,96H394.67a21.34,21.34,0,0,1,21.33,21.33V394.67A21.34,21.34,0,0,1,394.67,416H117.33A21.34,21.34,0,0,1,96,394.67V117.33A21.34,21.34,0,0,1,117.33,96Zm0,21.33V394.67H394.67V117.33Z" />
+            <path fill="#3182ce" d="M373.33,64A21.34,21.34,0,0,1,394.67,85.33V96H117.33V85.33A21.34,21.34,0,0,1,138.67,64Z" />
+            <path fill="#1a365d" d="M373.33,64H138.67a21.34,21.34,0,0,0-21.34,21.33V96h128V64Z" />
+            <circle fill="#f88" cx="160" cy="80" r="10.67"/>
+            <circle fill="#fc5" cx="202.67" cy="80" r="10.67"/>
+            <circle fill="#3f4" cx="245.33" cy="80" r="10.67"/>
+            <path fill="#4c6291" d="M320 192h-128a10.67 10.67 0 0 1 0-21.33h128a10.67 10.67 0 0 1 0 21.33zM298.67 234.67H213.33a10.67 10.67 0 0 1 0-21.34h85.34a10.67 10.67 0 0 1 0 21.34zM234.67 277.33h-42.67a10.67 10.67 0 0 1 0-21.33h42.67a10.67 10.67 0 0 1 0 21.33z" />
+            <path fill="#4c6291" d="M341.33,277.33h-64a10.67,10.67,0,1,1,0-21.33h64a10.67,10.67,0,0,1,0,21.33Z" />
+            <path fill="#3182ce" d="M298.67,320H213.33a10.67,10.67,0,0,1,0-21.33h85.34a10.67,10.67,0,0,1,0,21.33Z" />
+          </svg>
+        </div>
+        <h2 class="empty-title">暂无错题记录</h2>
+        <p class="empty-description">
+          您目前还没有错题记录。完成更多练习题目后，系统将自动记录您的错题，帮助您巩固知识点，提高解题能力。
+        </p>
+        <div class="empty-actions">
+          <button class="primary-button" @click="goToPractice">
+            <span class="button-icon">📝</span>
+            去做练习题
+          </button>
+          <button class="secondary-button" @click="refreshPage">
+            <span class="button-icon">🔄</span>
+            刷新页面
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -211,6 +242,7 @@ import { ref, onMounted } from 'vue'
 import { getWrongQuestionRecordCount, getWrongQuestion } from '@/api/errorRecord'
 import { getUser } from '@/api/user'
 import { GetRecordData, Question } from '@/types/errorRecord'
+import { useRouter } from 'vue-router'
 // 定义获取错题的响应数据类型
 interface WrongQuestion {
   questionType: string
@@ -238,6 +270,7 @@ interface WrongQuestion {
     itemScore?: number
   }[]
 }
+const router = useRouter()
 const loading = ref(true)
 const recordCount = ref(0)
 const recordIds = ref<{ recordId: number; type: string }[]>([])
@@ -306,6 +339,8 @@ const fetchWrongQuestionRecordCountByType = async () => {
     console.error('获取错题记录数失败:', error)
     recordCount.value = 0
     recordIds.value = []
+  } finally {
+    loading.value = false
   }
 }
 // 根据recordId获取那次答题的错题
@@ -375,6 +410,14 @@ const fetchWrongQuestionsByRecordId = async (recordInfo: { recordId: number; typ
   } finally {
     loading.value = false
   }
+}
+// 跳转到练习页面
+const goToPractice = () => {
+  router.push('/exam/civil-service')
+}
+// 刷新页面
+const refreshPage = () => {
+  fetchWrongQuestionRecordCountByType()
 }
 onMounted(async () => {
   try {
@@ -622,5 +665,118 @@ select:hover {
   display: flex;
   flex-direction: column;
   gap: 10px;
+}
+/* 无数据状态样式 */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  text-align: center;
+  margin-top: 20px;
+  min-height: 400px;
+  transition: all 0.3s ease;
+}
+
+.empty-state:hover {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  transform: translateY(-3px);
+}
+
+.empty-illustration {
+  margin-bottom: 24px;
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+.empty-title {
+  font-size: 28px;
+  color: #1a365d;
+  margin-bottom: 12px;
+  font-weight: 600;
+}
+
+.empty-description {
+  font-size: 16px;
+  color: #4a5568;
+  max-width: 500px;
+  line-height: 1.6;
+  margin-bottom: 32px;
+}
+
+.empty-actions {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.primary-button, .secondary-button {
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.primary-button {
+  background: linear-gradient(135deg, #3182ce, #1a365d);
+  color: white;
+  border: none;
+  box-shadow: 0 4px 10px rgba(49, 130, 206, 0.3);
+}
+
+.primary-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(49, 130, 206, 0.4);
+}
+
+.secondary-button {
+  background-color: white;
+  color: #3182ce;
+  border: 2px solid #3182ce;
+}
+
+.secondary-button:hover {
+  background-color: #e6f0ff;
+}
+
+.button-icon {
+  font-size: 18px;
+}
+
+/* 加载状态样式优化 */
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid rgba(49, 130, 206, 0.2);
+  border-radius: 50%;
+  border-top-color: #3182ce;
+  margin: 40px auto 20px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 </style>

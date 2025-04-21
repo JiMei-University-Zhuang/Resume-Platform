@@ -542,13 +542,6 @@ const handleEmailLogin = async (formEl: any) => {
       } catch (error: any) {
         let errorMessage = '登录失败，请检查邮箱和验证码'
         if (error.response && error.response.data) {
-          if (error.response.data.message.includes('邮箱参数错误')) {
-            errorMessage = '请输入正确的邮箱地址'
-          } else if (error.response.data.message.includes('验证码错误')) {
-            errorMessage = '请输入正确的验证码'
-          } else if (error.response.data.message.includes('账号不存在')) {
-            errorMessage = '账号不存在，请注册'
-          }
           message.error(errorMessage)
         }
       } finally {
