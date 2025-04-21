@@ -13,16 +13,21 @@
     </div>
     <div v-else>
       <div v-if="recordCount > 0">
+        <select v-model="selectedType" @change="fetchWrongQuestionRecordCountByType">
+          <option value="公务员">公务员</option>
+          <option value="研究生">研究生</option>
+        </select>
         <select
-          v-model="selectedRecordId"
-          @click="handleSelectClick"
-          @change="selectedRecordId && fetchWrongQuestionsByRecordId(selectedRecordId)"
+          v-model="selectedRecordInfo"
+          @change="selectedRecordInfo && fetchWrongQuestionsByRecordId(selectedRecordInfo)"
           style="padding: 20px"
         >
           <option :value="null">{{ selectDisplayText }}</option>
-          <option v-for="recordId in recordIds" :value="recordId">答题记录 {{ recordId }}</option>
+          <option v-for="recordInfo in recordIds" :value="recordInfo">
+            答题记录 {{ recordInfo.recordId }} - 类型: {{ recordInfo.type }}
+          </option>
         </select>
-        <div v-if="selectedRecordId">
+        <div v-if="selectedRecordInfo">
           <!-- 错题卡片展示区域 -->
           <div
             class="wrong-question-card"
@@ -45,9 +50,7 @@
               </div>
               <p
                 class="question-content"
-                v-html="
-                  `&ensp;&ensp;${selectedWrongQuestions[currentQuestionIndex].questionContent}`
-                "
+                v-html="formatText(selectedWrongQuestions[currentQuestionIndex].questionContent)"
               ></p>
               <div
                 v-if="
@@ -87,15 +90,36 @@
                   <span v-html="selectedWrongQuestions[currentQuestionIndex].optionD"></span> </span
                 ><br />
               </div>
-              <div class="answer-section">
-                <p class="answer-container">
+              <div
+                v-if="
+                  selectedWrongQuestions[currentQuestionIndex]?.questionType === '行测选择题' ||
+                  '408单选题' ||
+                  '408解答题' ||
+                  '政治材料分析题' ||
+                  '申论主观题' ||
+                  '政治单选题' ||
+                  '政治多选题' ||
+                  '英语完形填空' ||
+                  '英语阅读理解' ||
+                  '英语序号匹配' ||
+                  '英语翻译' ||
+                  '英语作文' ||
+                  '历史单选题' ||
+                  '心理单选题'
+                "
+                class="answer-section"
+              >
+                <p
+                  class="answer-container"
+                  v-if="selectedWrongQuestions[currentQuestionIndex].correctAnswer"
+                >
                   正确答案:
                   <span class="correct-answer">{{
                     selectedWrongQuestions[currentQuestionIndex].correctAnswer
                   }}</span>
                 </p>
                 <p
-                  v-if="selectedWrongQuestions[currentQuestionIndex].referenceAnswer"
+                  v-else-if="selectedWrongQuestions[currentQuestionIndex].referenceAnswer"
                   class="answer-container"
                 >
                   参考答案:
@@ -114,32 +138,53 @@
                 v-if="selectedWrongQuestions[currentQuestionIndex].questions"
                 class="sub-question-section"
               >
-                <!-- <p class="sub-question-title">小题详情</p> -->
                 <span
                   v-for="(subQuestion, subIndex) in selectedWrongQuestions[currentQuestionIndex]
                     .questions"
                   :key="subIndex"
                 >
-                  <span class="sub-question-info">
-                    小题{{ subQuestion.itemId }} - 小题内容: {{ subQuestion.itemContent }} </span
-                  ><br />
-                  <span class="sub-option-container">小题选项:</span><br />
-                  <span
-                    v-for="(subOption, subOptionIndex) in subQuestion.options"
-                    :key="subOptionIndex"
-                  >
-                    <span class="sub-option-item">
-                      选项{{ getOptionLetter(subOptionIndex) }}: {{ subOption }}
-                    </span> </span
-                  ><br />
-                  <span class="sub-question-answer">
-                    小题正确答案: {{ subQuestion.correctAnswer }} </span
-                  ><br />
-                  <span class="sub-question-answer">
-                    您的小题答案: {{ subQuestion.userAnswer }} </span
-                  ><br />
-                  <span class="sub-question-answer"> 小题分数: {{ subQuestion.itemScore }} </span
-                  ><br />
+                  <div class="sub-question-info">
+                    小题{{ subQuestion.itemId }} :
+                    <span
+                      v-html="
+                        formatText(
+                          subQuestion.itemContent,
+                          selectedWrongQuestions[currentQuestionIndex].questionType
+                        )
+                      "
+                    ></span>
+
+                    <div class="option-section">
+                      <span class="option-item" v-if="subQuestion.optionA">
+                        <span class="option-prefix">选项A: </span>
+                        <span v-html="subQuestion.optionA"></span>
+                      </span>
+                      <span class="option-item" v-if="subQuestion.optionB">
+                        <span class="option-prefix">选项B: </span>
+                        <span v-html="subQuestion.optionB"></span>
+                      </span>
+                      <span class="option-item" v-if="subQuestion.optionC">
+                        <span class="option-prefix">选项C: </span>
+                        <span v-html="subQuestion.optionC"></span>
+                      </span>
+                      <span class="option-item" v-if="subQuestion.optionD">
+                        <span class="option-prefix">选项D: </span>
+                        <span v-html="subQuestion.optionD"></span>
+                      </span>
+                    </div>
+                  </div>
+
+                  <br />
+                  <div class="sub-question-answerblock">
+                    <span class="sub-question-answer answer-container">
+                      你的答案: <span v-html="subQuestion.userAnswer"></span>
+                    </span>
+                    <span class="sub-question-answer answer-container">
+                      正确答案:<br />
+                      <span v-html="formatText(subQuestion.correctAnswer)"></span>
+                    </span>
+                  </div>
+                  <br />
                 </span>
               </div>
             </div>
@@ -161,13 +206,11 @@
     </div>
   </div>
 </template>
-
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { getWrongQuestionRecordCount, getWrongQuestion } from '@/api/errorRecord'
 import { getUser } from '@/api/user'
-import { useRoute } from 'vue-router'
-
+import { GetRecordData, Question } from '@/types/errorRecord'
 // 定义获取错题的响应数据类型
 interface WrongQuestion {
   questionType: string
@@ -185,27 +228,46 @@ interface WrongQuestion {
   questions?: {
     itemId: number
     itemContent: string
-    options: string[]
+    options?: { label: string; value: string }[]
+    optionA: string
+    optionB: string
+    optionC: string
+    optionD: string
     correctAnswer: string
     userAnswer: string
-    itemScore: number
+    itemScore?: number
   }[]
 }
-
-const route = useRoute()
 const loading = ref(true)
 const recordCount = ref(0)
-const recordIds = ref<number[]>([])
-let userId: number
-const selectedRecordId = ref<number | null>(null)
-const selectedWrongQuestions = ref<WrongQuestion[]>([]) // 存储选择的那次记录中的错题数据
-const currentQuestionIndex = ref(0) // 当前展示的题目索引
+const recordIds = ref<{ recordId: number; type: string }[]>([])
+const selectedWrongQuestions = ref<WrongQuestion[]>([])
+const currentQuestionIndex = ref(0)
 const selectDisplayText = ref('请选择你要选择的试卷')
+let userId = Number(localStorage.getItem('userId'))
+const selectedType = ref<'公务员' | '研究生'>('公务员')
+const selectedRecordInfo = ref<{ recordId: number; type: string } | null>(null)
+const formatText = (text: string, questionType?: string) => {
+  if (!text) {
+    return '（注意查看参考答案~）'
+  }
+  let processedText = text
+  processedText = processedText.replace(/\\n/g, '\n')
+  processedText = processedText.replace(/\r\n/g, '<br>')
+  processedText = processedText.replace(/\n/g, '<br>')
+
+  // 根据题目类型决定是否截取前四位
+  if (questionType === '申论主观题') {
+    processedText = processedText.length > 4 ? processedText.slice(4) : processedText
+  }
+
+  return processedText
+}
 // 切换题目展示的函数
 const showQuestion = (num: number) => {
   currentQuestionIndex.value = num
 }
-// 获取用户 ID
+// 获取用户ID
 const fetchUserId = async () => {
   try {
     const response = await getUser()
@@ -218,61 +280,48 @@ const fetchUserId = async () => {
     console.error('获取用户信息失败:', error)
   }
 }
-
-// 获取错题记录数
-const fetchWrongQuestionRecordCount = async () => {
+// 根据选择的类型获取错题记录数
+const fetchWrongQuestionRecordCountByType = async () => {
   if (!userId) {
-    console.error('用户 ID 未获取到，无法获取错题记录数')
+    console.error('用户ID未获取到，无法获取错题记录数')
     return
   }
-  let type: '考试' | '练习'
-  const routeType = route.query.type as string
-  if (routeType === 'exam') {
-    type = '考试'
-  } else {
-    type = '练习'
-  }
-  const data = { userId, type }
+  const data: GetRecordData = { userId, type: selectedType.value }
   try {
     const response = await getWrongQuestionRecordCount(data)
-    if (Array.isArray(response.data)) {
+    if (Array.isArray(response.data) && response.data.length > 0) {
       recordCount.value = response.data.length
       recordIds.value = response.data.map(item => {
-        if (item.recordId !== undefined) {
-          return item.recordId
-        } else {
-          console.error('获取错题记录数时，recordId未定义')
-          return 0
+        return {
+          recordId: item.recordId || 0,
+          type: item.type || '未知类型'
         }
       })
     } else {
-      console.error('获取错题记录数接口返回数据结构异常')
+      console.error('获取错题记录数接口返回数据结构异常或无记录')
+      recordCount.value = 0
+      recordIds.value = []
     }
   } catch (error) {
     console.error('获取错题记录数失败:', error)
+    recordCount.value = 0
+    recordIds.value = []
   }
 }
-
 // 根据recordId获取那次答题的错题
-const fetchWrongQuestionsByRecordId = async (recordId: number) => {
+const fetchWrongQuestionsByRecordId = async (recordInfo: { recordId: number; type: string }) => {
   if (!userId) {
-    console.error('用户 ID 未获取到，无法获取错题')
+    console.error('用户ID未获取到，无法获取错题')
     return
   }
-  let type: '练习' | '考试'
-  const routeType = route.query.type as string
-  if (routeType === 'exam') {
-    type = '考试'
-  } else {
-    type = '练习'
-  }
-  const data = { userId, type, recordId }
+  const recordId = recordInfo.recordId
+  const type = recordInfo.type
+  const data: Question = { userId, type, record: recordId }
   try {
     const response = await getWrongQuestion(data)
     if (Array.isArray(response.data)) {
       const convertedResults: WrongQuestion[] = []
       response.data.forEach(questionData => {
-        // 对每个字段进行必要的检查和转换
         const questionType = questionData.questionType || ''
         const score = typeof questionData.score === 'number' ? questionData.score : 0
         const isSensitive =
@@ -287,14 +336,18 @@ const fetchWrongQuestionsByRecordId = async (recordId: number) => {
         const referenceAnswer = questionData.referenceAnswer || ''
         const userAnswer = questionData.userAnswer || ''
         const questions = questionData.questions || []
-
         const processOption = (option: string) =>
           option.length > 2 ? option.slice(2).trim() : option
         const processedOptionA = processOption(optionA)
         const processedOptionB = processOption(optionB)
         const processedOptionC = processOption(optionC)
         const processedOptionD = processOption(optionD)
-
+        // 根据题目类型进一步处理数据
+        if (questionType === '主观题') {
+          // 主观题可能不需要处理选项等字段，可根据实际情况调整
+        } else {
+          // 客观题确保选项、答案等字段处理正确
+        }
         convertedResults.push({
           questionType,
           score,
@@ -314,34 +367,22 @@ const fetchWrongQuestionsByRecordId = async (recordId: number) => {
       selectedWrongQuestions.value = convertedResults
     } else {
       console.error('获取特定答题记录错题时，接口返回数据结构异常')
+      selectedWrongQuestions.value = []
     }
   } catch (error) {
     console.error('获取特定答题记录错题失败:', error)
+    selectedWrongQuestions.value = []
   } finally {
-    // 数据获取完成，无论成功失败都更新loading状态
     loading.value = false
-  }
-}
-
-// 辅助函数，将选项索引转换为字母
-const getOptionLetter = (index: number): string => {
-  return String.fromCharCode(65 + index)
-}
-// 监听下拉框是否被触碰，这里通过监听点击事件实现
-const handleSelectClick = () => {
-  if (recordIds.value.length > 0 && selectedRecordId.value === null) {
-    selectedRecordId.value = recordIds.value[0]
-    selectDisplayText.value = `答题记录 ${recordIds.value[0]}`
-    fetchWrongQuestionsByRecordId(selectedRecordId.value)
   }
 }
 onMounted(async () => {
   try {
     await fetchUserId()
-    await fetchWrongQuestionRecordCount()
+    await fetchWrongQuestionRecordCountByType()
     if (recordIds.value.length > 0) {
-      selectedRecordId.value = recordIds.value[0]
-      await fetchWrongQuestionsByRecordId(selectedRecordId.value)
+      const firstRecordInfo = recordIds.value[0]
+      await fetchWrongQuestionsByRecordId(firstRecordInfo)
     } else {
       loading.value = false
     }
@@ -419,6 +460,7 @@ ul {
   display: flex;
   justify-content: center;
   gap: 10px;
+  flex-wrap: wrap;
 }
 .question-number-btn {
   width: 30px;
@@ -436,6 +478,8 @@ ul {
     background-color 0.3s ease,
     border-color 0.3s ease;
   padding: 0;
+  min-width: 30px;
+  box-sizing: border-box;
 }
 .question-number-btn.active {
   background-color: #3182ce;
@@ -541,6 +585,8 @@ ul {
   font-size: 18px;
   line-height: 1.6;
   margin-bottom: 4px;
+  background-color: rgb(237, 241, 244);
+  padding: 15px;
 }
 /* 下拉框 */
 select {
@@ -565,5 +611,16 @@ select {
 select:hover {
   border-color: #1a365d;
   box-shadow: 0 0 5px rgba(49, 130, 206, 0.3);
+}
+/* 主观题 */
+.sub-question-info {
+  border: 2px solid #1a365d;
+  padding: 50px;
+  border-radius: 20px;
+}
+.sub-question-answerblock {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 </style>

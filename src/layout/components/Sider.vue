@@ -3,13 +3,13 @@
     <div class="sidebar-header">
       <a href="#" class="logo-link">
         <img src="@/assets/logo.svg" alt="Logo" class="logo-image" />
-        <span class="logo-text" v-if="!collapsed">{{ $t('dashboard.careerPlatform') }}</span>
+        <span class="logo-text" v-if="!collapsed">{{ t('dashboard.careerPlatform') }}</span>
       </a>
     </div>
 
     <el-scrollbar height="100%">
       <div class="categories-section" v-if="!collapsed">
-        <h2 class="categories-title">{{ $t('sider.navigation') }}</h2>
+        <h2 class="categories-title">{{ t('sider.navigation') }}</h2>
 
         <div class="category-list">
           <router-link
@@ -21,7 +21,7 @@
             <div class="category-icon">
               <el-icon><HomeFilled /></el-icon>
             </div>
-            <span class="category-label">{{ $t('sider.home') }}</span>
+            <span class="category-label">{{ t('sider.home') }}</span>
           </router-link>
 
           <!-- 管理员专属功能 - 数据大屏 -->
@@ -35,13 +35,13 @@
             <div class="category-icon">
               <el-icon><DataLine /></el-icon>
             </div>
-            <span class="category-label">{{ $t('sider.dataScreen') }}</span>
+            <span class="category-label">{{ t('sider.dataScreen') }}</span>
           </router-link>
 
           <!-- 管理员专属功能 - 用户管理 -->
           <template v-if="userStore.userInfo.role === 'ADMIN'">
             <div class="category-section">
-              <h3 class="section-title">{{ $t('sider.systemManagement') }}</h3>
+              <h3 class="section-title">{{ t('sider.systemManagement') }}</h3>
             </div>
 
             <router-link
@@ -53,12 +53,12 @@
               <div class="category-icon">
                 <el-icon><User /></el-icon>
               </div>
-              <span class="category-label">{{ $t('sider.userManagement') }}</span>
+              <span class="category-label">{{ t('sider.userManagement') }}</span>
             </router-link>
           </template>
 
           <div class="category-section">
-            <h3 class="section-title">{{ $t('sider.resumeModule') }}</h3>
+            <h3 class="section-title">{{ t('sider.resumeModule') }}</h3>
           </div>
           <router-link
             to="/resume/create"
@@ -69,7 +69,7 @@
             <div class="category-icon">
               <el-icon><Document /></el-icon>
             </div>
-            <span class="category-label">{{ $t('sider.createResume') }}</span>
+            <span class="category-label">{{ t('sider.createResume') }}</span>
           </router-link>
 
           <router-link
@@ -81,7 +81,7 @@
             <div class="category-icon">
               <el-icon><CopyDocument /></el-icon>
             </div>
-            <span class="category-label">{{ $t('sider.resumeTemplates') }}</span>
+            <span class="category-label">{{ t('sider.resumeTemplates') }}</span>
           </router-link>
 
           <router-link
@@ -93,11 +93,11 @@
             <div class="category-icon">
               <el-icon><DataAnalysis /></el-icon>
             </div>
-            <span class="category-label">{{ $t('sider.resumeAnalysis') }}</span>
+            <span class="category-label">{{ t('sider.resumeAnalysis') }}</span>
           </router-link>
           <div class="category-exam">
             <div class="category-section">
-              <h3 class="section-title">{{ $t('sider.examCenter') }}</h3>
+              <h3 class="section-title">{{ t('sider.examCenter') }}</h3>
             </div>
 
             <!-- 公务员考试 -->
@@ -110,7 +110,7 @@
               <div class="category-icon">
                 <el-icon><Reading /></el-icon>
               </div>
-              <span class="category-label">{{ $t('sider.civilServiceExam') }}</span>
+              <span class="category-label">{{ t('sider.civilServiceExam') }}</span>
             </router-link>
 
             <router-link
@@ -122,13 +122,55 @@
               <div class="category-icon">
                 <el-icon><Collection /></el-icon>
               </div>
-              <span class="category-label">{{ $t('sider.postgraduatePrep') }}</span>
+              <span class="category-label">{{ t('sider.postgraduatePrep') }}</span>
+            </router-link>
+          </div>
+
+          <div class="category-job">
+            <div class="category-section">
+              <h3 class="section-title">{{ t('sider.careerPlanning') }}</h3>
+            </div>
+
+            <!-- <router-link
+              to="/career-planning/map"
+              class="category-item"
+              :class="{ active: route.path === '/career-planning/map' }"
+              @click="navigateTo('/career-planning/map')"
+            >
+              <div class="category-icon">
+                <el-icon><Compass /></el-icon>
+              </div>
+              <span class="category-label">{{ t('sider.careerMap') }}</span>
+            </router-link> -->
+
+            <router-link
+              to="/career-star-map"
+              class="category-item"
+              :class="{ active: route.path === '/career-star-map' }"
+              @click="navigateTo('/career-star-map')"
+            >
+              <div class="category-icon">
+                <el-icon><Compass /></el-icon>
+              </div>
+              <span class="category-label">{{ t('sider.careerMap') }}</span>
+            </router-link>
+
+            <router-link
+              to="/career-planning/learning-plan"
+              class="category-item"
+              :class="{ active: route.path === '/career-planning/learning-plan' }"
+              @click="navigateTo('/career-planning/learning-plan')"
+            >
+              <div class="category-icon">
+                <el-icon><List /></el-icon>
+              </div>
+              <span class="category-label">{{ t('sider.learningPlan') }}</span>
             </router-link>
           </div>
 
           <div class="category-AI">
             <div class="category-section">
-              <h3 class="section-title">{{ $t('sider.aiTools') }}</h3>
+              <h3 class="section-title">{{ t('sider.aiTools') }}</h3>
             </div>
 
             <router-link
@@ -140,7 +182,7 @@
               <div class="category-icon">
                 <el-icon><ChatDotRound /></el-icon>
               </div>
-              <span class="category-label">{{ $t('sider.aiAssistant') }}</span>
+              <span class="category-label">{{ t('sider.aiAssistant') }}</span>
             </router-link>
 
             <router-link
@@ -151,37 +193,7 @@
               <div class="category-icon">
                 <el-icon><Camera /></el-icon>
               </div>
-              <span class="category-label">{{ $t('sider.aiIDPhoto') }}</span>
-            </router-link>
-          </div>
-
-          <div class="category-job">
-            <div class="category-section">
-              <h3 class="section-title">{{ $t('sider.careerPlanning') }}</h3>
-            </div>
-
-            <router-link
-              to="/career-planning/roadmap"
-              class="category-item"
-              :class="{ active: route.path === '/career-planning/roadmap' }"
-              @click="navigateTo('/career-planning/roadmap')"
-            >
-              <div class="category-icon">
-                <el-icon><Compass /></el-icon>
-              </div>
-              <span class="category-label">{{ $t('sider.developmentPlan') }}</span>
-            </router-link>
-
-            <router-link
-              to="/career-planning/recommendation"
-              class="category-item"
-              :class="{ active: route.path === '/career-planning/recommendation' }"
-              @click="navigateTo('/career-planning/recommendation')"
-            >
-              <div class="category-icon">
-                <el-icon><StarFilled /></el-icon>
-              </div>
-              <span class="category-label">{{ $t('sider.careerRecommendation') }}</span>
+              <span class="category-label">{{ t('sider.aiIDPhoto') }}</span>
             </router-link>
           </div>
         </div>
@@ -194,7 +206,7 @@
           class="category-icon-collapsed"
           :class="{ active: route.path === '/dashboard' }"
           @click="navigateTo('/dashboard')"
-          :title="$t('sider.home')"
+          :title="t('sider.home')"
         >
           <el-icon><HomeFilled /></el-icon>
         </router-link>
@@ -206,7 +218,7 @@
             class="category-icon-collapsed"
             :class="{ active: route.path === '/datascreen' }"
             @click="navigateTo('/datascreen')"
-            :title="$t('sider.dataScreen')"
+            :title="t('sider.dataScreen')"
           >
             <el-icon><DataLine /></el-icon>
           </router-link>
@@ -216,7 +228,7 @@
             class="category-icon-collapsed"
             :class="{ active: route.path.startsWith('/user-management') }"
             @click="navigateTo('/user-management/list')"
-            :title="$t('sider.userManagement')"
+            :title="t('sider.userManagement')"
           >
             <el-icon><User /></el-icon>
           </router-link>
@@ -227,7 +239,7 @@
           class="category-icon-collapsed"
           :class="{ active: route.path === '/chat' }"
           @click="navigateTo('/chat')"
-          :title="$t('sider.aiAssistant')"
+          :title="t('sider.aiAssistant')"
         >
           <el-icon><ChatDotRound /></el-icon>
         </router-link>
@@ -235,7 +247,7 @@
           to="/personality"
           class="category-icon-collapsed"
           :class="{ active: route.path === '/personality' }"
-          :title="$t('sider.aiTools')"
+          :title="t('sider.aiTools')"
         >
           <el-icon><UserFilled /></el-icon>
         </router-link>
@@ -243,7 +255,7 @@
           to="/id-photo"
           class="category-icon-collapsed"
           :class="{ active: route.path === '/id-photo' }"
-          :title="$t('sider.aiIDPhoto')"
+          :title="t('sider.aiIDPhoto')"
         >
           <el-icon><Camera /></el-icon>
         </router-link>
@@ -252,25 +264,51 @@
           class="category-icon-collapsed"
           :class="{ active: route.path.startsWith('/resume') }"
           @click="navigateTo('/resume/create')"
-          :title="$t('sider.resumeModule')"
+          :title="t('sider.resumeModule')"
         >
           <el-icon><Document /></el-icon>
         </router-link>
-        <router-link
-          to="/career-planning/roadmap"
-          class="category-icon-collapsed"
+        <div
+          class="category-icon-collapsed dropdown-trigger"
           :class="{ active: route.path.startsWith('/career-planning') }"
-          @click="navigateTo('/career-planning/roadmap')"
-          :title="$t('sider.careerPlanning')"
+          @mouseenter="showCareerDropdown = true"
+          @mouseleave="showCareerDropdown = false"
+          :title="t('sider.careerPlanning')"
         >
           <el-icon><Compass /></el-icon>
-        </router-link>
+          <div v-if="showCareerDropdown" class="dropdown-menu">
+            <router-link
+              to="/career-planning/map"
+              class="dropdown-item"
+              :class="{ active: route.path === '/career-planning/map' }"
+              @click="navigateTo('/career-planning/map')"
+            >
+              {{ t('sider.careerMap') }}
+            </router-link>
+            <router-link
+              to="/career-star-map"
+              class="dropdown-item"
+              :class="{ active: route.path === '/career-star-map' }"
+              @click="navigateTo('/career-star-map')"
+            >
+              {{ t('sider.careerMap') }} (全屏)
+            </router-link>
+            <router-link
+              to="/career-planning/learning-plan"
+              class="dropdown-item"
+              :class="{ active: route.path === '/career-planning/learning-plan' }"
+              @click="navigateTo('/career-planning/learning-plan')"
+            >
+              {{ t('sider.learningPlan') }}
+            </router-link>
+          </div>
+        </div>
         <router-link
           to="/exam/civil-service"
           class="category-icon-collapsed"
           :class="{ active: route.path.startsWith('/exam') }"
           @click="navigateTo('/exam/civil-service')"
-          :title="$t('sider.examCenter')"
+          :title="t('sider.examCenter')"
         >
           <el-icon><Reading /></el-icon>
         </router-link>
@@ -290,24 +328,26 @@ import {
   CopyDocument,
   DataAnalysis,
   Compass,
-  StarFilled,
+  List,
   Reading,
-  Collection,
-  User
+  User,
+  Collection
 } from '@element-plus/icons-vue'
 import { useAppStore } from '@/stores'
 import { useUserStore } from '@/stores/userStore'
 import { useRoute } from 'vue-router'
 import { storeToRefs } from 'pinia'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-useI18n()
+// 获取i18n实例
+const { t } = useI18n()
 
 const route = useRoute()
 const appStore = useAppStore()
 const userStore = useUserStore()
 const { collapsed, isDark } = storeToRefs(appStore)
+const showCareerDropdown = ref(false)
 
 // 计算属性
 const menuBackgroundColor = computed(() => (isDark.value ? '#141414' : '#304156'))
@@ -502,6 +542,41 @@ defineExpose({
   color: #4b4b4b;
 }
 
+.dropdown-trigger {
+  position: relative;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 45px;
+  left: 0;
+  width: 140px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 8px 0;
+  z-index: 1000;
+}
+
+.dropdown-item {
+  display: block;
+  padding: 10px 16px;
+  text-decoration: none;
+  color: #333;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.dropdown-item:hover {
+  background-color: #f5f5f5;
+}
+
+.dropdown-item.active {
+  background-color: #f0f0f0;
+  color: #4b4b4b;
+  font-weight: 500;
+}
+
 html.dark .sidebar {
   background: #1e1e1e;
   border-right: 1px solid #333;
@@ -550,6 +625,24 @@ html.dark .category-icon-collapsed:hover {
 }
 
 html.dark .category-icon-collapsed.active {
+  background-color: #404040;
+  color: #e0e0e0;
+}
+
+html.dark .dropdown-menu {
+  background-color: #1e1e1e;
+  border: 1px solid #333;
+}
+
+html.dark .dropdown-item {
+  color: #f0f0f0;
+}
+
+html.dark .dropdown-item:hover {
+  background-color: #2c2c2c;
+}
+
+html.dark .dropdown-item.active {
   background-color: #404040;
   color: #e0e0e0;
 }

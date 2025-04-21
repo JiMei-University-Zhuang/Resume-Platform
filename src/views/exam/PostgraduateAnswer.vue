@@ -556,6 +556,10 @@ import { getGSPractice } from '@/api/exam'
 import { ElMessageBox } from 'element-plus'
 import { message } from 'ant-design-vue'
 import { Check, Close, InfoFilled, Warning, DocumentChecked } from '@element-plus/icons-vue'
+import { saveWrongQuestion } from '@/api/errorRecord'
+import { SaveWrongQuestionData, WrongQuestionRecord } from '@/types/errorRecord'
+import { getUser } from '@/api/user'
+let userId: number | null = null
 
 // 定义题目接口
 interface ClozeOptionInfo {
@@ -940,6 +944,101 @@ const submitAnswers = async () => {
       return // 用户选择继续作答
     }
   }
+  // 收集错题数据
+  const wrongQuestions: WrongQuestionRecord[] = []
+
+  questions.value.forEach((question, index) => {
+    let isCorrect = false
+
+    if (isClozeQuestion(question) && question.clozeOptionInfos) {
+      isCorrect = question.clozeOptionInfos.every((option, optIdx) => {
+        return userClozeAnswers.value[index]?.[optIdx] === option.correctAnswer
+      })
+    } else if (isReadingQuestion(question) && question.readingOptionInfos) {
+      isCorrect = question.readingOptionInfos.every((option, optIdx) => {
+        return userReadingAnswers.value[index]?.[optIdx] === option.correctAnswer
+      })
+    } else if (isMatchingQuestion(question) && question.matchingOptionInfos) {
+      isCorrect = question.matchingOptionInfos.every((option, optIdx) => {
+        return userMatchingAnswers.value[index]?.[optIdx] === option.correctAnswer
+      })
+    } else if (isTranslationQuestion(question) && question.translationOptionInfos) {
+      isCorrect = question.translationOptionInfos.every((option, optIdx) => {
+        return isTranslationGood(
+          userTranslationAnswers.value[index]?.[optIdx],
+          option.correctAnswer
+        )
+      })
+    } else if (isPoliticsSingleChoice(question)) {
+      isCorrect = userPoliticsSingleAnswers.value[index] === question.correctAnswer
+    } else if (isPoliticsMultipleChoice(question)) {
+      isCorrect = isMultipleChoiceCorrect(
+        userPoliticsMultiAnswers.value[index],
+        question.correctAnswer
+      )
+    } else {
+      isCorrect = userAnswers.value[index] === question.referenceAnswer
+    }
+
+    if (!isCorrect) {
+      if (isClozeQuestion(question) && question.clozeOptionInfos) {
+        question.clozeOptionInfos.forEach((option, optIdx) => {
+          wrongQuestions.push({
+            questionId: parseInt(question.questionId, 10),
+            itemId: parseInt(option.itemId, 10),
+            userAnswer: userClozeAnswers.value[index]?.[optIdx] || ''
+          })
+        })
+      } else if (isReadingQuestion(question) && question.readingOptionInfos) {
+        question.readingOptionInfos.forEach((option, optIdx) => {
+          wrongQuestions.push({
+            questionId: parseInt(question.questionId, 10),
+            itemId: parseInt(option.itemId, 10),
+            userAnswer: userReadingAnswers.value[index]?.[optIdx] || ''
+          })
+        })
+      } else if (isMatchingQuestion(question) && question.matchingOptionInfos) {
+        question.matchingOptionInfos.forEach((option, optIdx) => {
+          wrongQuestions.push({
+            questionId: parseInt(question.questionId, 10),
+            itemId: parseInt(option.itemId, 10),
+            userAnswer: userMatchingAnswers.value[index]?.[optIdx] || ''
+          })
+        })
+      } else if (isTranslationQuestion(question) && question.translationOptionInfos) {
+        question.translationOptionInfos.forEach((option, optIdx) => {
+          wrongQuestions.push({
+            questionId: parseInt(question.questionId, 10),
+            itemId: parseInt(option.itemId, 10),
+            userAnswer: userTranslationAnswers.value[index]?.[optIdx] || ''
+          })
+        })
+      } else {
+        wrongQuestions.push({
+          questionId: parseInt(question.questionId, 10),
+          userAnswer: userAnswers.value[index] || ''
+        })
+      }
+    }
+  })
+
+  // 保存错题
+  if (wrongQuestions.length > 0) {
+    const saveData: SaveWrongQuestionData = {
+      userId: userId as number,
+      type: route.query.type === 'exam' ? '研究生考试' : '研究生练习',
+      questionInfo: '政治单选题',
+      records: wrongQuestions
+    }
+
+    try {
+      await saveWrongQuestion(saveData)
+      message.success('错题已保存！')
+    } catch (error) {
+      message.error('保存错题失败，请重试')
+      console.error('保存错题失败：', error)
+    }
+  }
 
   message.success('答案已提交！')
   showReference.value = true // 显示参考答案
@@ -1017,6 +1116,22 @@ const isMultipleChoiceCorrect = (userAnswer: string[], correctAnswer: string | u
     userAnswer.every(opt => correctOptions.includes(opt))
   )
 }
+
+onMounted(async () => {
+  try {
+    const response = await getUser()
+    userId = Number(response.data.id)
+  } catch (error) {
+    console.error('获取用户信息失败:', error)
+  }
+  fetchQuestions()
+  if (route.query.type === 'exam') {
+    startTimer()
+  }
+
+  // 添加题目ID属性
+  window.addEventListener('scroll', updateCurrentQuestion)
+})
 </script>
 
 <style scoped>

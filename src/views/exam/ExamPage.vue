@@ -4,7 +4,7 @@
       <h1 class="exam-title">{{ route.query.type === 'exam' ? '考试开始' : '练习开始' }}</h1>
       <p class="exam-subtitle">
         <span v-if="route.query.type === 'exam'">
-          当前试卷：{{ route.query.examName || '未知试卷' }}
+          当前试卷：{{ route.query.examName || '未知试卷' }}，总分：{{ totalScore_pre }}分
         </span>
         <span v-else>
           本次练习科目：{{ subject }}，题目数量：{{ count }}，总分：{{ totalScore_pre }}分</span
@@ -204,6 +204,7 @@ const showAnalysis = ref<boolean[]>([])
 const aiAnalysisStatus = ref<number[]>([])
 let userId: number | null = null
 const wrongQuestions: WrongQuestionRecord[] = []
+const questionInfo = ref<string>('') // 保存成绩接口的 questionInfo
 
 const fetchQuestions = async () => {
   try {
@@ -281,19 +282,23 @@ const submitExam = async () => {
     (sum, q, i) => (answers.value[i] === q.correctAnswer ? sum + q.score : sum),
     0
   )
+
+  // 动态设置 questionInfo
+  if (route.query.type === 'exam') {
+    questionInfo.value = route.query.examName as string
+  } else {
+    questionInfo.value = subject.value === '行测' ? '行测选择题' : '申论主观题'
+  }
+
   // 调用保存成绩接口
   const scoreData: ScoresaveData = {
     userId,
     userScore: totalScore.value,
     totalScore: totalScore_pre.value,
     type: route.query.type === 'exam' ? '公务员考试' : '公务员练习',
-    questionInfo:
-      route.query.type === 'exam'
-        ? (route.query.examName as string)
-        : subject.value === '行测'
-          ? '行测选择题'
-          : '申论主观题'
+    questionInfo: questionInfo.value
   }
+  console.log('scoreData:', scoreData.questionInfo)
 
   try {
     await saveScore(scoreData)
@@ -480,7 +485,79 @@ const analyzeQuestion = (index: number) => {
 const submitRealExam = async () => {
   showEssayAnswers.value = true
   isExamInProgress.value = false
+  if (!userId) {
+    console.error('用户 ID 未获取到，无法保存成绩')
+    return
+  }
+
+  questions.value.forEach((question, questionIndex) => {
+    const subQuestionCount = question.expoundingOptionInfos?.length || 1
+    if (question.expoundingOptionInfos) {
+      // 处理申论题目
+      question.expoundingOptionInfos.forEach((subQuestion, subIndex) => {
+        const essayAnswerIndex = questionIndex * subQuestionCount + subIndex
+        const userAnswer = essayAnswers.value[essayAnswerIndex] || ''
+
+        wrongQuestions.push({
+          questionId: parseInt(question.questionId, 10),
+          itemId: parseInt(subQuestion.itemId, 10),
+          userAnswer: userAnswer
+        })
+      })
+    } else {
+      // 处理行测题目
+      // 这里不需要进行评分，只需要记录用户的答案和题目编号
+      wrongQuestions.push({
+        questionId: parseInt(question.questionId, 10),
+        itemId: null,
+        userAnswer: answers.value[questionIndex] || ''
+      })
+    }
+  })
+
+  // 动态设置 questionInfo
+  if (route.query.type === 'exam') {
+    questionInfo.value = route.query.examName as string
+  } else {
+    questionInfo.value = subject.value === '行测' ? '行测选择题' : '申论主观题'
+  }
+
+  // 调用保存成绩接口
+  const scoreData: ScoresaveData = {
+    userId,
+    userScore: 0, // 申论题目没有评分，因此设置为 0
+    totalScore: totalScore_pre.value,
+    type: route.query.type === 'exam' ? '公务员考试' : '公务员练习',
+    questionInfo: questionInfo.value
+  }
+  try {
+    await saveScore(scoreData)
+  } catch (error) {
+    console.error('保存成绩失败:', error)
+  }
   saveScoreAndWrongQuestions()
+
+  // 结果弹窗
+  const statusText = '申论题目暂不支持评分~'
+
+  ElMessageBox({
+    message: `
+          <div style="text-align: center; padding: 25px 32px;">
+              <div style="padding: 15px; border-radius: 8px; margin-top: 20px">
+                  <p style="margin: 5px 0; color: #FF4757; font-weight: bold">${statusText}</p>
+              </div>
+          </div>
+          `,
+    dangerouslyUseHTMLString: true,
+    confirmButtonText: '确定',
+    customClass: 'result-dialog',
+    customStyle: {
+      width: 'auto',
+      maxWidth: '90vw',
+      padding: '0 20px 20px'
+    }
+  })
+  isExamInProgress.value = false
   showReference.value = true
 }
 
@@ -492,7 +569,8 @@ const saveScoreAndWrongQuestions = async () => {
   // 保存错题
   const wrongQuestionData: SaveWrongQuestionData = {
     userId: userId,
-    type: route.query.type === 'exam' ? '考试' : '练习',
+    type: route.query.type === 'exam' ? '公务员考试' : '公务员练习',
+    questionInfo: questionInfo.value,
     records: wrongQuestions
   }
   try {
@@ -522,6 +600,13 @@ onMounted(async () => {
     }, 1000)
   }
   examStore.setExamStatus(true)
+
+  // 初始化 questionInfo
+  if (route.query.type === 'exam') {
+    questionInfo.value = route.query.examName as string
+  } else {
+    questionInfo.value = subject.value === '行测' ? '行测选择题' : '申论主观题'
+  }
 })
 onUnmounted(() => {
   examStore.setExamStatus(false)
@@ -880,7 +965,6 @@ onUnmounted(() => {
   background: linear-gradient(215deg, #c332fb, #00dbde, #c332fb);
   background-size: 400%;
   border-radius: 40px;
-  /* filter: blur(10px); */
   opacity: 0;
 }
 .neon-ai-parse-button:hover::before {

@@ -23,7 +23,21 @@ export default {
     deleteFailed: '删除消息失败',
     logout: '退出登录',
     logoutSuccess: '成功退出登录',
-    logoutFailed: '登出失败，请稍后重试'
+    logoutFailed: '登出失败，请稍后重试',
+    tourStepTitles: {
+      fullscreen: '全屏模式',
+      language: '语言切换',
+      notification: '消息通知',
+      documentation: '帮助文档',
+      userProfile: '用户信息'
+    },
+    tourStepDescriptions: {
+      fullscreen: '点击这里可以切换全屏显示模式，让您更专注地使用平台功能。',
+      language: '在这里可以切换界面语言，支持中文和英文两种语言。',
+      notification: '查看您的系统通知和任务提醒，及时了解平台动态。',
+      documentation: '访问帮助文档，获取平台各功能的详细使用指南。',
+      userProfile: '管理您的个人信息和账号设置，包括退出登录操作。'
+    }
   },
   breadcrumb: {
     home: '首页',
@@ -48,7 +62,8 @@ export default {
     careerPlanning: '职业规划',
     developmentPlan: '发展规划',
     careerRecommendation: '职业推荐',
-    dataScreen: '数据大屏'
+    dataScreen: '数据大屏',
+    learningPlan: '学习计划'
   },
   sider: {
     navigation: '功能导航',
@@ -68,7 +83,13 @@ export default {
     aiIDPhoto: 'AI证件照',
     careerPlanning: '职业规划',
     developmentPlan: '发展规划',
-    careerRecommendation: '职业推荐'
+    careerRecommendation: '职业推荐',
+    careerMap: '职业星图',
+    learningPlan: '学习路线',
+    careerNode: '职业节点',
+    careerStarMap: '职业星图',
+    digitalTwin: '个人数字孪生',
+    skillRadar: '技能雷达'
   },
   dashboard: {
     welcomeBack: '欢迎回来',
@@ -80,6 +101,7 @@ export default {
     aiResumeOptimization: 'AI 简历优化',
     startPlanning: '开始规划',
     learnMore: '了解更多',
+    guidedTour: '功能引导',
     whatWeCanHelp: '我们能帮你什么',
     careerAnalysis: '职业分析',
     careerAnalysisDesc: '根据你的技能、学历、兴趣和经验，AI分析最适合你的职业方向',
@@ -114,6 +136,32 @@ export default {
     examCenter: '考试中心',
     examCenterDesc: '考公考研备考资源，助力你的升学就业之路',
     enterCenter: '进入中心',
-    smartAssistantTips: '智能助手提示'
+    smartAssistantTips: '智能助手提示',
+    tourStepTitles: {
+      startPlanning: '开始职业规划',
+      featuresSection: '主要功能',
+      careerAnalysis: '职业分析',
+      developmentPlan: '发展规划',
+      careerRecommendation: '职业推荐',
+      statsSection: '平台数据',
+      advantagesSection: '平台优势',
+      additionalFeatures: '更多功能',
+      smartTips: '智能提示'
+    },
+    tourStepDescriptions: {
+      startPlanning: '点击这里开始你的职业生涯规划之旅，我们将帮助你分析职业发展路径。',
+      featuresSection: '这个区域展示了平台的核心功能，包括职业分析、发展规划和职业推荐。',
+      careerAnalysis: '通过人工智能技术分析当前职业状况，找出技能差距和发展机会。',
+      developmentPlan: '基于个人情况生成量身定制的职业发展路径，帮助你实现职业目标。',
+      careerRecommendation: '根据你的技能和兴趣推荐最适合的职业选择，帮助你找到理想职业。',
+      statsSection: '了解平台的使用数据，包括已帮助的用户数量和职业类型覆盖范围。',
+      advantagesSection: '我们使用先进的AI技术和行业数据，为你提供个性化的职业规划服务。',
+      additionalFeatures: '探索平台的其他功能，如AI职业顾问和考试中心，拓展你的职业发展视野。',
+      smartTips: '根据你的使用习惯，我们会提供智能化的建议，帮助你更高效地使用平台。'
+    },
+    tourNextBtn: '下一步',
+    tourPrevBtn: '上一步',
+    tourDoneBtn: '完成',
+    tourCloseBtn: '关闭'
   }
 }

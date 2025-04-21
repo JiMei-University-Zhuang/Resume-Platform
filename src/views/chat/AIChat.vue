@@ -138,7 +138,9 @@
             <i class="el-icon-s-promotion"></i>
           </button>
         </div>
-        <div class="disclaimer">智航AI助手可能会生成不准确的信息，请自行核实重要内容</div>
+        <div class="disclaimer">
+          不同的模型可能会有不同的响应时长，请根据需要选择合适的模型并耐心等待～
+        </div>
       </div>
     </div>
   </div>
@@ -269,19 +271,19 @@ const availableModels = [
     description: '通用型AI助手，擅长中文交流和创意写作'
   },
   {
-    label: 'DeepSeek-R1',
-    value: 'deepseek-r1',
-    description: '专注于数学、编程和理工科问题的解决'
-  },
-  {
     label: 'DeepSeek-V3',
     value: 'deepseek-v3',
     description: '强大的推理和思考能力，精准解决复杂问题'
   },
   {
-    label: '百川2-7B',
-    value: 'baichuan2-7b-chat-v1',
-    description: '轻量级模型，响应速度快，适合日常使用'
+    label: 'DeepSeek-R1',
+    value: 'deepseek-r1',
+    description: '专注于数学、编程和理工科问题的解决'
+  },
+  {
+    label: 'DeepSeek-R1增强版',
+    value: 'deepseek-r1-distill-llama-70b',
+    description: 'DeepSeekR1增强版，参数规模更大，性能更强悍'
   }
 ]
 

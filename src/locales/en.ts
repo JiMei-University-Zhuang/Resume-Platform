@@ -23,7 +23,21 @@ export default {
     deleteFailed: 'Delete failed',
     logout: 'Logout',
     logoutSuccess: 'Successfully logged out',
-    logoutFailed: 'Logout failed, please try again later'
+    logoutFailed: 'Logout failed, please try again later',
+    tourStepTitles: {
+      fullscreen: 'Fullscreen Mode',
+      language: 'Language Switch',
+      notification: 'Notifications',
+      documentation: 'Documentation',
+      userProfile: 'User Profile'
+    },
+    tourStepDescriptions: {
+      fullscreen: 'Click here to toggle fullscreen mode for a more focused experience.',
+      language: 'Switch between Chinese and English interface languages here.',
+      notification: 'Check your system notifications and task reminders to stay updated.',
+      documentation: 'Access help documentation to get detailed guides for all platform features.',
+      userProfile: 'Manage your personal information and account settings, including logging out.'
+    }
   },
   breadcrumb: {
     home: 'Home',
@@ -48,7 +62,8 @@ export default {
     careerPlanning: 'Career Planning',
     developmentPlan: 'Development Plan',
     careerRecommendation: 'Career Recommend',
-    dataScreen: 'Data Dashboard'
+    dataScreen: 'Data Dashboard',
+    learningPlan: 'Learning Plan'
   },
   sider: {
     navigation: 'Navigation',
@@ -68,7 +83,13 @@ export default {
     aiIDPhoto: 'AI ID Photo',
     careerPlanning: 'Career Planning',
     developmentPlan: 'Development Plan',
-    careerRecommendation: 'Career Recommend'
+    careerRecommendation: 'Career Recommend',
+    careerMap: 'Career Map',
+    learningPlan: 'Learning Plan',
+    careerNode: 'Career Node',
+    careerStarMap: 'Career Star Map',
+    digitalTwin: 'Digital Twin',
+    skillRadar: 'Skill Radar'
   },
   dashboard: {
     welcomeBack: 'Welcome Back',
@@ -81,6 +102,7 @@ export default {
     aiResumeOptimization: 'AI Resume Optimization',
     startPlanning: 'Start Planning',
     learnMore: 'Learn More',
+    guidedTour: 'Guided Tour',
     whatWeCanHelp: 'How We Can Help',
     careerAnalysis: 'Career Analysis',
     careerAnalysisDesc: 'AI analyzes your ideal career path basedskills, education, and experience',
@@ -124,6 +146,41 @@ export default {
     examCenter: 'Exam Center',
     examCenterDesc: 'Exam preparation resources to help your education and employment journey',
     enterCenter: 'Enter Center',
-    smartAssistantTips: 'Smart Assistant Tips'
+    smartAssistantTips: 'Smart Assistant Tips',
+    tourStepTitles: {
+      startPlanning: 'Start Career Planning',
+      featuresSection: 'Main Features',
+      careerAnalysis: 'Career Analysis',
+      developmentPlan: 'Development Plan',
+      careerRecommendation: 'Career Recommendations',
+      statsSection: 'Platform Data',
+      advantagesSection: 'Platform Advantages',
+      additionalFeatures: 'Additional Features',
+      smartTips: 'Smart Tips'
+    },
+    tourStepDescriptions: {
+      startPlanning:
+        "Click here to start your career planning journey. We'll help you analyze your career development path.",
+      featuresSection:
+        'This area showcases the core features of our platform, including career analysis, development planning, and career recommendations.',
+      careerAnalysis:
+        'Analyze your current career status using AI technology to identify skill gaps and development opportunities.',
+      developmentPlan:
+        'Generate a tailored career development path based on your personal situation to help you achieve your career goals.',
+      careerRecommendation:
+        'Get recommendations for the most suitable career choices based on your skills and interests to help you find your ideal job.',
+      statsSection:
+        "Learn about our platform's usage data, including the number of users helped and the range of career types covered.",
+      advantagesSection:
+        'We use advanced AI technology and industry data to provide you with personalized career planning services.',
+      additionalFeatures:
+        'Explore other features of the platform, such as AI career advisor and exam center, to expand your career development horizons.',
+      smartTips:
+        'Based on your usage habits, we provide intelligent suggestions to help you use the platform more efficiently.'
+    },
+    tourNextBtn: 'Next',
+    tourPrevBtn: 'Previous',
+    tourDoneBtn: 'Done',
+    tourCloseBtn: 'Close'
   }
 }

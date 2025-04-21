@@ -270,6 +270,8 @@ import 'prismjs/components/prism-markup'
 import 'prismjs/components/prism-css'
 import 'prismjs/themes/prism.css'
 import markdownItKatexGpt from 'markdown-it-katex-gpt'
+import { saveWrongQuestion } from '@/api/errorRecord'
+import { SaveWrongQuestionData, WrongQuestionRecord } from '@/types/errorRecord'
 
 // 定义题目接口
 interface QuestionBase {
@@ -695,11 +697,87 @@ const submitAnswers = async () => {
       return // 用户选择继续作答
     }
   }
+  // 保存错题
+  await saveWrongQuestions()
 
   showReference.value = true
   message.success('答案已提交')
 }
 
+const saveWrongQuestions = async () => {
+  if (!userId) {
+    console.error('用户ID未获取到，无法保存错题')
+    return
+  }
+
+  const wrongQuestions: WrongQuestionRecord[] = []
+
+  // 处理单选题
+  if (paperData.value?.choiceVOs) {
+    paperData.value.choiceVOs.forEach((question: ChoiceQuestion, index: number) => {
+      if (question.correctAnswer !== singleChoiceAnswers.value[index]) {
+        wrongQuestions.push({
+          questionId: Number(question.questionId),
+          userAnswer: singleChoiceAnswers.value[index]
+        })
+      }
+    })
+  }
+
+  // 处理多选题
+  if (paperData.value?.multiChoiceVOs) {
+    paperData.value.multiChoiceVOs.forEach((question: MultiChoiceQuestion, index: number) => {
+      const userAnswer = multiChoiceAnswers.value[index].sort().join('')
+      const correctAnswer = question.correctAnswer.split('').sort().join('')
+      if (userAnswer !== correctAnswer) {
+        wrongQuestions.push({
+          questionId: Number(question.questionId),
+          userAnswer: multiChoiceAnswers.value[index].join(',')
+        })
+      }
+    })
+  }
+
+  // 处理解答题
+  if (paperData.value?.analysisVOs) {
+    paperData.value.analysisVOs.forEach((question: AnalysisQuestion, index: number) => {
+      if (
+        question.referenceAnswer &&
+        question.referenceAnswer.trim() !== analysisAnswers.value[index].trim()
+      ) {
+        wrongQuestions.push({
+          questionId: Number(question.questionId),
+          userAnswer: analysisAnswers.value[index]
+        })
+      }
+    })
+  }
+
+  if (wrongQuestions.length === 0) {
+    message.info('没有错题需要保存')
+    return
+  }
+
+  const data: SaveWrongQuestionData = {
+    userId: userId,
+    type: isExamMode.value ? '研究生考试' : '研究生练习',
+    questionInfo: '政治单选题',
+    records: wrongQuestions
+  }
+
+  try {
+    const response = await saveWrongQuestion(data)
+    if (response && response.data) {
+      message.success('错题保存成功')
+    } else {
+      console.error('保存错题失败：返回数据结构异常')
+      message.error('保存错题失败，请重试')
+    }
+  } catch (error) {
+    console.error('保存错题失败:', error)
+    message.error('保存错题失败，请重试')
+  }
+}
 // 返回主页
 const returnToHome = () => {
   router.push('politics')
@@ -1056,10 +1134,46 @@ defineExpose({
   align-items: center;
   position: relative;
 }
-
 .ai-parse-button {
   padding: 8px 16px;
   font-size: 14px;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  background: linear-gradient(215deg, #c332fb, #00dbde, #c332fb);
+  background-size: 400%;
+  border: 0;
+  border-radius: 4px;
+  z-index: 1;
+  width: 77px;
+}
+@keyframes neon {
+  from {
+    background-position: 0%;
+  }
+  to {
+    background-position: 400%;
+  }
+}
+.ai-parse-button:hover {
+  animation: neon 8s linear infinite;
+}
+.ai-parse-button::before {
+  width: 87px;
+  content: '';
+  position: absolute;
+  inset: -5px;
+  z-index: -1;
+  background: linear-gradient(215deg, #c332fb, #00dbde, #c332fb);
+  background-size: 400%;
+  border-radius: 40px;
+  opacity: 0;
+}
+.ai-parse-button:hover::before {
+  width: 87px;
+  filter: blur(10px);
+  opacity: 1;
+  animation: neon 8s linear infinite;
 }
 
 .ai-analysis-status-tooltip {

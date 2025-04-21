@@ -346,6 +346,8 @@ import 'prismjs/components/prism-markup'
 import 'prismjs/components/prism-css'
 import 'prismjs/themes/prism.css'
 import markdownItKatexGpt from 'markdown-it-katex-gpt'
+import { saveWrongQuestion } from '@/api/errorRecord'
+import { SaveWrongQuestionData, WrongQuestionRecord } from '@/types/errorRecord'
 
 const route = useRoute()
 const router = useRouter()
@@ -709,7 +711,95 @@ const startTimer = () => {
     }
   }, 1000)
 }
+// 保存错题的方法
+const saveWrongQuestions = async () => {
+  // 假设用户ID已经获取到
+  if (!userId) {
+    console.error('用户ID未获取到，无法保存错题')
+    return
+  }
 
+  const wrongQuestions: WrongQuestionRecord[] = []
+
+  // 完形填空部分
+  if (paperData.value.clozeVO) {
+    paperData.value.clozeVO.clozeOptionInfos.forEach((item: any, index: any) => {
+      if (item.correctAnswer !== clozeAnswers.value[index]) {
+        wrongQuestions.push({
+          questionId: paperData.value.clozeVO.questionId,
+          itemId: item.itemId,
+          userAnswer: clozeAnswers.value[index]
+        })
+      }
+    })
+  }
+
+  // 阅读理解部分
+  if (paperData.value.readingVOs) {
+    paperData.value.readingVOs.forEach((reading: any, readingIndex: any) => {
+      reading.readingOptionInfos.forEach((item: any, index: any) => {
+        if (item.correctAnswer !== readingAnswers.value[readingIndex][index]) {
+          wrongQuestions.push({
+            questionId: reading.questionId,
+            itemId: item.itemId,
+            userAnswer: readingAnswers.value[readingIndex][index]
+          })
+        }
+      })
+    })
+  }
+
+  // 匹配题部分
+  if (paperData.value.matchingVO) {
+    paperData.value.matchingVO.matchingOptionInfos.forEach((item: any, index: any) => {
+      if (item.correctAnswer !== matchingAnswers.value[index]) {
+        wrongQuestions.push({
+          questionId: paperData.value.matchingVO.questionId,
+          itemId: item.itemId,
+          userAnswer: matchingAnswers.value[index]
+        })
+      }
+    })
+  }
+
+  // 翻译题部分
+  if (paperData.value.translationVO) {
+    paperData.value.translationVO.translationOptionInfos.forEach((item: any, index: any) => {
+      if (item.correctAnswer !== translationAnswers.value[index]) {
+        wrongQuestions.push({
+          questionId: paperData.value.translationVO.questionId,
+          itemId: item.itemId,
+          userAnswer: translationAnswers.value[index]
+        })
+      }
+    })
+  }
+
+  if (wrongQuestions.length === 0) {
+    console.log('没有错题需要保存')
+    return
+  }
+
+  const data: SaveWrongQuestionData = {
+    userId: userId,
+    type: route.query.type === 'isExamMode' ? '研究生考试' : '研究生练习',
+    questionInfo: paperTitle.value,
+    records: wrongQuestions
+  }
+
+  try {
+    const response = await saveWrongQuestion(data)
+    if (response && response.data) {
+      message.success('错题保存成功')
+    } else {
+      console.error('保存错题失败：返回数据结构异常')
+      message.error('保存错题失败，请重试')
+    }
+  } catch (error) {
+    console.error('保存错题失败:', error)
+    message.error('保存错题失败，请重试')
+  }
+}
 // 提交答案
 const submitAnswers = async () => {
   // 计算总题目数和已答题数
@@ -767,6 +857,7 @@ const submitAnswers = async () => {
       return // 用户选择继续作答
     }
   }
+  saveWrongQuestions()
 
   // 直接显示参考答案，不发送到服务器
   showReference.value = true
@@ -1188,6 +1279,43 @@ onBeforeUnmount(() => {
 .ai-parse-button {
   padding: 8px 16px;
   font-size: 14px;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  background: linear-gradient(215deg, #c332fb, #00dbde, #c332fb);
+  background-size: 400%;
+  border: 0;
+  border-radius: 4px;
+  z-index: 1;
+  width: 77px;
+}
+@keyframes neon {
+  from {
+    background-position: 0%;
+  }
+  to {
+    background-position: 400%;
+  }
+}
+.ai-parse-button:hover {
+  animation: neon 8s linear infinite;
+}
+.ai-parse-button::before {
+  width: 87px;
+  content: '';
+  position: absolute;
+  inset: -5px;
+  z-index: -1;
+  background: linear-gradient(215deg, #c332fb, #00dbde, #c332fb);
+  background-size: 400%;
+  border-radius: 40px;
+  opacity: 0;
+}
+.ai-parse-button:hover::before {
+  width: 87px;
+  filter: blur(10px);
+  opacity: 1;
+  animation: neon 8s linear infinite;
 }
 
 .ai-analysis-status-tooltip {
