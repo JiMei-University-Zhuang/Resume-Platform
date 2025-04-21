@@ -181,6 +181,8 @@ import 'prismjs/components/prism-markup'
 import 'prismjs/components/prism-css'
 import 'prismjs/themes/prism.css'
 import markdownItKatexGpt from 'markdown-it-katex-gpt'
+import { saveWrongQuestion } from '@/api/errorRecord'
+import { SaveWrongQuestionData, WrongQuestionRecord } from '@/types/errorRecord'
 
 const route = useRoute()
 const router = useRouter()
@@ -221,6 +223,19 @@ const mdOptions: MarkdownItOptions = {
     }
     return `<pre class="code-block"><code>${str}</code></pre>`
   }
+}
+
+//用于接收错题的参数
+export interface Question {
+  questionId: string;
+  questionContent: string;
+  score: number;
+  correctAnswer?: string;
+  optionA?: string;
+  optionB?: string;
+  optionC?: string;
+  optionD?: string;
+  referenceAnswer?: string;
 }
 
 const md = new MarkdownIt(mdOptions)
@@ -501,6 +516,60 @@ const startTimer = () => {
   }, 1000)
 }
 
+const saveWrongQuestions = async () => {
+  if (!userId) {
+    console.error('用户ID未获取到，无法保存错题')
+    return
+  }
+
+  const wrongQuestions: WrongQuestionRecord[] = []
+
+  // 处理单选题
+  if (paperData.value?.choiceVOs) {
+    paperData.value.choiceVOs.forEach((question: any, index: number) => {
+      if (question.correctAnswer !== singleChoiceAnswers.value[index]) {
+        wrongQuestions.push({
+          questionId: question.questionId,
+          userAnswer: singleChoiceAnswers.value[index]
+        })
+      }
+    })
+  }
+
+  // 处理解答题
+  if (paperData.value?.solveVOs) {
+    paperData.value.solveVOs.forEach((question: any, index: number) => {
+      if (
+        question.referenceAnswer &&
+        question.referenceAnswer.trim() !== analysisAnswers.value[index].trim()
+      ) {
+        wrongQuestions.push({
+          questionId: question.questionId,
+          userAnswer: analysisAnswers.value[index]
+        })
+      }
+    })
+  }
+
+  // 保存错题
+  if (wrongQuestions.length > 0) {
+    const saveData: SaveWrongQuestionData = {
+      userId: userId as number,
+      type: route.query.type === 'isExamMode' ? '研究生考试' : '研究生练习',
+      questionInfo: '408解答题',
+      records: wrongQuestions
+    }
+
+    try {
+      await saveWrongQuestion(saveData)
+      message.success('错题已保存！')
+    } catch (error) {
+      message.error('保存错题失败，请重试')
+      console.error('保存错题失败：', error)
+    }
+  }
+}
+
 // 提交答案
 const submitAnswers = async () => {
   // 检查是否有未完成的题目
@@ -528,6 +597,8 @@ const submitAnswers = async () => {
       return // 用户选择继续作答
     }
   }
+  // 保存错题
+  await saveWrongQuestions()
 
   // 直接显示参考答案，不发送到服务器
   showReference.value = true

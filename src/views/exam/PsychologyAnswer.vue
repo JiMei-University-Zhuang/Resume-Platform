@@ -260,6 +260,8 @@ import 'prismjs/components/prism-java'
 import 'prismjs/themes/prism.css'
 import markdownItKatexGpt from 'markdown-it-katex-gpt'
 import type { ExamPaper } from '@/types/exam'
+import { saveWrongQuestion } from '@/api/errorRecord'
+import { SaveWrongQuestionData, WrongQuestionRecord } from '@/types/errorRecord'
 
 const route = useRoute()
 const router = useRouter()
@@ -550,11 +552,74 @@ const submitAnswers = async () => {
       return
     }
   }
+  // 保存错题
+  await saveWrongQuestions()
 
   showReference.value = true
   message.success('答案已提交')
 
   initializeAnalysisData()
+}
+const saveWrongQuestions = async () => {
+  if (!userId.value) {
+    console.error('用户ID未获取到，无法保存错题')
+    return
+  }
+
+  const wrongQuestions: WrongQuestionRecord[] = []
+
+  // 处理单选题
+  if (paperData.value?.choiceVOs) {
+    paperData.value.choiceVOs.forEach((question: any, index: number) => {
+      if (question.correctAnswer !== singleChoiceAnswers.value[index]) {
+        wrongQuestions.push({
+          questionId: question.questionId,
+          itemId: question.itemId || null,
+          userAnswer: singleChoiceAnswers.value[index]
+        })
+      }
+    })
+  }
+
+  // 处理解答题
+  if (paperData.value?.solveVOs) {
+    paperData.value.solveVOs.forEach((question: any, index: number) => {
+      if (
+        question.referenceAnswer &&
+        question.referenceAnswer.trim() !== analysisAnswers.value[index].trim()
+      ) {
+        wrongQuestions.push({
+          questionId: question.questionId,
+          userAnswer: analysisAnswers.value[index]
+        })
+      }
+    })
+  }
+
+  if (wrongQuestions.length === 0) {
+    message.info('没有错题需要保存')
+    return
+  }
+
+  const data: SaveWrongQuestionData = {
+    userId: userId.value,
+    type: isExamMode.value ? '研究生考试' : '研究生练习',
+    questionInfo: '心理单选题',
+    records: wrongQuestions
+  }
+
+  try {
+    const response = await saveWrongQuestion(data)
+    if (response && response.data) {
+      message.success('错题保存成功')
+    } else {
+      console.error('保存错题失败：返回数据结构异常')
+      message.error('保存错题失败，请重试')
+    }
+  } catch (error) {
+    console.error('保存错题失败:', error)
+    message.error('保存错题失败，请重试')
+  }
 }
 
 const returnToHome = () => {

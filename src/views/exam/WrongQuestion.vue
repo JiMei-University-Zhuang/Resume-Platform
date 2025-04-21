@@ -91,17 +91,35 @@
                 ><br />
               </div>
               <div
-                v-if="selectedWrongQuestions[currentQuestionIndex]?.questionType === '行测选择题'"
+                v-if="
+                  selectedWrongQuestions[currentQuestionIndex]?.questionType === '行测选择题' ||
+                  '408单选题' ||
+                  '408解答题' ||
+                  '政治材料分析题' ||
+                  '申论主观题' ||
+                  '政治单选题' ||
+                  '政治多选题' ||
+                  '英语完形填空' ||
+                  '英语阅读理解' ||
+                  '英语序号匹配' ||
+                  '英语翻译' ||
+                  '英语作文' ||
+                  '历史单选题' ||
+                  '心理单选题'
+                "
                 class="answer-section"
               >
-                <p class="answer-container">
+                <p
+                  class="answer-container"
+                  v-if="selectedWrongQuestions[currentQuestionIndex].correctAnswer"
+                >
                   正确答案:
                   <span class="correct-answer">{{
                     selectedWrongQuestions[currentQuestionIndex].correctAnswer
                   }}</span>
                 </p>
                 <p
-                  v-if="selectedWrongQuestions[currentQuestionIndex].referenceAnswer"
+                  v-else-if="selectedWrongQuestions[currentQuestionIndex].referenceAnswer"
                   class="answer-container"
                 >
                   参考答案:
@@ -130,23 +148,36 @@
                     <span
                       v-html="
                         formatText(
-                          subQuestion.itemContent.length > 4
-                            ? subQuestion.itemContent.slice(4)
-                            : subQuestion.itemContent
+                          subQuestion.itemContent,
+                          selectedWrongQuestions[currentQuestionIndex].questionType
                         )
                       "
                     ></span>
+
+                    <div class="option-section">
+                      <span class="option-item" v-if="subQuestion.optionA">
+                        <span class="option-prefix">选项A: </span>
+                        <span v-html="subQuestion.optionA"></span>
+                      </span>
+                      <span class="option-item" v-if="subQuestion.optionB">
+                        <span class="option-prefix">选项B: </span>
+                        <span v-html="subQuestion.optionB"></span>
+                      </span>
+                      <span class="option-item" v-if="subQuestion.optionC">
+                        <span class="option-prefix">选项C: </span>
+                        <span v-html="subQuestion.optionC"></span>
+                      </span>
+                      <span class="option-item" v-if="subQuestion.optionD">
+                        <span class="option-prefix">选项D: </span>
+                        <span v-html="subQuestion.optionD"></span>
+                      </span>
+                    </div>
                   </div>
 
-                  <span
-                    v-for="(_subOption, subOptionIndex) in subQuestion.options"
-                    :key="subOptionIndex"
-                  >
-                  </span
-                  ><br />
+                  <br />
                   <div class="sub-question-answerblock">
                     <span class="sub-question-answer answer-container">
-                      你的答案: <span v-html="formatText(subQuestion.userAnswer)"></span>
+                      你的答案: <span v-html="subQuestion.userAnswer"></span>
                     </span>
                     <span class="sub-question-answer answer-container">
                       正确答案:<br />
@@ -197,10 +228,14 @@ interface WrongQuestion {
   questions?: {
     itemId: number
     itemContent: string
-    options: string[]
+    options?: { label: string; value: string }[]
+    optionA: string
+    optionB: string
+    optionC: string
+    optionD: string
     correctAnswer: string
     userAnswer: string
-    itemScore: number
+    itemScore?: number
   }[]
 }
 const loading = ref(true)
@@ -212,11 +247,20 @@ const selectDisplayText = ref('请选择你要选择的试卷')
 let userId = Number(localStorage.getItem('userId'))
 const selectedType = ref<'公务员' | '研究生'>('公务员')
 const selectedRecordInfo = ref<{ recordId: number; type: string } | null>(null)
-const formatText = (text: string) => {
+const formatText = (text: string, questionType?: string) => {
+  if (!text) {
+    return '（注意查看参考答案~）'
+  }
   let processedText = text
   processedText = processedText.replace(/\\n/g, '\n')
   processedText = processedText.replace(/\r\n/g, '<br>')
   processedText = processedText.replace(/\n/g, '<br>')
+
+  // 根据题目类型决定是否截取前四位
+  if (questionType === '申论主观题') {
+    processedText = processedText.length > 4 ? processedText.slice(4) : processedText
+  }
+
   return processedText
 }
 // 切换题目展示的函数
@@ -332,14 +376,6 @@ const fetchWrongQuestionsByRecordId = async (recordInfo: { recordId: number; typ
     loading.value = false
   }
 }
-// // 监听下拉框是否被触碰，这里通过监听点击事件实现
-// const handleSelectClick = () => {
-//   if (recordIds.value.length > 0 && selectedRecordId.value === null) {
-//     selectedRecordId.value = recordIds.value[0]
-//     selectDisplayText.value = `答题记录 ${recordIds.value[0]}`
-//     fetchWrongQuestionsByRecordId(selectedRecordId.value)
-//   }
-// }
 onMounted(async () => {
   try {
     await fetchUserId()

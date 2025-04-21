@@ -272,6 +272,8 @@ import 'prismjs/themes/prism.css'
 import markdownItKatexGpt from 'markdown-it-katex-gpt'
 import { getHistoryExam } from '@/api/exam' // 导入真实API函数
 import { getUser } from '@/api/user' // 导入获取用户信息的API
+import { saveWrongQuestion } from '@/api/errorRecord'
+import { SaveWrongQuestionData, WrongQuestionRecord } from '@/types/errorRecord'
 
 const route = useRoute()
 const router = useRouter()
@@ -583,6 +585,93 @@ const startTimer = () => {
   }, 1000)
 }
 
+// 保存错题的方法
+const saveWrongQuestions = async () => {
+  // 假设用户ID已经获取到
+  if (!userId.value) {
+    console.error('用户ID未获取到，无法保存错题')
+    return
+  }
+
+  const wrongQuestions: WrongQuestionRecord[] = []
+
+  // 单选题部分
+  if (paperData.value.choiceVOs) {
+    paperData.value.choiceVOs.forEach((question: any, index: any) => {
+      if (question.correctAnswer !== singleChoiceAnswers.value[index]) {
+        wrongQuestions.push({
+          questionId: question.questionId,
+          userAnswer: singleChoiceAnswers.value[index]
+        })
+      }
+    })
+  }
+
+  // 多选题部分
+  if (paperData.value.multiChoiceVOs) {
+    paperData.value.multiChoiceVOs.forEach((question: any, index: any) => {
+      const userAnswer = multiChoiceAnswers.value[index].sort().join(',')
+      if (question.correctAnswer !== userAnswer) {
+        wrongQuestions.push({
+          questionId: question.questionId,
+          userAnswer: userAnswer
+        })
+      }
+    })
+  }
+
+  // 简答题部分
+  if (paperData.value.shortAnswerVOs) {
+    paperData.value.shortAnswerVOs.forEach((question: any, index: any) => {
+      if (
+        question.referenceAnswer &&
+        question.referenceAnswer !== shortAnswerAnswers.value[index]
+      ) {
+        wrongQuestions.push({
+          questionId: question.questionId,
+          userAnswer: shortAnswerAnswers.value[index]
+        })
+      }
+    })
+  }
+
+  // 论述题部分
+  if (paperData.value.essayVOs) {
+    paperData.value.essayVOs.forEach((question: any, index: any) => {
+      if (question.referenceAnswer && question.referenceAnswer !== essayAnswers.value[index]) {
+        wrongQuestions.push({
+          questionId: question.questionId,
+          userAnswer: essayAnswers.value[index]
+        })
+      }
+    })
+  }
+
+  if (wrongQuestions.length === 0) {
+    console.log('没有错题需要保存')
+    return
+  }
+
+  const data: SaveWrongQuestionData = {
+    userId: userId.value,
+    type: route.query.type === 'isExamMode' ? '研究生考试' : '研究生练习',
+    questionInfo: paperTitle.value,
+    records: wrongQuestions
+  }
+
+  try {
+    const response = await saveWrongQuestion(data)
+    if (response && response.data) {
+      message.success('错题保存成功')
+    } else {
+      console.error('保存错题失败：返回数据结构异常')
+      message.error('保存错题失败，请重试')
+    }
+  } catch (error) {
+    console.error('保存错题失败:', error)
+    message.error('保存错题失败，请重试')
+  }
+}
 // 提交答案
 const submitAnswers = async () => {
   // 检查是否有未完成的题目
@@ -615,6 +704,9 @@ const submitAnswers = async () => {
       return // 用户选择继续作答
     }
   }
+
+  // 保存错题
+  saveWrongQuestions()
 
   // 直接显示参考答案，不发送到服务器
   showReference.value = true
