@@ -163,6 +163,6 @@ export default {
     tourNextBtn: '下一步',
     tourPrevBtn: '上一步',
     tourDoneBtn: '完成',
-    tourCloseBtn: '关闭',
+    tourCloseBtn: '关闭'
   }
 }

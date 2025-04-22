@@ -1,6 +1,5 @@
 import axios, { InternalAxiosRequestConfig, AxiosResponse } from 'axios'
 import { message } from 'ant-design-vue'
-
 // 根据环境确定baseURL
 const getBaseURL = () => {
   // 正式环境下使用/api前缀
@@ -43,21 +42,16 @@ service.interceptors.response.use(
   },
   error => {
     const { response } = error
-    let msg = '请求失败'
-
-    if (response && response.data) {
-      msg = response.data.message
-    }
 
     switch (response?.status) {
       case 401:
         // 未授权，跳转到登录页
         globalThis.localStorage.removeItem('token')
         globalThis.location.href = '/login'
-        msg = '请重新登录'
+        message.error('请重新登录')
         break
       case 403:
-        msg = '没有权限访问'
+        message.error('没有权限访问')
         break
     }
 

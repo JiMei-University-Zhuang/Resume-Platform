@@ -1425,6 +1425,7 @@ defineExpose({
   display: flex;
   align-items: center;
   gap: 10px;
+  color: white !important;
 }
 
 .page-title::before {
