@@ -8,9 +8,15 @@
           <el-icon><Document /></el-icon>
           切换模板
         </el-button>
-        <el-button type="success" size="large" @click="exportPDF">
+        <el-button
+          type="success"
+          size="large"
+          @click="exportPDF"
+          :loading="exporting"
+          :disabled="exporting"
+        >
           <el-icon><Download /></el-icon>
-          导出PDF
+          {{ exporting ? '导出中...' : '导出PDF' }}
         </el-button>
         <el-button type="warning" size="large" @click="previewResume">
           <el-icon><View /></el-icon>
@@ -331,7 +337,10 @@
       <div class="analysis-container">
         <div v-if="analyzing" class="analysis-loading">
           <div class="analysis-steps">
-            <div class="analysis-step" :class="{ active: analysisStep >= 1, completed: analysisStep > 1 }">
+            <div
+              class="analysis-step"
+              :class="{ active: analysisStep >= 1, completed: analysisStep > 1 }"
+            >
               <div class="step-icon">
                 <el-icon v-if="analysisStep > 1"><Check /></el-icon>
                 <span v-else>1</span>
@@ -341,7 +350,10 @@
                 <p>AI 正在提取您的简历内容...</p>
               </div>
             </div>
-            <div class="analysis-step" :class="{ active: analysisStep >= 2, completed: analysisStep > 2 }">
+            <div
+              class="analysis-step"
+              :class="{ active: analysisStep >= 2, completed: analysisStep > 2 }"
+            >
               <div class="step-icon">
                 <el-icon v-if="analysisStep > 2"><Check /></el-icon>
                 <span v-else>2</span>
@@ -351,7 +363,10 @@
                 <p>评估您的简历与目标行业的匹配度...</p>
               </div>
             </div>
-            <div class="analysis-step" :class="{ active: analysisStep >= 3, completed: analysisStep > 3 }">
+            <div
+              class="analysis-step"
+              :class="{ active: analysisStep >= 3, completed: analysisStep > 3 }"
+            >
               <div class="step-icon">
                 <el-icon v-if="analysisStep > 3"><Check /></el-icon>
                 <span v-else>3</span>
@@ -362,9 +377,13 @@
               </div>
             </div>
           </div>
-          
-          <el-progress :percentage="analysisProgress" :stroke-width="12" :format="formatAnalysisProgress" />
-          
+
+          <el-progress
+            :percentage="analysisProgress"
+            :stroke-width="12"
+            :format="formatAnalysisProgress"
+          />
+
           <div class="analysis-tips">
             <h3>分析进行中，请稍候...</h3>
             <p>AI 正在全面分析您的简历，这大约需要 30-60 秒的时间。</p>
@@ -378,7 +397,7 @@
             </div>
           </div>
         </div>
-        
+
         <div v-else-if="aiSuggestions" class="analysis-results">
           <el-alert
             :title="aiSuggestions.summary"
@@ -461,7 +480,13 @@
       <template #footer>
         <span class="dialog-footer">
           <el-button @click="analysisDialogVisible = false">关闭</el-button>
-          <el-button type="primary" @click="applyAISuggestions" :disabled="analyzing || !aiSuggestions"> 应用 AI 建议 </el-button>
+          <el-button
+            type="primary"
+            @click="applyAISuggestions"
+            :disabled="analyzing || !aiSuggestions"
+          >
+            应用 AI 建议
+          </el-button>
         </span>
       </template>
     </el-dialog>
@@ -885,6 +910,7 @@ const resumePreview = ref<HTMLDivElement | null>(null)
 const analysisStep = ref(1)
 const analysisProgress = ref(0)
 const analysisTimer = ref<number | null>(null) // 使用number类型而非NodeJS.Timeout
+const exporting = ref(false) // 添加导出PDF状态
 const formatAnalysisProgress = (percentage: number) => {
   return percentage < 100 ? `${percentage}%` : '完成'
 }
@@ -994,6 +1020,9 @@ const removeExperience = (index: number) => {
 // 完全替换 exportPDF 函数
 const exportPDF = async () => {
   if (!resumePreview.value) return
+
+  // 设置导出状态为正在导出
+  exporting.value = true
 
   try {
     message.info('正在生成PDF，请稍候...')
@@ -1115,6 +1144,9 @@ const exportPDF = async () => {
   } catch (error: any) {
     console.error('PDF导出失败:', error)
     message.error(`PDF导出失败: ${error.message || '未知错误'}`)
+  } finally {
+    // 无论成功还是失败，都将导出状态重置
+    exporting.value = false
   }
 }
 
@@ -1122,24 +1154,24 @@ const analyzeResume = async () => {
   analysisDialogVisible.value = true
   analyzing.value = true
   aiSuggestions.value = null
-  
+
   // 重置进度和步骤
   analysisStep.value = 1
   analysisProgress.value = 0
-  
+
   // 模拟进度
   let progressInterval = 1000 // 每秒更新进度
   let totalTime = 35000 // 预计总时间 35 秒
   let progressStep = 100 / (totalTime / progressInterval) // 每次更新的进度百分比
-  
+
   if (analysisTimer.value) {
     clearInterval(analysisTimer.value)
   }
-  
+
   analysisTimer.value = setInterval(() => {
     if (analysisProgress.value < 95) {
       analysisProgress.value += progressStep
-      
+
       // 更新分析步骤
       if (analysisProgress.value > 30 && analysisStep.value < 2) {
         analysisStep.value = 2
@@ -1179,10 +1211,10 @@ const analyzeResume = async () => {
     if (response.data && response.data.aiSuggestions) {
       // 转换 API 响应数据中的字符串数字为实际数字
       const apiData = response.data.aiSuggestions
-      
+
       // 完成最后一个步骤
       analysisStep.value = 4
-      
+
       // 设置进度为100%
       analysisProgress.value = 100
 
@@ -1207,7 +1239,7 @@ const analyzeResume = async () => {
       clearInterval(analysisTimer.value)
       analysisTimer.value = null
     }
-    
+
     analyzing.value = false
   }
 }
@@ -2242,23 +2274,23 @@ defineExpose({
 
 .analysis-container {
   min-height: 300px;
-  
+
   .analysis-loading {
     display: flex;
     flex-direction: column;
     align-items: center;
     padding: 20px;
-    
+
     .analysis-steps {
       display: flex;
       width: 100%;
       margin-bottom: 30px;
-      
+
       .analysis-step {
         flex: 1;
         display: flex;
         position: relative;
-        
+
         &:not(:last-child):after {
           content: '';
           position: absolute;
@@ -2269,17 +2301,17 @@ defineExpose({
           background-color: #e0e0e0;
           z-index: 0;
         }
-        
+
         &.active .step-icon {
-          background-color: #409EFF;
+          background-color: #409eff;
           color: white;
         }
-        
+
         &.completed .step-icon {
-          background-color: #67C23A;
+          background-color: #67c23a;
           color: white;
         }
-        
+
         .step-icon {
           width: 32px;
           height: 32px;
@@ -2292,13 +2324,13 @@ defineExpose({
           z-index: 1;
           transition: all 0.3s;
         }
-        
+
         .step-content {
           h4 {
             margin: 0 0 5px 0;
             font-size: 14px;
           }
-          
+
           p {
             margin: 0;
             font-size: 12px;
@@ -2307,41 +2339,41 @@ defineExpose({
         }
       }
     }
-    
+
     .el-progress {
       width: 100%;
       margin-bottom: 20px;
     }
-    
+
     .analysis-tips {
       text-align: center;
       margin-top: 20px;
-      
+
       h3 {
         font-size: 18px;
         margin-bottom: 10px;
       }
-      
+
       p {
         color: #606266;
         margin-bottom: 20px;
       }
-      
+
       .tips-content {
         text-align: left;
         background-color: #f9f9f9;
         border-radius: 6px;
         padding: 15px;
-        
+
         h4 {
           font-size: 16px;
           margin-top: 0;
           margin-bottom: 10px;
         }
-        
+
         ul {
           padding-left: 20px;
-          
+
           li {
             margin-bottom: 8px;
             line-height: 1.5;
@@ -2350,15 +2382,15 @@ defineExpose({
       }
     }
   }
-  
+
   .analysis-results {
     .mb-20 {
       margin-bottom: 20px;
     }
-    
+
     .revision-item {
       margin-bottom: 20px;
-      
+
       h4 {
         margin-top: 0;
         margin-bottom: 10px;
@@ -2366,36 +2398,37 @@ defineExpose({
         border-bottom: 1px solid #eee;
       }
     }
-    
+
     .revision-comparison {
       display: flex;
       gap: 20px;
       margin-bottom: 15px;
-      
-      .original-content, .optimized-content {
+
+      .original-content,
+      .optimized-content {
         flex: 1;
         padding: 12px;
         border-radius: 6px;
-        
+
         h5 {
           margin-top: 0;
           margin-bottom: 8px;
         }
-        
+
         p {
           margin: 0;
         }
       }
-      
+
       .original-content {
         background-color: #f5f7fa;
       }
-      
+
       .optimized-content {
         background-color: #f0f9eb;
       }
     }
-    
+
     .industry-match-item {
       margin-bottom: 15px;
     }
