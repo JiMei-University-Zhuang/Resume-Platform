@@ -245,7 +245,9 @@ const submitForm = () => {
           })
           .catch(error => {
             console.error('更新用户错误详情:', error)
-            message.error(`更新用户失败: ${error.message || error.response?.data?.message || error.response?.data?.msg || JSON.stringify(error.response?.data) || '未知错误'}`)
+            message.error(
+              `更新用户失败: ${error.message || error.response?.data?.message || error.response?.data?.msg || JSON.stringify(error.response?.data) || '未知错误'}`
+            )
           })
           .finally(() => {
             loading.value = false

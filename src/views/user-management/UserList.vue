@@ -158,7 +158,11 @@
           <a-col :span="12">
             <!-- 性别 -->
             <a-form-item label="性别" name="sex">
-              <a-radio-group v-model:value="addUserForm.sex" button-style="solid" class="radio-button-group">
+              <a-radio-group
+                v-model:value="addUserForm.sex"
+                button-style="solid"
+                class="radio-button-group"
+              >
                 <a-radio-button :value="1">男</a-radio-button>
                 <a-radio-button :value="2">女</a-radio-button>
               </a-radio-group>
@@ -167,7 +171,11 @@
           <a-col :span="12">
             <!-- 状态 -->
             <a-form-item label="状态" name="enabled">
-              <a-radio-group v-model:value="addUserForm.enabled" button-style="solid" class="radio-button-group">
+              <a-radio-group
+                v-model:value="addUserForm.enabled"
+                button-style="solid"
+                class="radio-button-group"
+              >
                 <a-radio-button :value="1">启用</a-radio-button>
                 <a-radio-button :value="0">禁用</a-radio-button>
               </a-radio-group>
@@ -178,17 +186,18 @@
         <a-row :gutter="24">
           <a-col :span="12">
             <!-- 密码 -->
-            <a-form-item
-              label="密码"
-              name="password"
-            >
+            <a-form-item label="密码" name="password">
               <a-input-password v-model:value="addUserForm.password" placeholder="请输入密码" />
             </a-form-item>
           </a-col>
           <a-col :span="12">
             <!-- 角色 -->
             <a-form-item label="角色" name="role">
-              <a-radio-group v-model:value="addUserForm.role" button-style="solid" class="radio-button-group">
+              <a-radio-group
+                v-model:value="addUserForm.role"
+                button-style="solid"
+                class="radio-button-group"
+              >
                 <a-radio-button value="ADMIN">管理员</a-radio-button>
                 <a-radio-button value="USER">普通用户</a-radio-button>
               </a-radio-group>
@@ -373,7 +382,7 @@ const addUserForm = reactive({
   avatar: '',
   email: '',
   telephone: '',
-  role: 'USER',  // 默认为普通用户
+  role: 'USER', // 默认为普通用户
   sex: 1,
   enabled: 1
 })
@@ -408,14 +417,14 @@ const handleAddUser = () => {
     avatar: '',
     email: '',
     telephone: '',
-    role: 'USER',  // 默认为普通用户
+    role: 'USER', // 默认为普通用户
     sex: 1,
     enabled: 1
   })
-  
+
   // 打印检查初始化后的表单值
   console.log('打开添加用户对话框，初始化数据:', JSON.stringify(addUserForm))
-  
+
   addUserModalVisible.value = true
 }
 
@@ -429,12 +438,12 @@ const handleAddUserCancel = () => {
 const handleAddUserSubmit = () => {
   // 打印检查提交前的表单值
   console.log('提交前的表单数据:', JSON.stringify(addUserForm))
-  
+
   addFormRef.value
     .validate()
     .then(() => {
       submitting.value = true
-      
+
       // 创建一个新对象而不是直接使用引用
       const submitData = {
         username: addUserForm.username,
@@ -447,7 +456,7 @@ const handleAddUserSubmit = () => {
         sex: addUserForm.sex,
         enabled: addUserForm.enabled
       }
-      
+
       console.log('实际提交的数据:', JSON.stringify(submitData))
 
       // 使用真实API添加用户
@@ -460,7 +469,9 @@ const handleAddUserSubmit = () => {
         })
         .catch(error => {
           console.error('创建用户错误详情:', error)
-          message.error(`创建用户失败: ${error.message || error.response?.data?.message || error.response?.data?.msg || JSON.stringify(error.response?.data) || '未知错误'}`)
+          message.error(
+            `创建用户失败: ${error.message || error.response?.data?.message || error.response?.data?.msg || JSON.stringify(error.response?.data) || '未知错误'}`
+          )
         })
         .finally(() => {
           submitting.value = false
@@ -496,7 +507,9 @@ const handleDeleteUser = (user: User) => {
     })
     .catch(error => {
       console.error('删除用户错误详情:', error)
-      message.error(`删除用户失败: ${error.message || error.response?.data?.message || error.response?.data?.msg || JSON.stringify(error.response?.data) || '未知错误'}`)
+      message.error(
+        `删除用户失败: ${error.message || error.response?.data?.message || error.response?.data?.msg || JSON.stringify(error.response?.data) || '未知错误'}`
+      )
       loading.value = false
     })
 }
