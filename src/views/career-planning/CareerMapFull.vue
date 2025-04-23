@@ -132,7 +132,7 @@
           </div>
 
           <div class="action-buttons">
-            <button class="primary-button" @click="showCareerFullDetails = true">
+            <button class="primary-button" @click="createLearningPlan">
               <Icon name="bar-chart-2" class="button-icon" />
               <span>详细分析</span>
             </button>
@@ -234,8 +234,7 @@
           </div>
 
           <div class="details-footer">
-            <button class="primary-button" @click="exploreCareerPath">探索职业路径</button>
-            <button class="secondary-button" @click="createLearningPlan">制定学习计划</button>
+            <button class="primary-button" @click="createLearningPlan">制定学习计划</button>
           </div>
         </div>
       </div>

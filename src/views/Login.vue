@@ -525,11 +525,9 @@ const handleEmailLogin = async (formEl: any) => {
         if (response.data.code === 200 && response.data.data) {
           localStorage.setItem('token', response.data.data)
 
-          // 登录成功后立即获取用户信息并更新用户状态
           try {
             const userResponse = await getUser()
             if (userResponse.data) {
-              // 更新用户信息到 store，包括角色信息
               userStore.setUserInfo(userResponse.data)
             }
           } catch (userError) {
@@ -540,17 +538,8 @@ const handleEmailLogin = async (formEl: any) => {
           router.push(router.currentRoute.value.query.redirect?.toString() || '/dashboard')
         }
       } catch (error: any) {
-        let errorMessage = '登录失败，请检查邮箱和验证码'
-        if (error.response && error.response.data) {
-          if (error.response.data.message.includes('邮箱参数错误')) {
-            errorMessage = '请输入正确的邮箱地址'
-          } else if (error.response.data.message.includes('验证码错误')) {
-            errorMessage = '请输入正确的验证码'
-          } else if (error.response.data.message.includes('账号不存在')) {
-            errorMessage = '账号不存在，请注册'
-          }
-          message.error(errorMessage)
-        }
+        const errorMessage = error.response?.data?.message || '登录失败，请检查邮箱和验证码'
+        message.error(errorMessage)
       } finally {
         loading.value = false
       }

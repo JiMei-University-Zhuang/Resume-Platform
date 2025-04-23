@@ -22,14 +22,14 @@
         <a-row :gutter="24">
           <a-col :span="12">
             <!-- 用户名 -->
-            <a-form-item label="用户名" name="username">
-              <a-input v-model:value="userForm.username" placeholder="请输入用户名" />
+            <a-form-item label="账号" name="username">
+              <a-input v-model:value="userForm.username" placeholder="请输入账号" />
             </a-form-item>
           </a-col>
           <a-col :span="12">
             <!-- 姓名 -->
-            <a-form-item label="姓名" name="name">
-              <a-input v-model:value="userForm.name" placeholder="请输入姓名" />
+            <a-form-item label="昵称" name="name">
+              <a-input v-model:value="userForm.name" placeholder="请输入昵称" />
             </a-form-item>
           </a-col>
         </a-row>
@@ -55,8 +55,7 @@
             <a-form-item label="性别" name="sex">
               <a-radio-group v-model:value="userForm.sex">
                 <a-radio :value="1">男</a-radio>
-                <a-radio :value="0">女</a-radio>
-                <a-radio :value="2">保密</a-radio>
+                <a-radio :value="2">女</a-radio>
               </a-radio-group>
             </a-form-item>
           </a-col>
@@ -245,7 +244,10 @@ const submitForm = () => {
             goBack()
           })
           .catch(error => {
-            message.error(`更新用户失败: ${error.message || '未知错误'}`)
+            console.error('更新用户错误详情:', error)
+            message.error(
+              `更新用户失败: ${error.message || error.response?.data?.message || error.response?.data?.msg || JSON.stringify(error.response?.data) || '未知错误'}`
+            )
           })
           .finally(() => {
             loading.value = false
@@ -258,8 +260,9 @@ const submitForm = () => {
             goBack()
           })
           .catch(error => {
+            console.error(`${isEdit.value ? '更新' : '创建'}用户错误详情:`, error)
             message.error(
-              `${isEdit.value ? '更新' : '创建'}用户失败: ${error.message || '未知错误'}`
+              `${isEdit.value ? '更新' : '创建'}用户失败: ${error.message || error.response?.data?.message || error.response?.data?.msg || JSON.stringify(error.response?.data) || '未知错误'}`
             )
           })
           .finally(() => {

@@ -8,9 +8,15 @@
           <el-icon><Document /></el-icon>
           切换模板
         </el-button>
-        <el-button type="success" size="large" @click="exportPDF">
+        <el-button
+          type="success"
+          size="large"
+          @click="exportPDF"
+          :loading="exporting"
+          :disabled="exporting"
+        >
           <el-icon><Download /></el-icon>
-          导出PDF
+          {{ exporting ? '导出中...' : '导出PDF' }}
         </el-button>
         <el-button type="warning" size="large" @click="previewResume">
           <el-icon><View /></el-icon>
@@ -328,8 +334,71 @@
     </el-row>
 
     <el-dialog v-model="analysisDialogVisible" title="AI 简历分析" width="50%">
-      <div v-loading="analyzing">
-        <div v-if="!analyzing && aiSuggestions">
+      <div class="analysis-container">
+        <div v-if="analyzing" class="analysis-loading">
+          <div class="analysis-steps">
+            <div
+              class="analysis-step"
+              :class="{ active: analysisStep >= 1, completed: analysisStep > 1 }"
+            >
+              <div class="step-icon">
+                <el-icon v-if="analysisStep > 1"><Check /></el-icon>
+                <span v-else>1</span>
+              </div>
+              <div class="step-content">
+                <h4>内容提取</h4>
+                <p>AI 正在提取您的简历内容...</p>
+              </div>
+            </div>
+            <div
+              class="analysis-step"
+              :class="{ active: analysisStep >= 2, completed: analysisStep > 2 }"
+            >
+              <div class="step-icon">
+                <el-icon v-if="analysisStep > 2"><Check /></el-icon>
+                <span v-else>2</span>
+              </div>
+              <div class="step-content">
+                <h4>行业分析</h4>
+                <p>评估您的简历与目标行业的匹配度...</p>
+              </div>
+            </div>
+            <div
+              class="analysis-step"
+              :class="{ active: analysisStep >= 3, completed: analysisStep > 3 }"
+            >
+              <div class="step-icon">
+                <el-icon v-if="analysisStep > 3"><Check /></el-icon>
+                <span v-else>3</span>
+              </div>
+              <div class="step-content">
+                <h4>内容优化</h4>
+                <p>生成针对性的简历优化建议...</p>
+              </div>
+            </div>
+          </div>
+
+          <el-progress
+            :percentage="analysisProgress"
+            :stroke-width="12"
+            :format="formatAnalysisProgress"
+          />
+
+          <div class="analysis-tips">
+            <h3>分析进行中，请稍候...</h3>
+            <p>AI 正在全面分析您的简历，这大约需要 30-60 秒的时间。</p>
+            <div class="tips-content">
+              <h4>等待期间，您可以了解：</h4>
+              <ul>
+                <li>我们的 AI 会分析您的专业技能、工作经历和教育背景，评估它们的展示效果</li>
+                <li>系统会检查您的简历与目标岗位的匹配度，提供针对性优化建议</li>
+                <li>AI 将提供具体的修改建议，包括语言表达、内容结构和重点突出</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div v-else-if="aiSuggestions" class="analysis-results">
           <el-alert
             :title="aiSuggestions.summary"
             type="success"
@@ -411,7 +480,13 @@
       <template #footer>
         <span class="dialog-footer">
           <el-button @click="analysisDialogVisible = false">关闭</el-button>
-          <el-button type="primary" @click="applyAISuggestions"> 应用 AI 建议 </el-button>
+          <el-button
+            type="primary"
+            @click="applyAISuggestions"
+            :disabled="analyzing || !aiSuggestions"
+          >
+            应用 AI 建议
+          </el-button>
         </span>
       </template>
     </el-dialog>
@@ -438,7 +513,7 @@
 <script setup lang="ts">
 import { templateConfig } from '@/components/Template/templateConfig'
 import { analyzeResume as analyzeResumeApi } from '@/api/template'
-import { View, OfficeBuilding, Document, Download, Delete } from '@element-plus/icons-vue'
+import { View, OfficeBuilding, Document, Download, Delete, Check } from '@element-plus/icons-vue'
 import templateAdapter from '@/components/Template/template-adapter'
 
 import { ref, watch, onMounted, nextTick } from 'vue'
@@ -832,6 +907,13 @@ const analysisDialogVisible = ref(false)
 const activeCollapse = ref(['1', '2', '3'])
 const aiSuggestions = ref<AISuggestions | null>(null)
 const resumePreview = ref<HTMLDivElement | null>(null)
+const analysisStep = ref(1)
+const analysisProgress = ref(0)
+const analysisTimer = ref<number | null>(null) // 使用number类型而非NodeJS.Timeout
+const exporting = ref(false) // 添加导出PDF状态
+const formatAnalysisProgress = (percentage: number) => {
+  return percentage < 100 ? `${percentage.toFixed(2)}%` : '完成'
+}
 
 // 根据路由参数加载对应的模板
 const selectTemplate = async (template: string) => {
@@ -938,6 +1020,9 @@ const removeExperience = (index: number) => {
 // 完全替换 exportPDF 函数
 const exportPDF = async () => {
   if (!resumePreview.value) return
+
+  // 设置导出状态为正在导出
+  exporting.value = true
 
   try {
     message.info('正在生成PDF，请稍候...')
@@ -1059,12 +1144,42 @@ const exportPDF = async () => {
   } catch (error: any) {
     console.error('PDF导出失败:', error)
     message.error(`PDF导出失败: ${error.message || '未知错误'}`)
+  } finally {
+    // 无论成功还是失败，都将导出状态重置
+    exporting.value = false
   }
 }
 
 const analyzeResume = async () => {
   analysisDialogVisible.value = true
   analyzing.value = true
+  aiSuggestions.value = null
+
+  // 重置进度和步骤
+  analysisStep.value = 1
+  analysisProgress.value = 0
+
+  // 模拟进度
+  let progressInterval = 1000 // 每秒更新进度
+  let totalTime = 35000 // 预计总时间 35 秒
+  let progressStep = 100 / (totalTime / progressInterval) // 每次更新的进度百分比
+
+  if (analysisTimer.value) {
+    clearInterval(analysisTimer.value)
+  }
+
+  analysisTimer.value = setInterval(() => {
+    if (analysisProgress.value < 95) {
+      analysisProgress.value += progressStep
+
+      // 更新分析步骤
+      if (analysisProgress.value > 30 && analysisStep.value < 2) {
+        analysisStep.value = 2
+      } else if (analysisProgress.value > 60 && analysisStep.value < 3) {
+        analysisStep.value = 3
+      }
+    }
+  }, progressInterval)
 
   try {
     // 准备数据 - 将Date对象转换为字符串
@@ -1097,6 +1212,12 @@ const analyzeResume = async () => {
       // 转换 API 响应数据中的字符串数字为实际数字
       const apiData = response.data.aiSuggestions
 
+      // 完成最后一个步骤
+      analysisStep.value = 4
+
+      // 设置进度为100%
+      analysisProgress.value = 100
+
       aiSuggestions.value = {
         summary: apiData.summary,
         score: typeof apiData.score === 'string' ? parseFloat(apiData.score) : apiData.score,
@@ -1114,6 +1235,11 @@ const analyzeResume = async () => {
     console.error('分析失败:', error)
     message.error('简历分析失败，请稍后再试')
   } finally {
+    if (analysisTimer.value) {
+      clearInterval(analysisTimer.value)
+      analysisTimer.value = null
+    }
+
     analyzing.value = false
   }
 }
@@ -1425,6 +1551,7 @@ defineExpose({
   display: flex;
   align-items: center;
   gap: 10px;
+  color: white !important;
 }
 
 .page-title::before {
@@ -2143,5 +2270,168 @@ defineExpose({
   background-color: #ebf5ff;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
   transform: translateY(-2px);
+}
+
+.analysis-container {
+  min-height: 300px;
+
+  .analysis-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+
+    .analysis-steps {
+      display: flex;
+      width: 100%;
+      margin-bottom: 30px;
+
+      .analysis-step {
+        flex: 1;
+        display: flex;
+        position: relative;
+
+        &:not(:last-child):after {
+          content: '';
+          position: absolute;
+          top: 16px;
+          left: 50%;
+          width: 100%;
+          height: 2px;
+          background-color: #e0e0e0;
+          z-index: 0;
+        }
+
+        &.active .step-icon {
+          background-color: #409eff;
+          color: white;
+        }
+
+        &.completed .step-icon {
+          background-color: #67c23a;
+          color: white;
+        }
+
+        .step-icon {
+          width: 32px;
+          height: 32px;
+          border-radius: 50%;
+          background-color: #f0f0f0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin-right: 8px;
+          z-index: 1;
+          transition: all 0.3s;
+        }
+
+        .step-content {
+          h4 {
+            margin: 0 0 5px 0;
+            font-size: 14px;
+          }
+
+          p {
+            margin: 0;
+            font-size: 12px;
+            color: #909399;
+          }
+        }
+      }
+    }
+
+    .el-progress {
+      width: 100%;
+      margin-bottom: 20px;
+    }
+
+    .analysis-tips {
+      text-align: center;
+      margin-top: 20px;
+
+      h3 {
+        font-size: 18px;
+        margin-bottom: 10px;
+      }
+
+      p {
+        color: #606266;
+        margin-bottom: 20px;
+      }
+
+      .tips-content {
+        text-align: left;
+        background-color: #f9f9f9;
+        border-radius: 6px;
+        padding: 15px;
+
+        h4 {
+          font-size: 16px;
+          margin-top: 0;
+          margin-bottom: 10px;
+        }
+
+        ul {
+          padding-left: 20px;
+
+          li {
+            margin-bottom: 8px;
+            line-height: 1.5;
+          }
+        }
+      }
+    }
+  }
+
+  .analysis-results {
+    .mb-20 {
+      margin-bottom: 20px;
+    }
+
+    .revision-item {
+      margin-bottom: 20px;
+
+      h4 {
+        margin-top: 0;
+        margin-bottom: 10px;
+        padding-bottom: 5px;
+        border-bottom: 1px solid #eee;
+      }
+    }
+
+    .revision-comparison {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 15px;
+
+      .original-content,
+      .optimized-content {
+        flex: 1;
+        padding: 12px;
+        border-radius: 6px;
+
+        h5 {
+          margin-top: 0;
+          margin-bottom: 8px;
+        }
+
+        p {
+          margin: 0;
+        }
+      }
+
+      .original-content {
+        background-color: #f5f7fa;
+      }
+
+      .optimized-content {
+        background-color: #f0f9eb;
+      }
+    }
+
+    .industry-match-item {
+      margin-bottom: 15px;
+    }
+  }
 }
 </style>

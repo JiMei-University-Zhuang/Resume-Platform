@@ -48,7 +48,7 @@
         </el-badge>
       </div>
 
-      <!-- 文档中心 -->
+      <!-- 官网 -->
       <div
         id="header-documentation"
         class="header-item"
@@ -56,7 +56,7 @@
         :title="t('header.documentation')"
       >
         <el-icon :size="18">
-          <Document />
+          <ChromeFilled />
         </el-icon>
       </div>
 
@@ -215,7 +215,7 @@ import {
   FullScreen,
   Aim,
   Bell,
-  Document,
+  ChromeFilled,
   SwitchButton,
   InfoFilled,
   WarningFilled,

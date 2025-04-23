@@ -166,9 +166,6 @@
         </div>
 
         <div class="action-buttons">
-          <button class="explore-button" @click="$emit('explore-career', selectedCareer)">
-            <Icon name="compass" /> 探索职业路径
-          </button>
           <button class="ai-advice-button" @click="getAIAdvice">
             <Icon name="message-circle" /> 获取AI建议
           </button>

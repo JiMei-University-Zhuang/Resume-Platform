@@ -29,7 +29,7 @@
           </el-button>
           <el-button type="success" size="large" class="tour-btn" @click="startTour">
             <el-icon><Guide /></el-icon>
-            {{ t('dashboard.guidedTour') || '功能引导' }}
+            {{ t('dashboard.guidedTour') }}
           </el-button>
           <el-button type="default" size="large" class="learn-more-btn" @click="scrollToFeatures">
             {{ t('dashboard.learnMore') }}

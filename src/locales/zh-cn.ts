@@ -63,7 +63,8 @@ export default {
     developmentPlan: '发展规划',
     careerRecommendation: '职业推荐',
     dataScreen: '数据大屏',
-    learningPlan: '学习计划'
+    learningPlan: '学习计划',
+    careerMap: '职业星图'
   },
   sider: {
     navigation: '功能导航',

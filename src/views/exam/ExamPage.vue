@@ -383,6 +383,9 @@ const answerStatus = computed(() => {
   })
 })
 const analyzeQuestionSSE = (questionId: string, index: number): void => {
+  // 初始化当前索引的分析结果为空字符串
+  essayAnalysisResults.value[index] = ''
+
   // 获取 token
   const token = localStorage.getItem('token') || ''
 
@@ -454,7 +457,9 @@ const analyzeQuestionSSE = (questionId: string, index: number): void => {
               }
 
               // 更新解析结果
-              essayAnalysisResults.value[index] += data
+              if (data) {
+                essayAnalysisResults.value[index] = (essayAnalysisResults.value[index] || '') + data
+              }
             }
           }
 
