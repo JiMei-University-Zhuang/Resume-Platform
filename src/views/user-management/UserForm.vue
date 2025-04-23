@@ -55,8 +55,7 @@
             <a-form-item label="性别" name="sex">
               <a-radio-group v-model:value="userForm.sex">
                 <a-radio :value="1">男</a-radio>
-                <a-radio :value="0">女</a-radio>
-                <a-radio :value="2">保密</a-radio>
+                <a-radio :value="2">女</a-radio>
               </a-radio-group>
             </a-form-item>
           </a-col>

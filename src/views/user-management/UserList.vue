@@ -42,27 +42,6 @@
         </a-form-item>
       </a-form>
 
-      <!-- 筛选条件标签 -->
-      <div v-if="hasActiveFilters" class="filter-tags">
-        <span class="filter-label">筛选条件:</span>
-        <a-space>
-          <a-tag v-if="searchForm.username" closable @close="clearUsernameFilter" color="blue">
-            <template #icon><user-outlined /></template>
-            账号: {{ searchForm.username }}
-          </a-tag>
-          <a-tag
-            v-if="searchForm.role"
-            closable
-            @close="clearRoleFilter"
-            :color="getRoleTagColor(searchForm.role)"
-          >
-            <template #icon><team-outlined /></template>
-            角色: {{ getRoleDisplayName(searchForm.role) }}
-          </a-tag>
-          <a-button type="link" @click="resetSearch" size="small"> 清除全部 </a-button>
-        </a-space>
-      </div>
-
       <!-- 用户列表表格 -->
       <a-table
         :columns="columns"
@@ -74,6 +53,7 @@
         bordered
         size="middle"
         class="user-table"
+        align="center"
       >
         <template #bodyCell="{ column, record }">
           <template v-if="column.key === 'avatar'">
@@ -218,9 +198,10 @@
           <a-col :span="12">
             <!-- 角色 -->
             <a-form-item label="角色" name="role">
-              <a-select v-model:value="addUserForm.role" placeholder="请选择角色">
-                <a-select-option value="ADMIN">管理员</a-select-option>
-                <a-select-option value="USER">普通用户</a-select-option>
+              <a-select v-model:value="addUserForm.role" placeholder="请选择角色" :options="[
+                { value: 'ADMIN', label: '管理员' },
+                { value: 'USER', label: '普通用户' }
+              ]">
               </a-select>
             </a-form-item>
           </a-col>
@@ -270,8 +251,6 @@ import {
   RedoOutlined,
   EditOutlined,
   DeleteOutlined,
-  UserOutlined,
-  TeamOutlined,
   InboxOutlined
 } from '@ant-design/icons-vue'
 import { getUserList, addUser, removeUser } from '@/api/user'
@@ -283,43 +262,50 @@ const columns = [
     title: 'ID',
     dataIndex: 'id',
     key: 'id',
-    width: 80
+    width: 80,
+    align: 'center'
   },
   {
     title: '账号',
     dataIndex: 'username',
     key: 'username',
-    width: 120
+    width: 120,
+    align: 'center'
   },
   {
     title: '昵称',
     dataIndex: 'name',
     key: 'name',
-    width: 120
+    width: 120,
+    align: 'center'
   },
   {
     title: '头像',
     dataIndex: 'avatar',
     key: 'avatar',
-    width: 100
+    width: 100,
+    align: 'center'
   },
   {
     title: '邮箱',
     dataIndex: 'email',
     key: 'email',
-    width: 180
+    width: 180,
+    align: 'center'
   },
   {
     title: '电话',
     dataIndex: 'telephone',
     key: 'telephone',
-    width: 130
+    width: 130,
+    align: 'center'
   },
   {
     title: '角色',
     dataIndex: 'role',
     key: 'role',
     width: 100,
+    align: 'center',
     filters: [
       { text: '管理员', value: 'ADMIN' },
       { text: '普通用户', value: 'USER' }
@@ -330,13 +316,15 @@ const columns = [
     title: '创建时间',
     dataIndex: 'createTime',
     key: 'createTime',
-    width: 180
+    width: 180,
+    align: 'center'
   },
   {
     title: '操作',
     key: 'action',
     fixed: 'right',
-    width: 200
+    width: 200,
+    align: 'center'
   }
 ]
 
@@ -489,32 +477,10 @@ const hasActiveFilters = computed(() => {
   return !!searchForm.username || !!searchForm.role
 })
 
-// 获取角色显示名称
-const getRoleDisplayName = (role: string): string => {
-  return role === 'ADMIN' ? '管理员' : '普通用户'
-}
-
-// 获取角色标签颜色
-const getRoleTagColor = (role: string): string => {
-  return role === 'ADMIN' ? 'green' : 'blue'
-}
-
 // 角色变更处理
 const handleRoleChange = () => {
   // 如果需要立即触发搜索，取消下面的注释
   // handleSearch()
-}
-
-// 清除用户名筛选
-const clearUsernameFilter = () => {
-  searchForm.username = ''
-  handleSearch()
-}
-
-// 清除角色筛选
-const clearRoleFilter = () => {
-  searchForm.role = undefined
-  handleSearch()
 }
 
 // 获取用户列表数据
@@ -663,7 +629,6 @@ html.dark .preview-label {
   color: rgba(255, 255, 255, 0.65);
 }
 
-/* Fix for Ant Design Vue and Element Plus style conflicts */
 .user-list-container {
   /* Reset Element Plus styles */
   .ant-btn {
@@ -739,5 +704,12 @@ html.dark .filter-label {
 
 html.dark .empty-wrapper p {
   color: rgba(255, 255, 255, 0.45);
+}
+.ant-btn-primary {
+  color: #fff;
+  background: #1890ff !important;
+  border-color: #1890ff;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.12);
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.045);
 }
 </style>
