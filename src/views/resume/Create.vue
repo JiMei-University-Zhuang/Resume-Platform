@@ -912,7 +912,7 @@ const analysisProgress = ref(0)
 const analysisTimer = ref<number | null>(null) // 使用number类型而非NodeJS.Timeout
 const exporting = ref(false) // 添加导出PDF状态
 const formatAnalysisProgress = (percentage: number) => {
-  return percentage < 100 ? `${percentage}%` : '完成'
+  return percentage < 100 ? `${percentage.toFixed(2)}%` : '完成'
 }
 
 // 根据路由参数加载对应的模板
