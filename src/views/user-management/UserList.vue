@@ -165,8 +165,7 @@
             <a-form-item label="性别" name="sex">
               <a-radio-group v-model:value="addUserForm.sex">
                 <a-radio :value="1">男</a-radio>
-                <a-radio :value="0">女</a-radio>
-                <a-radio :value="2">保密</a-radio>
+                <a-radio :value="2">女</a-radio>
               </a-radio-group>
             </a-form-item>
           </a-col>
@@ -198,10 +197,14 @@
           <a-col :span="12">
             <!-- 角色 -->
             <a-form-item label="角色" name="role">
-              <a-select v-model:value="addUserForm.role" placeholder="请选择角色" :options="[
-                { value: 'ADMIN', label: '管理员' },
-                { value: 'USER', label: '普通用户' }
-              ]">
+              <a-select
+                v-model:value="addUserForm.role"
+                placeholder="请选择角色"
+                :options="[
+                  { value: 'ADMIN', label: '管理员' },
+                  { value: 'USER', label: '普通用户' }
+                ]"
+              >
               </a-select>
             </a-form-item>
           </a-col>
