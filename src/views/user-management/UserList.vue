@@ -47,7 +47,16 @@
         :columns="columns"
         :data-source="userList"
         :loading="loading"
-        :pagination="false"
+        :pagination="{
+          current: currentPage,
+          pageSize: pageSize,
+          total: total,
+          showTotal: (total: number) => `共 ${total} 条记录`,
+          showSizeChanger: true,
+          pageSizeOptions: ['10', '20', '50', '100'],
+          onChange: handleCurrentChange,
+          onShowSizeChange: handleSizeChange
+        }"
         row-key="id"
         :scroll="{ x: 1200 }"
         bordered
@@ -97,20 +106,6 @@
           </div>
         </template>
       </a-table>
-
-      <!-- 分页 -->
-      <div class="pagination-container">
-        <a-pagination
-          v-model:current="currentPage"
-          v-model:pageSize="pageSize"
-          :total="total"
-          :show-total="(total: number) => `共 ${total} 条记录`"
-          :page-size-options="['10', '20', '50', '100']"
-          show-size-changer
-          @change="handleCurrentChange"
-          @showSizeChange="handleSizeChange"
-        />
-      </div>
     </a-card>
 
     <!-- 添加用户弹窗 -->
@@ -163,18 +158,18 @@
           <a-col :span="12">
             <!-- 性别 -->
             <a-form-item label="性别" name="sex">
-              <a-radio-group v-model:value="addUserForm.sex">
-                <a-radio :value="1">男</a-radio>
-                <a-radio :value="2">女</a-radio>
+              <a-radio-group v-model:value="addUserForm.sex" button-style="solid" class="radio-button-group">
+                <a-radio-button :value="1">男</a-radio-button>
+                <a-radio-button :value="2">女</a-radio-button>
               </a-radio-group>
             </a-form-item>
           </a-col>
           <a-col :span="12">
             <!-- 状态 -->
             <a-form-item label="状态" name="enabled">
-              <a-radio-group v-model:value="addUserForm.enabled">
-                <a-radio :value="1">启用</a-radio>
-                <a-radio :value="0">禁用</a-radio>
+              <a-radio-group v-model:value="addUserForm.enabled" button-style="solid" class="radio-button-group">
+                <a-radio-button :value="1">启用</a-radio-button>
+                <a-radio-button :value="0">禁用</a-radio-button>
               </a-radio-group>
             </a-form-item>
           </a-col>
@@ -186,10 +181,6 @@
             <a-form-item
               label="密码"
               name="password"
-              :rules="[
-                { required: true, message: '请输入密码' },
-                { min: 6, message: '密码长度至少6个字符' }
-              ]"
             >
               <a-input-password v-model:value="addUserForm.password" placeholder="请输入密码" />
             </a-form-item>
@@ -197,15 +188,10 @@
           <a-col :span="12">
             <!-- 角色 -->
             <a-form-item label="角色" name="role">
-              <a-select
-                v-model:value="addUserForm.role"
-                placeholder="请选择角色"
-                :options="[
-                  { value: 'ADMIN', label: '管理员' },
-                  { value: 'USER', label: '普通用户' }
-                ]"
-              >
-              </a-select>
+              <a-radio-group v-model:value="addUserForm.role" button-style="solid" class="radio-button-group">
+                <a-radio-button value="ADMIN">管理员</a-radio-button>
+                <a-radio-button value="USER">普通用户</a-radio-button>
+              </a-radio-group>
             </a-form-item>
           </a-col>
         </a-row>
@@ -387,9 +373,9 @@ const addUserForm = reactive({
   avatar: '',
   email: '',
   telephone: '',
-  role: 'USER',
-  sex: 0, // 默认性别值
-  enabled: 1 // 默认启用状态
+  role: 'USER',  // 默认为普通用户
+  sex: 1,
+  enabled: 1
 })
 
 // 用户表单验证规则
@@ -405,11 +391,31 @@ const userFormRules = {
   ],
   role: [{ required: true, message: '请选择角色', trigger: 'change' }],
   sex: [{ required: true, message: '请选择性别', trigger: 'change' }],
-  enabled: [{ required: true, message: '请选择状态', trigger: 'change' }]
+  enabled: [{ required: true, message: '请选择状态', trigger: 'change' }],
+  password: [
+    { required: true, message: '请输入密码', trigger: 'blur' },
+    { min: 6, message: '密码长度至少6个字符', trigger: 'blur' }
+  ]
 }
 
 // 添加用户
 const handleAddUser = () => {
+  // 重置表单数据为初始值
+  Object.assign(addUserForm, {
+    username: '',
+    password: '',
+    name: '',
+    avatar: '',
+    email: '',
+    telephone: '',
+    role: 'USER',  // 默认为普通用户
+    sex: 1,
+    enabled: 1
+  })
+  
+  // 打印检查初始化后的表单值
+  console.log('打开添加用户对话框，初始化数据:', JSON.stringify(addUserForm))
+  
   addUserModalVisible.value = true
 }
 
@@ -421,13 +427,31 @@ const handleAddUserCancel = () => {
 
 // 提交添加用户表单
 const handleAddUserSubmit = () => {
+  // 打印检查提交前的表单值
+  console.log('提交前的表单数据:', JSON.stringify(addUserForm))
+  
   addFormRef.value
     .validate()
     .then(() => {
       submitting.value = true
+      
+      // 创建一个新对象而不是直接使用引用
+      const submitData = {
+        username: addUserForm.username,
+        password: addUserForm.password,
+        name: addUserForm.name,
+        avatar: addUserForm.avatar,
+        email: addUserForm.email,
+        telephone: addUserForm.telephone,
+        role: addUserForm.role,
+        sex: addUserForm.sex,
+        enabled: addUserForm.enabled
+      }
+      
+      console.log('实际提交的数据:', JSON.stringify(submitData))
 
       // 使用真实API添加用户
-      addUser(addUserForm)
+      addUser(submitData)
         .then(() => {
           message.success(`用户 ${addUserForm.username} 创建成功！`)
           addUserModalVisible.value = false
@@ -435,7 +459,8 @@ const handleAddUserSubmit = () => {
           fetchUserList() // 重新加载数据
         })
         .catch(error => {
-          message.error(`创建用户失败: ${error.message || '未知错误'}`)
+          console.error('创建用户错误详情:', error)
+          message.error(`创建用户失败: ${error.message || error.response?.data?.message || error.response?.data?.msg || JSON.stringify(error.response?.data) || '未知错误'}`)
         })
         .finally(() => {
           submitting.value = false
@@ -470,7 +495,8 @@ const handleDeleteUser = (user: User) => {
       fetchUserList() // 重新加载数据
     })
     .catch(error => {
-      message.error(`删除用户失败: ${error.message || '未知错误'}`)
+      console.error('删除用户错误详情:', error)
+      message.error(`删除用户失败: ${error.message || error.response?.data?.message || error.response?.data?.msg || JSON.stringify(error.response?.data) || '未知错误'}`)
       loading.value = false
     })
 }
@@ -620,12 +646,15 @@ html.dark .search-form {
   display: flex;
   align-items: center;
   margin: 16px 0 8px;
+  justify-content: center;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .preview-label {
-  margin-right: 16px;
   font-size: 14px;
   color: rgba(0, 0, 0, 0.65);
+  margin-bottom: 8px;
 }
 
 html.dark .preview-label {
@@ -714,5 +743,25 @@ html.dark .empty-wrapper p {
   border-color: #1890ff;
   text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.12);
   box-shadow: 0 2px 0 rgba(0, 0, 0, 0.045);
+}
+
+.user-form-container .ant-radio-group {
+  width: 100%;
+  display: flex;
+}
+
+.user-form-container .ant-radio-button-wrapper {
+  flex: 1;
+  text-align: center;
+}
+
+/* 按钮组样式 */
+.radio-button-group {
+  width: 100%;
+}
+
+.radio-button-group .ant-radio-button-wrapper {
+  width: 50%;
+  text-align: center;
 }
 </style>
