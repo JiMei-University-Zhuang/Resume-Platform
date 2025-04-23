@@ -84,7 +84,7 @@
       size="350px"
     >
       <div class="notification-header">
-        <span>{{ unreadCount }}{{ t('header.unread', { count: unreadCount }) }}</span>
+        <span>{{ t('header.unread', { count: unreadCount }) }}</span>
         <el-button type="primary" link @click="markAllAsRead">{{
           t('header.markAllRead')
         }}</el-button>
