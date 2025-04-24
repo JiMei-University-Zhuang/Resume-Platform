@@ -78,7 +78,7 @@
             </template>
           </div>
           <template #footer>
-            <el-button type="primary" @click="startExam" class="saveBtn">开始考试</el-button>
+            <el-button type="primary" @click="startExam" class="saveBtn">开始练习</el-button>
           </template>
         </el-dialog>
       </el-card>
@@ -462,7 +462,6 @@ onMounted(() => {
   border-radius: 8px;
   padding: 12px 28px;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(94, 200, 156, 0.2);
 }
 
 .exam-button:hover {
