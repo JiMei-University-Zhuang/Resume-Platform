@@ -702,21 +702,36 @@ const calculateProgress = computed(() => {
 
   questions.value.forEach((question, index) => {
     if (isClozeQuestion(question) && question.clozeOptionInfos) {
-      answered += userClozeAnswers.value[index]?.filter(a => a).length || 0
+      // 计算完型填空题中回答的题目数
+      const answeredCount = userClozeAnswers.value[index]?.filter(a => a && a.trim() !== '').length || 0
+      answered += answeredCount
       total += question.clozeOptionInfos.length
     } else if (isReadingQuestion(question) && question.readingOptionInfos) {
-      answered += userReadingAnswers.value[index]?.filter(a => a).length || 0
+      // 计算阅读理解题中回答的题目数
+      const answeredCount = userReadingAnswers.value[index]?.filter(a => a && a.trim() !== '').length || 0
+      answered += answeredCount
       total += question.readingOptionInfos.length
     } else if (isMatchingQuestion(question) && question.matchingOptionInfos) {
-      answered += userMatchingAnswers.value[index]?.filter(a => a).length || 0
+      // 计算匹配题中回答的题目数
+      const answeredCount = userMatchingAnswers.value[index]?.filter(a => a && a.trim() !== '').length || 0
+      answered += answeredCount
       total += question.matchingOptionInfos.length
     } else if (isTranslationQuestion(question) && question.translationOptionInfos) {
-      answered += userTranslationAnswers.value[index]?.filter(a => a && a.trim()).length || 0
+      // 计算翻译题中回答的题目数
+      const answeredCount = userTranslationAnswers.value[index]?.filter(a => a && a.trim() !== '').length || 0
+      answered += answeredCount
       total += question.translationOptionInfos.length
-    } else if (userAnswers.value[index]) {
-      answered += 1
+    } else if (isPoliticsSingleChoice(question)) {
+      // 计算政治单选题是否已回答
+      answered += userPoliticsSingleAnswers.value[index] ? 1 : 0
+      total += 1
+    } else if (isPoliticsMultipleChoice(question)) {
+      // 计算政治多选题是否已回答
+      answered += userPoliticsMultiAnswers.value[index]?.length > 0 ? 1 : 0
       total += 1
     } else {
+      // 普通题目
+      answered += userAnswers.value[index]?.trim() ? 1 : 0
       total += 1
     }
   })
@@ -895,33 +910,73 @@ const initializeAnswers = () => {
 // 检查是否有未回答的题目
 const hasUnansweredQuestions = () => {
   let unansweredCount = 0
+  let debugInfo = []
 
   questions.value.forEach((question, index) => {
+    let answered = false;
+    
     if (isClozeQuestion(question) && question.clozeOptionInfos) {
-      const answered = userClozeAnswers.value[index]?.filter(a => a).length || 0
-      unansweredCount += question.clozeOptionInfos.length - answered
+      // 统计未回答的完型填空小题数量
+      const answeredCount = userClozeAnswers.value[index]?.filter(a => a && a.trim() !== '').length || 0
+      
+      // 只有当所有小题都回答了，才算这道大题回答完毕
+      if (answeredCount < question.clozeOptionInfos.length) {
+        unansweredCount += 1;
+        debugInfo.push(`完型填空题${index+1}未完成: ${answeredCount}/${question.clozeOptionInfos.length}`);
+      }
     } else if (isReadingQuestion(question) && question.readingOptionInfos) {
-      const answered = userReadingAnswers.value[index]?.filter(a => a).length || 0
-      unansweredCount += question.readingOptionInfos.length - answered
+      // 统计未回答的阅读理解小题数量
+      const answeredCount = userReadingAnswers.value[index]?.filter(a => a && a.trim() !== '').length || 0
+      
+      // 只有当所有小题都回答了，才算这道大题回答完毕
+      if (answeredCount < question.readingOptionInfos.length) {
+        unansweredCount += 1;
+        debugInfo.push(`阅读理解题${index+1}未完成: ${answeredCount}/${question.readingOptionInfos.length}`);
+      }
     } else if (isMatchingQuestion(question) && question.matchingOptionInfos) {
-      const answered = userMatchingAnswers.value[index]?.filter(a => a).length || 0
-      unansweredCount += question.matchingOptionInfos.length - answered
+      // 统计未回答的匹配题小题数量
+      const answeredCount = userMatchingAnswers.value[index]?.filter(a => a && a.trim() !== '').length || 0
+      
+      // 只有当所有小题都回答了，才算这道大题回答完毕
+      if (answeredCount < question.matchingOptionInfos.length) {
+        unansweredCount += 1;
+        debugInfo.push(`匹配题${index+1}未完成: ${answeredCount}/${question.matchingOptionInfos.length}`);
+      }
     } else if (isTranslationQuestion(question) && question.translationOptionInfos) {
-      const answered = userTranslationAnswers.value[index]?.filter(a => a && a.trim()).length || 0
-      unansweredCount += question.translationOptionInfos.length - answered
-    } else if (!userAnswers.value[index]?.trim()) {
-      unansweredCount += 1
-    } else if (isPoliticsSingleChoice(question) && !userPoliticsSingleAnswers.value[index]) {
-      unansweredCount += 1
-    } else if (
-      isPoliticsMultipleChoice(question) &&
-      (!userPoliticsMultiAnswers.value[index] || userPoliticsMultiAnswers.value[index].length === 0)
-    ) {
-      unansweredCount += 1
+      // 统计未回答的翻译题小题数量
+      const answeredCount = userTranslationAnswers.value[index]?.filter(a => a && a.trim() !== '').length || 0
+      
+      // 只有当所有小题都回答了，才算这道大题回答完毕
+      if (answeredCount < question.translationOptionInfos.length) {
+        unansweredCount += 1;
+        debugInfo.push(`翻译题${index+1}未完成: ${answeredCount}/${question.translationOptionInfos.length}`);
+      }
+    } else if (isPoliticsSingleChoice(question)) {
+      // 政治单选题
+      answered = userPoliticsSingleAnswers.value[index] ? true : false;
+      if (!answered) {
+        unansweredCount += 1;
+        debugInfo.push(`政治单选题${index+1}未完成`);
+      }
+    } else if (isPoliticsMultipleChoice(question)) {
+      // 政治多选题
+      answered = userPoliticsMultiAnswers.value[index] && userPoliticsMultiAnswers.value[index].length > 0;
+      if (!answered) {
+        unansweredCount += 1;
+        debugInfo.push(`政治多选题${index+1}未完成`);
+      }
+    } else {
+      // 其他题型
+      answered = userAnswers.value[index]?.trim() ? true : false;
+      if (!answered) {
+        unansweredCount += 1;
+        debugInfo.push(`其他题型${index+1}未完成`);
+      }
     }
-  })
+  });
 
-  return unansweredCount
+  console.log('未完成题目详情:', debugInfo);
+  return unansweredCount;
 }
 
 // 提交答案
